@@ -14,7 +14,7 @@ namespace Data {
 namespace AddEvent {
 class FileManager;
 class InfoEvent;
-class SimulationGraphic; // need to remove
+//class SimulationGraphic; // need to remove
 class GraphicEvent;
 class View : public QDialog {
     Q_OBJECT
@@ -35,7 +35,7 @@ private slots:
 private:
     FileManager* _fileManager;
     InfoEvent* _infoEvent;
-    SimulationGraphic* _simulationGraphic; // need to remove
+//    SimulationGraphic* _simulationGraphic; // need to remove
     QScrollArea *_scrollArea;
 
     GraphicEvent* _graphicEvent;

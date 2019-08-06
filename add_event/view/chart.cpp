@@ -4,7 +4,8 @@
 #include <QtWidgets/QGraphicsView>
 
 Chart::Chart(QGraphicsItem *parent, Qt::WindowFlags wFlags)
-    : QChart(QChart::ChartTypeCartesian, parent, wFlags) {
+    : QChart(QChart::ChartTypeCartesian, parent, wFlags)
+{
     grabGesture(Qt::PanGesture);
     grabGesture(Qt::PinchGesture);
 }

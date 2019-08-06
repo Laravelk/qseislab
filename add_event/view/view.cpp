@@ -2,7 +2,7 @@
 
 #include "infoevent.h"
 #include "filemanager.h"
-#include "simulationgraphic.h" // TODO: need to remove
+//#include "simulationgraphic.h" // TODO: need to remove
 #include "graphicevent.h"
 
 #include <QBoxLayout>
@@ -19,10 +19,10 @@ View::View(QWidget *parent)
     :QDialog(parent),
       _fileManager(new FileManager(this)),
       _infoEvent(new InfoEvent(this)),
+      _scrollArea(new QScrollArea()),
       _graphicEvent(new GraphicEvent(this)),
       _addButton(new QPushButton("Add", this)),
-      _cancelButton(new QPushButton("Cancel",this)),
-      _scrollArea(new QScrollArea())
+      _cancelButton(new QPushButton("Cancel",this))
 {
 
     setWindowTitle("SeismWindow");

@@ -11,17 +11,16 @@ public:
     explicit SeismTrace();
     explicit SeismTrace(const QJsonObject&, std::unique_ptr<float[]>& ) noexcept(false);
 
-    int getSampleNum() const;
-    void setSampleNum(int);
-
     float getSampleInterval() const;
     void setSampleInterval(float);
 
-    int getCdpX() const;
-    void setCdpX(int);
+    float getPWaveArrival() const;
+    void setPWaveArrival(float);
 
-    int getCdpY() const;
-    void setCdpY(int);
+    float getSWaveArrival() const;
+    void setSWaveArrival(float);
+
+    float getMaxValue() const;
 
     unsigned getBufferSize() const;
 
@@ -31,12 +30,14 @@ public:
     QJsonObject& writeToJson(QJsonObject& ) const;
 
 private:
-    int _sampleNum{0};
     float _sampleInterval{0.0};
-    int _cdpX{0};
-    int _cdpY{0};
 
-//    int _dataFormat; // use later
+    float _pWaveArrival{0.0};
+    float _sWaveArrival{0.0};
+
+    float _maxValue{-1.0};
+
+//    int _dataFormat; // NOTE: use later
 
     unsigned _bufferSize{0};
     std::unique_ptr<float[]> _buffer;

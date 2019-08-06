@@ -50,7 +50,7 @@ WorkPage::WorkPage(QWidget* parent)
     setLayout(vLayout);
 }
 
-void WorkPage::updateProject(const std::unique_ptr<Data::SeismProject>& project)
+void WorkPage::updateProject(const std::unique_ptr<SeismProject>& project)
 {
     _infoProject->update(project);
 
@@ -105,15 +105,17 @@ void WorkPage::initEventsTable(QTableWidget* table)
     table->setColumnWidth(4,100);
 }
 
-void WorkPage::insertEventsInTable(const std::unique_ptr<Data::SeismProject>& project)
+void WorkPage::insertEventsInTable(const std::unique_ptr<SeismProject>& project)
 {
     for(const std::unique_ptr<SeismEvent>& event : project->getEvents()) {
         _eventsTable->insertRow(_eventsTable->rowCount());
 
-        _eventsTable->setItem(_eventsTable->rowCount()-1, 1, new QTableWidgetItem(QString::number(event->getComponentNumber())));
-//        _eventsTable->setItem(_eventsTable->rowCount()-1, 2, new QTableWidgetItem());
-        _eventsTable->setItem(_eventsTable->rowCount()-1, 3, new QTableWidgetItem(event->getDateTime().date().toString("dd.MM.yy")));
-        _eventsTable->setItem(_eventsTable->rowCount()-1, 4, new QTableWidgetItem(event->getDateTime().time().toString("hh:mm")));
+        _eventsTable->setItem(_eventsTable->rowCount()-1, 1, new QTableWidgetItem
+                              (QString::number(event->getComponentNumber())));
+        _eventsTable->setItem(_eventsTable->rowCount()-1, 3, new QTableWidgetItem
+                              (event->getDateTime().date().toString("dd.MM.yy")));
+        _eventsTable->setItem(_eventsTable->rowCount()-1, 4, new QTableWidgetItem
+                              (event->getDateTime().time().toString("hh:mm")));
     }
 }
 

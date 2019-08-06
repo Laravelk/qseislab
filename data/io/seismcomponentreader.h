@@ -1,8 +1,8 @@
 #pragma once
 
+#include <QDataStream>
 #include <QFile>
 #include <QFileInfo>
-#include <QTextStream>
 
 #include <memory>
 
@@ -13,9 +13,7 @@ class SeismComponentReader {
 public:
     explicit SeismComponentReader(const QFileInfo& ) noexcept(false);
 
-    std::unique_ptr<float[]>& getDataX();
-    std::unique_ptr<float[]>& getDataY();
-    std::unique_ptr<float[]>& getDataZ();
+    std::vector<std::unique_ptr<float[]>>& getData();
 
     void next();
 
@@ -23,14 +21,13 @@ public:
 
 private:
     QFile _file;
-    QTextStream _instream;
+    QDataStream _instream;
 
-    unsigned _componentNum;
-    unsigned _readNum{0};
+    int _componentNum;
+    int _tracesInComponent;
+    int _readNum{0};
 
-    std::unique_ptr<float[]> _dataX;
-    std::unique_ptr<float[]> _dataY;
-    std::unique_ptr<float[]> _dataZ;
+    std::vector<std::unique_ptr<float[]>> _data;
 };
 
 

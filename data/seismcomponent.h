@@ -3,6 +3,7 @@
 #include "seismtrace.h"
 
 #include <memory>
+#include <vector>
 
 #include <QJsonObject>
 
@@ -10,28 +11,22 @@
 namespace Data {
 class SeismComponent {
 public:
-    typedef enum {
-        TRACE_X,
-        TRACE_Y,
-        TRACE_Z
-    } TRACE;
-
     explicit SeismComponent();
-    explicit SeismComponent(const QJsonObject&, std::unique_ptr<float[]>&, std::unique_ptr<float[]>&, std::unique_ptr<float[]>& ) noexcept(false);
+    explicit SeismComponent(const QJsonObject& json, std::vector<std::unique_ptr<float[]>>& data) noexcept(false);
 
-    void setTrace(TRACE, std::unique_ptr<SeismTrace>& );
-    bool addTrace(std::unique_ptr<SeismTrace>& );
+    float getMaxValue() const;
 
-    const std::unique_ptr<SeismTrace>& getTraceX() const;
-    const std::unique_ptr<SeismTrace>& getTraceY() const;
-    const std::unique_ptr<SeismTrace>& getTraceZ() const;
+    void addTrace(std::unique_ptr<SeismTrace>& );
+
+    unsigned getTracesNumber() const;
+    const std::vector<std::unique_ptr<SeismTrace>>& getTraces() const;
 
     QJsonObject& writeToJson(QJsonObject& ) const;
 
 private:
-    std::unique_ptr<SeismTrace> _traceX;
-    std::unique_ptr<SeismTrace> _traceY;
-    std::unique_ptr<SeismTrace> _traceZ;
+    float _maxValue{-1.0};
+
+    std::vector<std::unique_ptr<SeismTrace>> _traces;
 };
 
 

@@ -13,31 +13,30 @@ namespace Data {
 }
 
 namespace AddEvent {
-    class GraphicEvent : public QFrame
-    {
+class GraphicEvent : public QFrame
+{
+Q_OBJECT
 
-        Q_OBJECT
-    public:
-        explicit GraphicEvent(QWidget *parent = nullptr);
+public:
+    explicit GraphicEvent(QWidget *parent = nullptr);
 
+    ChartView* getView() const { return _view; }
+    Chart* getChart() const { return _chart;}
+    void setChart(Chart *chart) { _chart = chart; }
+    void setView(ChartView *view) { _view = view; }
 
-        ChartView* getView() { return _view; }
-        Chart* getChart() { return _chart;}
+    void update(const std::unique_ptr<Data::SeismEvent> &event);
+    void clear();
 
-        void SetChart(Chart *chart) { _chart = chart; }
-        void SetView(ChartView *view) { _view = view; }
-        void update(const std::unique_ptr<Data::SeismEvent> &event);
-        void clear();
+private:
+    float _norm;
+    float _interval;
+    float _pWaveArrival;
+    float _sWaveArrival;
+    ChartView* _view;
+    Chart* _chart;
 
-    private:
-        const float _INTERVAL = 2.6e+10; // TODO: потом возьмем максимальное значение события
-        float cdpX;
-        float cdpY;
-        ChartView* _view;
-        Chart* _chart;
-        QValueAxis* _axisX;
-        QValueAxis* _axisY;
-
-    };
+    void setInterval(const std::unique_ptr<Data::SeismEvent> &event);
+};
 }
 

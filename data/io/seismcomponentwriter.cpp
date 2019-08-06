@@ -1,12 +1,12 @@
 #include "seismcomponentwriter.h"
 
-#include "data/seismcomponent.h"
-#include "data/seismtrace.h"
+//#include "data/seismcomponent.h"
+//#include "data/seismtrace.h"
 
 
 namespace Data {
 namespace IO {
-SeismComponentWriter::SeismComponentWriter(const QFileInfo& fileInfo, int componentNum)
+SeismComponentWriter::SeismComponentWriter(const QFileInfo& fileInfo, int componentNum, int tracesInComponent)
     :_file(fileInfo.absoluteFilePath()),
      _outstream(&_file)
 {
@@ -14,14 +14,15 @@ SeismComponentWriter::SeismComponentWriter(const QFileInfo& fileInfo, int compon
         throw std::runtime_error("File can not be opened");
     }
 
-    _outstream << componentNum;
+    _outstream << componentNum << tracesInComponent;
 }
 
 void SeismComponentWriter::writeComponent(const std::unique_ptr<SeismComponent>& component)
 {
-    writeTrace(component->getTraceX());
-    writeTrace(component->getTraceY());
-    writeTrace(component->getTraceZ());
+    const std::vector<std::unique_ptr<SeismTrace>>& traces = component->getTraces();
+    for (unsigned i = 0; i < component->getTracesNumber(); ++i) {
+        writeTrace(traces[i]);
+    }
 }
 
 SeismComponentWriter::~SeismComponentWriter()

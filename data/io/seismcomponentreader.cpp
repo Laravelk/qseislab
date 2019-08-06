@@ -11,49 +11,32 @@ SeismComponentReader::SeismComponentReader(const QFileInfo& fileInfo)
         throw std::runtime_error("File can not be opened");
     }
 
-    _instream >> _componentNum;
+    _instream >> _componentNum >> _tracesInComponent;
 }
 
-std::unique_ptr<float[]>& SeismComponentReader::getDataX()
+std::vector<std::unique_ptr<float[]>>& SeismComponentReader::getData()
 {
-    return  _dataX;
+    return _data;
 }
-
-std::unique_ptr<float[]>& SeismComponentReader::getDataY()
-{
-    return _dataY;
-}
-
-std::unique_ptr<float[]>& SeismComponentReader::getDataZ()
-{
-    return _dataZ;
-}
-
 
 void SeismComponentReader::next()
 {
+    _data.clear();
     // TODO: проверять можно считывать из потока столько данных сколько нужно
-    if(_componentNum <= _readNum) {
+    if(_componentNum < _readNum) {
         throw std::runtime_error("Data in the file ended");
     }
 
+
     unsigned num = 0;
-    _instream >> num;
-    _dataX = std::make_unique<float[]>(num);
-    for(unsigned i = 0; i < num; ++i) {
-        _instream >> _dataX[i];
-    }
+    for(int i = 0; i < _tracesInComponent; ++i) {
+        _instream >> num;
+        std::unique_ptr<float[]> data = std::make_unique<float[]>(num);
+        for (unsigned j = 0; j < num; ++j) {
+            _instream >> data[j];
+        }
 
-    _instream >> num;
-    _dataY = std::make_unique<float[]>(num);
-    for(unsigned i = 0; i < num; ++i) {
-        _instream >> _dataY[i];
-    }
-
-    _instream >> num;
-    _dataZ = std::make_unique<float[]>(num);
-    for(unsigned i = 0; i < num; ++i) {
-        _instream >> _dataZ[i];
+        _data.push_back(std::move(data));
     }
 
     ++_readNum;

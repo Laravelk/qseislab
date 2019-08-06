@@ -28,7 +28,7 @@ set(SOURCES
         add_event/model.cpp
         add_event/view/filemanager.cpp
         add_event/view/infoevent.cpp
-        add_event/view/simulationgraphic.cpp
+#        add_event/view/simulationgraphic.cpp
         add_event/view/view.cpp
         add_event/view/chart.cpp
         add_event/view/chartview.cpp
@@ -52,6 +52,8 @@ set(SOURCES
         main.cpp
 
         main/controller.cpp
+        main/scatterdatamodifier.cpp
+        main/custominputhandler.cpp
         main/view/view.cpp
         main/view/startpage.cpp
         main/view/workpage.cpp
@@ -77,7 +79,7 @@ set(HEADERS
         add_event/model.h
         add_event/view/filemanager.h
         add_event/view/infoevent.h
-        add_event/view/simulationgraphic.h
+#        add_event/view/simulationgraphic.h
         add_event/view/view.h
         add_event/view/chart.h
         add_event/view/chartview.h
@@ -100,6 +102,8 @@ set(HEADERS
         data/io/seismpointwriter.h
 
         main/controller.h
+        main/scatterdatamodifier.h
+        main/custominputhandler.h
         main/view/view.h
         main/view/startpage.h
         main/view/workpage.h

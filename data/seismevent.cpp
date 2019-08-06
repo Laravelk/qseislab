@@ -28,7 +28,7 @@ SeismEvent::SeismEvent(const QJsonObject& json, const QFileInfo& fileInfo)
     reader.next();
 
     for(auto objComponent : componentsArray) {
-        auto seismComponent = std::make_unique<SeismComponent>(objComponent.toObject(), reader.getDataX(), reader.getDataY(), reader.getDataZ());
+        auto seismComponent = std::make_unique<SeismComponent>(objComponent.toObject(), reader.getData());
         _components.push_back(std::move(seismComponent));
 
         reader.next();
@@ -71,7 +71,7 @@ QJsonObject& SeismEvent::writeToJson(QJsonObject& json, const QFileInfo& fileInf
 {
     json["date"] = _dateTime.toString( "dd.MM.yy hh:mm:ss" );
 
-    SeismComponentWriter writer(fileInfo, getComponentNumber());
+    SeismComponentWriter writer(fileInfo, getComponentNumber(), 3);
 
     QJsonArray componentsArray;
     QJsonObject componentObj;

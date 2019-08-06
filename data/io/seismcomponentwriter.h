@@ -1,7 +1,10 @@
 #pragma once
 
+#include "data/seismcomponent.h"
+#include "data/seismtrace.h"
+
+#include <QDataStream>
 #include <QFileInfo>
-#include <QTextStream>
 
 #include <memory>
 
@@ -12,7 +15,7 @@ class SeismTrace;
 namespace IO {
 class SeismComponentWriter {
 public:
-    explicit SeismComponentWriter(const QFileInfo& , int);
+    explicit SeismComponentWriter(const QFileInfo& , int, int);
 
     void writeComponent(const std::unique_ptr<SeismComponent>& );
 
@@ -22,7 +25,7 @@ private:
     void writeTrace(const std::unique_ptr<SeismTrace>& );
 
     QFile _file;
-    QTextStream _outstream;
+    QDataStream _outstream;
 };
 
 

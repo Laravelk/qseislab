@@ -7,7 +7,7 @@ using namespace QtCharts;
 
 class ChartView : public QChartView {
 public:
-    ChartView(QChart *chart, QWidget *parent = 0);
+    ChartView(QChart *chart, QWidget *parent = nullptr);
 protected:
     bool viewportEvent(QEvent *event);
     void mousePressEvent(QMouseEvent *event);

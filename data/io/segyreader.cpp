@@ -82,6 +82,7 @@ SeismComponent* SegyReader::nextComponent()
             delete component;
             return nullptr;
         }
+        segy_to_native( _format, _sam_num, buffer );
 
 //        std::unique_ptr<float[]> data = std::make_unique<float[]>(buffer_size);
 //        for(unsigned i = 0; i < buffer_size; ++i){
@@ -90,16 +91,13 @@ SeismComponent* SegyReader::nextComponent()
 //        delete[] buffer;
 
         std::unique_ptr<SeismTrace> trace = std::make_unique<SeismTrace>();
-        trace->setSampleNum(_sam_num);
+//        trace->setSampleNum(_sam_num);
         trace->setSampleInterval(_sam_intr);
-        trace->setCdpX(cdp_x);
-        trace->setCdpY(cdp_y);
+        trace->setPWaveArrival(cdp_x);
+        trace->setSWaveArrival(cdp_y);
         trace->setBuffer(buffer_size, buffer);
 
-        if(!component->addTrace(trace)){
-            delete component;
-            return nullptr;
-        }
+        component->addTrace(trace);
     }
 
     ++_alreadyRead;

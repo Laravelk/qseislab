@@ -1,87 +1,69 @@
 #include "seismcomponent.h"
 
+#include <QJsonArray>
+
+
 namespace Data {
 SeismComponent::SeismComponent()
 {}
 
-SeismComponent::SeismComponent(const QJsonObject& json, std::unique_ptr<float[]>& dataX, std::unique_ptr<float[]>& dataY, std::unique_ptr<float[]>& dataZ)
+SeismComponent::SeismComponent(const QJsonObject& json, std::vector<std::unique_ptr<float[]>>& data)
 {
-    if( !(json.contains("Trace X") && json.contains("Trace Y") && json.contains("Trace Z")) ) {
+    if( !(json.contains("Traces") && json.contains("maxValue")) ) {
         throw std::runtime_error("Not found json-field (SeismComponent)");
     }
 
-    QJsonObject obj = json["Trace X"].toObject();
-    _traceX = std::make_unique<SeismTrace>(obj, dataX);
+    _maxValue = static_cast<float>(json["maxValue"].toDouble());
 
-    obj = json["Trace Y"].toObject();
-    _traceY = std::make_unique<SeismTrace>(obj, dataY);
 
-    obj = json["Trace Z"].toObject();
-    _traceZ = std::make_unique<SeismTrace>(obj, dataZ);
-}
+    QJsonArray tracesArray( json["Traces"].toArray() );
 
-void SeismComponent::setTrace(TRACE idx, std::unique_ptr<SeismTrace>& trace)
-{
-    assert(TRACE_X <= idx && idx < TRACE_Z);
+    if( static_cast<int>(data.size()) != tracesArray.count()) {
+        throw std::runtime_error("Traces-size in bin-file does not match traces-size in json-file (SeismComponent)");
+    }
 
-    switch (idx) {
-        case TRACE_X:
-            _traceY = std::move(trace);
-            break;
-
-        case TRACE_Y:
-            _traceX = std::move(trace);
-            break;
-
-        case TRACE_Z:
-            _traceZ = std::move(trace);
-            break;
+    unsigned i = 0;
+    for(auto objTrace : tracesArray) {
+        auto seismTrace = std::make_unique<SeismTrace>(objTrace.toObject(), data[i++]);
+        _traces.push_back(std::move(seismTrace));
     }
 }
 
-bool SeismComponent::addTrace(std::unique_ptr<SeismTrace>& trace)
+float SeismComponent::getMaxValue() const
 {
-    if(!_traceX){
-        _traceX = std::move(trace);
-        return true;
-    }
-
-    if(!_traceY){
-        _traceY = std::move(trace);
-        return true;
-    }
-
-    if(!_traceZ){
-        _traceZ = std::move(trace);
-        return true;
-    }
-
-    return false;
+    return _maxValue;
 }
 
-const std::unique_ptr<SeismTrace>& SeismComponent::getTraceX() const
+void SeismComponent::addTrace(std::unique_ptr<SeismTrace>& trace)
 {
-    return _traceX;
+    if(_maxValue < trace->getMaxValue()) {
+        _maxValue = trace->getMaxValue();
+    }
+
+    _traces.push_back(std::move(trace));
 }
 
-const std::unique_ptr<SeismTrace>& SeismComponent::getTraceY() const
+unsigned SeismComponent::getTracesNumber() const
 {
-    return _traceY;
+    return static_cast<unsigned>(_traces.size());
 }
 
-const std::unique_ptr<SeismTrace>& SeismComponent::getTraceZ() const
+const std::vector<std::unique_ptr<SeismTrace>>& SeismComponent::getTraces() const
 {
-    return _traceZ;
+    return _traces;
 }
 
 QJsonObject& SeismComponent::writeToJson(QJsonObject& json) const
 {
+    json["maxValue"] = static_cast<double>(_maxValue);
+
+    QJsonArray tracesArray;
     QJsonObject traceObj;
-    json["Trace X"] = _traceX->writeToJson(traceObj);
+    for(const std::unique_ptr<SeismTrace>& trace : _traces) {
+        tracesArray.append( trace->writeToJson(traceObj) );
+    }
 
-    json["Trace Y"] = _traceY->writeToJson(traceObj);
-
-    json["Trace Z"] = _traceZ->writeToJson(traceObj);
+    json["Traces"] = tracesArray;
 
     return json;
 }
