@@ -11,11 +11,9 @@ namespace AddEvent {
 GraphicEvent::GraphicEvent(QWidget *parent)
     :QFrame(parent), _chart(new Chart()) {
     _view = new ChartView(_chart);
-    _chart->setAnimationOptions(QChart::SeriesAnimations);
+    _chart->setAnimationOptions(QChart::NoAnimation);
     _chart->legend()->hide();
-    _chart->createDefaultAxes();
     _chart->setMinimumSize(750,500);
-    _view->setRenderHint(QPainter::Antialiasing);
     _view->hide();
 }
 
@@ -45,6 +43,7 @@ void GraphicEvent::update(const std::unique_ptr<SeismEvent> &event) {
             float tmp = 0, intervalAxisX = 0;
             _norm = component->getMaxValue();
             QLineSeries *series = new QLineSeries;
+            series->setUseOpenGL(true);
             SeismTrace *trace = component->getTraces().at(j).get();
             intervalAxisX = trace->getSampleInterval();
             for (int k = 0; k < trace->getBufferSize(); k++) {

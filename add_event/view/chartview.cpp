@@ -35,7 +35,7 @@ void ChartView::mouseReleaseEvent(QMouseEvent *event)
 {
     if (m_isTouching)
         m_isTouching = false;
-    chart()->setAnimationOptions(QChart::SeriesAnimations);
+    chart()->setAnimationOptions(QChart::NoAnimation);
 
     QChartView::mouseReleaseEvent(event);
 }
