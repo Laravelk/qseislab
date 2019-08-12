@@ -17,6 +17,11 @@ public:
 
     void update(const std::unique_ptr<Data::SeismProject>& );
 
+    void addEvent();
+    void removeEvent();
+    void addHorizon();
+    void removeHorizon();
+
 private:
     QLabel* _nameLabel;
     QLabel* _dateLabel;

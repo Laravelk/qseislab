@@ -14,20 +14,12 @@ Model::Model(QObject* parent)
     :QObject(parent)
 {}
 
-bool Model::isValid() const
+std::unique_ptr<Data::SeismProject> Model::getSeismProjectFrom(const QString& path)
 {
-    return _isValid;
-}
-
-void Model::setFilePath(const QString& filePath)
-{
-    _isValid = true;
-    _filePath = filePath;
-
-    QFile readFile( _filePath );
+    QFile readFile( path );
     if( !readFile.open(QIODevice::ReadOnly ) ) {
-        _errmsg = "Unable to open save file";
-        _isValid = false;
+        emit notify("Unable to open save file");
+        return std::move(_project);
     }
     QString val = readFile.readAll();
     readFile.close();
@@ -36,31 +28,14 @@ void Model::setFilePath(const QString& filePath)
     QJsonObject jsonObj = jsonDoc.object();
 
     try {
-        _project = std::make_unique<SeismProject>(jsonObj, _filePath);
-    } catch (std::runtime_error& err) {
+        _project = std::make_unique<SeismProject>(jsonObj, path);
+    } catch (const std::runtime_error& err) {
         _project.reset();
-        _errmsg = err.what();
-        _isValid = false;
+        emit notify(err.what());
     }
 
-    emit changed();
+    return std::move(_project);
 }
-
-const QString& Model::getFilePath() const
-{
-    return _filePath;
-}
-
-const QString& Model::getErrMsg() const
-{
-    return _errmsg;
-}
-
-std::unique_ptr<Data::SeismProject>& Model::getSeismProject()
-{
-    return _project;
-}
-
 
 } // namespace OpenProject
 } // namespace ProjectOperation

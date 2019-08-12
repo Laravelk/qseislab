@@ -14,7 +14,7 @@ Controller::Controller(QObject* parent)
     :QObject(parent)
 {}
 
-void Controller::closeProject(const std::unique_ptr<SeismProject>& project)
+void Controller::closeProject(const std::unique_ptr<SeismProject>& project) const
 {
     assert(project);
 

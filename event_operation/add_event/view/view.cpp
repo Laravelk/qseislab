@@ -1,30 +1,29 @@
 #include "view.h"
 
-#include "infoevent.h"
+#include "event_operation/share_view/infoevent.h"
+#include "event_operation/share_view/graphicevent.h"
 #include "filemanager.h"
-//#include "simulationgraphic.h" // TODO: need to remove
-#include "graphicevent.h"
 
 #include <QBoxLayout>
 #include <QFileDialog>
 #include <QLabel>
 #include <QMessageBox>
+#include <QPushButton>
 
 
 typedef Data::SeismEvent SeismEvent;
 
 
+namespace EventOperation {
 namespace AddEvent {
-View::View(QWidget *parent)
+View::View(QWidget* parent)
     :QDialog(parent),
       _fileManager(new FileManager(this)),
       _infoEvent(new InfoEvent(this)),
-      _scrollArea(new QScrollArea()),
       _graphicEvent(new GraphicEvent(this)),
       _addButton(new QPushButton("Add", this)),
       _cancelButton(new QPushButton("Cancel",this))
 {
-
     setWindowTitle("SeismWindow");
     setMinimumSize(1100,590);
 
@@ -47,8 +46,8 @@ View::View(QWidget *parent)
     buttonsLayout->addWidget(_addButton);
     buttonsLayout->addWidget(_cancelButton);
 
-    QVBoxLayout *graphicLayout = new QVBoxLayout();
-    graphicLayout->addWidget(_graphicEvent->getView(), 3);
+    QVBoxLayout* graphicLayout = new QVBoxLayout();
+    graphicLayout->addWidget(_graphicEvent->getView(), 5);
     graphicLayout->addStretch(1);
     graphicLayout->addLayout(buttonsLayout);
 
@@ -90,3 +89,4 @@ void View::recvFilePath(const QString& path)
 
 
 } // namespace AddEvent
+} // namespace EventOperation

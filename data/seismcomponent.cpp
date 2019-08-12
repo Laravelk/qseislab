@@ -24,7 +24,7 @@ SeismComponent::SeismComponent(const QJsonObject& json, std::vector<std::unique_
 
     unsigned i = 0;
     for(auto objTrace : tracesArray) {
-        auto seismTrace = std::make_unique<SeismTrace>(objTrace.toObject(), data[i++]);
+        auto seismTrace = std::make_unique<SeismTrace>(objTrace.toObject(), std::move(data[i++]));
         _traces.push_back(std::move(seismTrace));
     }
 }
@@ -34,7 +34,7 @@ float SeismComponent::getMaxValue() const
     return _maxValue;
 }
 
-void SeismComponent::addTrace(std::unique_ptr<SeismTrace>& trace)
+void SeismComponent::addTrace(std::unique_ptr<SeismTrace> trace)
 {
     if(_maxValue < trace->getMaxValue()) {
         _maxValue = trace->getMaxValue();

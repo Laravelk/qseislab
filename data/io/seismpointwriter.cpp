@@ -1,7 +1,5 @@
 #include "seismpointwriter.h"
 
-#include "data/seismpoint.h"
-
 
 namespace Data {
 namespace IO {
@@ -16,9 +14,9 @@ SeismPointWriter::SeismPointWriter(const QFileInfo& fileInfo, int pointNum)
     _outstream << pointNum;
 }
 
-void SeismPointWriter::writePoint(const SeismPoint& point)
+void SeismPointWriter::writePoint(const SeismHorizon::SeismPoint& point)
 {
-    _outstream << point.getX() << point.getY() << point.getZ() << point.getVal();
+    _outstream << std::get<0>(point) << std::get<1>(point) << std::get<2>(point) << std::get<3>(point);
 }
 
 SeismPointWriter::~SeismPointWriter()

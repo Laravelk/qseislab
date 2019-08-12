@@ -1,7 +1,5 @@
 #include "controller.h"
 
-#include "model.h"
-
 #include <QFileDialog>
 #include <QMessageBox>
 
@@ -29,7 +27,7 @@ Controller::Controller(QObject* parent)
 
 void Controller::recvFilePath(const QString& path)
 {
-    _model->setFilePath(path);
+    _horizon = _model->getSeismHorizonFrom(path);
 }
 
 void Controller::recvNotification(const QString& text)
@@ -44,7 +42,7 @@ void Controller::recvNotification(const QString& text)
 void Controller::finish(int result)
 {
     if(QDialog::Accepted == result) {
-        emit sendHorizon(_model->getSeismHorizon());
+        emit sendHorizon(_horizon);
     }
 
     emit finished();

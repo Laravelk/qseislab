@@ -9,14 +9,24 @@ typedef Data::IO::SeismPointWriter SeismPointWriter;
 
 
 namespace Data {
+const QString SeismHorizon::_default_path = "data/horizons/";
+
 SeismHorizon::SeismHorizon()
 {}
 
-SeismHorizon::SeismHorizon(const QJsonObject& json, const QFileInfo& fileInfo)
+SeismHorizon::SeismHorizon(const QJsonObject& json, const QDir& dir)
 {
-    if( !(json.contains("point number")) ) {
+    if( !(json.contains("point number") && json.contains("path")) ) {
         throw std::runtime_error("Not found json-field (SeismHorizon)");
     }
+
+    _path = json["path"].toString();
+    QFileInfo fileInfo(dir, _path);
+    if(!fileInfo.exists()) {
+        throw std::runtime_error("data-file: " + fileInfo.absoluteFilePath().toStdString() + " does not exist");
+    }
+    // NOTE: хорошая ли идея считывать id из файла или раздавать каждый раз при чтении
+    _uuid = fileInfo.baseName();
 
     int pointNumber = json["point number"].toInt();
 
@@ -39,23 +49,41 @@ void SeismHorizon::addPoint(const SeismPoint& point)
     _points.push_back(point);
 }
 
-const SeismPoint& SeismHorizon::getPoint(int idx)
+const SeismHorizon::SeismPoint& SeismHorizon::getPoint(int idx)
 {
     assert(0 <= idx && idx < getPointsNumber());
 
     return _points[static_cast<unsigned>(idx)];
 }
 
-const std::vector<SeismPoint> &SeismHorizon::getPoints()
+const std::vector<SeismHorizon::SeismPoint>& SeismHorizon::getPoints()
 {
     return _points;
 }
 
-QJsonObject& SeismHorizon::writeToJson(QJsonObject& json, const QFileInfo& fileInfo) const
+void SeismHorizon::setUuid(const SeismHorizon::Uuid& uuid)
 {
+    _uuid = uuid;
+}
+
+const SeismHorizon::Uuid& SeismHorizon::getUuid() const
+{
+    return _uuid;
+}
+
+QJsonObject& SeismHorizon::writeToJson(QJsonObject& json, const QDir& dir)
+{
+    if(_path.isEmpty()) {
+        _path = _default_path;
+        _path += _uuid.toString();
+        _path += ".bin";
+    }
+
+    json["path"] = _path;
+
     json["point number"] = static_cast<int>(getPointsNumber());
 
-    SeismPointWriter writer(fileInfo, getPointsNumber());
+    SeismPointWriter writer(QFileInfo(dir, _path), getPointsNumber());
 
     for(auto point : _points) {
         writer.writePoint(point);

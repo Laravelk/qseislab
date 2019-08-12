@@ -1,5 +1,7 @@
 #include "chartview.h"
+
 #include <QtGui/QMouseEvent>
+
 
 ChartView::ChartView(QChart *chart, QWidget *parent) :
     QChartView(chart, parent),
@@ -40,7 +42,6 @@ void ChartView::mouseReleaseEvent(QMouseEvent *event)
     QChartView::mouseReleaseEvent(event);
 }
 
-//![1]
 void ChartView::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key()) {
@@ -50,21 +51,47 @@ void ChartView::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Minus:
         chart()->zoomOut();
         break;
-//![1]
     case Qt::Key_Left:
+        chart()->scroll(-10, 0);
+        break;
+    case Qt::Key_A:
         chart()->scroll(-10, 0);
         break;
     case Qt::Key_Right:
         chart()->scroll(10, 0);
         break;
+    case Qt::Key_D:
+        chart()->scroll(10, 0);
+        break;
     case Qt::Key_Up:
         chart()->scroll(0, 10);
         break;
+    case Qt::Key_W:
+        chart()->scroll(0, 10);
+        break;
     case Qt::Key_Down:
+        chart()->scroll(0, -10);
+        break;
+    case Qt::Key_S:
         chart()->scroll(0, -10);
         break;
     default:
         QGraphicsView::keyPressEvent(event);
         break;
     }
+}
+
+void ChartView::wheelEvent(QWheelEvent *event)
+{
+    chart()->zoomReset();
+
+    _mFactor *= event->angleDelta().y() > 0 ? 0.5 : 2;
+
+    QRectF rect = chart()->plotArea();
+    QPointF c = chart()->plotArea().center();
+    rect.setWidth(_mFactor*rect.width());
+    rect.moveCenter(c);
+    chart()->zoomIn(rect);
+
+    QChartView::wheelEvent(event);
 }

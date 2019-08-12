@@ -1,24 +1,26 @@
 #pragma once
 
+#include <memory>
+
 
 namespace Data {
-class SeismComponent;
+class SeismTrace;
 
 namespace IO {
 class AbstractSegyReader {
 public:
-    virtual bool isValid() const = 0;
+    virtual void setFilePath(const char* ) = 0;
+
+    virtual void readBinHeader() = 0;
+
+    virtual int traceInComponent() const = 0;
 
     virtual  bool hasNextComponent() const = 0;
-    virtual SeismComponent* nextComponent() = 0;
+    virtual std::unique_ptr<SeismTrace> nextTrace() = 0;
 
-    virtual const char* getErrMsg() const = 0;
+    virtual void close() = 0;
 
     virtual ~AbstractSegyReader(){;}
-
-protected:
-    virtual int readBinHeader() = 0;
-    virtual int errmsg(int, const char*) = 0;
 };
 
 

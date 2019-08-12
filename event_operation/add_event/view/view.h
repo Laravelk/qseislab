@@ -1,8 +1,6 @@
 #pragma once
 
 #include <QDialog>
-#include <QPushButton>
-#include <QScrollArea>
 
 #include <memory>
 
@@ -11,16 +9,16 @@ namespace Data {
     class SeismEvent;
 }
 
+namespace EventOperation {
+class InfoEvent;
+class GraphicEvent;
 namespace AddEvent {
 class FileManager;
-class InfoEvent;
-//class SimulationGraphic; // need to remove
-class GraphicEvent;
 class View : public QDialog {
     Q_OBJECT
 
 public:
-    explicit View(QWidget *parent = nullptr);
+    explicit View(QWidget* parent = nullptr);
 
     void update(const std::unique_ptr<Data::SeismEvent>& );
     void setNotification(const QString& );
@@ -35,12 +33,10 @@ private slots:
 private:
     FileManager* _fileManager;
     InfoEvent* _infoEvent;
-//    SimulationGraphic* _simulationGraphic; // need to remove
-    QScrollArea *_scrollArea;
-
     GraphicEvent* _graphicEvent;
     QPushButton* _addButton;
     QPushButton* _cancelButton;
 };
 
 } // namespace AddEvent
+} // namespace EventOperation

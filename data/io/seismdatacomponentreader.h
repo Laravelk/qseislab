@@ -9,15 +9,15 @@
 
 namespace Data {
 namespace IO {
-class SeismComponentReader {
+class SeismDataComponentReader {
 public:
-    explicit SeismComponentReader(const QFileInfo& ) noexcept(false);
+    explicit SeismDataComponentReader(const QFileInfo& ) noexcept(false);
 
     std::vector<std::unique_ptr<float[]>>& getData();
 
     void next();
 
-    ~SeismComponentReader();
+    ~SeismDataComponentReader();
 
 private:
     QFile _file;

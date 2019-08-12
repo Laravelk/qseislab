@@ -1,11 +1,11 @@
 #include "workpage.h"
 
 #include "infoproject.h"
-#include "data/seismevent.h"
 #include "data/seismproject.h"
 
 #include <QDateTime>
 #include <QHBoxLayout>
+#include <QMessageBox>
 #include <QPushButton>
 
 
@@ -32,6 +32,7 @@ WorkPage::WorkPage(QWidget* parent)
     connect(closeProjectButton, SIGNAL(clicked()), this, SLOT(handleCloseProjectClicked()));
 
     initEventsTable(_eventsTable);
+    connect(_eventsTable, SIGNAL(cellDoubleClicked(int,int)), this, SLOT(handleEventClicked(int,int)));
 
 
     QHBoxLayout* buttonsLayout = new QHBoxLayout();
@@ -50,18 +51,63 @@ WorkPage::WorkPage(QWidget* parent)
     setLayout(vLayout);
 }
 
-void WorkPage::updateProject(const std::unique_ptr<SeismProject>& project)
+void WorkPage::loadProject(const std::unique_ptr<Data::SeismProject>& project)
 {
     _infoProject->update(project);
 
-    // NOTE: Обновлять всю таблицу или проверять по id, если event с таким id в таблице?
     clearTable();
-    insertEventsInTable(project);
+
+    for(auto& itr : project->getEventsMap()) {
+        insertEventInTable(itr.second);
+    }
+}
+
+void WorkPage::updateProject(const std::unique_ptr<Data::SeismEvent>& event)
+{
+    _infoProject->addEvent();
+
+    insertEventInTable(event);
+}
+
+void WorkPage::updateProjectRemoveEvent(const Data::SeismEvent::Uuid& uuid)
+{
+    _infoProject->removeEvent();
+
+    removeEventInTable(uuid);
+}
+
+void WorkPage::updateProject(const std::unique_ptr<Data::SeismHorizon>& /*horizon*/)
+{
+    _infoProject->addHorizon();
+}
+
+void WorkPage::updateProjectRemoveHorizon(const Data::SeismHorizon::Uuid& /*uuid*/)
+{
+    _infoProject->removeHorizon();
 }
 
 void WorkPage::handleAddEventClicked()
 {
     emit addEventClicked();
+}
+
+void WorkPage::handleEventClicked(int row, int /*col*/)
+{
+    Data::SeismEvent::Uuid uuid = _eventsTable->item(row,0)->text();
+
+    QMessageBox* msgBox = new QMessageBox(this);
+    msgBox->setStandardButtons(QMessageBox::Cancel);
+    QPushButton* viewButton = msgBox->addButton("View", QMessageBox::NoRole);
+    msgBox->setDefaultButton(viewButton);
+    QPushButton* removeButton = msgBox->addButton("Remove", QMessageBox::NoRole);
+
+    msgBox->exec();
+    if(msgBox->clickedButton() == viewButton) {
+        emit viewEventClicked(uuid);
+    }
+    else if(msgBox->clickedButton() == removeButton) {
+        emit removeEventClicked(uuid);
+    }
 }
 
 void WorkPage::handleAddHorizonClicked()
@@ -95,6 +141,8 @@ void WorkPage::initEventsTable(QTableWidget* table)
     // configure column settings
     table->setHorizontalHeaderItem(0, new QTableWidgetItem("id")); // for editing or removing events
     table->setColumnHidden(0,true);
+//    table->setColumnWidth(0,50);
+
     table->setHorizontalHeaderItem(1, new QTableWidgetItem("Component Number"));
     table->setColumnWidth(1,150);
     table->setHorizontalHeaderItem(2, new QTableWidgetItem("Type"));
@@ -105,17 +153,25 @@ void WorkPage::initEventsTable(QTableWidget* table)
     table->setColumnWidth(4,100);
 }
 
-void WorkPage::insertEventsInTable(const std::unique_ptr<SeismProject>& project)
+void WorkPage::insertEventInTable(const std::unique_ptr<Data::SeismEvent>& event)
 {
-    for(const std::unique_ptr<SeismEvent>& event : project->getEvents()) {
-        _eventsTable->insertRow(_eventsTable->rowCount());
+    _eventsTable->insertRow(_eventsTable->rowCount());
 
-        _eventsTable->setItem(_eventsTable->rowCount()-1, 1, new QTableWidgetItem
-                              (QString::number(event->getComponentNumber())));
-        _eventsTable->setItem(_eventsTable->rowCount()-1, 3, new QTableWidgetItem
-                              (event->getDateTime().date().toString("dd.MM.yy")));
-        _eventsTable->setItem(_eventsTable->rowCount()-1, 4, new QTableWidgetItem
-                              (event->getDateTime().time().toString("hh:mm")));
+    _eventsTable->setItem(_eventsTable->rowCount()-1, 0, new QTableWidgetItem(event->getUuid().toString()));
+    _eventsTable->setItem(_eventsTable->rowCount()-1, 1, new QTableWidgetItem(QString::number(event->getComponentNumber())));
+//        _eventsTable->setItem(_eventsTable->rowCount()-1, 2, new QTableWidgetItem());
+    _eventsTable->setItem(_eventsTable->rowCount()-1, 3, new QTableWidgetItem(event->getDateTime().date().toString("dd.MM.yy")));
+    _eventsTable->setItem(_eventsTable->rowCount()-1, 4, new QTableWidgetItem(event->getDateTime().time().toString("hh:mm")));
+}
+
+void WorkPage::removeEventInTable(const Data::SeismEvent::Uuid& uuid)
+{
+    const QString str_uuid = uuid.toString();
+    for(int row = 0; row < _eventsTable->rowCount(); ++row) {
+        if(str_uuid == _eventsTable->takeItem(row,0)->text()){
+            _eventsTable->removeRow(row);
+            return;
+        }
     }
 }
 

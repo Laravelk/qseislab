@@ -1,9 +1,9 @@
-#include "seismcomponentreader.h"
+#include "seismdatacomponentreader.h"
 
 
 namespace Data {
 namespace IO {
-SeismComponentReader::SeismComponentReader(const QFileInfo& fileInfo)
+SeismDataComponentReader::SeismDataComponentReader(const QFileInfo& fileInfo)
     :_file(fileInfo.absoluteFilePath()),
      _instream(&_file)
 {
@@ -14,12 +14,12 @@ SeismComponentReader::SeismComponentReader(const QFileInfo& fileInfo)
     _instream >> _componentNum >> _tracesInComponent;
 }
 
-std::vector<std::unique_ptr<float[]>>& SeismComponentReader::getData()
+std::vector<std::unique_ptr<float[]>>& SeismDataComponentReader::getData()
 {
     return _data;
 }
 
-void SeismComponentReader::next()
+void SeismDataComponentReader::next()
 {
     _data.clear();
     // TODO: проверять можно считывать из потока столько данных сколько нужно
@@ -42,7 +42,7 @@ void SeismComponentReader::next()
     ++_readNum;
 }
 
-SeismComponentReader::~SeismComponentReader()
+SeismDataComponentReader::~SeismDataComponentReader()
 {
     _file.close();
 }

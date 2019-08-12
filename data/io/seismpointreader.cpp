@@ -36,12 +36,12 @@ void SeismPointReader::next()
 
     _instream >> x >> y >> z >> val;
 
-    _point = SeismPoint(x, y, z, val);
+    _point = SeismHorizon::SeismPoint(x, y, z, val);
 
     ++_readNum;
 }
 
-const SeismPoint& SeismPointReader::getPoint() const
+const SeismHorizon::SeismPoint& SeismPointReader::getPoint() const
 {
     return _point;
 }

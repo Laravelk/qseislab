@@ -9,7 +9,7 @@ namespace Data {
 class SeismTrace {
 public:
     explicit SeismTrace();
-    explicit SeismTrace(const QJsonObject&, std::unique_ptr<float[]>& ) noexcept(false);
+    explicit SeismTrace(const QJsonObject&, std::unique_ptr<float[]> ) noexcept(false);
 
     float getSampleInterval() const;
     void setSampleInterval(float);

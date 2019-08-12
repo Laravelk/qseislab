@@ -1,10 +1,11 @@
 #include "seismtrace.h"
 
+
 namespace Data {
 SeismTrace::SeismTrace()
 {}
 
-SeismTrace::SeismTrace(const QJsonObject& json, std::unique_ptr<float[]>& data)
+SeismTrace::SeismTrace(const QJsonObject& json, std::unique_ptr<float[]> data)
 {
     if( !(json.contains("sampleInterval") && json.contains("pWaveArrival") && json.contains("sWaveArrival") && json.contains("maxValue")) ) {
         throw std::runtime_error("Not found json-field (SeismTrace)");

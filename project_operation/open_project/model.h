@@ -17,24 +17,12 @@ class Model : public QObject {
 public:
     explicit Model(QObject* );
 
-    bool isValid() const;
-
-    void setFilePath(const QString& );
-    const QString& getFilePath() const;
-
-    const QString& getErrMsg() const;
-
-    std::unique_ptr<Data::SeismProject>& getSeismProject();
+    std::unique_ptr<Data::SeismProject> getSeismProjectFrom(const QString& );
 
 signals:
-    void changed() const;
     void notify(const QString& ) const;
 
 private:
-    bool _isValid{false};
-    QString _filePath;
-    QString _errmsg;
-
     std::unique_ptr<Data::SeismProject> _project;
 };
 

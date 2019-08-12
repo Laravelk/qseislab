@@ -3,6 +3,7 @@
 #include "data/seismproject.h"
 
 #include <QFormLayout>
+#include <QString>
 
 
 typedef Data::SeismProject SeismProject;
@@ -36,6 +37,26 @@ void InfoProject::update(const std::unique_ptr<Data::SeismProject>& project)
     _timeLabel->setText(project->getDateTime().time().toString("hh:mm"));
     _eventsNumber->setNum(project->getEventsNumber());
     _horizonsNumber->setNum(project->getHorizonsNumber());
+}
+
+void InfoProject::addEvent()
+{
+    _eventsNumber->setNum(_eventsNumber->text().toInt() + 1);
+}
+
+void InfoProject::removeEvent()
+{
+    _eventsNumber->setNum(_eventsNumber->text().toInt() - 1);
+}
+
+void InfoProject::addHorizon()
+{
+    _horizonsNumber->setNum(_horizonsNumber->text().toInt() + 1);
+}
+
+void InfoProject::removeHorizon()
+{
+     _horizonsNumber->setNum(_horizonsNumber->text().toInt() - 1);
 }
 
 

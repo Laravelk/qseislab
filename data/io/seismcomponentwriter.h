@@ -1,7 +1,6 @@
 #pragma once
 
 #include "data/seismcomponent.h"
-#include "data/seismtrace.h"
 
 #include <QDataStream>
 #include <QFileInfo>

@@ -4,8 +4,11 @@
 #include "data/seismproject.h"
 #include "view/view.h"
 
-#include "add_event/controller.h"
+#include "event_operation/add_event/controller.h"
+#include "event_operation/view_event/controller.h"
+
 #include "add_horizon/controller.h"
+
 #include "project_operation/close_project/controller.h"
 #include "project_operation/new_project/controller.h"
 #include "project_operation/open_project/controller.h"
@@ -31,18 +34,28 @@ private slots:
     void recvEvent(std::unique_ptr<Data::SeismEvent>& );
     void recvHorizon(std::unique_ptr<Data::SeismHorizon>& );
 
-    void updateProject();
+    void updateProject(const std::unique_ptr<Data::SeismEvent>& );
+    void updateProjectRemoveEvent(const Data::SeismEvent::Uuid& );
+    void updateProject(const std::unique_ptr<Data::SeismHorizon>& );
+    void updateProjectRemoveHorizon(const Data::SeismHorizon::Uuid& );
 
 
     void handleAddEventClicked();
+    void handleViewEventClicked(const Data::SeismEvent::Uuid );
+    void handleRemoveEventClicked(const Data::SeismEvent::Uuid );
+
     void handleAddHorizonClicked();
+
     void handleCloseProjectClicked();
     void handleNewProjectClicked();
     void handleOpenProjectClicked();
     void handleSaveProjectClicked();
 
     void deleteAddEventController();
+    void deleteViewEventController();
+
     void deleteAddHorizonController();
+
     void deleteCloseProjectController(bool);
     void deleteNewProjectController();
     void deleteOpenProjectController();
@@ -53,8 +66,11 @@ private:
 
     std::unique_ptr<View> _mainWindow;
 
-    std::unique_ptr<AddEvent::Controller> _addEventController;
+    std::unique_ptr<EventOperation::AddEvent::Controller> _addEventController;
+    std::unique_ptr<EventOperation::ViewEvent::Controller> _viewEventController;
+
     std::unique_ptr<AddHorizon::Controller> _addHorizonController;
+
     std::unique_ptr<ProjectOperation::CloseProject::Controller> _closeProjectController;
     std::unique_ptr<ProjectOperation::NewProject::Controller> _newProjectController;
     std::unique_ptr<ProjectOperation::OpenProject::Controller> _openProjectController;

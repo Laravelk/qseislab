@@ -1,17 +1,14 @@
 #include "seismcomponentwriter.h"
 
-//#include "data/seismcomponent.h"
-//#include "data/seismtrace.h"
-
 
 namespace Data {
 namespace IO {
 SeismComponentWriter::SeismComponentWriter(const QFileInfo& fileInfo, int componentNum, int tracesInComponent)
     :_file(fileInfo.absoluteFilePath()),
      _outstream(&_file)
-{
+{   
     if(!_file.open(QIODevice::WriteOnly)) {
-        throw std::runtime_error("File can not be opened");
+        throw std::runtime_error("File can not be opened (SeismComponentWriter)");
     }
 
     _outstream << componentNum << tracesInComponent;

@@ -6,6 +6,7 @@
 #include <QPushButton>
 
 
+namespace EventOperation {
 namespace AddEvent {
 class FileManager : public QFrame {
     Q_OBJECT
@@ -30,3 +31,4 @@ private:
 };
 
 } // namespace AddEvent
+} // namespace EventOperation

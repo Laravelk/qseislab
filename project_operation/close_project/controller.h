@@ -17,7 +17,7 @@ class Controller : public QObject {
 public:
     explicit Controller(QObject* parent = nullptr);
 
-    void closeProject(const std::unique_ptr<Data::SeismProject>& );
+    void closeProject(const std::unique_ptr<Data::SeismProject>& ) const;
 
 public slots:
     void finish(bool);

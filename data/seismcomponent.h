@@ -2,10 +2,10 @@
 
 #include "seismtrace.h"
 
+#include <QJsonObject>
+
 #include <memory>
 #include <vector>
-
-#include <QJsonObject>
 
 
 namespace Data {
@@ -16,7 +16,7 @@ public:
 
     float getMaxValue() const;
 
-    void addTrace(std::unique_ptr<SeismTrace>& );
+    void addTrace(std::unique_ptr<SeismTrace> );
 
     unsigned getTracesNumber() const;
     const std::vector<std::unique_ptr<SeismTrace>>& getTraces() const;

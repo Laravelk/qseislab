@@ -50,20 +50,45 @@ void View::loadProject(const std::unique_ptr<Data::SeismProject>& project)
 {
     delete centralWidget();
     _workPage = new WorkPage(this);
-    updateProject(project);
+    _workPage->loadProject(project);
     setCentralWidget(_workPage);
 
     connect(_workPage, SIGNAL(addEventClicked()), this, SLOT(handleAddEventClicked()));
+    connect(_workPage, SIGNAL(removeEventClicked(const Data::SeismEvent::Uuid )), this, SLOT(handleRemoveEventClicked(const Data::SeismEvent::Uuid )));
+    connect(_workPage, SIGNAL(viewEventClicked(const Data::SeismEvent::Uuid )), this, SLOT(handleViewEventClicked(const Data::SeismEvent::Uuid )));
+
     connect(_workPage, SIGNAL(addHorizonClicked()), this, SLOT(handleAddHorizonClicked()));
+
     connect(_workPage, SIGNAL(saveProjectClicked()), this, SLOT(handleSaveProjectClicked()));
     connect(_workPage, SIGNAL(closeProjectClicked()), this, SLOT(handleCloseProjectClicked()));
 }
 
-void View::updateProject(const std::unique_ptr<Data::SeismProject>& project)
+void View::updateProject(const std::unique_ptr<Data::SeismEvent>& event)
 {
     assert(nullptr != _workPage);
 
-    _workPage->updateProject(project);
+    _workPage->updateProject(event);
+}
+
+void View::updateProject(const std::unique_ptr<Data::SeismHorizon>& horizon)
+{
+    assert(nullptr != _workPage);
+
+    _workPage->updateProject(horizon);
+}
+
+void View::updateProjectRemoveEvent(const Data::SeismEvent::Uuid& uuid)
+{
+    assert(nullptr != _workPage);
+
+    _workPage->updateProjectRemoveEvent(uuid);
+}
+
+void View::updateProjectRemoveHorizon(const Data::SeismHorizon::Uuid& uuid)
+{
+    assert(nullptr != _workPage);
+
+    _workPage->updateProjectRemoveHorizon(uuid);
 }
 
 void View::closeProject()
@@ -86,6 +111,16 @@ void View::handleOpenProjectClicked() {
 void View::handleAddEventClicked()
 {
     emit addEventClicked();
+}
+
+void View::handleViewEventClicked(const SeismEvent::Uuid uuid)
+{
+    emit viewEventClicked(uuid);
+}
+
+void View::handleRemoveEventClicked(const SeismEvent::Uuid uuid)
+{
+    emit removeEventClicked(uuid);
 }
 
 void View::handleAddHorizonClicked()

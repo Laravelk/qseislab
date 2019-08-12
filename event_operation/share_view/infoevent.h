@@ -11,7 +11,7 @@ namespace Data {
     class SeismEvent;
 }
 
-namespace AddEvent {
+namespace EventOperation {
 class InfoEvent : public QFrame {
     Q_OBJECT
 
@@ -29,4 +29,5 @@ private:
     QLabel* _groupeCoordinate;
 };
 
-} // namespace AddEvent
+
+} // namespace EventOperation

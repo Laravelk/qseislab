@@ -14,16 +14,12 @@ class Model : public QObject {
 public:
     explicit Model(QObject* );
 
-    void setFilePath(const QString& );
-    std::unique_ptr<Data::SeismHorizon>& getSeismHorizon();
+    std::unique_ptr<Data::SeismHorizon> getSeismHorizonFrom(const QString& );
 
 signals:
     void notify(const QString& ) const;
 
 private:
-    void getSeismHorizonFrom(const QString& );
-
-    QString _path;
     std::unique_ptr<Data::SeismHorizon> _horizon;
 };
 

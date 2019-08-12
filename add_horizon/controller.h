@@ -1,16 +1,13 @@
 #pragma once
 
+#include "model.h"
+
 #include <QObject>
 
 #include <memory>
 
 
-namespace Data {
-    class SeismHorizon;
-}
-
 namespace AddHorizon {
-class Model;
 class Controller : public QObject {
     Q_OBJECT
 
@@ -28,6 +25,8 @@ private slots:
 
 private:
     Model* _model;
+
+    std::unique_ptr<Data::SeismHorizon> _horizon;
 };
 
 

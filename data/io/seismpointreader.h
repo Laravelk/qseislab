@@ -1,10 +1,9 @@
 #pragma once
 
-#include "data/seismpoint.h"
+#include "data/seismhorizon.h"
 
 #include <QFileInfo>
 #include <QTextStream>
-
 
 
 namespace Data {
@@ -16,7 +15,7 @@ public:
     bool hasNext() const;
     void next();
 
-    const SeismPoint& getPoint() const;
+    const SeismHorizon::SeismPoint& getPoint() const;
 
     ~SeismPointReader();
 
@@ -27,7 +26,7 @@ private:
     unsigned _pointNum;
     unsigned _readNum{0};
 
-    SeismPoint _point{0,0,0,0};
+    SeismHorizon::SeismPoint _point{0,0,0,0};
 };
 
 

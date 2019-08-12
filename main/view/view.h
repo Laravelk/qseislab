@@ -1,15 +1,12 @@
 #pragma once
 
+#include "data/seismproject.h"
+
 #include <QMainWindow>
 #include <QMenuBar>
 
 #include <memory>
 
-
-namespace Data {
-    class SeismEvent;
-    class SeismProject;
-}
 
 namespace Main {
 class WorkPage;
@@ -20,12 +17,19 @@ public:
     explicit View(QWidget* parent = nullptr);
 
     void loadProject(const std::unique_ptr<Data::SeismProject>& );
-    void updateProject(const std::unique_ptr<Data::SeismProject>& );
+    void updateProject(const std::unique_ptr<Data::SeismEvent>& );
+    void updateProject(const std::unique_ptr<Data::SeismHorizon>& );
+    void updateProjectRemoveEvent(const Data::SeismEvent::Uuid& );
+    void updateProjectRemoveHorizon(const Data::SeismHorizon::Uuid& );
     void closeProject();
 
 signals:
     void addEventClicked() const;
+    void viewEventClicked(const Data::SeismEvent::Uuid ) const;
+    void removeEventClicked(const Data::SeismEvent::Uuid ) const;
+
     void addHorizonClicked() const;
+
     void newProjectClicked() const;
     void openProjectClicked() const;
     void saveProjectClicked() const;
@@ -33,7 +37,11 @@ signals:
 
 private slots:
     void handleAddEventClicked();
+    void handleViewEventClicked(const Data::SeismEvent::Uuid );
+    void handleRemoveEventClicked(const Data::SeismEvent::Uuid );
+
     void handleAddHorizonClicked();
+
     void handleNewProjectClicked();
     void handleOpenProjectClicked();
     void handleSaveProjectClicked();

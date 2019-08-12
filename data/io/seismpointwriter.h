@@ -1,17 +1,18 @@
 #pragma once
 
+#include "data/seismhorizon.h"
+
 #include <QFileInfo>
 #include <QTextStream>
 
 
 namespace Data {
-class SeismPoint;
 namespace IO {
 class SeismPointWriter {
 public:
     explicit SeismPointWriter(const QFileInfo& , int);
 
-    void writePoint(const SeismPoint& );
+    void writePoint(const SeismHorizon::SeismPoint& );
 
     ~SeismPointWriter();
 

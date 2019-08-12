@@ -14,7 +14,7 @@ Controller::Controller(QObject* parent)
     :QObject(parent)
 {}
 
-void Controller::saveProject(std::unique_ptr<Data::SeismProject>& project)
+void Controller::saveProject(std::unique_ptr<Data::SeismProject> project)
 {
     assert(project);
 
@@ -31,10 +31,10 @@ void Controller::saveProject(std::unique_ptr<Data::SeismProject>& project)
         return;
     }
 
-    saveAsProject(_project);
+    saveAsProject(std::move(_project));
 }
 
-void Controller::saveAsProject(std::unique_ptr<Data::SeismProject>& project)
+void Controller::saveAsProject(std::unique_ptr<Data::SeismProject> project)
 {
     assert(project);
 
@@ -51,9 +51,9 @@ void Controller::saveAsProject(std::unique_ptr<Data::SeismProject>& project)
     fileDialog->open();
 }
 
-std::unique_ptr<Data::SeismProject>& Controller::getProject()
+std::unique_ptr<Data::SeismProject> Controller::getProject()
 {
-    return _project;
+    return std::move(_project);
 }
 
 void Controller::recvFilePath(const QString& path)

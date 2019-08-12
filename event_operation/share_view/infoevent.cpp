@@ -8,7 +8,7 @@
 typedef Data::SeismEvent SeismEvent;
 
 
-namespace AddEvent {
+namespace EventOperation {
 InfoEvent::InfoEvent(QWidget* parent)
     :QFrame(parent),
      _dateLineEdit(new QLineEdit(this)),
@@ -53,4 +53,4 @@ void InfoEvent::clear()
 }
 
 
-} // namespace AddEvent
+} // namespace EventOperation

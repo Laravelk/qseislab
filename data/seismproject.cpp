@@ -20,35 +20,26 @@ SeismProject::SeismProject(const QJsonObject& json, const QFileInfo& fileInfo, Q
     _name = json["name"].toString();
     _dateTime = QDateTime::fromString( json["date"].toString(), "dd.MM.yy hh:mm:ss" );
 
-    QDir dataDir = _fileInfo.dir();
-    if( !dataDir.cd("data") ){
-        throw std::runtime_error("Not found data-dir");
-    }
-    if( !dataDir.cd("events") ){
-        throw std::runtime_error("Not found data-events-dir");
-    }
 
     QJsonArray eventsArray( json["Events"].toArray() );
     unsigned num = 0;
     for(auto objEvent : eventsArray) {
-        // NOTE: тут "определяется" формат, в котором хранятся данные (.bin)
-        QFileInfo dataFileInfo(dataDir, QString::number(num++) + ".bin");
-        auto seismEvent = std::make_unique<SeismEvent>(objEvent.toObject(), dataFileInfo);
-        _events.push_back(std::move(seismEvent));
+        auto seismEvent = std::make_unique<SeismEvent>(objEvent.toObject(), fileInfo.dir());
+//        auto uuid = generateUuid();
+//        seismEvent->setUuid(uuid);
+        auto uuid = seismEvent->getUuid();
+        _events_map[uuid] = std::move(seismEvent);
     }
 
-    dataDir.cdUp();
-    if( !dataDir.cd("horizons") ){
-        throw std::runtime_error("Not found data-horizons-dir");
-    }
 
     QJsonArray horizonssArray( json["Horizons"].toArray() );
     num = 0;
     for(auto objHorizon : horizonssArray) {
-        // NOTE: тут "определяется" формат, в котором хранятся данные (.bin)
-        QFileInfo dataFileInfo(dataDir, QString::number(num++) + ".bin");
-        auto seismHorizon = std::make_unique<SeismHorizon>(objHorizon.toObject(), dataFileInfo);
-        _horizons.push_back(std::move(seismHorizon));
+        auto seismHorizon = std::make_unique<SeismHorizon>(objHorizon.toObject(), fileInfo.dir());
+//        auto uuid = generateUuid();
+//        seismHorizon->setUuid(uuid);
+        auto uuid = seismHorizon->getUuid();
+        _horizons_map[uuid] = std::move(seismHorizon);
     }
 
     _isSaved = true;
@@ -74,37 +65,33 @@ QJsonObject& SeismProject::writeToJson(QJsonObject& json, const QFileInfo& fileI
     json["name"] = _name;
     json["date"] = _dateTime.toString( "dd.MM.yy hh:mm:ss" );
 
+    // TODO: нужно ли удалять старые, если сохраняем в директорию, где был другой проект ?
+    // NOTE: тут ли должны создаваться директории для данных?
     QDir dataDir = _fileInfo.dir();
-    dataDir.mkdir("data");
-    dataDir.cd("data");
-    dataDir.mkdir("events");
-    dataDir.cd("events");
+    dataDir.mkpath(SeismEvent::_default_path);
+    dataDir.cd(SeismEvent::_default_path);
+
+    dataDir = _fileInfo.dir();
+    dataDir.mkpath(SeismHorizon::_default_path);
+    dataDir.cd(SeismHorizon::_default_path);
+
+
 
     QJsonArray eventsArray;
     QJsonObject eventObj;
     unsigned num = 0;
-    for(const std::unique_ptr<SeismEvent>& event : _events) {
-        // NOTE: тут "определяется" формат, в котором хранятся данные (.bin)
-        QFileInfo dataFileInfo(dataDir, QString::number(num++) + ".bin");
-        eventsArray.append( event->writeToJson(eventObj, dataFileInfo) );
+    for(auto& itr : _events_map) {
+        eventsArray.append( (itr.second)->writeToJson(eventObj, _fileInfo.dir()) );
     }
-
     json["Events"] = eventsArray;
 
-
-    dataDir.cdUp();
-    dataDir.mkdir("horizons");
-    dataDir.cd("horizons");
 
     QJsonArray horizonsArray;
     QJsonObject horizonObj;
     num = 0;
-    for(const std::unique_ptr<SeismHorizon>& horizon : _horizons) {
-        // NOTE: тут "определяется" формат, в котором хранятся данные (.bin)
-        QFileInfo dataFileInfo(dataDir, QString::number(num++) + ".bin");
-        horizonsArray.append( horizon->writeToJson(horizonObj, dataFileInfo) );
+    for(auto& itr : _horizons_map) {
+        horizonsArray.append( (itr.second)->writeToJson(horizonObj, _fileInfo.dir()) );
     }
-
     json["Horizons"] = horizonsArray;
 
 
@@ -168,38 +155,82 @@ const QFileInfo& SeismProject::getFileInfo()
     return _fileInfo;
 }
 
-void SeismProject::addEvent(std::unique_ptr<SeismEvent>& event)
+void SeismProject::addEvent(std::unique_ptr<SeismEvent> event)
 {
     _isSaved = false;
-    _events.push_back(std::move(event));
-    emit changed();
+
+    auto uuid = generateUuid();
+    event->setUuid(uuid);
+    _events_map[uuid] = std::move(event);
+
+    emit addedEvent(_events_map[uuid]);
+}
+
+bool SeismProject::removeEvent(const SeismEvent::Uuid& uuid)
+{
+    // NOTE: преобразование к bool корректное ?
+    if (_events_map.erase(uuid)) {
+        _isSaved = false;
+        emit removedEvent(uuid);
+        return true;
+    }
+    return false;
 }
 
 int SeismProject::getEventsNumber() const
 {
-    return static_cast<int>(_events.size());
+    return static_cast<int>(_events_map.size());
 }
 
-const std::vector<std::unique_ptr<SeismEvent>>& SeismProject::getEvents() const
+const std::map<Data::SeismEvent::Uuid, std::unique_ptr<SeismEvent>>& SeismProject::getEventsMap() const
 {
-    return _events;
+    return _events_map;
 }
 
-void SeismProject::addHorizon(std::unique_ptr<SeismHorizon>& horizon)
+const std::unique_ptr<SeismEvent>& SeismProject::getEvent(const SeismEvent::Uuid& uuid) const
+{
+    return _events_map.at(uuid);
+}
+
+void SeismProject::addHorizon(std::unique_ptr<SeismHorizon> horizon)
 {
     _isSaved = false;
-    _horizons.push_back(std::move(horizon));
-    emit changed();
+
+    auto uuid = generateUuid();
+    horizon->setUuid(uuid);
+    _horizons_map[uuid] = std::move(horizon);
+
+    emit addedHorizon(_horizons_map[uuid]);
+}
+
+bool SeismProject::removeHorizon(const SeismHorizon::Uuid& uuid)
+{
+    // NOTE: преобразование к bool корректное ?
+    if (_horizons_map.erase(uuid)) {
+        _isSaved = false;
+        emit removedHorizon(uuid);
+        return true;
+    }
+    return false;
 }
 
 int SeismProject::getHorizonsNumber() const
 {
-    return static_cast<int>(_horizons.size());
+    return static_cast<int>(_horizons_map.size());
 }
 
-const std::vector<std::unique_ptr<SeismHorizon> > &SeismProject::getHorizons() const
+const std::map<SeismHorizon::Uuid, std::unique_ptr<SeismHorizon>>& SeismProject::getHorizonsMap() const
 {
-    return _horizons;
+    return _horizons_map;
+}
+
+const std::unique_ptr<SeismHorizon> &SeismProject::getHorizon(const SeismHorizon::Uuid& uuid) const
+{
+    return _horizons_map.at(uuid);
+}
+
+const QUuid SeismProject::generateUuid() {
+    return QUuid::createUuid();
 }
 
 

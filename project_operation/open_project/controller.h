@@ -26,7 +26,6 @@ signals:
 
 private slots:
     void recvFilePath(const QString& );
-    void updateProject();
     void recvNotification(const QString& );
     void finish(int);
 
@@ -34,6 +33,8 @@ private:
     Model* _model;
 
     std::unique_ptr<View> _view;
+
+    std::unique_ptr<Data::SeismProject> _project;
 };
 
 

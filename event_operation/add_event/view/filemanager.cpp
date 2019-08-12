@@ -3,6 +3,7 @@
 #include <QHBoxLayout>
 
 
+namespace EventOperation {
 namespace AddEvent {
 FileManager::FileManager(QWidget *parent)
     :QFrame(parent),
@@ -45,12 +46,12 @@ void FileManager::clear()
 
 void FileManager::recvFilePath(const QString& path)
 {
-    QStringList parts = path.split("/");
-    QString lastBit = parts.at(parts.size()-1);
-    _fileName->setText(lastBit);
+    QFileInfo fileInfo(path);
+    _fileName->setText(fileInfo.fileName());
 
     emit sendFilePath(path);
 }
 
 
 } // namespace AddEvent
+} // namespace EventOperation

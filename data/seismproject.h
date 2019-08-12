@@ -3,11 +3,13 @@
 #include "seismevent.h"
 #include "seismhorizon.h"
 
-#include <memory>
-
 #include <QObject>
 #include <QJsonObject>
 #include <QFileInfo>
+#include <QDateTime>
+
+#include <memory>
+#include <map>
 
 
 namespace Data {
@@ -34,26 +36,38 @@ public:
     void setFileInfo(const QFileInfo& );
     const QFileInfo& getFileInfo();
 
-    void addEvent(std::unique_ptr<SeismEvent>& );
+    void addEvent(std::unique_ptr<SeismEvent> );
+    bool removeEvent(const Data::SeismEvent::Uuid& );
     int getEventsNumber() const;
-    const std::vector<std::unique_ptr<SeismEvent>>& getEvents() const;
+    const std::map<Data::SeismEvent::Uuid, std::unique_ptr<SeismEvent>>& getEventsMap() const;
+    const std::unique_ptr<Data::SeismEvent>& getEvent(const Data::SeismEvent::Uuid& ) const;
 
-    void addHorizon(std::unique_ptr<SeismHorizon>& );
+    void addHorizon(std::unique_ptr<SeismHorizon> );
+    bool removeHorizon(const Data::SeismHorizon::Uuid& );
     int getHorizonsNumber() const;
-    const std::vector<std::unique_ptr<SeismHorizon>>& getHorizons() const;
+    const std::map<Data::SeismHorizon::Uuid, std::unique_ptr<SeismHorizon>>& getHorizonsMap() const;
+    const std::unique_ptr<Data::SeismHorizon>& getHorizon(const Data::SeismHorizon::Uuid& ) const;
+
 
 signals:
-    void changed() const;
+    void addedEvent(const std::unique_ptr<Data::SeismEvent>& ) const;
+    void removedEvent(const Data::SeismEvent::Uuid& ) const;
+
+
+    void addedHorizon(const std::unique_ptr<Data::SeismHorizon>& ) const;
+    void removedHorizon(const Data::SeismHorizon::Uuid& ) const;
 
 private:
+    static const QUuid generateUuid();
+
     bool _isSaved{false};
 
     QString _name;
     QDateTime _dateTime;
     QFileInfo _fileInfo;
 
-    std::vector<std::unique_ptr<SeismEvent>> _events;
-    std::vector<std::unique_ptr<SeismHorizon>> _horizons;
+    std::map<Data::SeismEvent::Uuid, std::unique_ptr<SeismEvent>> _events_map;
+    std::map<Data::SeismHorizon::Uuid, std::unique_ptr<SeismHorizon>> _horizons_map;
 };
 
 

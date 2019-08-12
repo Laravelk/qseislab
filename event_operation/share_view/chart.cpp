@@ -1,18 +1,15 @@
 #include "chart.h"
+
 #include <QtWidgets/QGesture>
 #include <QtWidgets/QGraphicsScene>
 #include <QtWidgets/QGraphicsView>
 
-Chart::Chart(QGraphicsItem *parent, Qt::WindowFlags wFlags)
+
+Chart::Chart(QGraphicsItem* parent, Qt::WindowFlags wFlags)
     : QChart(QChart::ChartTypeCartesian, parent, wFlags)
 {
     grabGesture(Qt::PanGesture);
     grabGesture(Qt::PinchGesture);
-}
-
-Chart::~Chart()
-{
-
 }
 
 bool Chart::sceneEvent(QEvent *event)

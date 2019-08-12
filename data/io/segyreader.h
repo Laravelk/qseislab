@@ -3,29 +3,29 @@
 #include "abstractsegyreader.h"
 
 #include <segyio/segy.h>
-#include <string>
+
+
+// TODO: где и как дефайнить такое?? может так?
+#define SEGY_READER_TRACE_IN_COMPONENT 3;
 
 
 namespace Data {
 namespace IO {
 class SegyReader : public AbstractSegyReader{
 public:
-    explicit SegyReader(const char* );
+    void setFilePath(const char* ) noexcept(false) override;
 
-    bool isValid() const override;
+    void readBinHeader() noexcept(false) override;
+
+    int traceInComponent() const override;
 
     bool hasNextComponent() const override;
-    SeismComponent* nextComponent() override;
 
-    const char* getErrMsg() const override;
+    std::unique_ptr<SeismTrace> nextTrace() noexcept(false) override;
 
-    ~SegyReader() override;
+    void close() override;
 
 private:
-    int readBinHeader() override;
-    int errmsg(int, const char*) override;
-
-    bool _isValid{false};
     int _alreadyRead{0};
 
     segy_file* _fp{nullptr};
@@ -37,7 +37,7 @@ private:
     int _trace_num{0};
     int _trace_bsize{0};
 
-    std::string _errmsg;
+    std::unique_ptr<SeismTrace> _trace;
 };
 
 

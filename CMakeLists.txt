@@ -24,15 +24,19 @@ find_package(segyio REQUIRED)
 
 
 set(SOURCES
-        add_event/controller.cpp
-        add_event/model.cpp
-        add_event/view/filemanager.cpp
-        add_event/view/infoevent.cpp
-#        add_event/view/simulationgraphic.cpp
-        add_event/view/view.cpp
-        add_event/view/chart.cpp
-        add_event/view/chartview.cpp
-        add_event/view/graphicevent.cpp
+        event_operation/add_event/controller.cpp
+        event_operation/add_event/model.cpp
+        event_operation/add_event/view/filemanager.cpp
+        event_operation/add_event/view/view.cpp
+
+        event_operation/view_event/controller.cpp
+        event_operation/view_event/view.cpp
+
+        event_operation/share_view/infoevent.cpp
+        event_operation/share_view/chart.cpp
+        event_operation/share_view/chartview.cpp
+        event_operation/share_view/graphicevent.cpp
+
 
         add_horizon/controller.cpp
         add_horizon/model.cpp
@@ -41,10 +45,9 @@ set(SOURCES
         data/seismcomponent.cpp
         data/seismevent.cpp
         data/seismtrace.cpp
-        data/seismpoint.cpp
         data/seismhorizon.cpp
         data/io/segyreader.cpp
-        data/io/seismcomponentreader.cpp
+        data/io/seismdatacomponentreader.cpp
         data/io/seismcomponentwriter.cpp
         data/io/seismpointreader.cpp
         data/io/seismpointwriter.cpp
@@ -52,8 +55,6 @@ set(SOURCES
         main.cpp
 
         main/controller.cpp
-        main/scatterdatamodifier.cpp
-        main/custominputhandler.cpp
         main/view/view.cpp
         main/view/startpage.cpp
         main/view/workpage.cpp
@@ -75,15 +76,18 @@ set(SOURCES
 )
 
 set(HEADERS
-        add_event/controller.h
-        add_event/model.h
-        add_event/view/filemanager.h
-        add_event/view/infoevent.h
-#        add_event/view/simulationgraphic.h
-        add_event/view/view.h
-        add_event/view/chart.h
-        add_event/view/chartview.h
-        add_event/view/graphicevent.h
+        event_operation/add_event/controller.h
+        event_operation/add_event/model.h
+        event_operation/add_event/view/filemanager.h
+        event_operation/add_event/view/view.h
+
+        event_operation/view_event/controller.h
+        event_operation/view_event/view.h
+
+        event_operation/share_view/infoevent.h
+        event_operation/share_view/chart.h
+        event_operation/share_view/chartview.h
+        event_operation/share_view/graphicevent.h
 
         add_horizon/controller.h
         add_horizon/model.h
@@ -92,18 +96,15 @@ set(HEADERS
         data/seismcomponent.h
         data/seismevent.h
         data/seismtrace.h
-        data/seismpoint.h
         data/seismhorizon.h
         data/io/abstractsegyreader.h
         data/io/segyreader.h
-        data/io/seismcomponentreader.h
+        data/io/seismdatacomponentreader.h
         data/io/seismcomponentwriter.h
         data/io/seismpointreader.h
         data/io/seismpointwriter.h
 
         main/controller.h
-        main/scatterdatamodifier.h
-        main/custominputhandler.h
         main/view/view.h
         main/view/startpage.h
         main/view/workpage.h

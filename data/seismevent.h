@@ -5,17 +5,23 @@
 #include <memory>
 
 #include <QDateTime>
-#include <QFileInfo>
+#include <QDir>
 #include <QJsonObject>
+#include <QUuid>
 
 
 namespace Data {
 class SeismEvent {
 public:
-    explicit SeismEvent();
-    explicit SeismEvent(const QJsonObject&, const QFileInfo&) noexcept(false);
+    typedef QUuid Uuid;
 
-    void addComponent(std::unique_ptr<SeismComponent>& );
+    static const QString _default_path;
+
+
+    explicit SeismEvent();
+    explicit SeismEvent(const QJsonObject&, const QDir&) noexcept(false);
+
+    void addComponent(std::unique_ptr<SeismComponent> );
 
     int getComponentNumber() const;
 
@@ -25,15 +31,19 @@ public:
     void setDateTime(const QDateTime& );
     const QDateTime& getDateTime() const;
 
-    QJsonObject& writeToJson(QJsonObject&, const QFileInfo&) const noexcept(false);
+    void setUuid(const Uuid& );
+    const Uuid& getUuid() const;
+
+    QJsonObject& writeToJson(QJsonObject&, const QDir&) noexcept(false);
 
 private:
-    static bool readData(QString, std::unique_ptr<float[]>&, std::unique_ptr<float[]>&, std::unique_ptr<float[]>&);
-    static bool writeData(QString);
+    QString _path;
 
     QDateTime _dateTime;
 
-    std::vector<std::unique_ptr<SeismComponent>> _components;
+    Uuid  _uuid;
+
+    std::vector<std::unique_ptr<SeismComponent>> _components; 
 };
 
 
