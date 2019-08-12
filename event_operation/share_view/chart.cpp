@@ -4,6 +4,7 @@
 #include <QtWidgets/QGraphicsScene>
 #include <QtWidgets/QGraphicsView>
 
+namespace EventOperation {
 
 Chart::Chart(QGraphicsItem* parent, Qt::WindowFlags wFlags)
     : QChart(QChart::ChartTypeCartesian, parent, wFlags)
@@ -34,3 +35,4 @@ bool Chart::gestureEvent(QGestureEvent *event)
 
     return true;
 }
+} // namespace EventOperation

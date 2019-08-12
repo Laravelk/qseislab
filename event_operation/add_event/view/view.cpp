@@ -47,13 +47,13 @@ View::View(QWidget* parent)
     buttonsLayout->addWidget(_cancelButton);
 
     QVBoxLayout* graphicLayout = new QVBoxLayout();
-    graphicLayout->addWidget(_graphicEvent->getView(), 5);
+    graphicLayout->addWidget(_graphicEvent->getView(), 10);
     graphicLayout->addStretch(1);
     graphicLayout->addLayout(buttonsLayout);
 
     QHBoxLayout* mainLayout = new QHBoxLayout();
-    mainLayout->addLayout(leftLayout, 2);
-    mainLayout->addStretch(1);
+    mainLayout->addLayout(leftLayout, 10);
+//    mainLayout->addStretch(1);
     mainLayout->addLayout(graphicLayout);
 
     setLayout(mainLayout);

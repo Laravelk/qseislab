@@ -4,12 +4,14 @@
 
 #include <QFrame>
 #include <QTableWidget>
-
+#include <QtDataVisualization>
 #include <memory>
 
+using namespace QtDataVisualization;
 
 namespace Main {
 class InfoProject;
+class Surface;
 class WorkPage : public QFrame {
     Q_OBJECT
 
@@ -52,6 +54,8 @@ private:
 
     InfoProject* _infoProject;
     QTableWidget* _eventsTable;
+    Surface* _surface;
+    Q3DSurface* _graph;
 };
 
 

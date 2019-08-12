@@ -26,6 +26,12 @@ GraphicEvent::GraphicEvent(QWidget* parent)
     _view->hide();
 }
 
+GraphicEvent::~GraphicEvent()
+{
+    delete _chart;
+    delete _view;
+}
+
 void GraphicEvent::update(const std::unique_ptr<SeismEvent>& event)
 {
     _view->chart()->removeAllSeries();
@@ -41,10 +47,9 @@ void GraphicEvent::update(const std::unique_ptr<SeismEvent>& event)
         addWaveArrivalSeries(*seriesPWaveArrival, *seriesSWaveArrival, i);
         addTraceSeries(component, i);
     }
-//    _chart->createDefaultAxes();
     _view->setRenderHint(QPainter::Antialiasing);
     _view->show();
-    }
+}
 
 void GraphicEvent::clear()
 {
@@ -56,7 +61,7 @@ void GraphicEvent::setWaveArrivalPen(QLineSeries& pWaveArrivalSeries, QLineSerie
 {
     QColor red, blue;
     QPen pen = pWaveArrivalSeries.pen();
-    pen.setWidth(5);
+    pen.setWidth(2);
     pen.setBrush(QBrush("red"));
     pWaveArrivalSeries.setPen(pen);
     sWaveArrivalSeries.setPen(pen);
@@ -68,11 +73,11 @@ void GraphicEvent::setWaveArrivalPen(QLineSeries& pWaveArrivalSeries, QLineSerie
 
 void GraphicEvent::addWaveArrivalSeries(QLineSeries& pWaveArrivalSeries, QLineSeries& sWaveArrivalSeries, int index)
 {
-    pWaveArrivalSeries.append(_pWaveArrival, 0.8 + index );
-    pWaveArrivalSeries.append(_pWaveArrival, -0.8 + index );
+    pWaveArrivalSeries.append(_pWaveArrival, 0.4 + index );
+    pWaveArrivalSeries.append(_pWaveArrival, -0.4 + index );
 
-    sWaveArrivalSeries.append(_sWaveArrival, 0.8 + index );
-    sWaveArrivalSeries.append(_sWaveArrival, -0.8 + index );
+    sWaveArrivalSeries.append(_sWaveArrival, 0.4 + index );
+    sWaveArrivalSeries.append(_sWaveArrival, -0.4 + index );
 
     _chart->addSeries(&pWaveArrivalSeries);
     _chart->addSeries(&sWaveArrivalSeries);
@@ -99,14 +104,19 @@ void GraphicEvent::addTraceSeries(const Data::SeismComponent* component, int ind
     for (int j = 0; j < component->getTraces().size(); j++) {
         float tmp = 0, intervalAxisX = 0;
         _norm = component->getMaxValue();
-//        std::cout << _norm << std::endl;
         QLineSeries *series = new QLineSeries;
         series->setUseOpenGL(true);
         SeismTrace *trace = component->getTraces().at(j).get();
         intervalAxisX = trace->getSampleInterval();
+        _norm*=3;
         for (int k = 0; k < trace->getBufferSize(); k++) {
-            //std::cout << trace->getBuffer()[k] / _norm << std::endl;
-            series->append(tmp, 0.5 * trace->getBuffer()[k] / _norm + index);
+            if (j == 0)
+            series->append(tmp,-0.15 + 0.5 * trace->getBuffer()[k] / _norm + index);
+            if (j == 1)
+            series->append(tmp,0.5 * trace->getBuffer()[k] / _norm + index);
+            if (j == 2)
+            series->append(tmp,0.15 + 0.5 * trace->getBuffer()[k] / _norm + index);
+
             tmp+=intervalAxisX;
         }
         _chart->addSeries(series);

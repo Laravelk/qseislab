@@ -16,7 +16,7 @@ View::View(QWidget *parent)
     : QMainWindow(parent)
 {
     setWindowTitle("MainWindow");
-    setMinimumSize(600,500);
+    setMinimumSize(700,800);
 
 
     QMenu* fileMenu = new QMenu("File");

@@ -54,6 +54,9 @@ set(SOURCES
 
         main.cpp
 
+        main/surface_view/surface.cpp
+
+
         main/controller.cpp
         main/view/view.cpp
         main/view/startpage.cpp
@@ -103,6 +106,8 @@ set(HEADERS
         data/io/seismcomponentwriter.h
         data/io/seismpointreader.h
         data/io/seismpointwriter.h
+
+        main/surface_view/surface.h
 
         main/controller.h
         main/view/view.h

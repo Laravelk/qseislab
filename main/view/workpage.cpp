@@ -2,6 +2,7 @@
 
 #include "infoproject.h"
 #include "data/seismproject.h"
+#include "../surface_view/surface.h"
 
 #include <QDateTime>
 #include <QHBoxLayout>
@@ -12,13 +13,22 @@
 typedef Data::SeismProject SeismProject;
 typedef Data::SeismEvent SeismEvent;
 
+using namespace QtDataVisualization;
+
 
 namespace Main {
 WorkPage::WorkPage(QWidget* parent)
     :QFrame(parent),
      _infoProject(new InfoProject(this)),
-     _eventsTable(new QTableWidget(this))
+     _eventsTable(new QTableWidget(this)),
+    _graph(new Q3DSurface)
 {
+    _surface = new Surface(_graph);
+    QWidget *container = QWidget::createWindowContainer(_graph);
+    container->setMinimumSize(QSize(400, 300));
+    container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    container->setFocusPolicy(Qt::StrongFocus);
+
     QPushButton* addEventButton = new QPushButton("AddEvent");
     connect(addEventButton, SIGNAL(clicked()), this, SLOT(handleAddEventClicked()));
 
@@ -44,6 +54,7 @@ WorkPage::WorkPage(QWidget* parent)
 
     QVBoxLayout* vLayout = new QVBoxLayout();
     vLayout->addWidget(_infoProject);
+    vLayout->addWidget(container);
     vLayout->addStretch(1);
     vLayout->addLayout(buttonsLayout);
     vLayout->addWidget(_eventsTable);
@@ -62,7 +73,7 @@ void WorkPage::loadProject(const std::unique_ptr<Data::SeismProject>& project)
     }
 }
 
-void WorkPage::updateProject(const std::unique_ptr<Data::SeismEvent>& event)
+void WorkPage::updateProject(const std::unique_ptr<Data::SeismEvent>& event) // event
 {
     _infoProject->addEvent();
 

@@ -5,7 +5,6 @@
 
 #include <QtCharts>
 
-
 namespace Data {
     class SeismEvent;
     class SeismComponent;
@@ -18,6 +17,7 @@ class GraphicEvent : public QFrame {
 
 public:
     explicit GraphicEvent(QWidget* parent = nullptr);
+    ~GraphicEvent();
 
     ChartView* getView() const { return _view; }
     Chart* getChart() const { return _chart;}

@@ -2,6 +2,7 @@
 
 #include <QtGui/QMouseEvent>
 
+namespace EventOperation {
 
 ChartView::ChartView(QChart *chart, QWidget *parent) :
     QChartView(chart, parent),
@@ -83,15 +84,17 @@ void ChartView::keyPressEvent(QKeyEvent *event)
 
 void ChartView::wheelEvent(QWheelEvent *event)
 {
-    chart()->zoomReset();
+//    chart()->zoomReset();
 
-    _mFactor *= event->angleDelta().y() > 0 ? 0.5 : 2;
+//    _mFactor *= event->angleDelta().y() > 0 ? 0.5 : 2;
 
-    QRectF rect = chart()->plotArea();
-    QPointF c = chart()->plotArea().center();
-    rect.setWidth(_mFactor*rect.width());
-    rect.moveCenter(c);
-    chart()->zoomIn(rect);
+//    QRectF rect = chart()->plotArea();
+//    QPointF c = chart()->plotArea().center();
+//    rect.setWidth(_mFactor*rect.width());
+//    rect.moveCenter(c);
+//    chart()->zoomIn(rect);
 
-    QChartView::wheelEvent(event);
+//    QChartView::wheelEvent(event);
 }
+
+} // namespace EventOperaion

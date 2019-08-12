@@ -31,14 +31,14 @@ View::View(QWidget* parent)
     buttonsLayout->addWidget(_okButton);
 
     QVBoxLayout* graphicLayout = new QVBoxLayout();
-    graphicLayout->addWidget(_graphicEvent->getView());
+    graphicLayout->addWidget(_graphicEvent->getView(), 10);
     graphicLayout->addStretch(1);
     graphicLayout->addLayout(buttonsLayout);
 
     QHBoxLayout* mainLayout = new QHBoxLayout();
-    mainLayout->addLayout(leftLayout, 2);
-    mainLayout->addStretch(1);
-    mainLayout->addLayout(graphicLayout);
+    mainLayout->addLayout(leftLayout);
+//    mainLayout->addStretch(1);
+    mainLayout->addLayout(graphicLayout, 10);
 
     setLayout(mainLayout);
 }
