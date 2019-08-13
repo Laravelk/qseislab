@@ -6,30 +6,28 @@
 
 #include <memory>
 
-
 namespace Data {
 namespace IO {
 class SeismDataComponentReader {
 public:
-    explicit SeismDataComponentReader(const QFileInfo& ) noexcept(false);
+  explicit SeismDataComponentReader(const QFileInfo &) noexcept(false);
 
-    std::vector<std::unique_ptr<float[]>>& getData();
+  std::vector<std::unique_ptr<float[]>> &getData();
 
-    void next();
+  void next();
 
-    ~SeismDataComponentReader();
+  ~SeismDataComponentReader();
 
 private:
-    QFile _file;
-    QDataStream _instream;
+  QFile _file;
+  QDataStream _instream;
 
-    int _componentNum;
-    int _tracesInComponent;
-    int _readNum{0};
+  int _componentNum;
+  int _tracesInComponent;
+  int _readNum{0};
 
-    std::vector<std::unique_ptr<float[]>> _data;
+  std::vector<std::unique_ptr<float[]>> _data;
 };
-
 
 } // namespace IO
 } // namespace Data

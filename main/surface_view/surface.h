@@ -14,8 +14,7 @@ public:
     ~Surface();
 private:
     Q3DSurface* _surface;
-    QSurfaceDataProxy* _sqrtSinProxy;
-    QSurface3DSeries* _heightMapSeries;
-    QSurface3DSeries* _sqrtSinProxySeries;
+    QCustom3DItem* _previousAnimatedItem;
+    QVector3D* _previousScaling;
 };
 } // namespace Main

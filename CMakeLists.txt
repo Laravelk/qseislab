@@ -21,8 +21,6 @@ find_package(Qt5 COMPONENTS ${_Q_MODULES} REQUIRED)
 
 find_package(segyio REQUIRED)
 
-
-
 set(SOURCES
         event_operation/add_event/controller.cpp
         event_operation/add_event/model.cpp
@@ -114,6 +112,9 @@ set(HEADERS
         main/view/startpage.h
         main/view/workpage.h
         main/view/infoproject.h
+
+        resources/1.h
+
 
         project_operation/new_project/controller.h
         project_operation/new_project/view.h

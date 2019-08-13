@@ -3,72 +3,74 @@
 #include "seismevent.h"
 #include "seismhorizon.h"
 
-#include <QObject>
-#include <QJsonObject>
-#include <QFileInfo>
 #include <QDateTime>
+#include <QFileInfo>
+#include <QJsonObject>
+#include <QObject>
 
-#include <memory>
 #include <map>
-
+#include <memory>
 
 namespace Data {
 class SeismProject : public QObject {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit SeismProject(QObject* parent = nullptr);
-    explicit SeismProject(const QJsonObject&, const QFileInfo&, QObject* parent = nullptr) noexcept(false);
+  explicit SeismProject(QObject *parent = nullptr);
+  explicit SeismProject(const QJsonObject &, const QFileInfo &,
+                        QObject *parent = nullptr) noexcept(false);
 
-    bool exist() const;
-    bool isSaved() const;
+  bool exist() const;
+  bool isSaved() const;
 
-    QJsonObject& writeToJson(QJsonObject& , const QFileInfo& ) noexcept(false);
+  QJsonObject &writeToJson(QJsonObject &, const QFileInfo &) noexcept(false);
 
-    void setName(const QString& );
-    const QString& getName() const;
+  void setName(const QString &);
+  const QString &getName() const;
 
-    void setDate(const QDate& );
-    void setTime(const QTime& );
-    void setDateTime(const QDateTime& );
-    const QDateTime& getDateTime() const;
+  void setDate(const QDate &);
+  void setTime(const QTime &);
+  void setDateTime(const QDateTime &);
+  const QDateTime &getDateTime() const;
 
-    void setFileInfo(const QFileInfo& );
-    const QFileInfo& getFileInfo();
+  void setFileInfo(const QFileInfo &);
+  const QFileInfo &getFileInfo();
 
-    void addEvent(std::unique_ptr<SeismEvent> );
-    bool removeEvent(const Data::SeismEvent::Uuid& );
-    int getEventsNumber() const;
-    const std::map<Data::SeismEvent::Uuid, std::unique_ptr<SeismEvent>>& getEventsMap() const;
-    const std::unique_ptr<Data::SeismEvent>& getEvent(const Data::SeismEvent::Uuid& ) const;
+  void addEvent(std::unique_ptr<SeismEvent>);
+  bool removeEvent(const Data::SeismEvent::Uuid &);
+  int getEventsNumber() const;
+  const std::map<Data::SeismEvent::Uuid, std::unique_ptr<SeismEvent>> &
+  getEventsMap() const;
+  const std::unique_ptr<Data::SeismEvent> &
+  getEvent(const Data::SeismEvent::Uuid &) const;
 
-    void addHorizon(std::unique_ptr<SeismHorizon> );
-    bool removeHorizon(const Data::SeismHorizon::Uuid& );
-    int getHorizonsNumber() const;
-    const std::map<Data::SeismHorizon::Uuid, std::unique_ptr<SeismHorizon>>& getHorizonsMap() const;
-    const std::unique_ptr<Data::SeismHorizon>& getHorizon(const Data::SeismHorizon::Uuid& ) const;
-
+  void addHorizon(std::unique_ptr<SeismHorizon>);
+  bool removeHorizon(const Data::SeismHorizon::Uuid &);
+  int getHorizonsNumber() const;
+  const std::map<Data::SeismHorizon::Uuid, std::unique_ptr<SeismHorizon>> &
+  getHorizonsMap() const;
+  const std::unique_ptr<Data::SeismHorizon> &
+  getHorizon(const Data::SeismHorizon::Uuid &) const;
 
 signals:
-    void addedEvent(const std::unique_ptr<Data::SeismEvent>& ) const;
-    void removedEvent(const Data::SeismEvent::Uuid& ) const;
+  void addedEvent(const std::unique_ptr<Data::SeismEvent> &) const;
+  void removedEvent(const Data::SeismEvent::Uuid &) const;
 
-
-    void addedHorizon(const std::unique_ptr<Data::SeismHorizon>& ) const;
-    void removedHorizon(const Data::SeismHorizon::Uuid& ) const;
+  void addedHorizon(const std::unique_ptr<Data::SeismHorizon> &) const;
+  void removedHorizon(const Data::SeismHorizon::Uuid &) const;
 
 private:
-    static const QUuid generateUuid();
+  static const QUuid generateUuid();
 
-    bool _isSaved{false};
+  bool _isSaved{false};
 
-    QString _name;
-    QDateTime _dateTime;
-    QFileInfo _fileInfo;
+  QString _name;
+  QDateTime _dateTime;
+  QFileInfo _fileInfo;
 
-    std::map<Data::SeismEvent::Uuid, std::unique_ptr<SeismEvent>> _events_map;
-    std::map<Data::SeismHorizon::Uuid, std::unique_ptr<SeismHorizon>> _horizons_map;
+  std::map<Data::SeismEvent::Uuid, std::unique_ptr<SeismEvent>> _events_map;
+  std::map<Data::SeismHorizon::Uuid, std::unique_ptr<SeismHorizon>>
+      _horizons_map;
 };
-
 
 } // namespace Data
