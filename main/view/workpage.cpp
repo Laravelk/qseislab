@@ -82,7 +82,7 @@ void WorkPage::updateProject(
 
 void WorkPage::updateProjectRemoveEvent(const Data::SeismEvent::Uuid &uuid) {
   _infoProject->removeEvent();
-
+  _surface->removeEvent(uuid);
   removeEventInTable(uuid);
 }
 
