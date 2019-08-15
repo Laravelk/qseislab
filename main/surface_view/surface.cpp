@@ -9,11 +9,14 @@ typedef Data::SeismHorizon SeismHorizon;
 typedef Data::SeismProject SeismProject;
 
 namespace Main {
-Surface::Surface(Q3DSurface *surface) : _surface(surface) {
+Surface::Surface(Q3DSurface *surface) : _surface(surface), _isHandle(false) {
   _blackColor = QImage(2, 2, QImage::Format_RGB32);
   _redColor = QImage(2, 2, QImage::Format_RGB32);
   _blackColor.fill(Qt::black);
   _redColor.fill(Qt::red);
+
+  connect(_surface, &QAbstract3DGraph::selectedElementChanged, this,
+          &Surface::handleElementSelected);
 }
 
 Surface::~Surface() {
@@ -72,4 +75,26 @@ void Surface::addEventInGraph(const std::unique_ptr<Data::SeismEvent> &event) {
 
 void Surface::addHorizonInGraph(const std::unique_ptr<SeismHorizon> &horizon) {}
 
+void Surface::handleElementSelected(QAbstract3DGraph::ElementType type) {
+  if (type == QAbstract3DGraph::ElementCustomItem) {
+    QCustom3DItem *item = _surface->selectedCustomItem();
+    if (_isHandle) {
+      _surface->removeCustomItemAt(_label->position());
+    }
+    QVector3D sizeOfLabel(1.0f, 1.0f, 0.0f);
+    QVector3D positionOfLabel;
+    positionOfLabel.setX(item->position().x() + 0.1);
+    positionOfLabel.setY(item->position().y() + 0.1);
+    positionOfLabel.setZ(item->position().z() + 0.1);
+    _label = new QCustom3DLabel(
+        "X:" + QString::number(item->position().x(), 'g', 3) +
+            " Y:" + QString::number(item->position().y(), 'g', 3) +
+            " Z:" + QString::number(item->position().z(), 'g', 3),
+        QFont("Century Gothic", 30), positionOfLabel, sizeOfLabel,
+        QQuaternion());
+    _label->setFacingCamera(true);
+    _surface->addCustomItem(_label);
+    _isHandle = true;
+  }
+}
 } // namespace Main

@@ -40,17 +40,19 @@ public:
 
 private:
   Q3DSurface *_surface;
+  QCustom3DLabel *_label;
   Data::SeismProject *_project;
   QImage _blackColor;
   QImage _redColor;
+  bool _isHandle;
   float a = 0.0f; // TODO delete
 
 private:
   void addEventInGraph(const std::unique_ptr<Data::SeismEvent> &event);
   void addHorizonInGraph(const std::unique_ptr<Data::SeismHorizon> &horizon);
+  void handleElementSelected(QAbstract3DGraph::ElementType type);
 
   std::map<Uuid, QCustom3DItem *> _eventMap;
   std::map<Uuid, QSurface3DSeries *> _horizonMap;
-  //  std::vector<Data::SeismPoint> _pointVector;
 };
 } // namespace Main
