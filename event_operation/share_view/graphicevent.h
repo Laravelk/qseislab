@@ -3,9 +3,7 @@
 #include "chart.h"
 #include "chartview.h"
 
-#include <QtCharts/QChart>
-#include <QtCharts/QLineSeries>
-#include <QtCharts/QValueAxis>
+#include <QtCharts>
 
 namespace Data {
 class SeismEvent;
@@ -19,7 +17,6 @@ class GraphicEvent : public QFrame {
 
 public:
   explicit GraphicEvent(QWidget *parent = nullptr);
-  ~GraphicEvent();
 
   ChartView *getView() const { return _view; }
   Chart *getChart() const { return _chart; }
@@ -32,8 +29,8 @@ public:
 private:
   float _norm;
   float _interval;
-  float _pWaveArrival;
-  float _sWaveArrival;
+  int _pWaveArrival;
+  int _sWaveArrival;
   ChartView *_view;
   Chart *_chart;
   QValueAxis *_axisX = new QValueAxis;
@@ -47,5 +44,4 @@ private:
   void addTraceSeries(const Data::SeismComponent *component, int index);
   void setAxesY(int componentNumber);
 };
-
 } // namespace EventOperation

@@ -1,9 +1,12 @@
 #pragma once
 
 #include "data/seismhorizon.h"
+
 #include <QObject>
+
 #include <memory>
 
+namespace HorizonOperation {
 namespace AddHorizon {
 class Model : public QObject {
   Q_OBJECT
@@ -21,3 +24,4 @@ private:
 };
 
 } // namespace AddHorizon
+} // namespace HorizonOperation

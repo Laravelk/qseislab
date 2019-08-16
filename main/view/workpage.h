@@ -13,50 +13,36 @@ namespace Main {
 class InfoProject;
 class Surface;
 class WorkPage : public QFrame {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit WorkPage(QWidget* parent = nullptr);
+  explicit WorkPage(QWidget *parent = nullptr);
 
-    void loadProject(const std::unique_ptr<Data::SeismProject>& );
+  void loadProject(const std::unique_ptr<Data::SeismProject> &);
 
-    void updateProject(const std::unique_ptr<Data::SeismEvent>& );
-    void updateProjectRemoveEvent(const Data::SeismEvent::Uuid& );
-    void updateProject(const std::unique_ptr<Data::SeismHorizon>& );
-    void updateProjectRemoveHorizon(const Data::SeismHorizon::Uuid& );
-
+  void updateProject(const std::unique_ptr<Data::SeismEvent> &);
+  void updateProjectRemoveEvent(const QUuid &);
+  void updateProject(const std::unique_ptr<Data::SeismHorizon> &);
+  void updateProjectRemoveHorizon(const QUuid &);
 
 signals:
-    void addEventClicked() const;
-    void viewEventClicked(const Data::SeismEvent::Uuid ) const;
-    void removeEventClicked(const Data::SeismEvent::Uuid ) const;
-
-    void addHorizonClicked() const;
-
-    void saveProjectClicked() const;
-    void closeProjectClicked() const;
+  void viewEventClicked(const QUuid) const;
+  void removeEventClicked(const QUuid) const;
 
 private slots:
-    void handleAddEventClicked();
-    void handleEventClicked(int, int);
-
-    void handleAddHorizonClicked();
-
-    void handleSaveProjectClicked();
-    void handleCloseProjectClicked();
+  void handleEventClicked(int, int);
 
 private:
-    void clearTable();
-    void initEventsTable(QTableWidget* );
+  void clearTable();
+  void initEventsTable(QTableWidget *);
 
-    void insertEventInTable(const std::unique_ptr<Data::SeismEvent>& );
-    void removeEventInTable(const Data::SeismEvent::Uuid& );
+  void insertEventInTable(const std::unique_ptr<Data::SeismEvent> &);
+  void removeEventInTable(const QUuid &);
 
-    InfoProject* _infoProject;
-    QTableWidget* _eventsTable;
-    Surface* _surface;
-    Q3DSurface* _graph;
+  InfoProject *_infoProject;
+  QTableWidget *_eventsTable;
+  Surface *_surface;
+  Q3DSurface *_graph;
 };
-
 
 } // namespace Main

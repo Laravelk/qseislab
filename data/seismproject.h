@@ -37,27 +37,23 @@ public:
   const QFileInfo &getFileInfo();
 
   void addEvent(std::unique_ptr<SeismEvent>);
-  bool removeEvent(const Data::SeismEvent::Uuid &);
+  bool removeEvent(const QUuid &);
   int getEventsNumber() const;
-  const std::map<Data::SeismEvent::Uuid, std::unique_ptr<SeismEvent>> &
-  getEventsMap() const;
-  const std::unique_ptr<Data::SeismEvent> &
-  getEvent(const Data::SeismEvent::Uuid &) const;
+  const std::map<QUuid, std::unique_ptr<SeismEvent>> &getEventsMap() const;
+  const std::unique_ptr<Data::SeismEvent> &getEvent(const QUuid &) const;
 
   void addHorizon(std::unique_ptr<SeismHorizon>);
-  bool removeHorizon(const Data::SeismHorizon::Uuid &);
+  bool removeHorizon(const QUuid &);
   int getHorizonsNumber() const;
-  const std::map<Data::SeismHorizon::Uuid, std::unique_ptr<SeismHorizon>> &
-  getHorizonsMap() const;
-  const std::unique_ptr<Data::SeismHorizon> &
-  getHorizon(const Data::SeismHorizon::Uuid &) const;
+  const std::map<QUuid, std::unique_ptr<SeismHorizon>> &getHorizonsMap() const;
+  const std::unique_ptr<Data::SeismHorizon> &getHorizon(const QUuid &) const;
 
 signals:
   void addedEvent(const std::unique_ptr<Data::SeismEvent> &) const;
-  void removedEvent(const Data::SeismEvent::Uuid &) const;
+  void removedEvent(const QUuid &) const;
 
   void addedHorizon(const std::unique_ptr<Data::SeismHorizon> &) const;
-  void removedHorizon(const Data::SeismHorizon::Uuid &) const;
+  void removedHorizon(const QUuid &) const;
 
 private:
   static const QUuid generateUuid();
@@ -68,9 +64,8 @@ private:
   QDateTime _dateTime;
   QFileInfo _fileInfo;
 
-  std::map<Data::SeismEvent::Uuid, std::unique_ptr<SeismEvent>> _events_map;
-  std::map<Data::SeismHorizon::Uuid, std::unique_ptr<SeismHorizon>>
-      _horizons_map;
+  std::map<QUuid, std::unique_ptr<SeismEvent>> _events_map;
+  std::map<QUuid, std::unique_ptr<SeismHorizon>> _horizons_map;
 };
 
 } // namespace Data

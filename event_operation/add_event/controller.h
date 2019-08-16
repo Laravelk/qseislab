@@ -29,6 +29,7 @@ private:
   Model *_model;
 
   std::unique_ptr<View> _view;
+
   std::unique_ptr<Data::SeismEvent> _event;
 };
 

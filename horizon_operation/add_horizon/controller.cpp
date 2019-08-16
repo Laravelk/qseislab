@@ -5,6 +5,7 @@
 
 typedef Data::SeismHorizon SeismHorizon;
 
+namespace HorizonOperation {
 namespace AddHorizon {
 Controller::Controller(QObject *parent)
     : QObject(parent), _model(new Model(this)) {
@@ -43,3 +44,4 @@ void Controller::finish(int result) {
 }
 
 } // namespace AddHorizon
+} // namespace HorizonOperation

@@ -2,7 +2,9 @@
 
 #include <QtCharts/QChart>
 
+QT_BEGIN_NAMESPACE
 class QGestureEvent;
+QT_END_NAMESPACE
 
 using namespace QtCharts;
 

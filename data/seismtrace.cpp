@@ -3,27 +3,33 @@
 namespace Data {
 SeismTrace::SeismTrace() {}
 
-SeismTrace::SeismTrace(const QJsonObject &json, std::unique_ptr<float[]> data) {
-  if (!(json.contains("sampleInterval") && json.contains("pWaveArrival") &&
-        json.contains("sWaveArrival") && json.contains("maxValue"))) {
+SeismTrace::SeismTrace(const QJsonObject &json,
+                       std::pair<uint32_t, std::unique_ptr<float[]>> &data) {
+  if (!(json.contains("sampleInterval"))) {
     throw std::runtime_error("Not found json-field (SeismTrace)");
   }
 
   _sampleInterval = static_cast<float>(json["sampleInterval"].toDouble());
-  int size = json["size"].toInt();
 
-  if (0 > size) {
-    throw std::runtime_error("Invalid values for json-field");
+  _bufferSize = data.first;
+
+  _buffer = std::move(data.second);
+
+  // calc _maxValue
+  for (uint32_t i = 0; i < _bufferSize; ++i) {
+    if (_buffer[i] > _maxValue) {
+      _maxValue = _buffer[i];
+    }
   }
 
-  _bufferSize = static_cast<unsigned>(size);
-
-  _pWaveArrival = static_cast<float>(json["pWaveArrival"].toDouble());
-  _sWaveArrival = static_cast<float>(json["sWaveArrival"].toDouble());
-
-  _maxValue = static_cast<float>(json["maxValue"].toDouble());
-
-  _buffer = std::move(data);
+  if (json.contains("sampleNumber")) {
+    int jsize = json["sampleNumber"].toInt();
+    if (jsize != static_cast<int>(_bufferSize)) {
+      // TODO: notify
+    }
+  } else {
+    // TODO: notify
+  }
 }
 
 float SeismTrace::getSampleInterval() const { return _sampleInterval; }
@@ -32,34 +38,22 @@ void SeismTrace::setSampleInterval(float sampleInterval) {
   _sampleInterval = sampleInterval;
 }
 
-float SeismTrace::getPWaveArrival() const { return _pWaveArrival; }
-
-void SeismTrace::setPWaveArrival(float pWaveArrival) {
-  _pWaveArrival = pWaveArrival;
-}
-
-float SeismTrace::getSWaveArrival() const { return _sWaveArrival; }
-
-void SeismTrace::setSWaveArrival(float sWaveArrival) {
-  _sWaveArrival = sWaveArrival;
-}
-
 float SeismTrace::getMaxValue() const { return _maxValue; }
 
-unsigned SeismTrace::getBufferSize() const { return _bufferSize; }
+int SeismTrace::getBufferSize() const { return static_cast<int>(_bufferSize); }
 
 const std::unique_ptr<float[]> &SeismTrace::getBuffer() const {
   return _buffer;
 }
 
-void SeismTrace::setBuffer(unsigned size, float *buffer) {
+void SeismTrace::setBuffer(uint32_t size, float *buffer) {
   assert(0 <= size);
 
   _bufferSize = size;
 
   _buffer.reset();
   _buffer = std::make_unique<float[]>(_bufferSize);
-  for (unsigned i = 0; i < _bufferSize; ++i) {
+  for (uint32_t i = 0; i < _bufferSize; ++i) {
     _buffer[i] = buffer[i];
     if (_maxValue < buffer[i]) {
       _maxValue = buffer[i];
@@ -69,10 +63,7 @@ void SeismTrace::setBuffer(unsigned size, float *buffer) {
 
 QJsonObject &SeismTrace::writeToJson(QJsonObject &json) const {
   json["sampleInterval"] = static_cast<double>(_sampleInterval);
-  json["pWaveArrival"] = static_cast<double>(_pWaveArrival);
-  json["sWaveArrival"] = static_cast<double>(_sWaveArrival);
-  json["maxValue"] = static_cast<double>(_maxValue);
-  json["size"] = static_cast<int>(_bufferSize);
+  json["sampleNumber"] = static_cast<int>(_bufferSize);
   return json;
 }
 

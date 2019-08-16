@@ -12,8 +12,6 @@
 namespace Data {
 class SeismEvent {
 public:
-  typedef QUuid Uuid;
-
   static const QString _default_path;
 
   explicit SeismEvent();
@@ -29,8 +27,8 @@ public:
   void setDateTime(const QDateTime &);
   const QDateTime &getDateTime() const;
 
-  void setUuid(const Uuid &);
-  const Uuid &getUuid() const;
+  void setUuid(const QUuid &);
+  const QUuid &getUuid() const;
 
   QJsonObject &writeToJson(QJsonObject &, const QDir &) noexcept(false);
 
@@ -39,7 +37,7 @@ private:
 
   QDateTime _dateTime;
 
-  Uuid _uuid;
+  QUuid _uuid;
 
   std::vector<std::unique_ptr<SeismComponent>> _components;
 };

@@ -5,6 +5,7 @@
 typedef Data::SeismHorizon SeismHorizon;
 typedef Data::IO::SeismPointReader SeismPointReader;
 
+namespace HorizonOperation {
 namespace AddHorizon {
 Model::Model(QObject *parent) : QObject(parent) {}
 
@@ -16,8 +17,7 @@ Model::getSeismHorizonFrom(const QString &path) {
     SeismPointReader reader(path);
 
     while (reader.hasNext()) {
-      _horizon->addPoint(reader.getPoint());
-      reader.next();
+      _horizon->addPoint(reader.next());
     }
   } catch (const std::runtime_error &err) {
     _horizon.reset();
@@ -28,3 +28,4 @@ Model::getSeismHorizonFrom(const QString &path) {
 }
 
 } // namespace AddHorizon
+} // namespace HorizonOperation

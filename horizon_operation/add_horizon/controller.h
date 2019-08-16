@@ -6,6 +6,7 @@
 
 #include <memory>
 
+namespace HorizonOperation {
 namespace AddHorizon {
 class Controller : public QObject {
   Q_OBJECT
@@ -29,3 +30,4 @@ private:
 };
 
 } // namespace AddHorizon
+} // namespace HorizonOperation

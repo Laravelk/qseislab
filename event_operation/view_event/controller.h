@@ -1,7 +1,9 @@
 #pragma once
 
 #include "view.h"
+
 #include <QObject>
+
 #include <memory>
 
 namespace Data {

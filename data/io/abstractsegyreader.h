@@ -3,7 +3,7 @@
 #include <memory>
 
 namespace Data {
-class SeismTrace;
+class SeismComponent;
 
 namespace IO {
 class AbstractSegyReader {
@@ -12,10 +12,8 @@ public:
 
   virtual void readBinHeader() = 0;
 
-  virtual int traceInComponent() const = 0;
-
   virtual bool hasNextComponent() const = 0;
-  virtual std::unique_ptr<SeismTrace> nextTrace() = 0;
+  virtual std::unique_ptr<SeismComponent> nextComponent() = 0;
 
   virtual void close() = 0;
 

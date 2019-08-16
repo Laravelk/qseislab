@@ -5,7 +5,6 @@
 #include <QtWidgets/QGraphicsView>
 
 namespace EventOperation {
-
 Chart::Chart(QGraphicsItem *parent, Qt::WindowFlags wFlags)
     : QChart(QChart::ChartTypeCartesian, parent, wFlags) {
   grabGesture(Qt::PanGesture);

@@ -42,5 +42,4 @@ void InfoEvent::clear() {
   _lengthLabel->clear();
   _groupeCoordinate->clear();
 }
-
 } // namespace EventOperation

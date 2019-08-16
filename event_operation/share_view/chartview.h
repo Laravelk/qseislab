@@ -7,7 +7,6 @@
 using namespace QtCharts;
 
 namespace EventOperation {
-
 class ChartView : public QChartView {
 public:
   ChartView(QChart *chart, QWidget *parent = nullptr);

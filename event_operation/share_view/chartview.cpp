@@ -3,7 +3,6 @@
 #include <QtGui/QMouseEvent>
 
 namespace EventOperation {
-
 ChartView::ChartView(QChart *chart, QWidget *parent)
     : QChartView(chart, parent), m_isTouching(false) {
   setRubberBand(QChartView::RectangleRubberBand);

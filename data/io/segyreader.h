@@ -1,11 +1,9 @@
 #pragma once
 
 #include "abstractsegyreader.h"
+#include "defines.h"
 
 #include <segyio/segy.h>
-
-// TODO: где и как дефайнить такое?? может так?
-#define SEGY_READER_TRACE_IN_COMPONENT 3;
 
 namespace Data {
 namespace IO {
@@ -15,11 +13,9 @@ public:
 
   void readBinHeader() noexcept(false) override;
 
-  int traceInComponent() const override;
-
   bool hasNextComponent() const override;
 
-  std::unique_ptr<SeismTrace> nextTrace() noexcept(false) override;
+  std::unique_ptr<SeismComponent> nextComponent() noexcept(false) override;
 
   void close() override;
 
@@ -34,8 +30,6 @@ private:
   long _trace0{0};
   int _trace_num{0};
   int _trace_bsize{0};
-
-  std::unique_ptr<SeismTrace> _trace;
 };
 
 } // namespace IO

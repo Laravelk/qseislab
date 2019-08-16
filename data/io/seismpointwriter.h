@@ -2,14 +2,14 @@
 
 #include "data/seismhorizon.h"
 
+#include <QDataStream>
 #include <QFileInfo>
-#include <QTextStream>
 
 namespace Data {
 namespace IO {
 class SeismPointWriter {
 public:
-  explicit SeismPointWriter(const QFileInfo &, int);
+  explicit SeismPointWriter(const QFileInfo &);
 
   void writePoint(const SeismHorizon::SeismPoint &);
 
@@ -17,7 +17,7 @@ public:
 
 private:
   QFile _file;
-  QTextStream _outstream;
+  QDataStream _outstream;
 };
 
 } // namespace IO

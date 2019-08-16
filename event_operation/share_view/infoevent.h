@@ -27,5 +27,4 @@ private:
   QLabel *_lengthLabel;
   QLabel *_groupeCoordinate;
 };
-
 } // namespace EventOperation

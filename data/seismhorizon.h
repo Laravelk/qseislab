@@ -10,8 +10,7 @@
 namespace Data {
 class SeismHorizon {
 public:
-  typedef QUuid Uuid;
-  typedef std::tuple<float, float, float, float> SeismPoint;
+  typedef std::tuple<float, float, float> SeismPoint;
 
   static const QString _default_path;
 
@@ -24,15 +23,15 @@ public:
   const SeismPoint &getPoint(int);
   const std::vector<SeismPoint> &getPoints();
 
-  void setUuid(const Uuid &);
-  const Uuid &getUuid() const;
+  void setUuid(const QUuid &);
+  const QUuid &getUuid() const;
 
   QJsonObject &writeToJson(QJsonObject &, const QDir &) noexcept(false);
 
 private:
   QString _path;
 
-  Uuid _uuid;
+  QUuid _uuid;
 
   std::vector<SeismPoint> _points;
 };

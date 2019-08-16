@@ -21,25 +21,21 @@ GraphicEvent::GraphicEvent(QWidget *parent)
   _view->hide();
 }
 
-GraphicEvent::~GraphicEvent() {
-  delete _chart;
-  delete _view;
-}
-
 void GraphicEvent::update(const std::unique_ptr<SeismEvent> &event) {
   _view->chart()->removeAllSeries();
   setInterval(event);
   setAxesY(event->getComponentNumber());
   for (int i = 0; i < event->getComponentNumber(); i++) {
     SeismComponent *component = event->getComponent(i).get();
-    _pWaveArrival = component->getTraces().at(0)->getPWaveArrival();
-    _sWaveArrival = component->getTraces().at(0)->getSWaveArrival();
+    _pWaveArrival = component->getPWaveArrival();
+    _sWaveArrival = component->getSWaveArrival();
     QLineSeries *seriesPWaveArrival = new QLineSeries;
     QLineSeries *seriesSWaveArrival = new QLineSeries;
     setWaveArrivalPen(*seriesPWaveArrival, *seriesSWaveArrival);
     addWaveArrivalSeries(*seriesPWaveArrival, *seriesSWaveArrival, i);
     addTraceSeries(component, i);
   }
+  //    _chart->createDefaultAxes();
   _view->setRenderHint(QPainter::Antialiasing);
   _view->show();
 }
@@ -53,7 +49,7 @@ void GraphicEvent::setWaveArrivalPen(QLineSeries &pWaveArrivalSeries,
                                      QLineSeries &sWaveArrivalSeries) {
   QColor red, blue;
   QPen pen = pWaveArrivalSeries.pen();
-  pen.setWidth(2);
+  pen.setWidth(5);
   pen.setBrush(QBrush("red"));
   pWaveArrivalSeries.setPen(pen);
   sWaveArrivalSeries.setPen(pen);
@@ -66,11 +62,11 @@ void GraphicEvent::setWaveArrivalPen(QLineSeries &pWaveArrivalSeries,
 void GraphicEvent::addWaveArrivalSeries(QLineSeries &pWaveArrivalSeries,
                                         QLineSeries &sWaveArrivalSeries,
                                         int index) {
-  pWaveArrivalSeries.append(static_cast<qreal>(_pWaveArrival), 0.4 + index);
-  pWaveArrivalSeries.append(static_cast<qreal>(_pWaveArrival), -0.4 + index);
+  pWaveArrivalSeries.append(_pWaveArrival, 0.8 + index);
+  pWaveArrivalSeries.append(_pWaveArrival, -0.8 + index);
 
-  sWaveArrivalSeries.append(static_cast<qreal>(_sWaveArrival), 0.4 + index);
-  sWaveArrivalSeries.append(static_cast<qreal>(_sWaveArrival), -0.4 + index);
+  sWaveArrivalSeries.append(_sWaveArrival, 0.8 + index);
+  sWaveArrivalSeries.append(_sWaveArrival, -0.8 + index);
 
   _chart->addSeries(&pWaveArrivalSeries);
   _chart->addSeries(&sWaveArrivalSeries);
@@ -84,38 +80,26 @@ void GraphicEvent::addWaveArrivalSeries(QLineSeries &pWaveArrivalSeries,
 
 void GraphicEvent::setInterval(const std::unique_ptr<SeismEvent> &event) {
   _interval = 0;
-  for (unsigned long i = 0; i < event->getComponents().size(); i++) {
-    if (_interval < event->getComponent(static_cast<int>(i))->getMaxValue()) {
-      _interval = event->getComponent(static_cast<int>(i))->getMaxValue();
+  for (int i = 0; i < event->getComponents().size(); i++) {
+    if (_interval < event->getComponent(i)->getMaxValue()) {
+      _interval = event->getComponent(i)->getMaxValue();
     }
   }
 }
 
 void GraphicEvent::addTraceSeries(const Data::SeismComponent *component,
                                   int index) {
-  for (unsigned long j = 0; j < component->getTraces().size(); j++) {
+  for (int j = 0; j < component->getTraces().size(); j++) {
     float tmp = 0, intervalAxisX = 0;
     _norm = component->getMaxValue();
+    //        std::cout << _norm << std::endl;
     QLineSeries *series = new QLineSeries;
     series->setUseOpenGL(true);
     SeismTrace *trace = component->getTraces().at(j).get();
     intervalAxisX = trace->getSampleInterval();
-    _norm *= 3;
-    for (unsigned long k = 0; k < trace->getBufferSize(); k++) {
-      if (j == 0) {
-        series->append(static_cast<qreal>(tmp),
-                       static_cast<qreal>(-0.15 +
-                                          0.5 * trace->getBuffer()[k] / _norm +
-                                          index));
-      }
-      if (j == 1) {
-        series->append(static_cast<qreal>(tmp),
-                       0.5 * trace->getBuffer()[k] / _norm + index);
-      }
-      if (j == 2) {
-        series->append(static_cast<qreal>(tmp),
-                       0.15 + 0.5 * trace->getBuffer()[k] / _norm + index);
-      }
+    for (int k = 0; k < trace->getBufferSize(); k++) {
+      // std::cout << trace->getBuffer()[k] / _norm << std::endl;
+      series->append(tmp, 0.5 * trace->getBuffer()[k] / _norm + index);
       tmp += intervalAxisX;
     }
     _chart->addSeries(series);
@@ -132,5 +116,4 @@ void GraphicEvent::setAxesY(int componentNumber) {
   _axisY->setTickType(QValueAxis::TicksDynamic);
   _axisY->setLabelFormat("%d");
 }
-
 } // namespace EventOperation

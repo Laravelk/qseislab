@@ -4,9 +4,8 @@
 
 #include <memory>
 
-
 namespace Data {
-    class SeismEvent;
+class SeismEvent;
 }
 
 namespace EventOperation {
@@ -15,27 +14,27 @@ class GraphicEvent;
 namespace AddEvent {
 class FileManager;
 class View : public QDialog {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit View(QWidget* parent = nullptr);
+  explicit View(QWidget *parent = nullptr);
 
-    void update(const std::unique_ptr<Data::SeismEvent>& );
-    void setNotification(const QString& );
+  void update(const std::unique_ptr<Data::SeismEvent> &);
+  void setNotification(const QString &);
 
 signals:
-    void sendFilePath(const QString& ) const;
-    void clear() const;
+  void sendFilePath(const QString &) const;
+  void clear() const;
 
 private slots:
-    void recvFilePath(const QString& );
+  void recvFilePath(const QString &);
 
 private:
-    FileManager* _fileManager;
-    InfoEvent* _infoEvent;
-    GraphicEvent* _graphicEvent;
-    QPushButton* _addButton;
-    QPushButton* _cancelButton;
+  FileManager *_fileManager;
+  InfoEvent *_infoEvent;
+  GraphicEvent *_graphicEvent;
+  QPushButton *_addButton;
+  QPushButton *_cancelButton;
 };
 
 } // namespace AddEvent

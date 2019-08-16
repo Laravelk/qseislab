@@ -5,30 +5,28 @@
 
 #include <memory>
 
-
 namespace Data {
-    class SeismProject;
+class SeismProject;
 }
 
 namespace Main {
 class InfoProject : public QFrame {
 public:
-    InfoProject(QWidget* parent = nullptr);
+  InfoProject(QWidget *parent = nullptr);
 
-    void update(const std::unique_ptr<Data::SeismProject>& );
+  void update(const std::unique_ptr<Data::SeismProject> &);
 
-    void addEvent();
-    void removeEvent();
-    void addHorizon();
-    void removeHorizon();
+  void addEvent();
+  void removeEvent();
+  void addHorizon();
+  void removeHorizon();
 
 private:
-    QLabel* _nameLabel;
-    QLabel* _dateLabel;
-    QLabel* _timeLabel;
-    QLabel* _eventsNumber;
-    QLabel* _horizonsNumber;
+  QLabel *_nameLabel;
+  QLabel *_dateLabel;
+  QLabel *_timeLabel;
+  QLabel *_eventsNumber;
+  QLabel *_horizonsNumber;
 };
-
 
 } // namespace Main

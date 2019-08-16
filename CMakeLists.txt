@@ -36,8 +36,9 @@ set(SOURCES
         event_operation/share_view/graphicevent.cpp
 
 
-        add_horizon/controller.cpp
-        add_horizon/model.cpp
+        horizon_operation/add_horizon/controller.cpp
+        horizon_operation/add_horizon/model.cpp
+        horizon_operation/add_horizon/view/view.cpp
 
         data/seismproject.cpp
         data/seismcomponent.cpp
@@ -45,7 +46,7 @@ set(SOURCES
         data/seismtrace.cpp
         data/seismhorizon.cpp
         data/io/segyreader.cpp
-        data/io/seismdatacomponentreader.cpp
+        data/io/seismcomponentreader.cpp
         data/io/seismcomponentwriter.cpp
         data/io/seismpointreader.cpp
         data/io/seismpointwriter.cpp
@@ -90,8 +91,10 @@ set(HEADERS
         event_operation/share_view/chartview.h
         event_operation/share_view/graphicevent.h
 
-        add_horizon/controller.h
-        add_horizon/model.h
+        horizon_operation/add_horizon/controller.h
+        horizon_operation/add_horizon/model.h
+
+        horizon_operation/add_horizon/view/view.h
 
         data/seismproject.h
         data/seismcomponent.h
@@ -100,10 +103,11 @@ set(HEADERS
         data/seismhorizon.h
         data/io/abstractsegyreader.h
         data/io/segyreader.h
-        data/io/seismdatacomponentreader.h
+        data/io/seismcomponentreader.h
         data/io/seismcomponentwriter.h
         data/io/seismpointreader.h
         data/io/seismpointwriter.h
+        data/io/defines.h
 
         main/surface_view/surface.h
 

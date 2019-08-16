@@ -5,37 +5,23 @@ namespace IO {
 SeismPointReader::SeismPointReader(const QFileInfo &fileInfo)
     : _file(fileInfo.absoluteFilePath()), _instream(&_file) {
   if (!_file.open(QIODevice::ReadOnly)) {
-    throw std::runtime_error("File can not be opened");
+    throw std::runtime_error("File can not be opened (SeismPointReader)");
   }
 
-  _instream >> _pointNum;
-
-  if (0 < _pointNum) {
-    next();
-  }
+  _instream.setByteOrder(QDataStream::LittleEndian);
+  _instream.setFloatingPointPrecision(QDataStream::SinglePrecision);
 }
 
-bool SeismPointReader::hasNext() const { return _pointNum >= _readNum; }
+bool SeismPointReader::hasNext() const { return !_instream.atEnd(); }
 
-void SeismPointReader::next() {
-  if (_pointNum < _readNum) {
-    throw std::runtime_error("Data in the file ended");
-  }
-
+SeismHorizon::SeismPoint SeismPointReader::next() {
   float x;
   float y;
   float z;
-  float val;
 
-  _instream >> x >> y >> z >> val;
+  _instream >> x >> y >> z;
 
-  _point = SeismHorizon::SeismPoint(x, y, z, val);
-
-  ++_readNum;
-}
-
-const SeismHorizon::SeismPoint &SeismPointReader::getPoint() const {
-  return _point;
+  return SeismHorizon::SeismPoint(x, y, z);
 }
 
 SeismPointReader::~SeismPointReader() { _file.close(); }

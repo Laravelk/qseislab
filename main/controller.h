@@ -7,7 +7,7 @@
 #include "event_operation/add_event/controller.h"
 #include "event_operation/view_event/controller.h"
 
-#include "add_horizon/controller.h"
+#include "horizon_operation/add_horizon/controller.h"
 
 #include "project_operation/close_project/controller.h"
 #include "project_operation/new_project/controller.h"
@@ -34,13 +34,13 @@ private slots:
   void recvHorizon(std::unique_ptr<Data::SeismHorizon> &);
 
   void updateProject(const std::unique_ptr<Data::SeismEvent> &);
-  void updateProjectRemoveEvent(const Data::SeismEvent::Uuid &);
+  void updateProjectRemoveEvent(const QUuid &);
   void updateProject(const std::unique_ptr<Data::SeismHorizon> &);
-  void updateProjectRemoveHorizon(const Data::SeismHorizon::Uuid &);
+  void updateProjectRemoveHorizon(const QUuid &);
 
   void handleAddEventClicked();
-  void handleViewEventClicked(const Data::SeismEvent::Uuid);
-  void handleRemoveEventClicked(const Data::SeismEvent::Uuid);
+  void handleViewEventClicked(const QUuid);
+  void handleRemoveEventClicked(const QUuid);
 
   void handleAddHorizonClicked();
 
@@ -67,7 +67,8 @@ private:
   std::unique_ptr<EventOperation::AddEvent::Controller> _addEventController;
   std::unique_ptr<EventOperation::ViewEvent::Controller> _viewEventController;
 
-  std::unique_ptr<AddHorizon::Controller> _addHorizonController;
+  std::unique_ptr<HorizonOperation::AddHorizon::Controller>
+      _addHorizonController;
 
   std::unique_ptr<ProjectOperation::CloseProject::Controller>
       _closeProjectController;

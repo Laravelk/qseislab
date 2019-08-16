@@ -1,7 +1,7 @@
 #include "view.h"
 
-#include "event_operation/share_view/infoevent.h"
 #include "event_operation/share_view/graphicevent.h"
+#include "event_operation/share_view/infoevent.h"
 #include "filemanager.h"
 
 #include <QBoxLayout>
@@ -10,83 +10,71 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-
 typedef Data::SeismEvent SeismEvent;
-
 
 namespace EventOperation {
 namespace AddEvent {
-View::View(QWidget* parent)
-    :QDialog(parent),
-      _fileManager(new FileManager(this)),
-      _infoEvent(new InfoEvent(this)),
-      _graphicEvent(new GraphicEvent(this)),
+View::View(QWidget *parent)
+    : QDialog(parent), _fileManager(new FileManager(this)),
+      _infoEvent(new InfoEvent(this)), _graphicEvent(new GraphicEvent(this)),
       _addButton(new QPushButton("Add", this)),
-      _cancelButton(new QPushButton("Cancel",this))
-{
-    setWindowTitle("SeismWindow");
-    setMinimumSize(1100,590);
+      _cancelButton(new QPushButton("Cancel", this)) {
 
+  setWindowTitle("SeismWindow");
+  setMinimumSize(1100, 590);
 
-    connect(_fileManager, SIGNAL(sendFilePath(const QString& )), this, SLOT(recvFilePath(const QString& )));
+  connect(_fileManager, SIGNAL(sendFilePath(const QString &)), this,
+          SLOT(recvFilePath(const QString &)));
 
+  _addButton->setDisabled(true);
+  connect(_addButton, SIGNAL(clicked()), this, SLOT(accept()));
+  connect(_cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 
+  QVBoxLayout *leftLayout = new QVBoxLayout();
+  leftLayout->addWidget(_fileManager);
+  leftLayout->addWidget(_infoEvent);
+  leftLayout->addStretch(1);
+
+  QHBoxLayout *buttonsLayout = new QHBoxLayout();
+  buttonsLayout->addStretch(1);
+  buttonsLayout->addWidget(_addButton);
+  buttonsLayout->addWidget(_cancelButton);
+
+  QVBoxLayout *graphicLayout = new QVBoxLayout();
+  graphicLayout->addWidget(_graphicEvent->getView(), 10);
+  graphicLayout->addStretch(1);
+  graphicLayout->addLayout(buttonsLayout);
+
+  QHBoxLayout *mainLayout = new QHBoxLayout();
+  mainLayout->addLayout(leftLayout);
+  //    mainLayout->addStretch(1);
+  mainLayout->addLayout(graphicLayout, 10);
+
+  setLayout(mainLayout);
+}
+
+void View::update(const std::unique_ptr<Data::SeismEvent> &event) {
+  if (!event) {
+    _fileManager->clear();
+    _infoEvent->clear();
+    _graphicEvent->clear();
     _addButton->setDisabled(true);
-    connect(_addButton, SIGNAL(clicked()), this, SLOT(accept()));
-    connect(_cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
-
-
-    QVBoxLayout* leftLayout = new QVBoxLayout();
-    leftLayout->addWidget(_fileManager);
-    leftLayout->addWidget(_infoEvent);
-    leftLayout->addStretch(1);
-
-    QHBoxLayout* buttonsLayout = new QHBoxLayout();
-    buttonsLayout->addStretch(1);
-    buttonsLayout->addWidget(_addButton);
-    buttonsLayout->addWidget(_cancelButton);
-
-    QVBoxLayout* graphicLayout = new QVBoxLayout();
-    graphicLayout->addWidget(_graphicEvent->getView(), 10);
-    graphicLayout->addStretch(1);
-    graphicLayout->addLayout(buttonsLayout);
-
-    QHBoxLayout* mainLayout = new QHBoxLayout();
-    mainLayout->addLayout(leftLayout, 10);
-//    mainLayout->addStretch(1);
-    mainLayout->addLayout(graphicLayout);
-
-    setLayout(mainLayout);
+    return;
+  }
+  _infoEvent->update(event);
+  _graphicEvent->update(event);
+  _addButton->setDisabled(false);
 }
 
-void View::update(const std::unique_ptr<Data::SeismEvent>& event)
-{
-    if(!event) {
-        _fileManager->clear();
-        _infoEvent->clear();
-        _graphicEvent->clear();
-        _addButton->setDisabled(true);
-        return;
-    }
-    _infoEvent->update(event);
-    _graphicEvent->update(event);
-    _addButton->setDisabled(false);
+void View::setNotification(const QString &text) {
+  QMessageBox *msg = new QMessageBox(this);
+  msg->setWindowTitle("Message");
+  msg->addButton(QMessageBox::StandardButton::Ok);
+  msg->setText(text);
+  msg->exec();
 }
 
-void View::setNotification(const QString& text)
-{
-    QMessageBox* msg = new QMessageBox(this);
-    msg->setWindowTitle("Message");
-    msg->addButton(QMessageBox::StandardButton::Ok);
-    msg->setText(text);
-    msg->exec();
-}
-
-void View::recvFilePath(const QString& path)
-{
-    emit sendFilePath(path);
-}
-
+void View::recvFilePath(const QString &path) { emit sendFilePath(path); }
 
 } // namespace AddEvent
 } // namespace EventOperation

@@ -12,7 +12,7 @@ const QString SeismHorizon::_default_path = "data/horizons/";
 SeismHorizon::SeismHorizon() {}
 
 SeismHorizon::SeismHorizon(const QJsonObject &json, const QDir &dir) {
-  if (!(json.contains("point number") && json.contains("path"))) {
+  if (!(json.contains("path"))) {
     throw std::runtime_error("Not found json-field (SeismHorizon)");
   }
 
@@ -23,18 +23,20 @@ SeismHorizon::SeismHorizon(const QJsonObject &json, const QDir &dir) {
         "data-file: " + fileInfo.absoluteFilePath().toStdString() +
         " does not exist");
   }
-  // NOTE: хорошая ли идея считывать id из файла или раздавать каждый раз при
-  // чтении
   _uuid = fileInfo.baseName();
 
-  int pointNumber = json["point number"].toInt();
-
   SeismPointReader reader(fileInfo);
+  while (reader.hasNext()) {
+    _points.push_back(reader.next());
+  }
 
-  for (int readNumber = 0; readNumber < pointNumber; ++readNumber) {
-    _points.push_back(SeismPoint(reader.getPoint()));
-
-    reader.next();
+  if (json.contains("pointNumber")) {
+    int jpointNumb = json["point number"].toInt();
+    if (jpointNumb != static_cast<int>(_points.size())) {
+      // TODO: notify
+    }
+  } else {
+    // TODO: notify
   }
 }
 
@@ -56,9 +58,9 @@ const std::vector<SeismHorizon::SeismPoint> &SeismHorizon::getPoints() {
   return _points;
 }
 
-void SeismHorizon::setUuid(const SeismHorizon::Uuid &uuid) { _uuid = uuid; }
+void SeismHorizon::setUuid(const QUuid &uuid) { _uuid = uuid; }
 
-const SeismHorizon::Uuid &SeismHorizon::getUuid() const { return _uuid; }
+const QUuid &SeismHorizon::getUuid() const { return _uuid; }
 
 QJsonObject &SeismHorizon::writeToJson(QJsonObject &json, const QDir &dir) {
   if (_path.isEmpty()) {
@@ -69,10 +71,9 @@ QJsonObject &SeismHorizon::writeToJson(QJsonObject &json, const QDir &dir) {
 
   json["path"] = _path;
 
-  json["point number"] = static_cast<int>(getPointsNumber());
+  json["pointNumber"] = getPointsNumber();
 
-  SeismPointWriter writer(QFileInfo(dir, _path), getPointsNumber());
-
+  SeismPointWriter writer(QFileInfo(dir, _path));
   for (auto point : _points) {
     writer.writePoint(point);
   }

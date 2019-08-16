@@ -29,7 +29,10 @@ void Surface::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
 }
 
 void Surface::addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon) {
-  addHorizonInGraph(horizon);
+  _pointVector = horizon->getPoints();
+  for (int i = 0; i < 100; i++) {
+    SeismPoint point = _pointVector.at(i);
+  }
 }
 
 void Surface::setProject(const std::unique_ptr<Data::SeismProject> &project) {
@@ -72,8 +75,6 @@ void Surface::addEventInGraph(const std::unique_ptr<Data::SeismEvent> &event) {
   _surface->addCustomItem(item);
   _eventMap.insert(std::pair<Uuid, QCustom3DItem *>(event->getUuid(), item));
 }
-
-void Surface::addHorizonInGraph(const std::unique_ptr<SeismHorizon> &horizon) {}
 
 void Surface::handleElementSelected(QAbstract3DGraph::ElementType type) {
   if (type == QAbstract3DGraph::ElementCustomItem) {

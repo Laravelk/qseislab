@@ -10,6 +10,7 @@
 using namespace QtDataVisualization;
 
 typedef QUuid Uuid;
+typedef std::tuple<float, float, float> SeismPoint;
 
 namespace Data {
 class SeismEvent;
@@ -49,10 +50,10 @@ private:
 
 private:
   void addEventInGraph(const std::unique_ptr<Data::SeismEvent> &event);
-  void addHorizonInGraph(const std::unique_ptr<Data::SeismHorizon> &horizon);
   void handleElementSelected(QAbstract3DGraph::ElementType type);
 
   std::map<Uuid, QCustom3DItem *> _eventMap;
   std::map<Uuid, QSurface3DSeries *> _horizonMap;
+  std::vector<SeismPoint> _pointVector;
 };
 } // namespace Main

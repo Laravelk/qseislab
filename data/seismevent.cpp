@@ -1,11 +1,11 @@
 #include "seismevent.h"
 
+#include "io/seismcomponentreader.h"
 #include "io/seismcomponentwriter.h"
-#include "io/seismdatacomponentreader.h"
 
 #include <QJsonArray>
 
-typedef Data::IO::SeismDataComponentReader SeismDataComponentReader;
+typedef Data::IO::SeismComponentReader SeismComponentReader;
 typedef Data::IO::SeismComponentWriter SeismComponentWriter;
 
 namespace Data {
@@ -26,8 +26,6 @@ SeismEvent::SeismEvent(const QJsonObject &json, const QDir &dir) {
         "data-file: " + fileInfo.absoluteFilePath().toStdString() +
         " does not exist");
   }
-  // NOTE: хорошая ли идея считывать id из файла или раздавать каждый раз при
-  // чтении
   _uuid = fileInfo.baseName();
 
   _dateTime =
@@ -35,15 +33,17 @@ SeismEvent::SeismEvent(const QJsonObject &json, const QDir &dir) {
 
   QJsonArray componentsArray(json["Components"].toArray());
 
-  SeismDataComponentReader reader(fileInfo);
-  reader.next();
+  SeismComponentReader reader(fileInfo);
 
   for (auto objComponent : componentsArray) {
-    auto seismComponent = std::make_unique<SeismComponent>(
-        objComponent.toObject(), reader.getData());
-    _components.push_back(std::move(seismComponent));
 
-    reader.next();
+    if (!reader.hasNext()) {
+      throw std::runtime_error("Not enough data for event (SeismEvent)");
+    }
+
+    auto seismComponent = std::make_unique<SeismComponent>(
+        objComponent.toObject(), reader.nextData());
+    _components.push_back(std::move(seismComponent));
   }
 }
 
@@ -72,9 +72,9 @@ void SeismEvent::setDateTime(const QDateTime &dateTime) {
 
 const QDateTime &SeismEvent::getDateTime() const { return _dateTime; }
 
-void SeismEvent::setUuid(const SeismEvent::Uuid &uuid) { _uuid = uuid; }
+void SeismEvent::setUuid(const QUuid &uuid) { _uuid = uuid; }
 
-const SeismEvent::Uuid &SeismEvent::getUuid() const { return _uuid; }
+const QUuid &SeismEvent::getUuid() const { return _uuid; }
 
 QJsonObject &SeismEvent::writeToJson(QJsonObject &json, const QDir &dir) {
   if (_path.isEmpty()) {
@@ -86,9 +86,7 @@ QJsonObject &SeismEvent::writeToJson(QJsonObject &json, const QDir &dir) {
   json["path"] = _path;
   json["date"] = _dateTime.toString("dd.MM.yy hh:mm:ss");
 
-  // NOTE: здесь определяется сколько трасс хранится в одной компоненте для
-  // записи ее в файл
-  SeismComponentWriter writer(QFileInfo(dir, _path), getComponentNumber(), 3);
+  SeismComponentWriter writer(QFileInfo(dir, _path));
 
   QJsonArray componentsArray;
   QJsonObject componentObj;
