@@ -21,13 +21,20 @@ Surface::Surface(Q3DSurface *surface) : _surface(surface), _isHandle(false) {
   _surface->setAxisY(new QValue3DAxis);
   _surface->setAxisZ(new QValue3DAxis);
 
+  _surface->axisX()->setReversed(false);
+  _surface->axisY()->setReversed(false);
+  _surface->axisZ()->setReversed(false);
+
+  _surface->scene()->activeCamera()->setCameraPreset(
+      Q3DCamera::CameraPresetIsometricLeftHigh);
+
   _surface->axisX()->setRange(-100.0f, 100.0f);
   _surface->axisZ()->setRange(-100.0f, 100.0f);
   _surface->axisY()->setRange(-100.0f, 100.0f);
 
   _surface->axisX()->setTitle("X, meters");
-  _surface->axisY()->setTitle("Y, meters");
-  _surface->axisZ()->setTitle("Z, meters");
+  _surface->axisY()->setTitle("Z, meters");
+  _surface->axisZ()->setTitle("Y, meters");
 
   _surface->axisX()->setTitleVisible(true);
   _surface->axisY()->setTitleVisible(true);
@@ -37,7 +44,6 @@ Surface::Surface(Q3DSurface *surface) : _surface(surface), _isHandle(false) {
   _surface->axisY()->setAutoAdjustRange(false);
   _surface->axisZ()->setAutoAdjustRange(false);
 
-  //  _surface->reportContentOrientationChange(Qt::InvertedLandscapeOrientation);
   connect(_surface, &QAbstract3DGraph::selectedElementChanged, this,
           &Surface::handleElementSelected);
 }
@@ -64,7 +70,7 @@ void Surface::addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon) {
     for (unsigned long j = 0; j < countElementInColumn; j++) {
       float x = 0, y = 0, z = 0;
       std::tie(x, y, z) = _pointVector.at(countElementInLine * i + j);
-      *_rowVector.at(i) << QVector3D(x, y, z);
+      *_rowVector.at(i) << QVector3D(x, z, y);
     }
   }
   for (unsigned long i = 0; i < countElementInLine; i++) {
@@ -126,12 +132,12 @@ void Surface::handleElementSelected(QAbstract3DGraph::ElementType type) {
     QVector3D sizeOfLabel(1.0f, 1.0f, 0.0f);
     QVector3D positionOfLabel;
     positionOfLabel.setX(item->position().x() + 0.1);
-    positionOfLabel.setY(item->position().y() + 0.1);
-    positionOfLabel.setZ(item->position().z() + 0.1);
+    positionOfLabel.setY(item->position().z() + 0.1);
+    positionOfLabel.setZ(item->position().y() + 0.1);
     _label = new QCustom3DLabel(
         "X:" + QString::number(item->position().x(), 'g', 3) +
-            " Y:" + QString::number(item->position().y(), 'g', 3) +
-            " Z:" + QString::number(item->position().z(), 'g', 3),
+            " Y:" + QString::number(item->position().z(), 'g', 3) +
+            " Z:" + QString::number(item->position().y(), 'g', 3),
         QFont("Century Gothic", 30), positionOfLabel, sizeOfLabel,
         QQuaternion());
     _label->setFacingCamera(true);

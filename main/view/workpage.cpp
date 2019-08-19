@@ -17,9 +17,11 @@ WorkPage::WorkPage(QWidget *parent)
     : QFrame(parent), _infoProject(new InfoProject(this)),
       _eventsTable(new QTableWidget(this)), _graph(new Q3DSurface) {
   initEventsTable(_eventsTable);
+  _graph->setMinimumWidth(400);
+  _graph->setMinimumHeight(700);
   _surface = new Surface(_graph);
   QWidget *container = QWidget::createWindowContainer(_graph);
-  container->setMinimumSize(QSize(400, 300));
+  container->setMinimumSize(QSize(500, 600));
   container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   container->setFocusPolicy(Qt::StrongFocus);
   connect(_eventsTable, SIGNAL(cellDoubleClicked(int, int)), this,
