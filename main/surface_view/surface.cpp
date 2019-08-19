@@ -4,6 +4,8 @@
 #include "../../data/seismhorizon.h"
 #include "../../data/seismproject.h"
 
+#include <iostream>
+
 typedef Data::SeismEvent SeismEvent;
 typedef Data::SeismHorizon SeismHorizon;
 typedef Data::SeismProject SeismProject;
@@ -15,6 +17,27 @@ Surface::Surface(Q3DSurface *surface) : _surface(surface), _isHandle(false) {
   _blackColor.fill(Qt::black);
   _redColor.fill(Qt::red);
 
+  _surface->setAxisX(new QValue3DAxis);
+  _surface->setAxisY(new QValue3DAxis);
+  _surface->setAxisZ(new QValue3DAxis);
+
+  _surface->axisX()->setRange(-100.0f, 100.0f);
+  _surface->axisZ()->setRange(-100.0f, 100.0f);
+  _surface->axisY()->setRange(-100.0f, 100.0f);
+
+  _surface->axisX()->setTitle("X, meters");
+  _surface->axisY()->setTitle("Y, meters");
+  _surface->axisZ()->setTitle("Z, meters");
+
+  _surface->axisX()->setTitleVisible(true);
+  _surface->axisY()->setTitleVisible(true);
+  _surface->axisZ()->setTitleVisible(true);
+
+  _surface->axisX()->setAutoAdjustRange(false);
+  _surface->axisY()->setAutoAdjustRange(false);
+  _surface->axisZ()->setAutoAdjustRange(false);
+
+  //  _surface->reportContentOrientationChange(Qt::InvertedLandscapeOrientation);
   connect(_surface, &QAbstract3DGraph::selectedElementChanged, this,
           &Surface::handleElementSelected);
 }
@@ -28,11 +51,29 @@ void Surface::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
   addEventInGraph(event);
 }
 
+// read from horizon after interpolation
 void Surface::addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon) {
   _pointVector = horizon->getPoints();
-  for (int i = 0; i < 100; i++) {
-    SeismPoint point = _pointVector.at(i);
+  unsigned long countElementInLine = 200;
+  unsigned long countElementInColumn = 200;
+  _dataArray = new QSurfaceDataArray;
+  for (int i = 0; i < countElementInLine; i++) {
+    _rowVector.push_back(new QSurfaceDataRow);
   }
+  for (unsigned long i = 0; i < countElementInLine; i++) {
+    for (unsigned long j = 0; j < countElementInColumn; j++) {
+      float x = 0, y = 0, z = 0;
+      std::tie(x, y, z) = _pointVector.at(countElementInLine * i + j);
+      *_rowVector.at(i) << QVector3D(x, y, z);
+    }
+  }
+  for (unsigned long i = 0; i < countElementInLine; i++) {
+    *_dataArray << _rowVector.at(i);
+  }
+
+  QSurface3DSeries *series = new QSurface3DSeries;
+  series->dataProxy()->resetArray(_dataArray);
+  _surface->addSeries(series);
 }
 
 void Surface::setProject(const std::unique_ptr<Data::SeismProject> &project) {
@@ -60,7 +101,7 @@ const std::map<Uuid, QCustom3DItem *> Surface::getEventMap() const {
   return _eventMap;
 }
 
-const std::map<Uuid, QSurface3DSeries *> Surface::getHorizonMap() const {
+const std::map<Uuid, QSurfaceDataArray *> Surface::getHorizonMap() const {
   return _horizonMap;
 }
 
@@ -98,4 +139,5 @@ void Surface::handleElementSelected(QAbstract3DGraph::ElementType type) {
     _isHandle = true;
   }
 }
+
 } // namespace Main

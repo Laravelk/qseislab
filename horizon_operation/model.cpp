@@ -1,31 +1,32 @@
 #include "model.h"
 
 #include "data/io/seismpointreader.h"
+#include "data/seismhorizon.h"
 
 typedef Data::SeismHorizon SeismHorizon;
 typedef Data::IO::SeismPointReader SeismPointReader;
 
 namespace HorizonOperation {
-namespace AddHorizon {
 Model::Model(QObject *parent) : QObject(parent) {}
 
-std::unique_ptr<Data::SeismHorizon>
-Model::getSeismHorizonFrom(const QString &path) {
-  _horizon = std::make_unique<SeismHorizon>();
+std::unique_ptr<SeismHorizon> Model::getSeismHorizonFrom(const QString &path) {
+  std::unique_ptr<SeismHorizon> horizon = std::make_unique<SeismHorizon>();
+
+  QFileInfo fileInfo(path);
+  horizon->setName(fileInfo.baseName());
 
   try {
     SeismPointReader reader(path);
 
     while (reader.hasNext()) {
-      _horizon->addPoint(reader.next());
+      horizon->addPoint(reader.next());
     }
   } catch (const std::runtime_error &err) {
-    _horizon.reset();
+    horizon.reset();
     emit notify(QString::fromStdString(err.what()));
   }
 
-  return std::move(_horizon);
+  return horizon;
 }
 
-} // namespace AddHorizon
 } // namespace HorizonOperation

@@ -36,9 +36,9 @@ set(SOURCES
         event_operation/share_view/graphicevent.cpp
 
 
-        horizon_operation/add_horizon/controller.cpp
-        horizon_operation/add_horizon/model.cpp
-        horizon_operation/add_horizon/view/view.cpp
+        horizon_operation/controller.cpp
+        horizon_operation/model.cpp
+        horizon_operation/view/view.cpp
 
         data/seismproject.cpp
         data/seismcomponent.cpp
@@ -64,6 +64,8 @@ set(SOURCES
 
         project_operation/new_project/controller.cpp
         project_operation/new_project/view.cpp
+        horizon_operation/view/addhorizonmanager.cpp
+        horizon_operation/view/filemanager.cpp
 
         project_operation/share_view/infoproject.cpp
         project_operation/share_view/filemanager.cpp
@@ -91,10 +93,12 @@ set(HEADERS
         event_operation/share_view/chartview.h
         event_operation/share_view/graphicevent.h
 
-        horizon_operation/add_horizon/controller.h
-        horizon_operation/add_horizon/model.h
+        horizon_operation/controller.h
+        horizon_operation/model.h
 
-        horizon_operation/add_horizon/view/view.h
+        horizon_operation/view/addhorizonmanager.h
+        horizon_operation/view/filemanager.h
+        horizon_operation/view/view.h
 
         data/seismproject.h
         data/seismcomponent.h

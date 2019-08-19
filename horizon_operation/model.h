@@ -1,13 +1,14 @@
 #pragma once
 
-#include "data/seismhorizon.h"
-
 #include <QObject>
 
 #include <memory>
 
+namespace Data {
+class SeismHorizon;
+}
+
 namespace HorizonOperation {
-namespace AddHorizon {
 class Model : public QObject {
   Q_OBJECT
 
@@ -18,10 +19,6 @@ public:
 
 signals:
   void notify(const QString &) const;
-
-private:
-  std::unique_ptr<Data::SeismHorizon> _horizon;
 };
 
-} // namespace AddHorizon
 } // namespace HorizonOperation

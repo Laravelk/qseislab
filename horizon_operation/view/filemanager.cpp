@@ -1,25 +1,21 @@
 #include "filemanager.h"
 
-#include <QHBoxLayout>
+#include <QBoxLayout>
 
-namespace EventOperation {
-namespace AddEvent {
+namespace HorizonOperation {
 FileManager::FileManager(QWidget *parent)
-    : QFrame(parent), _label(new QLabel("Segy file: ", this)),
-      _fileName(new QLabel("<test.segy>", this)),
+    : QFrame(parent), _label(new QLabel("Horizon file: ", this)),
+      _fileName(new QLabel(this)),
       _browseButton(new QPushButton("Browse", this)),
       _fileDialog(new QFileDialog(this)) {
-  setFixedWidth(250);
   setFrameStyle(1);
 
   _fileName->setMinimumWidth(100);
   _fileName->setFrameStyle(1);
-  // use QFontMetrics
 
   _fileDialog->setFileMode(QFileDialog::ExistingFile);
   _fileDialog->setOption(QFileDialog::DontResolveSymlinks);
-  _fileDialog->setNameFilter("*.segy, *.sgy");
-  //    _fileDialog->setDirectory(QDir::home());
+  _fileDialog->setNameFilter("*.bin");
   connect(_fileDialog, SIGNAL(fileSelected(const QString &)), this,
           SLOT(recvFilePath(const QString &)));
 
@@ -41,5 +37,4 @@ void FileManager::recvFilePath(const QString &path) {
   emit sendFilePath(path);
 }
 
-} // namespace AddEvent
-} // namespace EventOperation
+} // namespace HorizonOperation

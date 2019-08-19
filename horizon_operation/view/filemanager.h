@@ -5,10 +5,10 @@
 #include <QLabel>
 #include <QPushButton>
 
-namespace EventOperation {
-namespace AddEvent {
+namespace HorizonOperation {
 class FileManager : public QFrame {
   Q_OBJECT
+
 public:
   explicit FileManager(QWidget *parent = nullptr);
 
@@ -28,5 +28,4 @@ private:
   QFileDialog *_fileDialog;
 };
 
-} // namespace AddEvent
-} // namespace EventOperation
+} // namespace HorizonOperation

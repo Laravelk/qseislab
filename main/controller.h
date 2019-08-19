@@ -7,7 +7,7 @@
 #include "event_operation/add_event/controller.h"
 #include "event_operation/view_event/controller.h"
 
-#include "horizon_operation/add_horizon/controller.h"
+#include "horizon_operation/controller.h"
 
 #include "project_operation/close_project/controller.h"
 #include "project_operation/new_project/controller.h"
@@ -42,7 +42,8 @@ private slots:
   void handleViewEventClicked(const QUuid);
   void handleRemoveEventClicked(const QUuid);
 
-  void handleAddHorizonClicked();
+  void handleHorizonsClicked();
+  void handleRemoveHorizonClicked(const QUuid &);
 
   void handleCloseProjectClicked();
   void handleNewProjectClicked();
@@ -67,8 +68,7 @@ private:
   std::unique_ptr<EventOperation::AddEvent::Controller> _addEventController;
   std::unique_ptr<EventOperation::ViewEvent::Controller> _viewEventController;
 
-  std::unique_ptr<HorizonOperation::AddHorizon::Controller>
-      _addHorizonController;
+  std::unique_ptr<HorizonOperation::Controller> _horizonController;
 
   std::unique_ptr<ProjectOperation::CloseProject::Controller>
       _closeProjectController;

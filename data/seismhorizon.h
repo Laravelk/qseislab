@@ -17,6 +17,9 @@ public:
   explicit SeismHorizon();
   explicit SeismHorizon(const QJsonObject &, const QDir &) noexcept(false);
 
+  void setName(const QString &);
+  const QString &getName() const;
+
   int getPointsNumber() const;
 
   void addPoint(const SeismPoint &);
@@ -30,6 +33,7 @@ public:
 
 private:
   QString _path;
+  QString _name;
 
   QUuid _uuid;
 

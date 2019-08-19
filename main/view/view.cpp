@@ -45,8 +45,7 @@ View::View(QWidget *parent) : QMainWindow(parent) {
   act->setDisabled(true);
   connect(this, SIGNAL(projectPresence(bool)), act, SLOT(setEnabled(bool)));
 
-  act =
-      editMenu->addAction("Add Horizon", this, SLOT(handleAddHorizonClicked()));
+  act = editMenu->addAction("Horizons", this, SLOT(handleHorizonsClicked()));
   act->setDisabled(true);
   connect(this, SIGNAL(projectPresence(bool)), act, SLOT(setEnabled(bool)));
 
@@ -142,7 +141,7 @@ void View::handleRemoveEventClicked(const QUuid uuid) {
   emit removeEventClicked(uuid);
 }
 
-void View::handleAddHorizonClicked() { emit addHorizonClicked(); }
+void View::handleHorizonsClicked() { emit horizonsClicked(); }
 
 void View::handleSaveProjectClicked() { emit saveProjectClicked(); }
 

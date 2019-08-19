@@ -12,9 +12,11 @@ const QString SeismHorizon::_default_path = "data/horizons/";
 SeismHorizon::SeismHorizon() {}
 
 SeismHorizon::SeismHorizon(const QJsonObject &json, const QDir &dir) {
-  if (!(json.contains("path"))) {
+  if (!(json.contains("name") && json.contains("path"))) {
     throw std::runtime_error("Not found json-field (SeismHorizon)");
   }
+
+  _name = json["name"].toString();
 
   _path = json["path"].toString();
   QFileInfo fileInfo(dir, _path);
@@ -39,6 +41,10 @@ SeismHorizon::SeismHorizon(const QJsonObject &json, const QDir &dir) {
     // TODO: notify
   }
 }
+
+void SeismHorizon::setName(const QString &name) { _name = name; }
+
+const QString &SeismHorizon::getName() const { return _name; }
 
 int SeismHorizon::getPointsNumber() const {
   return static_cast<int>(_points.size());
@@ -69,8 +75,8 @@ QJsonObject &SeismHorizon::writeToJson(QJsonObject &json, const QDir &dir) {
     _path += ".bin";
   }
 
+  json["name"] = _name;
   json["path"] = _path;
-
   json["pointNumber"] = getPointsNumber();
 
   SeismPointWriter writer(QFileInfo(dir, _path));

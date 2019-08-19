@@ -27,7 +27,7 @@ signals:
   void viewEventClicked(const QUuid) const;
   void removeEventClicked(const QUuid) const;
 
-  void addHorizonClicked() const;
+  void horizonsClicked() const;
 
   void newProjectClicked() const;
   void openProjectClicked() const;
@@ -41,7 +41,7 @@ private slots:
   void handleViewEventClicked(const QUuid);
   void handleRemoveEventClicked(const QUuid);
 
-  void handleAddHorizonClicked();
+  void handleHorizonsClicked();
 
   void handleNewProjectClicked();
   void handleOpenProjectClicked();

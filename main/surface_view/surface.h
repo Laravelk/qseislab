@@ -36,8 +36,10 @@ public:
   bool removeHorizon(const std::unique_ptr<Data::SeismEvent> &event);
   bool removeHorizon(const Uuid uid);
 
+  void setFiltr(bool (*func)(float, float));
+
   const std::map<Uuid, QCustom3DItem *> getEventMap() const;
-  const std::map<Uuid, QSurface3DSeries *> getHorizonMap() const;
+  const std::map<Uuid, QSurfaceDataArray *> getHorizonMap() const;
 
 private:
   Q3DSurface *_surface;
@@ -51,9 +53,18 @@ private:
 private:
   void addEventInGraph(const std::unique_ptr<Data::SeismEvent> &event);
   void handleElementSelected(QAbstract3DGraph::ElementType type);
+  void handleElementDoybleClicked(QAbstract3DGraph::ElementType type);
+
+  void mouseDoubleClickEvent(QMouseEvent *event);
+  void mouseMoveEvent(QMoveEvent *event);
+  void mousePressEvent(QMouseEvent *event);
+  void mouseReleaseEvent(QMouseEvent *event);
 
   std::map<Uuid, QCustom3DItem *> _eventMap;
-  std::map<Uuid, QSurface3DSeries *> _horizonMap;
+  std::map<Uuid, QSurfaceDataArray *> _horizonMap;
   std::vector<SeismPoint> _pointVector;
+  std::vector<QSurfaceDataRow *> _rowVector;
+  QSurfaceDataRow *_rowArray;
+  QSurfaceDataArray *_dataArray;
 };
 } // namespace Main

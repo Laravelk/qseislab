@@ -3,7 +3,6 @@
 typedef Data::SeismEvent SeismEvent;
 typedef Data::SeismProject SeismProject;
 
-using namespace HorizonOperation;
 using namespace EventOperation;
 using namespace ProjectOperation;
 
@@ -18,8 +17,8 @@ Controller::Controller() : QObject(), _mainWindow(std::make_unique<View>()) {
   connect(_mainWindow.get(), SIGNAL(removeEventClicked(const QUuid)), this,
           SLOT(handleRemoveEventClicked(const QUuid)));
 
-  connect(_mainWindow.get(), SIGNAL(addHorizonClicked()), this,
-          SLOT(handleAddHorizonClicked()));
+  connect(_mainWindow.get(), SIGNAL(horizonsClicked()), this,
+          SLOT(handleHorizonsClicked()));
 
   connect(_mainWindow.get(), SIGNAL(newProjectClicked()), this,
           SLOT(handleNewProjectClicked()));
@@ -117,15 +116,23 @@ void Controller::handleRemoveEventClicked(const QUuid uuid) {
   _project->removeEvent(uuid);
 }
 
-void Controller::handleAddHorizonClicked() {
-  if (!_addHorizonController) {
-    _addHorizonController = std::make_unique<AddHorizon::Controller>(this);
-    connect(_addHorizonController.get(),
+void Controller::handleHorizonsClicked() {
+  if (!_horizonController) {
+    _horizonController = std::make_unique<HorizonOperation::Controller>(this);
+    connect(_horizonController.get(),
             SIGNAL(sendHorizon(std::unique_ptr<Data::SeismHorizon> &)), this,
             SLOT(recvHorizon(std::unique_ptr<Data::SeismHorizon> &)));
-    connect(_addHorizonController.get(), SIGNAL(finished()), this,
+    connect(_horizonController.get(), SIGNAL(sendRemovedHorizon(const QUuid &)),
+            this, SLOT(handleRemoveHorizonClicked(const QUuid &)));
+    connect(_horizonController.get(), SIGNAL(finished()), this,
             SLOT(deleteAddHorizonController()));
   }
+
+  _horizonController->viewHorizons(_project);
+}
+
+void Controller::handleRemoveHorizonClicked(const QUuid &uuid) {
+  _project->removeHorizon(uuid);
 }
 
 void Controller::handleCloseProjectClicked() {
@@ -202,7 +209,7 @@ void Controller::deleteAddEventController() { _addEventController.reset(); }
 
 void Controller::deleteViewEventController() { _viewEventController.reset(); }
 
-void Controller::deleteAddHorizonController() { _addHorizonController.reset(); }
+void Controller::deleteAddHorizonController() { _horizonController.reset(); }
 
 void Controller::deleteCloseProjectController(bool closed) {
   _closeProjectController.reset();

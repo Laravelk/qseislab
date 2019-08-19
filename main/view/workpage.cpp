@@ -59,8 +59,9 @@ void WorkPage::updateProjectRemoveEvent(const QUuid &uuid) {
 }
 
 void WorkPage::updateProject(
-    const std::unique_ptr<Data::SeismHorizon> & /*horizon*/) {
+    const std::unique_ptr<Data::SeismHorizon> &horizon) {
   _infoProject->addHorizon();
+  _surface->addHorizon(horizon);
 }
 
 void WorkPage::updateProjectRemoveHorizon(const QUuid & /*uuid*/) {
