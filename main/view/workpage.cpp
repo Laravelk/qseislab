@@ -21,7 +21,7 @@ WorkPage::WorkPage(QWidget *parent)
   _graph->setMinimumHeight(700);
   _surface = new Surface(_graph);
   QWidget *container = QWidget::createWindowContainer(_graph);
-  container->setMinimumSize(QSize(500, 600));
+  container->setMinimumSize(QSize(400, 400));
   container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   container->setFocusPolicy(Qt::StrongFocus);
   connect(_eventsTable, SIGNAL(cellDoubleClicked(int, int)), this,

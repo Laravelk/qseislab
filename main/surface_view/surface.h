@@ -36,6 +36,11 @@ public:
   bool removeHorizon(const std::unique_ptr<Data::SeismEvent> &event);
   bool removeHorizon(const Uuid uid);
 
+  void mouseDoubleClickEvent(QMouseEvent *event);
+  void mouseMoveEvent(QMoveEvent *event);
+  void mousePressEvent(QMouseEvent *event);
+  void mouseReleaseEvent(QMouseEvent *event);
+
   void setFiltr(bool (*func)(float, float));
 
   const std::map<Uuid, QCustom3DItem *> getEventMap() const;
@@ -49,16 +54,12 @@ private:
   QImage _redColor;
   bool _isHandle;
   float a = 0.0f; // TODO delete
+  int _color = 10;
 
 private:
   void addEventInGraph(const std::unique_ptr<Data::SeismEvent> &event);
   void handleElementSelected(QAbstract3DGraph::ElementType type);
   void handleElementDoybleClicked(QAbstract3DGraph::ElementType type);
-
-  void mouseDoubleClickEvent(QMouseEvent *event);
-  void mouseMoveEvent(QMoveEvent *event);
-  void mousePressEvent(QMouseEvent *event);
-  void mouseReleaseEvent(QMouseEvent *event);
 
   std::map<Uuid, QCustom3DItem *> _eventMap;
   std::map<Uuid, QSurfaceDataArray *> _horizonMap;

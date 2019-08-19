@@ -55,7 +55,6 @@ set(SOURCES
 
         main/surface_view/surface.cpp
 
-
         main/controller.cpp
         main/view/view.cpp
         main/view/startpage.cpp

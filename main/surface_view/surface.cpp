@@ -4,6 +4,8 @@
 #include "../../data/seismhorizon.h"
 #include "../../data/seismproject.h"
 
+#include "custominputhandler.h"
+
 #include <iostream>
 
 typedef Data::SeismEvent SeismEvent;
@@ -28,9 +30,9 @@ Surface::Surface(Q3DSurface *surface) : _surface(surface), _isHandle(false) {
   _surface->scene()->activeCamera()->setCameraPreset(
       Q3DCamera::CameraPresetIsometricLeftHigh);
 
-  _surface->axisX()->setRange(-100.0f, 100.0f);
-  _surface->axisZ()->setRange(-100.0f, 100.0f);
-  _surface->axisY()->setRange(-100.0f, 100.0f);
+  //  _surface->axisX()->setRange(0.0f, 100.0f);
+  //  _surface->axisZ()->setRange(0.0f, 100.0f);
+  //  _surface->axisY()->setRange(0.0f, 100.0f);
 
   _surface->axisX()->setTitle("X, meters");
   _surface->axisY()->setTitle("Z, meters");
@@ -40,9 +42,9 @@ Surface::Surface(Q3DSurface *surface) : _surface(surface), _isHandle(false) {
   _surface->axisY()->setTitleVisible(true);
   _surface->axisZ()->setTitleVisible(true);
 
-  _surface->axisX()->setAutoAdjustRange(false);
-  _surface->axisY()->setAutoAdjustRange(false);
-  _surface->axisZ()->setAutoAdjustRange(false);
+  _surface->axisX()->setAutoAdjustRange(true);
+  _surface->axisY()->setAutoAdjustRange(true);
+  _surface->axisZ()->setAutoAdjustRange(true);
 
   connect(_surface, &QAbstract3DGraph::selectedElementChanged, this,
           &Surface::handleElementSelected);
@@ -62,7 +64,7 @@ void Surface::addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon) {
   _pointVector = horizon->getPoints();
   unsigned long countElementInLine = 200;
   unsigned long countElementInColumn = 200;
-  _dataArray = new QSurfaceDataArray;
+  QSurfaceDataArray *dataArray = new QSurfaceDataArray;
   for (int i = 0; i < countElementInLine; i++) {
     _rowVector.push_back(new QSurfaceDataRow);
   }
@@ -74,13 +76,21 @@ void Surface::addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon) {
     }
   }
   for (unsigned long i = 0; i < countElementInLine; i++) {
-    *_dataArray << _rowVector.at(i);
+    *dataArray << _rowVector.at(i);
   }
 
   QSurface3DSeries *series = new QSurface3DSeries;
-  series->dataProxy()->resetArray(_dataArray);
+  series->dataProxy()->resetArray(dataArray);
+  series->setDrawMode(QSurface3DSeries::DrawSurface);
+  if (_color > 240) {
+    _color = 10;
+  } else {
+    _color += 50;
+  }
+  series->setBaseColor(QColor(100, _color, 100));
   _surface->addSeries(series);
-}
+  _rowVector.clear();
+} // namespace Main
 
 void Surface::setProject(const std::unique_ptr<Data::SeismProject> &project) {
   _project = project.get();
@@ -113,11 +123,11 @@ const std::map<Uuid, QSurfaceDataArray *> Surface::getHorizonMap() const {
 
 void Surface::addEventInGraph(const std::unique_ptr<Data::SeismEvent> &event) {
   QVector3D position(a, 0.0f, 0.0f); // TODO read from event
-  a += 0.1f;
+  a += 0.4f;
   QCustom3DItem *item = new QCustom3DItem(
       "/Users/ivanmorozov/MyQtProject/Геология/qseislab/resources/"
       "sphereSmooth.obj",
-      position, QVector3D(0.025f, 0.025f, 0.025f), QQuaternion(), _blackColor);
+      position, QVector3D(0.035f, 0.035f, 0.035f), QQuaternion(), _blackColor);
   item->setShadowCasting(false);
   _surface->addCustomItem(item);
   _eventMap.insert(std::pair<Uuid, QCustom3DItem *>(event->getUuid(), item));
