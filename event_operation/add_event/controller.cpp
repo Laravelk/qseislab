@@ -32,6 +32,7 @@ void Controller::recvNotification(const QString &msg) {
 
 void Controller::finish(int result) {
   if (QDialog::Accepted == result) {
+    _view->settingEventInfo(_event);
     emit sendEvent(_event);
   }
 

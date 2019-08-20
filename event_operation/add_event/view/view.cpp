@@ -15,8 +15,9 @@ typedef Data::SeismEvent SeismEvent;
 namespace EventOperation {
 namespace AddEvent {
 View::View(QWidget *parent)
-    : QDialog(parent), _fileManager(new FileManager(this)),
-      _infoEvent(new InfoEvent(this)), _graphicEvent(new GraphicEvent(this)),
+    : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
+      _fileManager(new FileManager(this)), _infoEvent(new InfoEvent(this)),
+      _graphicEvent(new GraphicEvent(this)),
       _addButton(new QPushButton("Add", this)),
       _cancelButton(new QPushButton("Cancel", this)) {
 
@@ -25,6 +26,8 @@ View::View(QWidget *parent)
 
   connect(_fileManager, SIGNAL(sendFilePath(const QString &)), this,
           SLOT(recvFilePath(const QString &)));
+
+  _infoEvent->setDisabled(true);
 
   _addButton->setDisabled(true);
   connect(_addButton, SIGNAL(clicked()), this, SLOT(accept()));
@@ -56,11 +59,13 @@ View::View(QWidget *parent)
 void View::update(const std::unique_ptr<Data::SeismEvent> &event) {
   if (!event) {
     _fileManager->clear();
-    _infoEvent->clear();
     _graphicEvent->clear();
+    _infoEvent->clear();
+    _infoEvent->setDisabled(true);
     _addButton->setDisabled(true);
     return;
   }
+  _infoEvent->setDisabled(false);
   _infoEvent->update(event);
   _graphicEvent->update(event);
   _addButton->setDisabled(false);
@@ -72,6 +77,11 @@ void View::setNotification(const QString &text) {
   msg->addButton(QMessageBox::StandardButton::Ok);
   msg->setText(text);
   msg->exec();
+}
+
+void View::settingEventInfo(
+    const std::unique_ptr<Data::SeismEvent> &event) const {
+  _infoEvent->settingEventInfo(event);
 }
 
 void View::recvFilePath(const QString &path) { emit sendFilePath(path); }

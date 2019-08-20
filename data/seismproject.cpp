@@ -9,34 +9,65 @@ SeismProject::SeismProject(QObject *parent) : QObject(parent) {}
 SeismProject::SeismProject(const QJsonObject &json, const QFileInfo &fileInfo,
                            QObject *parent)
     : QObject(parent), _fileInfo(fileInfo) {
-  if (!(json.contains("Events") && json.contains("Horizons") &&
-        json.contains("name") && json.contains("date"))) {
-    throw std::runtime_error("Not found json-field (SeismProject)");
+
+  std::string err_msg;
+
+  if (json.contains("name")) {
+    _name = json["name"].toString();
+  } else {
+    err_msg += "::name : not found\n";
   }
 
-  _name = json["name"].toString();
-  _dateTime =
-      QDateTime::fromString(json["date"].toString(), "dd.MM.yy hh:mm:ss");
-
-  QJsonArray eventsArray(json["Events"].toArray());
-  unsigned num = 0;
-  for (auto objEvent : eventsArray) {
-    auto seismEvent =
-        std::make_unique<SeismEvent>(objEvent.toObject(), fileInfo.dir());
-    auto uuid = seismEvent->getUuid();
-    _events_map[uuid] = std::move(seismEvent);
+  if (json.contains("date")) {
+    _dateTime =
+        QDateTime::fromString(json["date"].toString(), "dd.MM.yy hh:mm:ss");
+  } else {
+    err_msg += "::date : not found\n";
   }
 
-  QJsonArray horizonssArray(json["Horizons"].toArray());
-  num = 0;
-  for (auto objHorizon : horizonssArray) {
-    auto seismHorizon =
-        std::make_unique<SeismHorizon>(objHorizon.toObject(), fileInfo.dir());
-    auto uuid = seismHorizon->getUuid();
-    _horizons_map[uuid] = std::move(seismHorizon);
+  if (json.contains("Events")) {
+    QJsonArray eventsArray(json["Events"].toArray());
+    int idx = 0;
+    for (auto objEvent : eventsArray) {
+      try {
+        auto seismEvent =
+            std::make_unique<SeismEvent>(objEvent.toObject(), fileInfo.dir());
+        auto uuid = seismEvent->getUuid();
+        _events_map[uuid] = std::move(seismEvent);
+      } catch (std::runtime_error &err) {
+        err_msg += "Events (idx: " + std::to_string(idx) + ")\n";
+        err_msg += err.what();
+      }
+      ++idx;
+    }
+  } else {
+    err_msg += "::Horizons : not found\n";
+  }
+
+  if (json.contains("Horizons")) {
+    QJsonArray horizonssArray(json["Horizons"].toArray());
+    int idx = 0;
+    for (auto objHorizon : horizonssArray) {
+      try {
+        auto seismHorizon = std::make_unique<SeismHorizon>(
+            objHorizon.toObject(), fileInfo.dir());
+        auto uuid = seismHorizon->getUuid();
+        _horizons_map[uuid] = std::move(seismHorizon);
+      } catch (std::runtime_error &err) {
+        err_msg += "Horizons (idx: " + std::to_string(idx) + ")\n";
+        err_msg += err.what();
+      }
+      ++idx;
+    }
+  } else {
+    err_msg += "::Horizons : not found\n";
   }
 
   _isSaved = true;
+
+  if (!err_msg.empty()) {
+    throw std::runtime_error(err_msg);
+  }
 }
 
 bool SeismProject::exist() const { return _fileInfo.isFile(); }

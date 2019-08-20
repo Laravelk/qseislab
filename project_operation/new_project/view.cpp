@@ -1,5 +1,6 @@
 #include "view.h"
 
+#include "data/seismproject.h"
 #include "project_operation/share_view/infoproject.h"
 
 #include <QVBoxLayout>
@@ -7,7 +8,7 @@
 namespace ProjectOperation {
 namespace NewProject {
 View::View(QWidget *parent)
-    : QDialog(parent),
+    : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
       _infoProject(new InfoProject(InfoProject::DEFAULT, this)),
       _createButton(new QPushButton("Create", this)),
       _cancelButton(new QPushButton("Cancel", this)) {
@@ -29,11 +30,10 @@ View::View(QWidget *parent)
   setLayout(vLayout);
 }
 
-QString View::getName() const { return _infoProject->getName(); }
-
-QDate View::getDate() const { return _infoProject->getDate(); }
-
-QTime View::getTime() const { return _infoProject->getTime(); }
+void View::settingProjectInfo(
+    const std::unique_ptr<Data::SeismProject> &project) {
+  _infoProject->settingProjectInfo(project);
+}
 
 } // namespace NewProject
 } // namespace ProjectOperation

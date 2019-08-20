@@ -3,24 +3,26 @@
 #include <QFrame>
 #include <QPushButton>
 
+
 namespace Main {
 class StartPage : public QFrame {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  explicit StartPage(QWidget *parent = nullptr);
+    explicit StartPage(QWidget* parent = nullptr);
 
 signals:
-  void newProjectClicked() const;
-  void openProjectClicked() const;
+    void newProjectClicked() const;
+    void openProjectClicked() const;
 
 private slots:
-  void handleNewProjectClicked();
-  void handleOpenProjectClicked();
+    void handleNewProjectClicked();
+    void handleOpenProjectClicked();
 
 private:
-  QPushButton *_buttonNewProject;
-  QPushButton *_buttonOpenproject;
+    QPushButton* _buttonNewProject;
+    QPushButton* _buttonOpenproject;
 };
+
 
 } // namespace Main

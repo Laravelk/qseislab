@@ -1,10 +1,10 @@
 #include "seismhorizon.h"
 
-#include "data/io/seismpointreader.h"
-#include "data/io/seismpointwriter.h"
+#include "data/io/pointreader.h"
+#include "data/io/pointwriter.h"
 
-typedef Data::IO::SeismPointReader SeismPointReader;
-typedef Data::IO::SeismPointWriter SeismPointWriter;
+typedef Data::IO::PointReader PointReader;
+typedef Data::IO::PointWriter PointWriter;
 
 namespace Data {
 const QString SeismHorizon::_default_path = "data/horizons/";
@@ -12,33 +12,69 @@ const QString SeismHorizon::_default_path = "data/horizons/";
 SeismHorizon::SeismHorizon() {}
 
 SeismHorizon::SeismHorizon(const QJsonObject &json, const QDir &dir) {
-  if (!(json.contains("name") && json.contains("path"))) {
-    throw std::runtime_error("Not found json-field (SeismHorizon)");
-  }
+  std::string err_msg;
 
-  _name = json["name"].toString();
-
-  _path = json["path"].toString();
-  QFileInfo fileInfo(dir, _path);
-  if (!fileInfo.exists()) {
-    throw std::runtime_error(
-        "data-file: " + fileInfo.absoluteFilePath().toStdString() +
-        " does not exist");
-  }
-  _uuid = fileInfo.baseName();
-
-  SeismPointReader reader(fileInfo);
-  while (reader.hasNext()) {
-    _points.push_back(reader.next());
-  }
-
-  if (json.contains("pointNumber")) {
-    int jpointNumb = json["point number"].toInt();
-    if (jpointNumb != static_cast<int>(_points.size())) {
-      // TODO: notify
-    }
+  if (json.contains("name")) {
+    _name = json["name"].toString();
   } else {
-    // TODO: notify
+    err_msg += "::name : not found\n";
+  }
+
+  if (json.contains("path")) {
+    _path = json["path"].toString();
+  } else {
+    err_msg += "::path : not found\n";
+  }
+
+  if (json.contains("Nx")) {
+    _Nx = json["Nx"].toInt();
+  } else {
+    err_msg += "::Nx : not found\n";
+  }
+
+  if (json.contains("Ny")) {
+    _Ny = json["Ny"].toInt();
+  } else {
+    err_msg += "::Ny : not found\n";
+  }
+
+  QFileInfo fileInfo(dir, _path);
+  if (fileInfo.exists()) {
+    _uuid = fileInfo.baseName();
+
+    PointReader reader(fileInfo);
+    while (reader.hasNext()) {
+      _points.push_back(reader.next());
+    }
+
+    if (json.contains("pointNumber")) {
+      int jPointNum = json["pointNumber"].toInt();
+      int realPointNum = static_cast<int>(_points.size());
+      if (jPointNum != realPointNum) {
+        err_msg += "::pointNumber : json-value != real-size  "
+                   "(Note: real-size == " +
+                   std::to_string(_points.size()) + ")\n";
+      }
+
+      if (0 != _Nx && 0 != _Ny && 0 != realPointNum) {
+        if (realPointNum != _Nx * _Ny) {
+          err_msg += "::Nx,Ny : json-(Nx*Ny) != real-size of horizon\n"
+                     "(Note: real-size == " +
+                     std::to_string(_points.size()) + ")\n";
+        }
+      }
+    } else {
+      err_msg += "::pointNumber : not found  (Note: real value == " +
+                 std::to_string(_points.size()) + ")\n";
+    }
+
+  } else {
+    err_msg += "::data-file : doesn`t exist\n";
+  }
+
+  if (!err_msg.empty()) {
+    err_msg += "\n";
+    throw std::runtime_error(err_msg);
   }
 }
 
@@ -50,23 +86,27 @@ int SeismHorizon::getPointsNumber() const {
   return static_cast<int>(_points.size());
 }
 
-void SeismHorizon::addPoint(const SeismPoint &point) {
-  _points.push_back(point);
-}
+void SeismHorizon::addPoint(const Point &point) { _points.push_back(point); }
 
-const SeismHorizon::SeismPoint &SeismHorizon::getPoint(int idx) {
+const Point &SeismHorizon::getPoint(int idx) {
   assert(0 <= idx && idx < getPointsNumber());
 
   return _points[static_cast<unsigned>(idx)];
 }
 
-const std::vector<SeismHorizon::SeismPoint> &SeismHorizon::getPoints() {
-  return _points;
-}
+const std::vector<Point> &SeismHorizon::getPoints() { return _points; }
 
 void SeismHorizon::setUuid(const QUuid &uuid) { _uuid = uuid; }
 
 const QUuid &SeismHorizon::getUuid() const { return _uuid; }
+
+void SeismHorizon::setNx(int Nx) { _Nx = Nx; }
+
+int SeismHorizon::getNx() const { return _Nx; }
+
+void SeismHorizon::setNy(int Ny) { _Ny = Ny; }
+
+int SeismHorizon::getNy() const { return _Ny; }
 
 QJsonObject &SeismHorizon::writeToJson(QJsonObject &json, const QDir &dir) {
   if (_path.isEmpty()) {
@@ -78,8 +118,10 @@ QJsonObject &SeismHorizon::writeToJson(QJsonObject &json, const QDir &dir) {
   json["name"] = _name;
   json["path"] = _path;
   json["pointNumber"] = getPointsNumber();
+  json["Nx"] = _Nx;
+  json["Ny"] = _Ny;
 
-  SeismPointWriter writer(QFileInfo(dir, _path));
+  PointWriter writer(QFileInfo(dir, _path));
   for (auto point : _points) {
     writer.writePoint(point);
   }

@@ -4,6 +4,8 @@
 #include "data/seismproject.h"
 #include "model.h"
 
+#include <iostream> // TODO: need to remove
+
 typedef Data::SeismHorizon SeismHorizon;
 typedef Data::SeismProject SeismProject;
 
@@ -42,6 +44,7 @@ void Controller::handleRemoveHorizonClicked(const QUuid uuid) {
 void Controller::handleAddHorizonClicked() {
   assert(_tmpHorizon);
 
+  _view->settingHorizonInfo(_tmpHorizon);
   _view->addHorizon(_tmpHorizon);
   _view->changed(true);
   _newHorizons.push_back(std::move(_tmpHorizon));

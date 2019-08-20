@@ -6,8 +6,6 @@ typedef Data::SeismProject SeismProject;
 using namespace EventOperation;
 using namespace ProjectOperation;
 
-#include <iostream> // TODO: need to remove
-
 namespace Main {
 Controller::Controller() : QObject(), _mainWindow(std::make_unique<View>()) {
   connect(_mainWindow.get(), SIGNAL(addEventClicked()), this,
@@ -125,10 +123,10 @@ void Controller::handleHorizonsClicked() {
     connect(_horizonController.get(), SIGNAL(sendRemovedHorizon(const QUuid &)),
             this, SLOT(handleRemoveHorizonClicked(const QUuid &)));
     connect(_horizonController.get(), SIGNAL(finished()), this,
-            SLOT(deleteAddHorizonController()));
-  }
+            SLOT(deleteHorizonController()));
 
-  _horizonController->viewHorizons(_project);
+    _horizonController->viewHorizons(_project);
+  }
 }
 
 void Controller::handleRemoveHorizonClicked(const QUuid &uuid) {
@@ -150,13 +148,13 @@ void Controller::handleCloseProjectClicked() {
 }
 
 void Controller::handleNewProjectClicked() {
-  // TODO: не работает, когда проект сохраняется - не открывается окно для
-  // создания нового проекта
   if (_project) {
     handleCloseProjectClicked();
     if (_closeProjectController) {
+      disconnect(_closeProjectController.get(), SIGNAL(finished(bool)), this,
+                 SLOT(deleteCloseProjectController(bool)));
       connect(_closeProjectController.get(), SIGNAL(finished(bool)), this,
-              SLOT(handleNewProjectClicked()));
+              SLOT(adapterFromDeleteToNewProject(bool)));
       return;
     }
   }
@@ -174,24 +172,26 @@ void Controller::handleNewProjectClicked() {
 }
 
 void Controller::handleOpenProjectClicked() {
-  // TODO: не работает, когда проект сохраняется - не открывается окно для
-  // открытия проекта
   if (_project) {
     handleCloseProjectClicked();
     if (_closeProjectController) {
+      disconnect(_closeProjectController.get(), SIGNAL(finished(bool)), this,
+                 SLOT(deleteCloseProjectController(bool)));
       connect(_closeProjectController.get(), SIGNAL(finished(bool)), this,
-              SLOT(handleNewProjectClicked()));
+              SLOT(adapterFromDeleteToOpenProject(bool)));
       return;
     }
   }
 
-  if (!_openProjectController) {
-    _openProjectController = std::make_unique<OpenProject::Controller>(this);
-    connect(_openProjectController.get(),
-            SIGNAL(sendProject(std::unique_ptr<Data::SeismProject> &)), this,
-            SLOT(recvProject(std::unique_ptr<Data::SeismProject> &)));
-    connect(_openProjectController.get(), SIGNAL(finished()), this,
-            SLOT(deleteOpenProjectController()));
+  if (!_project) {
+    if (!_openProjectController) {
+      _openProjectController = std::make_unique<OpenProject::Controller>(this);
+      connect(_openProjectController.get(),
+              SIGNAL(sendProject(std::unique_ptr<Data::SeismProject> &)), this,
+              SLOT(recvProject(std::unique_ptr<Data::SeismProject> &)));
+      connect(_openProjectController.get(), SIGNAL(finished()), this,
+              SLOT(deleteOpenProjectController()));
+    }
   }
 }
 
@@ -209,7 +209,7 @@ void Controller::deleteAddEventController() { _addEventController.reset(); }
 
 void Controller::deleteViewEventController() { _viewEventController.reset(); }
 
-void Controller::deleteAddHorizonController() { _horizonController.reset(); }
+void Controller::deleteHorizonController() { _horizonController.reset(); }
 
 void Controller::deleteCloseProjectController(bool closed) {
   _closeProjectController.reset();
@@ -230,6 +230,28 @@ void Controller::deleteSaveProjectController(bool saved) {
   _project = _saveProjectController->getProject();
   _saveProjectController.reset();
   emit savedProject(saved);
+}
+
+void Controller::adapterFromDeleteToNewProject(bool close) {
+  _closeProjectController.reset();
+
+  if (close) {
+    _mainWindow->closeProject();
+    _project.reset();
+
+    handleNewProjectClicked();
+  }
+}
+
+void Controller::adapterFromDeleteToOpenProject(bool close) {
+  _closeProjectController.reset();
+
+  if (close) {
+    _mainWindow->closeProject();
+    _project.reset();
+
+    handleOpenProjectClicked();
+  }
 }
 
 } // namespace Main

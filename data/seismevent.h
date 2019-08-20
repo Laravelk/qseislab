@@ -9,37 +9,40 @@
 #include <QJsonObject>
 #include <QUuid>
 
+
 namespace Data {
 class SeismEvent {
 public:
-  static const QString _default_path;
+    static const QString _default_path;
 
-  explicit SeismEvent();
-  explicit SeismEvent(const QJsonObject &, const QDir &) noexcept(false);
 
-  void addComponent(std::unique_ptr<SeismComponent>);
+    explicit SeismEvent();
+    explicit SeismEvent(const QJsonObject&, const QDir&) noexcept(false);
 
-  int getComponentNumber() const;
+    void addComponent(std::unique_ptr<SeismComponent> );
 
-  const std::unique_ptr<SeismComponent> &getComponent(int) const;
-  const std::vector<std::unique_ptr<SeismComponent>> &getComponents() const;
+    int getComponentNumber() const;
 
-  void setDateTime(const QDateTime &);
-  const QDateTime &getDateTime() const;
+    const std::unique_ptr<SeismComponent>& getComponent(int) const;
+    const std::vector<std::unique_ptr<SeismComponent>>& getComponents() const;
 
-  void setUuid(const QUuid &);
-  const QUuid &getUuid() const;
+    void setDateTime(const QDateTime& );
+    const QDateTime& getDateTime() const;
 
-  QJsonObject &writeToJson(QJsonObject &, const QDir &) noexcept(false);
+    void setUuid(const QUuid& );
+    const QUuid& getUuid() const;
+
+    QJsonObject& writeToJson(QJsonObject&, const QDir&) noexcept(false);
 
 private:
-  QString _path;
+    QString _path;
 
-  QDateTime _dateTime;
+    QDateTime _dateTime;
 
-  QUuid _uuid;
+    QUuid  _uuid;
 
-  std::vector<std::unique_ptr<SeismComponent>> _components;
+    std::vector<std::unique_ptr<SeismComponent>> _components; 
 };
+
 
 } // namespace Data

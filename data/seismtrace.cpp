@@ -5,30 +5,36 @@ SeismTrace::SeismTrace() {}
 
 SeismTrace::SeismTrace(const QJsonObject &json,
                        std::pair<uint32_t, std::unique_ptr<float[]>> &data) {
-  if (!(json.contains("sampleInterval"))) {
-    throw std::runtime_error("Not found json-field (SeismTrace)");
+  std::string err_msg;
+  if (json.contains("sampleInterval")) {
+    _sampleInterval = static_cast<float>(json["sampleInterval"].toDouble());
+  } else {
+    err_msg += "::sampleInterval : not found\n";
   }
 
-  _sampleInterval = static_cast<float>(json["sampleInterval"].toDouble());
-
   _bufferSize = data.first;
-
   _buffer = std::move(data.second);
+
+  if (json.contains("sampleNumber")) {
+    int jsize = json["sampleNumber"].toInt();
+    if (jsize != static_cast<int>(_bufferSize)) {
+      err_msg += "::data : data-size in json-file doesn`t match data-size in "
+                 "bin-file\n";
+    }
+  } else {
+    err_msg += "::sampleNumber : not found\n";
+  }
+
+  if (!err_msg.empty()) {
+    err_msg += "\n";
+    throw std::runtime_error(err_msg);
+  }
 
   // calc _maxValue
   for (uint32_t i = 0; i < _bufferSize; ++i) {
     if (_buffer[i] > _maxValue) {
       _maxValue = _buffer[i];
     }
-  }
-
-  if (json.contains("sampleNumber")) {
-    int jsize = json["sampleNumber"].toInt();
-    if (jsize != static_cast<int>(_bufferSize)) {
-      // TODO: notify
-    }
-  } else {
-    // TODO: notify
   }
 }
 

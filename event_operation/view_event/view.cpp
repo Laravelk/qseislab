@@ -9,11 +9,14 @@
 namespace EventOperation {
 namespace ViewEvent {
 View::View(QWidget *parent)
-    : QDialog(parent), _infoEvent(new InfoEvent(this)),
-      _graphicEvent(new GraphicEvent(this)),
+    : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
+      _infoEvent(new InfoEvent(this)), _graphicEvent(new GraphicEvent(this)),
       _okButton(new QPushButton("Ok", this)) {
+
   setWindowTitle("SeismWindow");
   setMinimumSize(1100, 590);
+
+  _infoEvent->setDisabled(true);
 
   connect(_okButton, SIGNAL(clicked()), this, SLOT(accept()));
 

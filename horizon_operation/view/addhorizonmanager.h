@@ -20,15 +20,21 @@ public:
 
   void update(const std::unique_ptr<Data::SeismHorizon> &);
 
+  void settingHorizonInfo(const std::unique_ptr<Data::SeismHorizon> &);
+
 signals:
   void sendFilePath(const QString &) const;
+  void notify(const QString &) const;
 
 private slots:
+  void handleAccept();
   void recvFilePath(const QString &);
 
 private:
   FileManager *_fileManager;
   QLineEdit *_nameLineEdit;
+  QLineEdit *_NxLineEdit;
+  QLineEdit *_NyLineEdit;
   QLabel *_pointNumberLabel;
   QPushButton *_addButton;
 };

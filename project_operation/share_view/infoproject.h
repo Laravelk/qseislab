@@ -3,6 +3,12 @@
 #include <QFrame>
 #include <QLineEdit>
 
+#include <memory>
+
+namespace Data {
+class SeismProject;
+}
+
 namespace ProjectOperation {
 class InfoProject : public QFrame {
 public:
@@ -10,14 +16,12 @@ public:
 
   explicit InfoProject(MODE, QWidget *parent = nullptr);
 
-  void setName(const QString &);
-  QString getName() const;
+  void setDisabled(bool);
+  void setEnabled(bool);
 
-  void setDate(const QDate &);
-  QDate getDate() const;
+  void update(const std::unique_ptr<Data::SeismProject> &);
 
-  void setTime(const QTime &);
-  QTime getTime() const;
+  void settingProjectInfo(const std::unique_ptr<Data::SeismProject> &);
 
   void clear();
 

@@ -9,26 +9,47 @@ SeismComponent::SeismComponent(
     const QJsonObject &json,
     std::vector<std::pair<uint32_t, std::unique_ptr<float[]>>> &data) {
 
-  //    if( !(json.contains("Traces")) ) {
-  if (!(json.contains("pWaveArrival") && json.contains("sWaveArrival"))) {
-    throw std::runtime_error("Not found json-field (SeismComponent)");
+  std::string err_msg;
+
+  if (json.contains("pWaveArrival")) {
+    _pWaveArrival = json["pWaveArrival"].toInt();
+  } else {
+    err_msg += "::pWaveArrival : not found\n";
   }
 
-  _pWaveArrival = json["pWaveArrival"].toInt();
-  _sWaveArrival = json["sWaveArrival"].toInt();
-
-  QJsonArray tracesArray(json["Traces"].toArray());
-
-  if (static_cast<int>(data.size()) != tracesArray.count()) {
-    throw std::runtime_error("Traces-size in bin-file does not match "
-                             "traces-size in json-file (SeismComponent)");
+  if (json.contains("sWaveArrival")) {
+    _sWaveArrival = json["sWaveArrival"].toInt();
+  } else {
+    err_msg += "::sWaveArrival : not found\n";
   }
 
-  unsigned i = 0;
-  for (auto objTrace : tracesArray) {
-    auto seismTrace =
-        std::make_unique<SeismTrace>(objTrace.toObject(), data[i++]);
-    _traces.push_back(std::move(seismTrace));
+  if (json.contains("Traces")) {
+    QJsonArray tracesArray(json["Traces"].toArray());
+
+    if (static_cast<int>(data.size()) == tracesArray.count()) {
+      unsigned idx = 0;
+      for (auto objTrace : tracesArray) {
+        try {
+          auto seismTrace =
+              std::make_unique<SeismTrace>(objTrace.toObject(), data[idx]);
+          _traces.push_back(std::move(seismTrace));
+        } catch (std::runtime_error &err) {
+          err_msg += "Trace (idx: " + std::to_string(idx) + ")\n";
+          err_msg += err.what();
+        }
+        ++idx;
+      }
+    } else {
+      err_msg += "::data : traces-size in json-file doesn`t match traces-size "
+                 "in bin-file\n";
+    }
+  } else {
+    err_msg += "::Traces : not found\n";
+  }
+
+  if (!err_msg.empty()) {
+    err_msg += "\n";
+    throw std::runtime_error(err_msg);
   }
 
   for (unsigned i = 0; i < _traces.size(); ++i) {
@@ -37,16 +58,6 @@ SeismComponent::SeismComponent(
       _maxValue = traceMaxValue;
     }
   }
-
-  //    if ( json.contains("maxValue") ) {
-  //        float jmaxValue = static_cast<float>(json["maxValue"].toDouble());
-  //        if ( jmaxValue != _maxValue) {
-  //            //TODO: notify
-  //        }
-  //    }
-  //    else {
-  //        //TODO: notify
-  //    }
 }
 
 int SeismComponent::getPWaveArrival() const { return _pWaveArrival; }

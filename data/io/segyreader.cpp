@@ -4,129 +4,135 @@
 
 #include <memory>
 
+
 namespace Data {
 namespace IO {
-void SegyReader::setFilePath(const char *path) {
-  _fp = segy_open(path, "rb");
-  if (!_fp) {
-    throw std::runtime_error("segy_open()");
-  }
+void SegyReader::setFilePath(const char* path)
+{
+    _fp = segy_open(path, "rb");
+    if(!_fp) {
+        throw std::runtime_error("segy_open()");
+    }
 }
 
-void SegyReader::readBinHeader() {
-  char binheader[SEGY_BINARY_HEADER_SIZE];
-  int err = segy_binheader(_fp, binheader);
-  if (SEGY_OK != err) {
-    throw std::runtime_error("segy_binheader()");
-  }
+void SegyReader::readBinHeader()
+{
+    char binheader[ SEGY_BINARY_HEADER_SIZE ];
+    int err = segy_binheader( _fp, binheader );
+    if(SEGY_OK != err) {
+        throw std::runtime_error("segy_binheader()");
+    }
 
-  float fallback = -1.0;
-  err = segy_sample_interval(_fp, fallback, &_sam_intr);
-  if (SEGY_OK != err || fallback == _sam_intr) {
-    throw std::runtime_error("segy_sample_interval()");
-  }
+    float fallback = -1.0;
+    err = segy_sample_interval(_fp, fallback, &_sam_intr);
+    if(SEGY_OK != err || fallback  == _sam_intr) {
+        throw std::runtime_error("segy_sample_interval()");
+    }
 
-  _sam_num = segy_samples(binheader);
-  if (0 >= _sam_num) {
-    throw std::runtime_error("segy_samples() -> negative");
-  }
+    _sam_num = segy_samples( binheader );
+    if(0 >= _sam_num) {
+       throw std::runtime_error("segy_samples() -> negative");
+    }
 
-  _format = segy_format(binheader);
+    _format = segy_format( binheader );
 
-  _trace0 = segy_trace0(binheader);
+    _trace0 = segy_trace0( binheader );
 
-  _trace_bsize = segy_trsize(_format, _sam_num);
-  if (0 >= _trace_bsize) {
-    throw std::runtime_error("segy_trsize() -> negative");
-  }
+    _trace_bsize = segy_trsize( _format, _sam_num );
+    if(0 >= _trace_bsize) {
+       throw std::runtime_error("segy_trsize() -> negative");
+    }
 
-  err = segy_traces(_fp, &_trace_num, _trace0, _trace_bsize);
-  if (SEGY_OK != err) {
-    throw std::runtime_error("segy_traces()");
-  }
+    err = segy_traces( _fp, &_trace_num, _trace0, _trace_bsize );
+    if(SEGY_OK != err) {
+        throw std::runtime_error("segy_traces()");
+    }
 
-  if (0 != _trace_num % TRACE_IN_COMPONENT) {
-    throw std::runtime_error(
-        "Number of routes is non-multiple to traceInComponent");
-  }
+    if(0 != _trace_num % TRACE_IN_COMPONENT) {
+        throw std::runtime_error("Number of routes is non-multiple to traceInComponent");
+    }
 }
 
-bool SegyReader::hasNextComponent() const {
-  assert(0 == _alreadyRead % TRACE_IN_COMPONENT);
+bool SegyReader::hasNextComponent() const
+{
+    assert(0 == _alreadyRead % TRACE_IN_COMPONENT);
 
-  return _trace_num > _alreadyRead;
+    return _trace_num > _alreadyRead;
 }
 
-std::unique_ptr<SeismComponent> SegyReader::nextComponent() {
-  int err;
-  char traceh[SEGY_TRACE_HEADER_SIZE];
+std::unique_ptr<SeismComponent> SegyReader::nextComponent()
+{
+    int err;
+    char traceh[ SEGY_TRACE_HEADER_SIZE ];
 
-  assert(0 == static_cast<unsigned>(_trace_bsize) % sizeof(float));
-  uint32_t buffer_size = static_cast<uint32_t>(_trace_bsize) /
-                         sizeof(float); // TODO: доставать размеры форматов и
-                                        // размер данных из библиотеки
+    assert(0 ==  static_cast<unsigned>(_trace_bsize) % sizeof(float) );
+    uint32_t buffer_size = static_cast<uint32_t>(_trace_bsize) / sizeof(float); // TODO: доставать размеры форматов и размер данных из библиотеки
 
-  std::unique_ptr<SeismComponent> component =
-      std::make_unique<SeismComponent>();
-  int p_wave_arrivel = 0;
-  int s_wave_arrivel = 0;
+    std::unique_ptr<SeismComponent> component = std::make_unique<SeismComponent>();
+    int p_wave_arrivel = 0;
+    int s_wave_arrivel = 0;
 
-  for (unsigned i = 0; i < TRACE_IN_COMPONENT; ++i) {
-    err = segy_traceheader(_fp, _alreadyRead, traceh, _trace0, _trace_bsize);
-    if (SEGY_OK != err) {
-      throw std::runtime_error("segy_traceheader()");
+    for(unsigned i = 0; i < TRACE_IN_COMPONENT; ++i) {
+        err = segy_traceheader( _fp, _alreadyRead, traceh, _trace0, _trace_bsize );
+        if(SEGY_OK != err) {
+            throw std::runtime_error("segy_traceheader()");
+        }
+
+        int p_wave_arrivel_trace;
+        err = segy_get_field( traceh, SEGY_TR_CDP_X, &p_wave_arrivel_trace );
+        if(SEGY_OK != err) {
+            throw std::runtime_error("segy_get_field(SEGY_TR_CDP_X)");
+        }
+        if (0 == i) {
+            p_wave_arrivel = p_wave_arrivel_trace;
+        }
+        if (p_wave_arrivel != p_wave_arrivel_trace) {
+            throw std::runtime_error("Fields do not match in the component (p_wave_arrivel)");
+        }
+
+
+        int s_wave_arrivel_trace;
+        err = segy_get_field( traceh, SEGY_TR_CDP_Y, &s_wave_arrivel_trace );
+        if(SEGY_OK != err) {
+           throw std::runtime_error("segy_get_field(SEGY_TR_CDP_Y)");
+        }
+        if (0 == i) {
+            s_wave_arrivel = s_wave_arrivel_trace;
+        }
+        if (s_wave_arrivel != s_wave_arrivel_trace) {
+            throw std::runtime_error("Fields do not match in the component (s_wave_arrivel)");
+        }
+
+
+        float buffer[buffer_size];
+        err = segy_readtrace( _fp, _alreadyRead, buffer, _trace0, _trace_bsize );
+        if(SEGY_OK != err) {
+            throw std::runtime_error("segy_readtrace()");
+        }
+        segy_to_native( _format, _sam_num, buffer );
+
+
+        std::unique_ptr<SeismTrace> trace = std::make_unique<SeismTrace>();
+        trace = std::make_unique<SeismTrace>();
+        trace->setSampleInterval(_sam_intr);
+        trace->setBuffer(buffer_size, buffer);
+
+        component->addTrace(std::move(trace));
+
+        ++_alreadyRead;
     }
 
-    int p_wave_arrivel_trace;
-    err = segy_get_field(traceh, SEGY_TR_CDP_X, &p_wave_arrivel_trace);
-    if (SEGY_OK != err) {
-      throw std::runtime_error("segy_get_field(SEGY_TR_CDP_X)");
-    }
-    if (0 == i) {
-      p_wave_arrivel = p_wave_arrivel_trace;
-    }
-    if (p_wave_arrivel != p_wave_arrivel_trace) {
-      throw std::runtime_error(
-          "Fields do not match in the component (p_wave_arrivel)");
-    }
+    component->setPWaveArrival(p_wave_arrivel);
+    component->setSWaveArrival(s_wave_arrivel);
 
-    int s_wave_arrivel_trace;
-    err = segy_get_field(traceh, SEGY_TR_CDP_Y, &s_wave_arrivel_trace);
-    if (SEGY_OK != err) {
-      throw std::runtime_error("segy_get_field(SEGY_TR_CDP_Y)");
-    }
-    if (0 == i) {
-      s_wave_arrivel = s_wave_arrivel_trace;
-    }
-    if (s_wave_arrivel != s_wave_arrivel_trace) {
-      throw std::runtime_error(
-          "Fields do not match in the component (s_wave_arrivel)");
-    }
-
-    float buffer[buffer_size];
-    err = segy_readtrace(_fp, _alreadyRead, buffer, _trace0, _trace_bsize);
-    if (SEGY_OK != err) {
-      throw std::runtime_error("segy_readtrace()");
-    }
-    segy_to_native(_format, _sam_num, buffer);
-
-    std::unique_ptr<SeismTrace> trace = std::make_unique<SeismTrace>();
-    trace = std::make_unique<SeismTrace>();
-    trace->setSampleInterval(_sam_intr);
-    trace->setBuffer(buffer_size, buffer);
-
-    component->addTrace(std::move(trace));
-
-    ++_alreadyRead;
-  }
-
-  component->setPWaveArrival(p_wave_arrivel);
-  component->setSWaveArrival(s_wave_arrivel);
-
-  return component;
+    return component;
 }
 
-void SegyReader::close() { segy_close(_fp); }
+void SegyReader::close()
+{
+    segy_close(_fp);
+}
 
-} // namespace IO
+
+} // namespace Reader
 } // namespace Data

@@ -7,25 +7,27 @@
 
 #include <memory>
 
+
 namespace Data {
 class SesismComponent;
 namespace IO {
 class SeismComponentReader {
 public:
-  explicit SeismComponentReader(const QFileInfo &) noexcept(false);
+    explicit SeismComponentReader(const QFileInfo& ) noexcept(false);
 
-  bool hasNext() const;
+    bool hasNext() const;
 
-  std::vector<std::pair<uint32_t, std::unique_ptr<float[]>>> &nextData();
+    std::vector<std::pair<uint32_t, std::unique_ptr<float[]>>>& nextData();
 
-  ~SeismComponentReader();
+    ~SeismComponentReader();
 
 private:
-  QFile _file;
-  QDataStream _instream;
+    QFile _file;
+    QDataStream _instream;
 
-  std::vector<std::pair<uint32_t, std::unique_ptr<float[]>>> _data;
+    std::vector<std::pair<uint32_t, std::unique_ptr<float[]>>> _data;
 };
+
 
 } // namespace IO
 } // namespace Data

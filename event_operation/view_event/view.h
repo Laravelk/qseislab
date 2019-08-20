@@ -4,6 +4,7 @@
 
 #include <memory>
 
+
 namespace Data {
 class SeismEvent;
 }
@@ -13,18 +14,19 @@ class InfoEvent;
 class GraphicEvent;
 namespace ViewEvent {
 class View : public QDialog {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  explicit View(QWidget *parent = nullptr);
+    explicit View(QWidget* parent = nullptr);
 
-  void update(const std::unique_ptr<Data::SeismEvent> &);
+    void update(const std::unique_ptr<Data::SeismEvent>& );
 
 private:
-  InfoEvent *_infoEvent;
-  GraphicEvent *_graphicEvent;
-  QPushButton *_okButton;
+    InfoEvent* _infoEvent;
+    GraphicEvent* _graphicEvent;
+    QPushButton* _okButton;
 };
+
 
 } // namespace ViewEvent
 } // namespace EventOperation

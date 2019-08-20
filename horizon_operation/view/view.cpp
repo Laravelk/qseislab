@@ -1,6 +1,5 @@
 #include "view.h"
 
-#include "addhorizonmanager.h"
 #include "data/seismhorizon.h"
 
 #include <QBoxLayout>
@@ -11,11 +10,12 @@ typedef Data::SeismHorizon SeismHorizon;
 
 namespace HorizonOperation {
 View::View(QWidget *parent)
-    : QDialog(parent), _horizonsTable(new QTableWidget(this)),
+    : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
+      _horizonsTable(new QTableWidget(this)),
       _saveButton(new QPushButton("Save")) {
 
   setWindowTitle("Horizons");
-  setMinimumWidth(350);
+  setMinimumWidth(440);
 
   initHorizonsTable(_horizonsTable);
   connect(_horizonsTable, SIGNAL(cellDoubleClicked(int, int)), this,
@@ -56,7 +56,7 @@ void View::updateHorizon(const std::unique_ptr<SeismHorizon> &horizon) {
 void View::handleHorizonClicked(int row, int col) {
   QUuid uuid = _horizonsTable->item(row, 0)->text();
 
-  if (3 == col) {
+  if (5 == col) {
     emit removeHorizonClicked(uuid);
     return;
   }
@@ -71,11 +71,16 @@ void View::finishHorizonManager(int result) {
 void View::removeHorizon(const QUuid &uuid) {
   const QString str_uuid = uuid.toString();
   for (int row = 0; row < _horizonsTable->rowCount(); ++row) {
-    if (str_uuid == _horizonsTable->takeItem(row, 0)->text()) {
+    if (str_uuid == _horizonsTable->item(row, 0)->text()) {
       _horizonsTable->removeRow(row);
       return;
     }
   }
+}
+
+void View::settingHorizonInfo(
+    const std::unique_ptr<Data::SeismHorizon> &horizon) {
+  _addHorizonManager->settingHorizonInfo(horizon);
 }
 
 void View::setNotification(const QString &text) {
@@ -90,41 +95,55 @@ void View::changed(bool b) { _saveButton->setEnabled(b); }
 
 void View::initHorizonsTable(QTableWidget *table) {
   table->setEditTriggers(QAbstractItemView::NoEditTriggers);
-  table->setColumnCount(4);
+  table->setColumnCount(6);
 
   // configure column settings
   table->setHorizontalHeaderItem(0, new QTableWidgetItem("id"));
   table->setColumnHidden(0, true);
   table->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
   table->setHorizontalHeaderItem(2, new QTableWidgetItem("Point Number"));
-  table->setHorizontalHeaderItem(3, new QTableWidgetItem("Remove"));
+  table->setHorizontalHeaderItem(3, new QTableWidgetItem("Nx"));
+  table->setColumnWidth(3, 50);
+  table->setHorizontalHeaderItem(4, new QTableWidgetItem("Ny"));
+  table->setColumnWidth(4, 50);
+  table->setHorizontalHeaderItem(5, new QTableWidgetItem("Remove"));
 }
 
 void View::insertHorizonInTable(const std::unique_ptr<SeismHorizon> &horizon) {
   _horizonsTable->insertRow(_horizonsTable->rowCount());
 
-  _horizonsTable->setItem(_horizonsTable->rowCount() - 1, 0,
+  int insertRow = _horizonsTable->rowCount() - 1;
+
+  _horizonsTable->setItem(insertRow, 0,
                           new QTableWidgetItem(horizon->getUuid().toString()));
 
-  _horizonsTable->setItem(_horizonsTable->rowCount() - 1, 1,
+  _horizonsTable->setItem(insertRow, 1,
                           new QTableWidgetItem(horizon->getName()));
 
   _horizonsTable->setItem(
-      _horizonsTable->rowCount() - 1, 2,
+      insertRow, 2,
       new QTableWidgetItem(QString::number(horizon->getPointsNumber())));
+
+  _horizonsTable->setItem(
+      insertRow, 3, new QTableWidgetItem(QString::number(horizon->getNx())));
+
+  _horizonsTable->setItem(
+      insertRow, 4, new QTableWidgetItem(QString::number(horizon->getNy())));
 
   QTableWidgetItem *removeItem = new QTableWidgetItem("Remove");
   removeItem->setTextAlignment(Qt::AlignCenter);
   removeItem->setBackground(Qt::red);
-  _horizonsTable->setItem(_horizonsTable->rowCount() - 1, 3, removeItem);
+  _horizonsTable->setItem(insertRow, 5, removeItem);
 }
 
 void View::handleAddHorizonClicked() {
-  _addHorizonManager = new AddHorizonManager(this);
+  _addHorizonManager = std::make_unique<AddHorizonManager>(this);
 
-  connect(_addHorizonManager, SIGNAL(sendFilePath(const QString &)), this,
+  connect(_addHorizonManager.get(), SIGNAL(sendFilePath(const QString &)), this,
           SLOT(recvFilePath(const QString &)));
-  connect(_addHorizonManager, SIGNAL(finished(int)), this,
+  connect(_addHorizonManager.get(), SIGNAL(notify(const QString &)), this,
+          SLOT(setNotification(const QString &)));
+  connect(_addHorizonManager.get(), SIGNAL(finished(int)), this,
           SLOT(finishHorizonManager(int)));
 
   _addHorizonManager->setModal(true);

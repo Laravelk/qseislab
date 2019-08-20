@@ -1,8 +1,8 @@
-#include "seismpointwriter.h"
+#include "pointwriter.h"
 
 namespace Data {
 namespace IO {
-SeismPointWriter::SeismPointWriter(const QFileInfo &fileInfo)
+PointWriter::PointWriter(const QFileInfo &fileInfo)
     : _file(fileInfo.absoluteFilePath()), _outstream(&_file) {
   if (!_file.open(QIODevice::WriteOnly)) {
     throw std::runtime_error("File can not be opened (SeismPointWriter)");
@@ -12,11 +12,11 @@ SeismPointWriter::SeismPointWriter(const QFileInfo &fileInfo)
   _outstream.setByteOrder(QDataStream::LittleEndian);
 }
 
-void SeismPointWriter::writePoint(const SeismHorizon::SeismPoint &point) {
+void PointWriter::writePoint(const Point &point) {
   _outstream << std::get<0>(point) << std::get<1>(point) << std::get<2>(point);
 }
 
-SeismPointWriter::~SeismPointWriter() { _file.close(); }
+PointWriter::~PointWriter() { _file.close(); }
 
 } // namespace IO
 } // namespace Data

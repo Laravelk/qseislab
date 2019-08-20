@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QDialog>
+
 #include <memory>
 
 namespace Data {
@@ -20,14 +21,7 @@ public:
   void update(const std::unique_ptr<Data::SeismProject> &);
   void setNotification(const QString &);
 
-  void setName(const QString &);
-  QString getName() const;
-
-  void setDate(const QDate &);
-  QDate getDate() const;
-
-  void setTime(const QTime &);
-  QTime getTime() const;
+  void settingProjectInfo(const std::unique_ptr<Data::SeismProject> &);
 
 signals:
   void sendFilePath(const QString &) const;

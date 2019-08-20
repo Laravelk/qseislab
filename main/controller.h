@@ -53,12 +53,15 @@ private slots:
   void deleteAddEventController();
   void deleteViewEventController();
 
-  void deleteAddHorizonController();
+  void deleteHorizonController();
 
   void deleteCloseProjectController(bool);
   void deleteNewProjectController();
   void deleteOpenProjectController();
   void deleteSaveProjectController(bool);
+
+  void adapterFromDeleteToNewProject(bool);
+  void adapterFromDeleteToOpenProject(bool);
 
 private:
   std::unique_ptr<Data::SeismProject> _project;

@@ -1,38 +1,42 @@
 #pragma once
 
 #include "view.h"
+
 #include <QObject>
+
 #include <memory>
 
+
 namespace Data {
-class SeismProject;
+    class SeismProject;
 }
 
 namespace ProjectOperation {
 namespace OpenProject {
 class Model;
 class Controller : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  explicit Controller(QObject *parent = nullptr);
+    explicit Controller(QObject* parent = nullptr);
 
 signals:
-  void sendProject(std::unique_ptr<Data::SeismProject> &) const;
-  void finished() const;
+    void sendProject(std::unique_ptr<Data::SeismProject>& ) const;
+    void finished() const;
 
 private slots:
-  void recvFilePath(const QString &);
-  void recvNotification(const QString &);
-  void finish(int);
+    void recvFilePath(const QString& );
+    void recvNotification(const QString& );
+    void finish(int);
 
 private:
-  Model *_model;
+    Model* _model;
 
-  std::unique_ptr<View> _view;
+    std::unique_ptr<View> _view;
 
-  std::unique_ptr<Data::SeismProject> _project;
+    std::unique_ptr<Data::SeismProject> _project;
 };
+
 
 } // namespace OpenProject
 } // namespace ProjectOperation

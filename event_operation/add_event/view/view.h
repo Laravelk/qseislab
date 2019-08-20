@@ -22,6 +22,8 @@ public:
   void update(const std::unique_ptr<Data::SeismEvent> &);
   void setNotification(const QString &);
 
+  void settingEventInfo(const std::unique_ptr<Data::SeismEvent> &) const;
+
 signals:
   void sendFilePath(const QString &) const;
   void clear() const;

@@ -4,8 +4,6 @@
 #include "../../data/seismhorizon.h"
 #include "../../data/seismproject.h"
 
-#include "custominputhandler.h"
-
 #include <iostream>
 
 typedef Data::SeismEvent SeismEvent;
@@ -140,9 +138,6 @@ void Surface::handleElementSelected(QAbstract3DGraph::ElementType type) {
         static_cast<float>(static_cast<double>(item->position().z()) + 0.1));
     positionOfLabel.setZ(
         static_cast<float>(static_cast<double>(item->position().y()) + 0.1));
-    if (_label != nullptr) {
-      delete _label;
-    }
     _label = new QCustom3DLabel(
         "X:" +
             QString::number(static_cast<double>(item->position().x()), 'g', 3) +
@@ -155,6 +150,7 @@ void Surface::handleElementSelected(QAbstract3DGraph::ElementType type) {
     _label->setFacingCamera(true);
     _surface->addCustomItem(_label);
     _isHandle = true;
+    return;
   }
   _surface->clearSelection();
 }

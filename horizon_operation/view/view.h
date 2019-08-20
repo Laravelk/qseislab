@@ -1,5 +1,7 @@
 #pragma once
 
+#include "addhorizonmanager.h"
+
 #include <QDialog>
 #include <QTableWidget>
 
@@ -10,7 +12,6 @@ class SeismHorizon;
 }
 
 namespace HorizonOperation {
-class AddHorizonManager;
 class View : public QDialog {
   Q_OBJECT
 
@@ -21,7 +22,11 @@ public:
   void addHorizon(const std::unique_ptr<Data::SeismHorizon> &);
   void removeHorizon(const QUuid &);
 
+  void settingHorizonInfo(const std::unique_ptr<Data::SeismHorizon> &);
+
   void changed(bool);
+
+public slots:
   void setNotification(const QString &);
 
 signals:
@@ -43,7 +48,7 @@ private:
   QTableWidget *_horizonsTable;
   QPushButton *_saveButton;
 
-  AddHorizonManager *_addHorizonManager{nullptr};
+  std::unique_ptr<AddHorizonManager> _addHorizonManager;
 };
 
 } // namespace HorizonOperation

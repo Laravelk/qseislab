@@ -4,6 +4,12 @@
 #include <QDialog>
 #include <QPushButton>
 
+#include <memory>
+
+namespace Data {
+class SeismProject;
+}
+
 namespace ProjectOperation {
 class InfoProject;
 namespace NewProject {
@@ -13,9 +19,7 @@ class View : public QDialog {
 public:
   explicit View(QWidget *parent = nullptr);
 
-  QString getName() const;
-  QDate getDate() const;
-  QTime getTime() const;
+  void settingProjectInfo(const std::unique_ptr<Data::SeismProject> &);
 
 private:
   InfoProject *_infoProject;

@@ -6,31 +6,33 @@
 
 #include <memory>
 
+
 namespace Data {
 namespace IO {
 class AbstractSegyReader;
 }
-} // namespace Data
+}
 
 namespace EventOperation {
 namespace AddEvent {
 class Model : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  explicit Model(Data::IO::AbstractSegyReader *, QObject *);
+    explicit Model(Data::IO::AbstractSegyReader* , QObject* );
 
-  std::unique_ptr<Data::SeismEvent> getSeismEventFrom(const QString &);
+    std::unique_ptr<Data::SeismEvent> getSeismEventFrom(const QString& );
 
-  ~Model();
+    ~Model();
 
 signals:
-  void notify(const QString &) const;
+    void notify(const QString& ) const;
 
 private:
-  Data::IO::AbstractSegyReader *_reader;
-  std::unique_ptr<Data::SeismEvent> _event;
+    Data::IO::AbstractSegyReader* _reader;
+    std::unique_ptr<Data::SeismEvent> _event;
 };
+
 
 } // namespace AddEvent
 } // namespace EventOperation

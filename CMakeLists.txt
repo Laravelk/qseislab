@@ -21,6 +21,8 @@ find_package(Qt5 COMPONENTS ${_Q_MODULES} REQUIRED)
 
 find_package(segyio REQUIRED)
 
+
+
 set(SOURCES
         event_operation/add_event/controller.cpp
         event_operation/add_event/model.cpp
@@ -39,6 +41,9 @@ set(SOURCES
         horizon_operation/controller.cpp
         horizon_operation/model.cpp
         horizon_operation/view/view.cpp
+        horizon_operation/view/addhorizonmanager.cpp
+        horizon_operation/view/filemanager.cpp
+
 
         data/seismproject.cpp
         data/seismcomponent.cpp
@@ -48,23 +53,20 @@ set(SOURCES
         data/io/segyreader.cpp
         data/io/seismcomponentreader.cpp
         data/io/seismcomponentwriter.cpp
-        data/io/seismpointreader.cpp
-        data/io/seismpointwriter.cpp
+        data/io/pointreader.cpp
+        data/io/pointwriter.cpp
 
         main.cpp
-
-        main/surface_view/surface.cpp
 
         main/controller.cpp
         main/view/view.cpp
         main/view/startpage.cpp
         main/view/workpage.cpp
         main/view/infoproject.cpp
+        main/surface_view/surface.cpp
 
         project_operation/new_project/controller.cpp
         project_operation/new_project/view.cpp
-        horizon_operation/view/addhorizonmanager.cpp
-        horizon_operation/view/filemanager.cpp
 
         project_operation/share_view/infoproject.cpp
         project_operation/share_view/filemanager.cpp
@@ -94,34 +96,31 @@ set(HEADERS
 
         horizon_operation/controller.h
         horizon_operation/model.h
-
+        horizon_operation/view/view.h
         horizon_operation/view/addhorizonmanager.h
         horizon_operation/view/filemanager.h
-        horizon_operation/view/view.h
 
+
+        data/seism_data_type.h
         data/seismproject.h
         data/seismcomponent.h
         data/seismevent.h
         data/seismtrace.h
         data/seismhorizon.h
+        data/io/defines.h
         data/io/abstractsegyreader.h
         data/io/segyreader.h
         data/io/seismcomponentreader.h
         data/io/seismcomponentwriter.h
-        data/io/seismpointreader.h
-        data/io/seismpointwriter.h
-        data/io/defines.h
-
-        main/surface_view/surface.h
+        data/io/pointreader.h
+        data/io/pointwriter.h
 
         main/controller.h
         main/view/view.h
         main/view/startpage.h
         main/view/workpage.h
         main/view/infoproject.h
-
-        resources/1.h
-
+        main/surface_view/surface.h
 
         project_operation/new_project/controller.h
         project_operation/new_project/view.h

@@ -14,36 +14,57 @@ const QString SeismEvent::_default_path = "data/events/";
 SeismEvent::SeismEvent() : _dateTime(QDateTime::currentDateTime()) {}
 
 SeismEvent::SeismEvent(const QJsonObject &json, const QDir &dir) {
-  if (!(json.contains("date") && json.contains("Components") &&
-        json.contains("path"))) {
-    throw std::runtime_error("Not found json-field (SeismEvent)");
+  std::string err_msg;
+
+  if (json.contains("date")) {
+    _dateTime =
+        QDateTime::fromString(json["date"].toString(), "dd.MM.yy hh:mm:ss");
+  } else {
+    err_msg += "::date : not found\n";
   }
 
-  _path = json["path"].toString();
-  QFileInfo fileInfo(dir, _path);
-  if (!fileInfo.exists()) {
-    throw std::runtime_error(
-        "data-file: " + fileInfo.absoluteFilePath().toStdString() +
-        " does not exist");
-  }
-  _uuid = fileInfo.baseName();
+  if (json.contains("path")) {
+    _path = json["path"].toString();
+    QFileInfo fileInfo(dir, _path);
+    if (fileInfo.exists()) {
+      _uuid = fileInfo.baseName();
 
-  _dateTime =
-      QDateTime::fromString(json["date"].toString(), "dd.MM.yy hh:mm:ss");
+      if (json.contains("Components")) {
+        QJsonArray componentsArray(json["Components"].toArray());
 
-  QJsonArray componentsArray(json["Components"].toArray());
+        SeismComponentReader reader(fileInfo);
+        int idx = 0;
+        for (auto objComponent : componentsArray) {
 
-  SeismComponentReader reader(fileInfo);
+          if (!reader.hasNext()) {
+            err_msg += "::data : not enough data for event\n";
+            break;
+          }
 
-  for (auto objComponent : componentsArray) {
+          try {
+            auto seismComponent = std::make_unique<SeismComponent>(
+                objComponent.toObject(), reader.nextData());
+            _components.push_back(std::move(seismComponent));
+          } catch (std::runtime_error &err) {
+            err_msg += "Component (idx: " + std::to_string(idx) + ")\n";
+            err_msg += err.what();
+          }
 
-    if (!reader.hasNext()) {
-      throw std::runtime_error("Not enough data for event (SeismEvent)");
+          ++idx;
+        }
+      } else {
+        err_msg += "::Components : not found\n";
+      }
+    } else {
+      err_msg += "::data-file : doesn`t exist\n";
     }
+  } else {
+    err_msg += "::path : not found\n";
+  }
 
-    auto seismComponent = std::make_unique<SeismComponent>(
-        objComponent.toObject(), reader.nextData());
-    _components.push_back(std::move(seismComponent));
+  if (!err_msg.empty()) {
+    err_msg += "\n";
+    throw std::runtime_error(err_msg);
   }
 }
 
