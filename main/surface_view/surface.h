@@ -53,6 +53,7 @@ private:
   QImage _blackColor;
   QImage _redColor;
   bool _isHandle;
+  QCustom3DItem *_itemHandle;
   float a = 0.0f; // TODO delete
   int _color = 10;
 

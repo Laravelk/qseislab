@@ -193,6 +193,13 @@ SeismProject::getEvent(const QUuid &uuid) const {
   return _events_map.at(uuid);
 }
 
+void SeismProject::processEvents() {
+  for (auto &itr : _events_map) {
+    (itr.second)->process();
+  }
+  emit updateEvents();
+}
+
 void SeismProject::addHorizon(std::unique_ptr<SeismHorizon> horizon) {
   _isSaved = false;
 

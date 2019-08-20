@@ -40,6 +40,10 @@ View::View(QWidget *parent) : QMainWindow(parent) {
   act = editMenu->addAction("Add Event", this, SLOT(handleAddEventClicked()));
   act->setDisabled(true);
   connect(this, SIGNAL(projectPresence(bool)), act, SLOT(setEnabled(bool)));
+  act = editMenu->addAction("Process Events", this,
+                            SLOT(handleProcessEvetntsClicked()));
+  act->setDisabled(true);
+  connect(this, SIGNAL(projectPresence(bool)), act, SLOT(setEnabled(bool)));
 
   act = editMenu->addAction("Horizons", this, SLOT(handleHorizonsClicked()));
   act->setDisabled(true);
@@ -93,6 +97,13 @@ void View::updateProject(const std::unique_ptr<Data::SeismEvent> &event) {
   _workPage->updateProject(event);
 }
 
+void View::updateProject(
+    const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &events) {
+  assert(nullptr != _workPage);
+
+  _workPage->updateProject(events);
+}
+
 void View::updateProject(const std::unique_ptr<Data::SeismHorizon> &horizon) {
   assert(nullptr != _workPage);
 
@@ -136,6 +147,8 @@ void View::handleViewEventClicked(const QUuid uuid) {
 void View::handleRemoveEventClicked(const QUuid uuid) {
   emit removeEventClicked(uuid);
 }
+
+void View::handleProcessEvetntsClicked() { emit processEventsClicked(); }
 
 void View::handleHorizonsClicked() { emit horizonsClicked(); }
 

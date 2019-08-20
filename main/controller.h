@@ -35,12 +35,14 @@ private slots:
 
   void updateProject(const std::unique_ptr<Data::SeismEvent> &);
   void updateProjectRemoveEvent(const QUuid &);
+  void updateProjectEvents();
   void updateProject(const std::unique_ptr<Data::SeismHorizon> &);
   void updateProjectRemoveHorizon(const QUuid &);
 
   void handleAddEventClicked();
   void handleViewEventClicked(const QUuid);
   void handleRemoveEventClicked(const QUuid);
+  void handleProcessEventsClicked();
 
   void handleHorizonsClicked();
   void handleRemoveHorizonClicked(const QUuid &);

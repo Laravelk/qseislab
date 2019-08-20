@@ -24,6 +24,7 @@ WorkPage::WorkPage(QWidget *parent)
   container->setMinimumSize(QSize(400, 400));
   container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   container->setFocusPolicy(Qt::StrongFocus);
+
   connect(_eventsTable, SIGNAL(cellDoubleClicked(int, int)), this,
           SLOT(handleEventClicked(int, int)));
 
@@ -39,6 +40,7 @@ WorkPage::WorkPage(QWidget *parent)
 void WorkPage::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
   _infoProject->update(project);
   _surface->setProject(project);
+
   clearTable();
 
   for (auto &itr : project->getEventsMap()) {
@@ -49,14 +51,21 @@ void WorkPage::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
 void WorkPage::updateProject(const std::unique_ptr<Data::SeismEvent> &event) {
   _infoProject->addEvent();
   _surface->addEvent(event);
-
   insertEventInTable(event);
+}
+
+void WorkPage::updateProject(
+    const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &events) {
+  clearTable();
+
+  for (auto &itr : events) {
+    insertEventInTable(itr.second);
+  }
 }
 
 void WorkPage::updateProjectRemoveEvent(const QUuid &uuid) {
   _infoProject->removeEvent();
   _surface->removeEvent(uuid);
-
   removeEventInTable(uuid);
 }
 
@@ -74,7 +83,7 @@ void WorkPage::updateProjectRemoveHorizon(const QUuid &uuid) {
 void WorkPage::handleEventClicked(int row, int col) {
   QUuid uuid = _eventsTable->item(row, 0)->text();
 
-  if (5 == col) {
+  if (6 == col) {
     emit removeEventClicked(uuid);
     return;
   }
@@ -91,11 +100,11 @@ void WorkPage::clearTable() {
 
 void WorkPage::initEventsTable(QTableWidget *table) {
   table->setEditTriggers(QAbstractItemView::NoEditTriggers);
-  table->setColumnCount(6);
+  table->setColumnCount(7);
 
   // configure column settings
   table->setHorizontalHeaderItem(
-      0, new QTableWidgetItem("id")); // for editing or removing events
+      0, new QTableWidgetItem("uuid")); // for editing or removing events
   table->setColumnHidden(0, true);
   //    table->setColumnWidth(0,50);
 
@@ -103,12 +112,14 @@ void WorkPage::initEventsTable(QTableWidget *table) {
   table->setColumnWidth(1, 150);
   table->setHorizontalHeaderItem(2, new QTableWidgetItem("Type"));
   table->setColumnWidth(2, 100);
-  table->setHorizontalHeaderItem(3, new QTableWidgetItem("Date"));
+  table->setHorizontalHeaderItem(3, new QTableWidgetItem("Location"));
   table->setColumnWidth(3, 100);
-  table->setHorizontalHeaderItem(4, new QTableWidgetItem("Time"));
+  table->setHorizontalHeaderItem(4, new QTableWidgetItem("Date"));
   table->setColumnWidth(4, 100);
-  table->setHorizontalHeaderItem(5, new QTableWidgetItem("Remove"));
-  table->setColumnWidth(5, 50);
+  table->setHorizontalHeaderItem(5, new QTableWidgetItem("Time"));
+  table->setColumnWidth(5, 100);
+  table->setHorizontalHeaderItem(6, new QTableWidgetItem("Remove"));
+  table->setColumnWidth(6, 50);
 }
 
 void WorkPage::insertEventInTable(
@@ -116,34 +127,45 @@ void WorkPage::insertEventInTable(
 
   _eventsTable->insertRow(_eventsTable->rowCount());
 
-  _eventsTable->setItem(_eventsTable->rowCount() - 1, 0,
+  int insertRow = _eventsTable->rowCount() - 1;
+
+  _eventsTable->setItem(insertRow, 0,
                         new QTableWidgetItem(event->getUuid().toString()));
 
   _eventsTable->setItem(
-      _eventsTable->rowCount() - 1, 1,
+      insertRow, 1,
       new QTableWidgetItem(QString::number(event->getComponentNumber())));
-  //        _eventsTable->setItem(_eventsTable->rowCount()-1, 2, new
-  //        QTableWidgetItem());
+
+  if (event->isProcessed()) {
+    _eventsTable->setItem(
+        insertRow, 3,
+        new QTableWidgetItem(
+            QString("%1 %2 %3")
+                .arg(static_cast<double>(std::get<0>(event->getLocation())), 0,
+                     'f', 2)
+                .arg(static_cast<double>(std::get<1>(event->getLocation())), 0,
+                     'f', 2)
+                .arg(static_cast<double>(std::get<2>(event->getLocation())), 0,
+                     'f', 2)));
+  }
 
   _eventsTable->setItem(
-      _eventsTable->rowCount() - 1, 3,
+      insertRow, 4,
       new QTableWidgetItem(event->getDateTime().date().toString("dd.MM.yy")));
 
   _eventsTable->setItem(
-      _eventsTable->rowCount() - 1, 4,
+      insertRow, 5,
       new QTableWidgetItem(event->getDateTime().time().toString("hh:mm")));
 
-  //  QPushButton *removeButton = new QPushButton("Remove");
-  //    connect(removeButton, SIGNAL(clicked()), )
   QTableWidgetItem *removeItem = new QTableWidgetItem("Remove");
   removeItem->setTextAlignment(Qt::AlignCenter);
   removeItem->setBackground(Qt::red);
-  _eventsTable->setItem(_eventsTable->rowCount() - 1, 5, removeItem);
+  _eventsTable->setItem(insertRow, 6, removeItem);
 }
 
 void WorkPage::removeEventInTable(const QUuid &uuid) {
   const QString str_uuid = uuid.toString();
-  for (int row = 0; row < _eventsTable->rowCount(); ++row) {
+  for (int row = 0; row < _eventsTable->rowCount(); row++) {
     if (str_uuid == _eventsTable->item(row, 0)->text()) {
       _eventsTable->removeRow(row);
       return;

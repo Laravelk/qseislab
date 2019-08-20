@@ -14,6 +14,8 @@ Controller::Controller() : QObject(), _mainWindow(std::make_unique<View>()) {
           SLOT(handleViewEventClicked(const QUuid)));
   connect(_mainWindow.get(), SIGNAL(removeEventClicked(const QUuid)), this,
           SLOT(handleRemoveEventClicked(const QUuid)));
+  connect(_mainWindow.get(), SIGNAL(processEventsClicked()), this,
+          SLOT(handleProcessEventsClicked()));
 
   connect(_mainWindow.get(), SIGNAL(horizonsClicked()), this,
           SLOT(handleHorizonsClicked()));
@@ -39,6 +41,9 @@ void Controller::recvProject(std::unique_ptr<Data::SeismProject> &project) {
           SLOT(updateProject(const std::unique_ptr<Data::SeismEvent> &)));
   connect(_project.get(), SIGNAL(removedEvent(const QUuid &)), this,
           SLOT(updateProjectRemoveEvent(const QUuid &)));
+  connect(_project.get(), SIGNAL(updateEvents()), this,
+          SLOT(updateProjectEvents()));
+
   connect(_project.get(),
           SIGNAL(addedHorizon(const std::unique_ptr<Data::SeismHorizon> &)),
           this,
@@ -73,6 +78,12 @@ void Controller::updateProjectRemoveEvent(const QUuid &uuid) {
   assert(_project);
 
   _mainWindow->updateProjectRemoveEvent(uuid);
+}
+
+void Controller::updateProjectEvents() {
+  assert(_project);
+
+  _mainWindow->updateProject(_project->getEventsMap());
 }
 
 void Controller::updateProject(
@@ -113,6 +124,8 @@ void Controller::handleViewEventClicked(const QUuid uuid) {
 void Controller::handleRemoveEventClicked(const QUuid uuid) {
   _project->removeEvent(uuid);
 }
+
+void Controller::handleProcessEventsClicked() { _project->processEvents(); }
 
 void Controller::handleHorizonsClicked() {
   if (!_horizonController) {

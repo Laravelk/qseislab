@@ -42,6 +42,8 @@ public:
   const std::map<QUuid, std::unique_ptr<SeismEvent>> &getEventsMap() const;
   const std::unique_ptr<Data::SeismEvent> &getEvent(const QUuid &) const;
 
+  void processEvents();
+
   void addHorizon(std::unique_ptr<SeismHorizon>);
   bool removeHorizon(const QUuid &);
   int getHorizonsNumber() const;
@@ -51,6 +53,7 @@ public:
 signals:
   void addedEvent(const std::unique_ptr<Data::SeismEvent> &) const;
   void removedEvent(const QUuid &) const;
+  void updateEvents() const;
 
   void addedHorizon(const std::unique_ptr<Data::SeismHorizon> &) const;
   void removedHorizon(const QUuid &) const;

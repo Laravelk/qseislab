@@ -21,6 +21,8 @@ public:
   void loadProject(const std::unique_ptr<Data::SeismProject> &);
 
   void updateProject(const std::unique_ptr<Data::SeismEvent> &);
+  void
+  updateProject(const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &);
   void updateProjectRemoveEvent(const QUuid &);
   void updateProject(const std::unique_ptr<Data::SeismHorizon> &);
   void updateProjectRemoveHorizon(const QUuid &);

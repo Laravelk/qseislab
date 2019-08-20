@@ -41,7 +41,7 @@ void Surface::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
   QVector3D position(a, 0.0f, 0.0f); // TODO read from event
   a += 0.4f;
   QCustom3DItem *item = new QCustom3DItem(
-      "/Users/ivanmorozov/MyQtProject/Геология/qseislab/resources/"
+      "/Users/ivanmorozov/MyQtProject/Work/qseislab/resources/"
       "sphereSmooth.obj",
       position, QVector3D(0.035f, 0.035f, 0.035f), QQuaternion(), _blackColor);
   item->setShadowCasting(false);
@@ -51,8 +51,10 @@ void Surface::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
 
 void Surface::addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon) {
   _pointVector = horizon->getPoints();
-  unsigned long countElementInLine = 200;
-  unsigned long countElementInColumn = 200;
+  unsigned long countElementInLine =
+      static_cast<unsigned long>(horizon->getNx());
+  unsigned long countElementInColumn =
+      static_cast<unsigned long>(horizon->getNy());
   QSurfaceDataArray *dataArray = new QSurfaceDataArray;
   for (unsigned long i = 0; i < countElementInLine; i++) {
     _rowVector.push_back(new QSurfaceDataRow);
@@ -81,7 +83,7 @@ void Surface::addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon) {
   _horizonMap.insert(
       std::pair<Uuid, QSurface3DSeries *>(horizon->getUuid(), series));
   _rowVector.clear();
-} // namespace Main
+}
 
 void Surface::setProject(const std::unique_ptr<Data::SeismProject> &project) {
   _project = project.get();
@@ -94,6 +96,10 @@ bool Surface::removeEvent(const std::unique_ptr<Data::SeismEvent> &event) {
 
 bool Surface::removeEvent(const Uuid uid) {
   QCustom3DItem *item = _eventMap[uid];
+  if (item == _itemHandle) {
+    _isHandle = false;
+    _surface->removeCustomItemAt(_label->position());
+  }
   QVector3D position = item->position();
   if (_eventMap.erase(uid)) {
     _surface->removeCustomItemAt(position);
@@ -127,6 +133,7 @@ const std::map<Uuid, QSurface3DSeries *> Surface::getHorizonMap() const {
 void Surface::handleElementSelected(QAbstract3DGraph::ElementType type) {
   if (type == QAbstract3DGraph::ElementCustomItem) {
     QCustom3DItem *item = _surface->selectedCustomItem();
+    _itemHandle = item;
     if (_isHandle) {
       _surface->removeCustomItemAt(_label->position());
     }

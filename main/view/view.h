@@ -17,6 +17,8 @@ public:
 
   void loadProject(const std::unique_ptr<Data::SeismProject> &);
   void updateProject(const std::unique_ptr<Data::SeismEvent> &);
+  void
+  updateProject(const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &);
   void updateProject(const std::unique_ptr<Data::SeismHorizon> &);
   void updateProjectRemoveEvent(const QUuid &);
   void updateProjectRemoveHorizon(const QUuid &);
@@ -26,6 +28,7 @@ signals:
   void addEventClicked() const;
   void viewEventClicked(const QUuid) const;
   void removeEventClicked(const QUuid) const;
+  void processEventsClicked() const;
 
   void horizonsClicked() const;
 
@@ -40,6 +43,7 @@ private slots:
   void handleAddEventClicked();
   void handleViewEventClicked(const QUuid);
   void handleRemoveEventClicked(const QUuid);
+  void handleProcessEvetntsClicked();
 
   void handleHorizonsClicked();
 

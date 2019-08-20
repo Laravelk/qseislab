@@ -23,6 +23,25 @@ SeismEvent::SeismEvent(const QJsonObject &json, const QDir &dir) {
     err_msg += "::date : not found\n";
   }
 
+  if (json.contains("isProcessed")) {
+    _isProcessed = json["isProcessed"].toBool();
+    if (_isProcessed) {
+      if (json.contains("Location")) {
+        QJsonArray locationArray(json["Location"].toArray());
+        if (3 == locationArray.size()) {
+          _location = {locationArray[0].toDouble(), locationArray[1].toDouble(),
+                       locationArray[2].toDouble()};
+        } else {
+          err_msg += "::Location : is not three-dimensional\n";
+        }
+      } else {
+        err_msg += "::Location : not found\n";
+      }
+    }
+  } else {
+    err_msg += "::isProcessed : not found\n";
+  }
+
   if (json.contains("path")) {
     _path = json["path"].toString();
     QFileInfo fileInfo(dir, _path);
@@ -97,6 +116,15 @@ void SeismEvent::setUuid(const QUuid &uuid) { _uuid = uuid; }
 
 const QUuid &SeismEvent::getUuid() const { return _uuid; }
 
+void SeismEvent::process() {
+  _location = {1.67, 1.113, 1.13};
+  _isProcessed = true;
+}
+
+bool SeismEvent::isProcessed() const { return _isProcessed; }
+
+const Point &SeismEvent::getLocation() const { return _location; }
+
 QJsonObject &SeismEvent::writeToJson(QJsonObject &json, const QDir &dir) {
   if (_path.isEmpty()) {
     _path = _default_path;
@@ -106,6 +134,14 @@ QJsonObject &SeismEvent::writeToJson(QJsonObject &json, const QDir &dir) {
 
   json["path"] = _path;
   json["date"] = _dateTime.toString("dd.MM.yy hh:mm:ss");
+  json["isProcessed"] = _isProcessed;
+  if (_isProcessed) {
+    QJsonArray locationArray;
+    locationArray.append(static_cast<double>(std::get<0>(_location)));
+    locationArray.append(static_cast<double>(std::get<1>(_location)));
+    locationArray.append(static_cast<double>(std::get<2>(_location)));
+    json["Location"] = locationArray;
+  }
 
   SeismComponentWriter writer(QFileInfo(dir, _path));
 
