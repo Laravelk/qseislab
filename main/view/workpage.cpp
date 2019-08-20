@@ -144,7 +144,7 @@ void WorkPage::insertEventInTable(
 void WorkPage::removeEventInTable(const QUuid &uuid) {
   const QString str_uuid = uuid.toString();
   for (int row = 0; row < _eventsTable->rowCount(); ++row) {
-    if (str_uuid == _eventsTable->takeItem(row, 0)->text()) {
+    if (str_uuid == _eventsTable->item(row, 0)->text()) {
       _eventsTable->removeRow(row);
       return;
     }

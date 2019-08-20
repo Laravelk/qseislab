@@ -29,10 +29,22 @@ InfoEvent::InfoEvent(QWidget *parent)
   setLayout(layout);
 }
 
+void InfoEvent::setDisabled(bool b) {
+  _dateLineEdit->setDisabled(b);
+  _timeLineEdit->setDisabled(b);
+}
+
+void InfoEvent::setEnabled(bool b) {
+  _dateLineEdit->setEnabled(b);
+  _timeLineEdit->setEnabled(b);
+}
+
 void InfoEvent::update(const std::unique_ptr<Data::SeismEvent> &event) {
-  _dateLineEdit->setText(event->getDateTime().date().toString("dd.MM.yy"));
-  _timeLineEdit->setText(event->getDateTime().time().toString("hh:mm"));
-  _traceNumberLabel->setText(QString::number(event->getComponentNumber()));
+  if (event) {
+    _dateLineEdit->setText(event->getDateTime().date().toString("dd.MM.yy"));
+    _timeLineEdit->setText(event->getDateTime().time().toString("hh:mm"));
+    _traceNumberLabel->setText(QString::number(event->getComponentNumber()));
+  }
 }
 
 void InfoEvent::clear() {
@@ -42,4 +54,12 @@ void InfoEvent::clear() {
   _lengthLabel->clear();
   _groupeCoordinate->clear();
 }
+
+void InfoEvent::settingEventInfo(
+    const std::unique_ptr<Data::SeismEvent> &event) const {
+  QDate date = QDate::fromString(_dateLineEdit->text(), "dd.MM.yy");
+  QTime time = QTime::fromString(_timeLineEdit->text(), "hh:mm");
+  event->setDateTime(QDateTime(date, time));
+}
+
 } // namespace EventOperation

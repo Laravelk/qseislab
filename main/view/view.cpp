@@ -12,21 +12,17 @@ typedef Data::SeismProject SeismProject;
 namespace Main {
 View::View(QWidget *parent) : QMainWindow(parent) {
   setWindowTitle("MainWindow");
-  setMinimumSize(800, 800);
+  setMinimumSize(800, 750);
 
   QAction *act;
 
   QMenu *fileMenu = new QMenu("&File");
   act = fileMenu->addAction("New Project", this,
                             SLOT(handleNewProjectClicked()), QKeySequence::New);
-  //    connect(this, SIGNAL(projectPresence(bool)), act,
-  //    SLOT(setDisabled(bool)));
 
   act =
       fileMenu->addAction("Open Project", this,
                           SLOT(handleOpenProjectClicked()), QKeySequence::Open);
-  //    connect(this, SIGNAL(projectPresence(bool)), act,
-  //    SLOT(setDisabled(bool)));
 
   act =
       fileMenu->addAction("Save Project", this,

@@ -1,17 +1,16 @@
 #pragma once
 
+#include "seism_data_type.h"
+
 #include <QDir>
 #include <QJsonObject>
 #include <QUuid>
 
-#include <tuple>
 #include <vector>
 
 namespace Data {
 class SeismHorizon {
 public:
-  typedef std::tuple<float, float, float> SeismPoint;
-
   static const QString _default_path;
 
   explicit SeismHorizon();
@@ -22,12 +21,18 @@ public:
 
   int getPointsNumber() const;
 
-  void addPoint(const SeismPoint &);
-  const SeismPoint &getPoint(int);
-  const std::vector<SeismPoint> &getPoints();
+  void addPoint(const Point &);
+  const Point &getPoint(int);
+  const std::vector<Point> &getPoints();
 
   void setUuid(const QUuid &);
   const QUuid &getUuid() const;
+
+  void setNx(int);
+  int getNx() const;
+
+  void setNy(int);
+  int getNy() const;
 
   QJsonObject &writeToJson(QJsonObject &, const QDir &) noexcept(false);
 
@@ -37,7 +42,10 @@ private:
 
   QUuid _uuid;
 
-  std::vector<SeismPoint> _points;
+  int _Nx{0};
+  int _Ny{0};
+
+  std::vector<Point> _points;
 };
 
 } // namespace Data

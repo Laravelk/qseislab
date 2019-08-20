@@ -18,9 +18,7 @@ Controller::Controller(QObject *parent)
 
 void Controller::finish(int result) {
   if (QDialog::Accepted == result) {
-    _project->setName(_view->getName());
-    _project->setDate(_view->getDate());
-    _project->setTime(_view->getTime());
+    _view->settingProjectInfo(_project);
     emit sendProject(_project);
   }
 

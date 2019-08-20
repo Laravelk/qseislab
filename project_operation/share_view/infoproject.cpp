@@ -1,5 +1,7 @@
 #include "infoproject.h"
 
+#include "data/seismproject.h"
+
 #include <QDateTime>
 #include <QFormLayout>
 //#include <QRegExpValidator>
@@ -33,24 +35,34 @@ InfoProject::InfoProject(MODE mode, QWidget *parent)
   setLayout(formLayout);
 }
 
-void InfoProject::setName(const QString &name) { _nameLineEdit->setText(name); }
-
-QString InfoProject::getName() const { return _nameLineEdit->text(); }
-
-void InfoProject::setDate(const QDate &date) {
-  _dateLineEdit->setText(date.toString("dd.MM.yy"));
+void InfoProject::setDisabled(bool b) {
+  _nameLineEdit->setDisabled(b);
+  _dateLineEdit->setDisabled(b);
+  _timeLineEdit->setDisabled(b);
 }
 
-QDate InfoProject::getDate() const {
-  return QDate::fromString(_dateLineEdit->text(), "dd.MM.yy");
+void InfoProject::setEnabled(bool b) {
+  _nameLineEdit->setEnabled(b);
+  _dateLineEdit->setEnabled(b);
+  _timeLineEdit->setEnabled(b);
 }
 
-void InfoProject::setTime(const QTime &time) {
-  _timeLineEdit->setText(time.toString("hh:mm"));
+void InfoProject::update(const std::unique_ptr<Data::SeismProject> &project) {
+  if (!project) {
+    setDisabled(true);
+  } else {
+    _nameLineEdit->setText(project->getName());
+    _dateLineEdit->setText(project->getDateTime().date().toString("dd.MM.yy"));
+    _timeLineEdit->setText(project->getDateTime().time().toString("hh:mm"));
+    setDisabled(false);
+  }
 }
 
-QTime InfoProject::getTime() const {
-  return QTime::fromString(_timeLineEdit->text(), "hh:mm");
+void InfoProject::settingProjectInfo(
+    const std::unique_ptr<Data::SeismProject> &project) {
+  project->setName(_nameLineEdit->text());
+  project->setDate(QDate::fromString(_dateLineEdit->text(), "dd.MM.yy"));
+  project->setTime(QTime::fromString(_timeLineEdit->text(), "hh:mm"));
 }
 
 void InfoProject::clear() {

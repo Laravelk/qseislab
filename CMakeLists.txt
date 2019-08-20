@@ -48,8 +48,8 @@ set(SOURCES
         data/io/segyreader.cpp
         data/io/seismcomponentreader.cpp
         data/io/seismcomponentwriter.cpp
-        data/io/seismpointreader.cpp
-        data/io/seismpointwriter.cpp
+        data/io/pointreader.cpp
+        data/io/pointwriter.cpp
 
         main.cpp
 
@@ -104,12 +104,13 @@ set(HEADERS
         data/seismevent.h
         data/seismtrace.h
         data/seismhorizon.h
+        data/seism_data_type.h
         data/io/abstractsegyreader.h
         data/io/segyreader.h
         data/io/seismcomponentreader.h
         data/io/seismcomponentwriter.h
-        data/io/seismpointreader.h
-        data/io/seismpointwriter.h
+        data/io/pointreader.h
+        data/io/pointwriter.h
         data/io/defines.h
 
         main/surface_view/surface.h

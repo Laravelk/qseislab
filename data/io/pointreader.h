@@ -7,15 +7,15 @@
 
 namespace Data {
 namespace IO {
-class SeismPointReader {
+class PointReader {
 public:
-  explicit SeismPointReader(const QFileInfo &) noexcept(false);
+  explicit PointReader(const QFileInfo &) noexcept(false);
 
   bool hasNext() const;
 
-  SeismHorizon::SeismPoint next();
+  Point next();
 
-  ~SeismPointReader();
+  ~PointReader();
 
 private:
   QFile _file;

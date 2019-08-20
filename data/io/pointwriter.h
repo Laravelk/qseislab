@@ -7,13 +7,13 @@
 
 namespace Data {
 namespace IO {
-class SeismPointWriter {
+class PointWriter {
 public:
-  explicit SeismPointWriter(const QFileInfo &);
+  explicit PointWriter(const QFileInfo &);
 
-  void writePoint(const SeismHorizon::SeismPoint &);
+  void writePoint(const Point &);
 
-  ~SeismPointWriter();
+  ~PointWriter();
 
 private:
   QFile _file;

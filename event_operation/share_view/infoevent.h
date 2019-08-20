@@ -17,8 +17,13 @@ class InfoEvent : public QFrame {
 public:
   explicit InfoEvent(QWidget *parent = nullptr);
 
+  void setDisabled(bool);
+  void setEnabled(bool);
+
   void update(const std::unique_ptr<Data::SeismEvent> &);
   void clear();
+
+  void settingEventInfo(const std::unique_ptr<Data::SeismEvent> &) const;
 
 private:
   QLineEdit *_dateLineEdit;
@@ -27,4 +32,5 @@ private:
   QLabel *_lengthLabel;
   QLabel *_groupeCoordinate;
 };
+
 } // namespace EventOperation
