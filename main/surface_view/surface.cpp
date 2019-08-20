@@ -23,16 +23,9 @@ Surface::Surface(Q3DSurface *surface) : _surface(surface), _isHandle(false) {
   _surface->setAxisY(new QValue3DAxis);
   _surface->setAxisZ(new QValue3DAxis);
 
-  _surface->axisX()->setReversed(false);
-  _surface->axisY()->setReversed(false);
-  _surface->axisZ()->setReversed(false);
-
   _surface->scene()->activeCamera()->setCameraPreset(
       Q3DCamera::CameraPresetIsometricLeftHigh);
-
-  //  _surface->axisX()->setRange(0.0f, 100.0f);
-  //  _surface->axisZ()->setRange(0.0f, 100.0f);
-  //  _surface->axisY()->setRange(0.0f, 100.0f);
+  surface->setShadowQuality(QAbstract3DGraph::ShadowQualityNone);
 
   _surface->axisX()->setTitle("X, meters");
   _surface->axisY()->setTitle("Z, meters");
@@ -42,30 +35,28 @@ Surface::Surface(Q3DSurface *surface) : _surface(surface), _isHandle(false) {
   _surface->axisY()->setTitleVisible(true);
   _surface->axisZ()->setTitleVisible(true);
 
-  _surface->axisX()->setAutoAdjustRange(true);
-  _surface->axisY()->setAutoAdjustRange(true);
-  _surface->axisZ()->setAutoAdjustRange(true);
-
   connect(_surface, &QAbstract3DGraph::selectedElementChanged, this,
           &Surface::handleElementSelected);
 }
 
-Surface::~Surface() {
-  _surface->removeCustomItems();
-  delete _surface;
-}
-
 void Surface::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
-  addEventInGraph(event);
+  QVector3D position(a, 0.0f, 0.0f); // TODO read from event
+  a += 0.4f;
+  QCustom3DItem *item = new QCustom3DItem(
+      "/Users/ivanmorozov/MyQtProject/Геология/qseislab/resources/"
+      "sphereSmooth.obj",
+      position, QVector3D(0.035f, 0.035f, 0.035f), QQuaternion(), _blackColor);
+  item->setShadowCasting(false);
+  _surface->addCustomItem(item);
+  _eventMap.insert(std::pair<Uuid, QCustom3DItem *>(event->getUuid(), item));
 }
 
-// read from horizon after interpolation
 void Surface::addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon) {
   _pointVector = horizon->getPoints();
   unsigned long countElementInLine = 200;
   unsigned long countElementInColumn = 200;
   QSurfaceDataArray *dataArray = new QSurfaceDataArray;
-  for (int i = 0; i < countElementInLine; i++) {
+  for (unsigned long i = 0; i < countElementInLine; i++) {
     _rowVector.push_back(new QSurfaceDataRow);
   }
   for (unsigned long i = 0; i < countElementInLine; i++) {
@@ -89,6 +80,8 @@ void Surface::addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon) {
   }
   series->setBaseColor(QColor(100, _color, 100));
   _surface->addSeries(series);
+  _horizonMap.insert(
+      std::pair<Uuid, QSurface3DSeries *>(horizon->getUuid(), series));
   _rowVector.clear();
 } // namespace Main
 
@@ -111,26 +104,26 @@ bool Surface::removeEvent(const Uuid uid) {
   return false;
 }
 
-bool Surface::removeHorizon(const std::unique_ptr<Data::SeismEvent> &event) {}
+bool Surface::removeHorizon(
+    const std::unique_ptr<Data::SeismHorizon> &horizon) {
+  return removeHorizon(horizon.get()->getUuid());
+}
+
+bool Surface::removeHorizon(const Uuid uid) {
+  QSurface3DSeries *series = _horizonMap[uid];
+  if (_horizonMap.erase(uid)) {
+    _surface->removeSeries(series);
+    return true;
+  }
+  return false;
+}
 
 const std::map<Uuid, QCustom3DItem *> Surface::getEventMap() const {
   return _eventMap;
 }
 
-const std::map<Uuid, QSurfaceDataArray *> Surface::getHorizonMap() const {
+const std::map<Uuid, QSurface3DSeries *> Surface::getHorizonMap() const {
   return _horizonMap;
-}
-
-void Surface::addEventInGraph(const std::unique_ptr<Data::SeismEvent> &event) {
-  QVector3D position(a, 0.0f, 0.0f); // TODO read from event
-  a += 0.4f;
-  QCustom3DItem *item = new QCustom3DItem(
-      "/Users/ivanmorozov/MyQtProject/Геология/qseislab/resources/"
-      "sphereSmooth.obj",
-      position, QVector3D(0.035f, 0.035f, 0.035f), QQuaternion(), _blackColor);
-  item->setShadowCasting(false);
-  _surface->addCustomItem(item);
-  _eventMap.insert(std::pair<Uuid, QCustom3DItem *>(event->getUuid(), item));
 }
 
 void Surface::handleElementSelected(QAbstract3DGraph::ElementType type) {
@@ -141,19 +134,29 @@ void Surface::handleElementSelected(QAbstract3DGraph::ElementType type) {
     }
     QVector3D sizeOfLabel(1.0f, 1.0f, 0.0f);
     QVector3D positionOfLabel;
-    positionOfLabel.setX(item->position().x() + 0.1);
-    positionOfLabel.setY(item->position().z() + 0.1);
-    positionOfLabel.setZ(item->position().y() + 0.1);
+    positionOfLabel.setX(
+        static_cast<float>(static_cast<double>(item->position().x()) + 0.1));
+    positionOfLabel.setY(
+        static_cast<float>(static_cast<double>(item->position().z()) + 0.1));
+    positionOfLabel.setZ(
+        static_cast<float>(static_cast<double>(item->position().y()) + 0.1));
+    if (_label != nullptr) {
+      delete _label;
+    }
     _label = new QCustom3DLabel(
-        "X:" + QString::number(item->position().x(), 'g', 3) +
-            " Y:" + QString::number(item->position().z(), 'g', 3) +
-            " Z:" + QString::number(item->position().y(), 'g', 3),
+        "X:" +
+            QString::number(static_cast<double>(item->position().x()), 'g', 3) +
+            " Y:" +
+            QString::number(static_cast<double>(item->position().z()), 'g', 3) +
+            " Z:" +
+            QString::number(static_cast<double>(item->position().y()), 'g', 3),
         QFont("Century Gothic", 30), positionOfLabel, sizeOfLabel,
         QQuaternion());
     _label->setFacingCamera(true);
     _surface->addCustomItem(_label);
     _isHandle = true;
   }
+  _surface->clearSelection();
 }
 
 } // namespace Main

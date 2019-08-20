@@ -66,8 +66,9 @@ void WorkPage::updateProject(
   _surface->addHorizon(horizon);
 }
 
-void WorkPage::updateProjectRemoveHorizon(const QUuid & /*uuid*/) {
+void WorkPage::updateProjectRemoveHorizon(const QUuid &uuid) {
   _infoProject->removeHorizon();
+  _surface->removeHorizon(uuid);
 }
 
 void WorkPage::handleEventClicked(int row, int col) {

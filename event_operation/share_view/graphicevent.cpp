@@ -92,14 +92,14 @@ void GraphicEvent::addTraceSeries(const Data::SeismComponent *component,
   for (int j = 0; j < component->getTraces().size(); j++) {
     float tmp = 0, intervalAxisX = 0;
     _norm = component->getMaxValue();
-    //        std::cout << _norm << std::endl;
     QLineSeries *series = new QLineSeries;
     series->setUseOpenGL(true);
     SeismTrace *trace = component->getTraces().at(j).get();
     intervalAxisX = trace->getSampleInterval();
     for (int k = 0; k < trace->getBufferSize(); k++) {
-      // std::cout << trace->getBuffer()[k] / _norm << std::endl;
-      series->append(tmp, 0.5 * trace->getBuffer()[k] / _norm + index);
+      series->append(static_cast<qreal>(tmp),
+                     0.5 * static_cast<double>(trace->getBuffer()[k]) / _norm +
+                         index);
       tmp += intervalAxisX;
     }
     _chart->addSeries(series);

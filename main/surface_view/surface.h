@@ -24,7 +24,7 @@ class Surface : public QObject {
   Q_OBJECT
 public:
   explicit Surface(Q3DSurface *surface);
-  ~Surface();
+  ~Surface() = default;
 
   void addEvent(const std::unique_ptr<Data::SeismEvent> &event);
   void addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon);
@@ -33,7 +33,7 @@ public:
 
   bool removeEvent(const std::unique_ptr<Data::SeismEvent> &event);
   bool removeEvent(const Uuid uid);
-  bool removeHorizon(const std::unique_ptr<Data::SeismEvent> &event);
+  bool removeHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon);
   bool removeHorizon(const Uuid uid);
 
   void mouseDoubleClickEvent(QMouseEvent *event);
@@ -44,7 +44,7 @@ public:
   void setFiltr(bool (*func)(float, float));
 
   const std::map<Uuid, QCustom3DItem *> getEventMap() const;
-  const std::map<Uuid, QSurfaceDataArray *> getHorizonMap() const;
+  const std::map<Uuid, QSurface3DSeries *> getHorizonMap() const;
 
 private:
   Q3DSurface *_surface;
@@ -57,15 +57,12 @@ private:
   int _color = 10;
 
 private:
-  void addEventInGraph(const std::unique_ptr<Data::SeismEvent> &event);
   void handleElementSelected(QAbstract3DGraph::ElementType type);
-  void handleElementDoybleClicked(QAbstract3DGraph::ElementType type);
+  void handleElementDoubleClicked(QAbstract3DGraph::ElementType type);
 
   std::map<Uuid, QCustom3DItem *> _eventMap;
-  std::map<Uuid, QSurfaceDataArray *> _horizonMap;
-  std::vector<SeismPoint> _pointVector;
+  std::map<Uuid, QSurface3DSeries *> _horizonMap;
   std::vector<QSurfaceDataRow *> _rowVector;
-  QSurfaceDataRow *_rowArray;
-  QSurfaceDataArray *_dataArray;
+  std::vector<SeismPoint> _pointVector;
 };
 } // namespace Main
