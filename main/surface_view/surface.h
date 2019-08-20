@@ -55,7 +55,11 @@ private:
   bool _isHandle;
   QCustom3DItem *_itemHandle;
   float a = 0.0f; // TODO delete
-  int _color = 10;
+  QColor _colours[10] = {QColor(255, 0, 0),     QColor(0, 255, 0),
+                         QColor(0, 0, 255),     QColor(0, 0, 0),
+                         QColor(255, 255, 255), QColor(0, 128, 64),
+                         QColor(128, 128, 128)};
+  int _indexColor = 0;
 
 private:
   void handleElementSelected(QAbstract3DGraph::ElementType type);

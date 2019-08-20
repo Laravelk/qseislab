@@ -73,12 +73,7 @@ void Surface::addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon) {
   QSurface3DSeries *series = new QSurface3DSeries;
   series->dataProxy()->resetArray(dataArray);
   series->setDrawMode(QSurface3DSeries::DrawSurface);
-  if (_color > 240) {
-    _color = 10;
-  } else {
-    _color += 50;
-  }
-  series->setBaseColor(QColor(100, _color, 100));
+  series->setBaseColor(_colours[_indexColor++ % 7]);
   _surface->addSeries(series);
   _horizonMap.insert(
       std::pair<Uuid, QSurface3DSeries *>(horizon->getUuid(), series));
