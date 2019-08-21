@@ -1,0 +1,3 @@
+# git ignore file
+CMakeLists.txt.user
+.DS_Store
