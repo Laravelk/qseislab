@@ -40,10 +40,9 @@ Surface::Surface(Q3DSurface *surface) : _surface(surface), _isHandle(false) {
 void Surface::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
   QVector3D position(a, 0.0f, 0.0f); // TODO read from event
   a += 0.4f;
-  QCustom3DItem *item = new QCustom3DItem(
-      "/Users/ivanmorozov/MyQtProject/Work/qseislab/resources/"
-      "sphereSmooth.obj",
-      position, QVector3D(0.035f, 0.035f, 0.035f), QQuaternion(), _blackColor);
+  QCustom3DItem *item = new QCustom3DItem(":/sphereSmooth.obj", position,
+                                          QVector3D(0.035f, 0.035f, 0.035f),
+                                          QQuaternion(), _blackColor);
   item->setShadowCasting(false);
   _surface->addCustomItem(item);
   _eventMap.insert(std::pair<Uuid, QCustom3DItem *>(event->getUuid(), item));

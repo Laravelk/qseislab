@@ -18,10 +18,10 @@ set(_Q_MODULES
 
 find_package(Qt5 COMPONENTS ${_Q_MODULES} REQUIRED)
 
+set(RESOURCE
+    resources/resources.qrc)
 
 find_package(segyio REQUIRED)
-
-
 
 set(SOURCES
         event_operation/add_event/controller.cpp
@@ -137,7 +137,7 @@ set(HEADERS
         project_operation/close_project/controller.h
 )
 
-add_executable(qseislab ${SOURCES} ${HEADERS})
+add_executable(qseislab ${SOURCES} ${HEADERS} resources/resources.qrc)
 
 qt5_use_modules(qseislab ${_Q_MODULES})
 
