@@ -50,6 +50,7 @@ set(SOURCES
         data/seismevent.cpp
         data/seismtrace.cpp
         data/seismhorizon.cpp
+        data/seismeventinterpalation.cpp
         data/io/segyreader.cpp
         data/io/seismcomponentreader.cpp
         data/io/seismcomponentwriter.cpp
@@ -107,6 +108,7 @@ set(HEADERS
         data/seismevent.h
         data/seismtrace.h
         data/seismhorizon.h
+        data/seismeventinterpalation.h
         data/io/defines.h
         data/io/abstractsegyreader.h
         data/io/segyreader.h

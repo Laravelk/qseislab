@@ -10,7 +10,7 @@
 using namespace QtDataVisualization;
 
 typedef QUuid Uuid;
-typedef std::tuple<float, float, float> SeismPoint;
+typedef std::tuple<float, float, float> Point;
 
 namespace Data {
 class SeismEvent;
@@ -29,12 +29,18 @@ public:
   void addEvent(const std::unique_ptr<Data::SeismEvent> &event);
   void addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon);
 
+  bool showEvent(QUuid uid);
+  bool showEvent(std::unique_ptr<Data::SeismEvent> &event);
+
   void setProject(const std::unique_ptr<Data::SeismProject> &project);
 
   bool removeEvent(const std::unique_ptr<Data::SeismEvent> &event);
   bool removeEvent(const Uuid uid);
   bool removeHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon);
   bool removeHorizon(const Uuid uid);
+
+  bool hideEvent(QUuid uid);
+  bool hideEvent(std::unique_ptr<Data::SeismEvent> &event);
 
   void mouseDoubleClickEvent(QMouseEvent *event);
   void mouseMoveEvent(QMoveEvent *event);
@@ -68,6 +74,6 @@ private:
   std::map<Uuid, QCustom3DItem *> _eventMap;
   std::map<Uuid, QSurface3DSeries *> _horizonMap;
   std::vector<QSurfaceDataRow *> _rowVector;
-  std::vector<SeismPoint> _pointVector;
+  std::vector<Point> _pointVector;
 };
 } // namespace Main

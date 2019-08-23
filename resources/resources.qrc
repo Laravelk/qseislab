@@ -2,5 +2,7 @@
 <RCC version="1.0">
 <qresource>
   <file>sphereSmooth.obj</file>
+  <file>minimalSmooth.obj</file>
+  <file>cylinderFilledSmooth.obj</file>
 </qresource>
 </RCC>

@@ -61,6 +61,10 @@ void WorkPage::updateProject(
   for (auto &itr : events) {
     insertEventInTable(itr.second);
   }
+
+  for (auto &itr : events) {
+    _surface->showEvent(itr.first);
+  }
 }
 
 void WorkPage::updateProjectRemoveEvent(const QUuid &uuid) {

@@ -38,12 +38,15 @@ Surface::Surface(Q3DSurface *surface) : _surface(surface), _isHandle(false) {
 }
 
 void Surface::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
-  QVector3D position(a, 0.0f, 0.0f); // TODO read from event
-  a += 0.4f;
+  Point eventPoint = event->getLocation();
+  float x, y, z;
+  std::tie(x, y, z) = eventPoint;
+  QVector3D position(x, y, z);
   QCustom3DItem *item = new QCustom3DItem(":/sphereSmooth.obj", position,
                                           QVector3D(0.035f, 0.035f, 0.035f),
                                           QQuaternion(), _blackColor);
   item->setShadowCasting(false);
+  item->setVisible(false); // don't visible element without analiz
   _surface->addCustomItem(item);
   _eventMap.insert(std::pair<Uuid, QCustom3DItem *>(event->getUuid(), item));
 }
@@ -79,6 +82,22 @@ void Surface::addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon) {
   _rowVector.clear();
 }
 
+bool Surface::showEvent(QUuid uid) {
+  if (_eventMap.at(uid)) {
+    _eventMap.at(uid)->setVisible(true);
+    return true;
+  }
+  return false;
+}
+
+bool Surface::showEvent(std::unique_ptr<Data::SeismEvent> &event) {
+  if (_eventMap.at(event->getUuid())) {
+    _eventMap.at(event->getUuid())->setVisible(true);
+    return true;
+  }
+  return false;
+}
+
 void Surface::setProject(const std::unique_ptr<Data::SeismProject> &project) {
   _project = project.get();
 }
@@ -111,6 +130,21 @@ bool Surface::removeHorizon(const Uuid uid) {
   QSurface3DSeries *series = _horizonMap[uid];
   if (_horizonMap.erase(uid)) {
     _surface->removeSeries(series);
+    return true;
+  }
+  return false;
+}
+
+bool Surface::hideEvent(QUuid uid) {
+  if (_eventMap.at(uid)) {
+    _eventMap.at(uid)->setVisible(true);
+  }
+  return false;
+}
+
+bool Surface::hideEvent(std::unique_ptr<Data::SeismEvent> &event) {
+  if (_eventMap.at(event->getUuid())) {
+    _eventMap.at(event->getUuid())->setVisible(true);
     return true;
   }
   return false;
