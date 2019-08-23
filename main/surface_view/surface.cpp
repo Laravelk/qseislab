@@ -82,6 +82,22 @@ void Surface::addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon) {
   _rowVector.clear();
 }
 
+void Surface::addReciever(
+    const std::unique_ptr<Data::SeismReciever> &reciever) {
+  //  Point recieverPoint = reciever->getLocation();
+  Point recieverPoint;
+  float x, y, z;
+  std::tie(x, y, z) = recieverPoint;
+  QVector3D position(x, y, z);
+  QCustom3DItem *item = new QCustom3DItem(":/minimalSmooth.obj", position,
+                                          QVector3D(0.035f, 0.035f, 0.035f),
+                                          QQuaternion(), _redColor);
+  item->setShadowCasting(false);
+  _surface->addCustomItem(item);
+  _recieverMap.insert(
+      std::pair<Uuid, QCustom3DItem *>(reciever->getUuid(), item));
+}
+
 bool Surface::showEvent(QUuid uid) {
   if (_eventMap.at(uid)) {
     _eventMap.at(uid)->setVisible(true);

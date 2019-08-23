@@ -17,6 +17,7 @@ class SeismEvent;
 class SeismHorizon;
 class SeismProject;
 class SeismPoint;
+class SeismReciever;
 } // namespace Data
 
 namespace Main {
@@ -28,6 +29,7 @@ public:
 
   void addEvent(const std::unique_ptr<Data::SeismEvent> &event);
   void addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon);
+  void addReciever(const std::unique_ptr<Data::SeismReciever> &reciever);
 
   bool showEvent(QUuid uid);
   bool showEvent(std::unique_ptr<Data::SeismEvent> &event);
@@ -38,6 +40,8 @@ public:
   bool removeEvent(const Uuid uid);
   bool removeHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon);
   bool removeHorizon(const Uuid uid);
+  bool removeReciever(const std::unique_ptr<Data::SeismReciever> &reciever);
+  bool removeReciever(const Uuid uid);
 
   bool hideEvent(QUuid uid);
   bool hideEvent(std::unique_ptr<Data::SeismEvent> &event);
@@ -60,7 +64,6 @@ private:
   QImage _redColor;
   bool _isHandle;
   QCustom3DItem *_itemHandle;
-  float a = 0.0f; // TODO delete
   QColor _colours[10] = {QColor(255, 0, 0),     QColor(0, 255, 0),
                          QColor(0, 0, 255),     QColor(0, 0, 0),
                          QColor(255, 255, 255), QColor(0, 128, 64),
@@ -73,6 +76,7 @@ private:
 
   std::map<Uuid, QCustom3DItem *> _eventMap;
   std::map<Uuid, QSurface3DSeries *> _horizonMap;
+  std::map<Uuid, QCustom3DItem *> _recieverMap;
   std::vector<QSurfaceDataRow *> _rowVector;
   std::vector<Point> _pointVector;
 };
