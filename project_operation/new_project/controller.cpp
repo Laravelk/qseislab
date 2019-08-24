@@ -8,10 +8,13 @@ typedef Data::SeismProject SeismProject;
 namespace ProjectOperation {
 namespace NewProject {
 Controller::Controller(QObject *parent)
-    : QObject(parent), _project(std::make_unique<SeismProject>()),
-      _view(std::make_unique<View>()) {
-  connect(_view.get(), SIGNAL(finished(int)), this, SLOT(finish(int)));
+    : QObject(parent), _view(std::make_unique<View>()),
+      _project(std::make_unique<SeismProject>()) {
 
+  connect(_view.get(), SIGNAL(finished(int)), this, SLOT(finish(int)));
+}
+
+void Controller::start() {
   _view->setModal(true);
   _view->show();
 }

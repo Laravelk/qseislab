@@ -87,21 +87,15 @@ SeismEvent::SeismEvent(const QJsonObject &json, const QDir &dir) {
   }
 }
 
-void SeismEvent::addComponent(std::unique_ptr<SeismComponent> component) {
-  _components.push_back(std::move(component));
-}
-
 int SeismEvent::getComponentNumber() const {
   return static_cast<int>(_components.size());
 }
 
-const std::unique_ptr<SeismComponent> &SeismEvent::getComponent(int idx) const {
-  assert(0 <= idx && idx < getComponentNumber());
-
-  return _components[static_cast<unsigned>(idx)];
+void SeismEvent::addComponent(std::unique_ptr<SeismComponent> component) {
+  _components.push_back(std::move(component));
 }
 
-const std::vector<std::unique_ptr<SeismComponent>> &
+const std::list<std::unique_ptr<SeismComponent>> &
 SeismEvent::getComponents() const {
   return _components;
 }

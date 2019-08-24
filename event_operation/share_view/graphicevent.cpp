@@ -25,17 +25,17 @@ void GraphicEvent::update(const std::unique_ptr<SeismEvent> &event) {
   _view->chart()->removeAllSeries();
   setInterval(event);
   setAxesY(event->getComponentNumber());
-  for (int i = 0; i < event->getComponentNumber(); i++) {
-    SeismComponent *component = event->getComponent(i).get();
+  int idx = 0;
+  for (auto &component : event->getComponents()) {
     _pWaveArrival = component->getPWaveArrival();
     _sWaveArrival = component->getSWaveArrival();
     QLineSeries *seriesPWaveArrival = new QLineSeries;
     QLineSeries *seriesSWaveArrival = new QLineSeries;
     setWaveArrivalPen(*seriesPWaveArrival, *seriesSWaveArrival);
-    addWaveArrivalSeries(*seriesPWaveArrival, *seriesSWaveArrival, i);
-    addTraceSeries(component, i);
+    addWaveArrivalSeries(*seriesPWaveArrival, *seriesSWaveArrival, idx);
+    addTraceSeries(component, idx);
+    ++idx;
   }
-  //    _chart->createDefaultAxes();
   _view->setRenderHint(QPainter::Antialiasing);
   _view->show();
 }
@@ -62,14 +62,11 @@ void GraphicEvent::setWaveArrivalPen(QLineSeries &pWaveArrivalSeries,
 void GraphicEvent::addWaveArrivalSeries(QLineSeries &pWaveArrivalSeries,
                                         QLineSeries &sWaveArrivalSeries,
                                         int index) {
-  pWaveArrivalSeries.append(_pWaveArrival, 0.4 + index);
-  pWaveArrivalSeries.append(_pWaveArrival, -0.4 + index);
+  pWaveArrivalSeries.append(_pWaveArrival, 0.8 + index);
+  pWaveArrivalSeries.append(_pWaveArrival, -0.8 + index);
 
-  sWaveArrivalSeries.append(_sWaveArrival, 0.4 + index);
-  sWaveArrivalSeries.append(_sWaveArrival, -0.4 + index);
-
-  //  _view->addWaveRect(QRect(_pWaveArrival, 0.4 + index, 5, 1.6));
-  //  _view->addWaveRect(QRect(_sWaveArrival, 0.4 + index, 5, 1.6));
+  sWaveArrivalSeries.append(_sWaveArrival, 0.8 + index);
+  sWaveArrivalSeries.append(_sWaveArrival, -0.8 + index);
 
   _chart->addSeries(&pWaveArrivalSeries);
   _chart->addSeries(&sWaveArrivalSeries);
@@ -83,32 +80,24 @@ void GraphicEvent::addWaveArrivalSeries(QLineSeries &pWaveArrivalSeries,
 
 void GraphicEvent::setInterval(const std::unique_ptr<SeismEvent> &event) {
   _interval = 0;
-  for (int i = 0; i < event->getComponents().size(); i++) {
-    if (_interval < event->getComponent(i)->getMaxValue()) {
-      _interval = event->getComponent(i)->getMaxValue();
+  for (auto &component : event->getComponents()) {
+    if (_interval < component->getMaxValue()) {
+      _interval = component->getMaxValue();
     }
   }
 }
 
-void GraphicEvent::addTraceSeries(const Data::SeismComponent *component,
-                                  int index) {
-  for (int j = 0; j < component->getTraces().size(); j++) {
+void EventOperation::GraphicEvent::addTraceSeries(
+    const std::unique_ptr<Data::SeismComponent> &component, int index) {
+  for (unsigned j = 0; j < component->getTraces().size(); j++) {
     float tmp = 0, intervalAxisX = 0;
-    _norm = component->getMaxValue() * 1.5;
+    _norm = component->getMaxValue();
     QLineSeries *series = new QLineSeries;
     series->setUseOpenGL(true);
     SeismTrace *trace = component->getTraces().at(j).get();
     intervalAxisX = trace->getSampleInterval();
     for (int k = 0; k < trace->getBufferSize(); k++) {
-      if (j % 3 == 0) {
-        series->append(tmp, +0.2 + 0.5 * trace->getBuffer()[k] / _norm + index);
-      }
-      if (j % 3 == 1) {
-        series->append(tmp, 0.5 * trace->getBuffer()[k] / _norm + index);
-      }
-      if (j % 3 == 2) {
-        series->append(tmp, -0.2 + 0.5 * trace->getBuffer()[k] / _norm + index);
-      }
+      series->append(tmp, 0.5 * trace->getBuffer()[k] / _norm + index);
       tmp += intervalAxisX;
     }
     _chart->addSeries(series);

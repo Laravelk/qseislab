@@ -18,12 +18,9 @@ public:
   explicit SeismEvent();
   explicit SeismEvent(const QJsonObject &, const QDir &) noexcept(false);
 
-  void addComponent(std::unique_ptr<SeismComponent>);
-
   int getComponentNumber() const;
-
-  const std::unique_ptr<SeismComponent> &getComponent(int) const;
-  const std::vector<std::unique_ptr<SeismComponent>> &getComponents() const;
+  void addComponent(std::unique_ptr<SeismComponent>);
+  const std::list<std::unique_ptr<SeismComponent>> &getComponents() const;
 
   void setDateTime(const QDateTime &);
   const QDateTime &getDateTime() const;
@@ -47,7 +44,7 @@ private:
   bool _isProcessed{false};
   Point _location{0, 0, 0};
 
-  std::vector<std::unique_ptr<SeismComponent>> _components;
+  std::list<std::unique_ptr<SeismComponent>> _components;
 };
 
 } // namespace Data

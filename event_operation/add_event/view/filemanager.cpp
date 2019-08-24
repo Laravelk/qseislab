@@ -9,6 +9,7 @@ FileManager::FileManager(QWidget *parent)
       _fileName(new QLabel("<test.segy>", this)),
       _browseButton(new QPushButton("Browse", this)),
       _fileDialog(new QFileDialog(this)) {
+
   setFixedWidth(250);
   setFrameStyle(1);
 

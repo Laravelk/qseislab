@@ -12,7 +12,7 @@ typedef Data::SeismProject SeismProject;
 namespace Main {
 View::View(QWidget *parent) : QMainWindow(parent) {
   setWindowTitle("MainWindow");
-  setMinimumSize(850, 750);
+  setMinimumSize(750, 850);
 
   QAction *act;
 
@@ -45,11 +45,14 @@ View::View(QWidget *parent) : QMainWindow(parent) {
   act->setDisabled(true);
   connect(this, SIGNAL(projectPresence(bool)), act, SLOT(setEnabled(bool)));
 
-  act = editMenu->addAction("Horizons", this, SLOT(handleHorizonsClicked()));
+  QMenu *viewMenu = new QMenu("&View");
+  act = viewMenu->addAction("Horizons", this, SLOT(handleHorizonsClicked()));
   act->setDisabled(true);
   connect(this, SIGNAL(projectPresence(bool)), act, SLOT(setEnabled(bool)));
 
-  QMenu *viewMenu = new QMenu("&View");
+  act = viewMenu->addAction("Recievers", this, SLOT(handleRecieversClicked()));
+  act->setDisabled(true);
+  connect(this, SIGNAL(projectPresence(bool)), act, SLOT(setEnabled(bool)));
 
   QMenu *helpMenu = new QMenu("&Help");
 
@@ -74,19 +77,10 @@ void View::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
   _workPage->loadProject(project);
   setCentralWidget(_workPage);
 
-  //    connect(_workPage, SIGNAL(addEventClicked()), this,
-  //    SLOT(handleAddEventClicked()));
   connect(_workPage, SIGNAL(removeEventClicked(const QUuid)), this,
           SLOT(handleRemoveEventClicked(const QUuid)));
   connect(_workPage, SIGNAL(viewEventClicked(const QUuid)), this,
           SLOT(handleViewEventClicked(const QUuid)));
-
-  //    connect(_workPage, SIGNAL(addHorizonClicked()), this,
-  //    SLOT(handleAddHorizonClicked()));
-
-  //    connect(_workPage, SIGNAL(saveProjectClicked()), this,
-  //    SLOT(handleSaveProjectClicked())); connect(_workPage,
-  //    SIGNAL(closeProjectClicked()), this, SLOT(handleCloseProjectClicked()));
 
   emit projectPresence(true);
 }
@@ -122,6 +116,18 @@ void View::updateProjectRemoveHorizon(const QUuid &uuid) {
   _workPage->updateProjectRemoveHorizon(uuid);
 }
 
+void View::updateProject(const std::unique_ptr<Data::SeismReciever> &reciever) {
+  assert(nullptr != _workPage);
+
+  _workPage->updateProject(reciever);
+}
+
+void View::updateProjectRemoveReciever(const QUuid &uuid) {
+  assert(nullptr != _workPage);
+
+  _workPage->updateProjectRemoveReciever(uuid);
+}
+
 void View::closeProject() {
   delete centralWidget();
   StartPage *startPage = new StartPage(this);
@@ -151,6 +157,8 @@ void View::handleRemoveEventClicked(const QUuid uuid) {
 void View::handleProcessEvetntsClicked() { emit processEventsClicked(); }
 
 void View::handleHorizonsClicked() { emit horizonsClicked(); }
+
+void View::handleRecieversClicked() { emit recieversClicked(); }
 
 void View::handleSaveProjectClicked() { emit saveProjectClicked(); }
 

@@ -55,11 +55,9 @@ void View::update(const std::unique_ptr<Data::SeismProject> &project) {
 }
 
 void View::setNotification(const QString &text) {
-  QMessageBox *msg = new QMessageBox(this);
-  msg->setWindowTitle("Message");
-  msg->addButton(QMessageBox::StandardButton::Ok);
-  msg->setText(text);
-  msg->exec();
+  QMessageBox *msg = new QMessageBox(QMessageBox::Critical, "Message", text,
+                                     QMessageBox::Ok, this);
+  msg->show();
 }
 
 void View::settingProjectInfo(

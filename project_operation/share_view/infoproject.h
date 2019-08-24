@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QDateTimeEdit>
 #include <QFrame>
 #include <QLineEdit>
 
@@ -27,8 +28,8 @@ public:
 
 private:
   QLineEdit *_nameLineEdit;
-  QLineEdit *_dateLineEdit;
-  QLineEdit *_timeLineEdit;
+  QDateEdit *_dateEdit;
+  QTimeEdit *_timeEdit;
 
   // NOTE: можно в приватном поле хранить форматы даты и времени
 };

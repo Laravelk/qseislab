@@ -69,14 +69,13 @@ void View::update(const std::unique_ptr<Data::SeismEvent> &event) {
   _infoEvent->update(event);
   _graphicEvent->update(event);
   _addButton->setDisabled(false);
+  _addButton->setFocus();
 }
 
 void View::setNotification(const QString &text) {
-  QMessageBox *msg = new QMessageBox(this);
-  msg->setWindowTitle("Message");
-  msg->addButton(QMessageBox::StandardButton::Ok);
-  msg->setText(text);
-  msg->exec();
+  QMessageBox *msg = new QMessageBox(QMessageBox::Critical, "Message", text,
+                                     QMessageBox::Ok, this);
+  msg->show();
 }
 
 void View::settingEventInfo(

@@ -84,21 +84,22 @@ void View::settingHorizonInfo(
 }
 
 void View::setNotification(const QString &text) {
-  QMessageBox *msg = new QMessageBox(this);
-  msg->setWindowTitle("Message");
-  msg->addButton(QMessageBox::StandardButton::Ok);
-  msg->setText(text);
-  msg->exec();
+  QMessageBox *msg = new QMessageBox(QMessageBox::Critical, "Message", text,
+                                     QMessageBox::Ok, this);
+  msg->show();
 }
 
-void View::changed(bool b) { _saveButton->setEnabled(b); }
+void View::changed(bool b) {
+  _saveButton->setEnabled(b);
+  _saveButton->setFocus();
+}
 
 void View::initHorizonsTable(QTableWidget *table) {
   table->setEditTriggers(QAbstractItemView::NoEditTriggers);
   table->setColumnCount(6);
 
   // configure column settings
-  table->setHorizontalHeaderItem(0, new QTableWidgetItem("id"));
+  table->setHorizontalHeaderItem(0, new QTableWidgetItem("uuid"));
   table->setColumnHidden(0, true);
   table->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
   table->setHorizontalHeaderItem(2, new QTableWidgetItem("Point Number"));

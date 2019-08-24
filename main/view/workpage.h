@@ -5,6 +5,7 @@
 #include <QFrame>
 #include <QTableWidget>
 #include <QtDataVisualization>
+
 #include <memory>
 
 using namespace QtDataVisualization;
@@ -24,8 +25,12 @@ public:
   void
   updateProject(const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &);
   void updateProjectRemoveEvent(const QUuid &);
+
   void updateProject(const std::unique_ptr<Data::SeismHorizon> &);
   void updateProjectRemoveHorizon(const QUuid &);
+
+  void updateProject(const std::unique_ptr<Data::SeismReciever> &);
+  void updateProjectRemoveReciever(const QUuid &);
 
 signals:
   void viewEventClicked(const QUuid) const;

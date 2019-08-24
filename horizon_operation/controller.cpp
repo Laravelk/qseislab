@@ -4,8 +4,6 @@
 #include "data/seismproject.h"
 #include "model.h"
 
-#include <iostream> // TODO: need to remove
-
 typedef Data::SeismHorizon SeismHorizon;
 typedef Data::SeismProject SeismProject;
 
@@ -27,7 +25,8 @@ Controller::Controller(QObject *parent)
 }
 
 void Controller::viewHorizons(const std::unique_ptr<SeismProject> &project) {
-  for (auto &itr : project->getHorizonsMap()) {
+  //  for (auto &itr : project->getHorizonsMap()) {
+  for (auto &itr : project->getAllMap<SeismHorizon>()) {
     _view->addHorizon(itr.second);
   }
 

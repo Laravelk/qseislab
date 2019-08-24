@@ -9,6 +9,8 @@
 
 #include "horizon_operation/controller.h"
 
+#include "reciever_operation/controller.h"
+
 #include "project_operation/close_project/controller.h"
 #include "project_operation/new_project/controller.h"
 #include "project_operation/open_project/controller.h"
@@ -23,7 +25,7 @@ class Controller : public QObject {
   Q_OBJECT
 
 public:
-  explicit Controller();
+  explicit Controller(QObject *parent = nullptr);
 
 signals:
   void savedProject(bool) const;
@@ -32,12 +34,17 @@ private slots:
   void recvProject(std::unique_ptr<Data::SeismProject> &);
   void recvEvent(std::unique_ptr<Data::SeismEvent> &);
   void recvHorizon(std::unique_ptr<Data::SeismHorizon> &);
+  void recvReciever(std::unique_ptr<Data::SeismReciever> &);
 
   void updateProject(const std::unique_ptr<Data::SeismEvent> &);
   void updateProjectRemoveEvent(const QUuid &);
   void updateProjectEvents();
+
   void updateProject(const std::unique_ptr<Data::SeismHorizon> &);
   void updateProjectRemoveHorizon(const QUuid &);
+
+  void updateProject(const std::unique_ptr<Data::SeismReciever> &);
+  void updateProjectRemoveReciever(const QUuid &);
 
   void handleAddEventClicked();
   void handleViewEventClicked(const QUuid);
@@ -46,6 +53,9 @@ private slots:
 
   void handleHorizonsClicked();
   void handleRemoveHorizonClicked(const QUuid &);
+
+  void handleRecieversClicked();
+  void handleRemoveRecieverClicked(const QUuid &);
 
   void handleCloseProjectClicked();
   void handleNewProjectClicked();
@@ -56,6 +66,8 @@ private slots:
   void deleteViewEventController();
 
   void deleteHorizonController();
+
+  void deleteRecieverController();
 
   void deleteCloseProjectController(bool);
   void deleteNewProjectController();
@@ -74,6 +86,8 @@ private:
   std::unique_ptr<EventOperation::ViewEvent::Controller> _viewEventController;
 
   std::unique_ptr<HorizonOperation::Controller> _horizonController;
+
+  std::unique_ptr<RecieverOperation::Controller> _recieverController;
 
   std::unique_ptr<ProjectOperation::CloseProject::Controller>
       _closeProjectController;

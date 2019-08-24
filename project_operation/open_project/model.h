@@ -4,28 +4,23 @@
 
 #include <memory>
 
-
 namespace Data {
-    class SeismProject;
+class SeismProject;
 }
 
 namespace ProjectOperation {
 namespace OpenProject {
 class Model : public QObject {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit Model(QObject* );
+  explicit Model(QObject *);
 
-    std::unique_ptr<Data::SeismProject> getSeismProjectFrom(const QString& );
+  std::unique_ptr<Data::SeismProject> getSeismProjectFrom(const QString &);
 
 signals:
-    void notify(const QString& ) const;
-
-private:
-    std::unique_ptr<Data::SeismProject> _project;
+  void notify(const QString &) const;
 };
-
 
 } // namespace OpenProject
 } // namespace ProjectOperation

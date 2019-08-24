@@ -1,13 +1,16 @@
 #include "controller.h"
 
 typedef Data::SeismEvent SeismEvent;
+typedef Data::SeismHorizon SeismHorizon;
+typedef Data::SeismReciever SeismReciever;
 typedef Data::SeismProject SeismProject;
 
 using namespace EventOperation;
 using namespace ProjectOperation;
 
 namespace Main {
-Controller::Controller() : QObject(), _mainWindow(std::make_unique<View>()) {
+Controller::Controller(QObject *parent)
+    : QObject(parent), _mainWindow(std::make_unique<View>()) {
   connect(_mainWindow.get(), SIGNAL(addEventClicked()), this,
           SLOT(handleAddEventClicked()));
   connect(_mainWindow.get(), SIGNAL(viewEventClicked(const QUuid)), this,
@@ -19,6 +22,9 @@ Controller::Controller() : QObject(), _mainWindow(std::make_unique<View>()) {
 
   connect(_mainWindow.get(), SIGNAL(horizonsClicked()), this,
           SLOT(handleHorizonsClicked()));
+
+  connect(_mainWindow.get(), SIGNAL(recieversClicked()), this,
+          SLOT(handleRecieversClicked()));
 
   connect(_mainWindow.get(), SIGNAL(newProjectClicked()), this,
           SLOT(handleNewProjectClicked()));
@@ -32,7 +38,7 @@ Controller::Controller() : QObject(), _mainWindow(std::make_unique<View>()) {
   _mainWindow->show();
 }
 
-void Controller::recvProject(std::unique_ptr<Data::SeismProject> &project) {
+void Controller::recvProject(std::unique_ptr<SeismProject> &project) {
   assert(project);
 
   _project = std::move(project);
@@ -51,24 +57,38 @@ void Controller::recvProject(std::unique_ptr<Data::SeismProject> &project) {
   connect(_project.get(), SIGNAL(removedHorizon(const QUuid &)), this,
           SLOT(updateProjectRemoveHorizon(const QUuid &)));
 
+  connect(_project.get(),
+          SIGNAL(addedReciever(const std::unique_ptr<Data::SeismReciever> &)),
+          this,
+          SLOT(updateProject(const std::unique_ptr<Data::SeismReciever> &)));
+  connect(_project.get(), SIGNAL(removedReciever(const QUuid &)), this,
+          SLOT(updateProjectRemoveReciever(const QUuid &)));
+
   _mainWindow->loadProject(_project);
 }
 
-void Controller::recvEvent(std::unique_ptr<Data::SeismEvent> &event) {
+void Controller::recvEvent(std::unique_ptr<SeismEvent> &event) {
   assert(_project);
   assert(event);
 
-  _project->addEvent(std::move(event));
+  _project->add<SeismEvent>(std::move(event));
 }
 
-void Controller::recvHorizon(std::unique_ptr<Data::SeismHorizon> &horizon) {
+void Controller::recvHorizon(std::unique_ptr<SeismHorizon> &horizon) {
   assert(_project);
   assert(horizon);
 
-  _project->addHorizon(std::move(horizon));
+  _project->add<SeismHorizon>(std::move(horizon));
 }
 
-void Controller::updateProject(const std::unique_ptr<Data::SeismEvent> &event) {
+void Controller::recvReciever(std::unique_ptr<SeismReciever> &reciever) {
+  assert(_project);
+  assert(reciever);
+
+  _project->add<SeismReciever>(std::move(reciever));
+}
+
+void Controller::updateProject(const std::unique_ptr<SeismEvent> &event) {
   assert(_project);
 
   _mainWindow->updateProject(event);
@@ -83,7 +103,7 @@ void Controller::updateProjectRemoveEvent(const QUuid &uuid) {
 void Controller::updateProjectEvents() {
   assert(_project);
 
-  _mainWindow->updateProject(_project->getEventsMap());
+  _mainWindow->updateProject(_project->getAllMap<SeismEvent>());
 }
 
 void Controller::updateProject(
@@ -99,19 +119,35 @@ void Controller::updateProjectRemoveHorizon(const QUuid &uuid) {
   _mainWindow->updateProjectRemoveHorizon(uuid);
 }
 
+void Controller::updateProject(
+    const std::unique_ptr<Data::SeismReciever> &reciever) {
+  assert(_project);
+
+  _mainWindow->updateProject(reciever);
+}
+
+void Controller::updateProjectRemoveReciever(const QUuid &uuid) {
+  assert(_project);
+
+  _mainWindow->updateProjectRemoveReciever(uuid);
+}
+
 void Controller::handleAddEventClicked() {
   if (!_addEventController) {
-    _addEventController = std::make_unique<AddEvent::Controller>(this);
+    _addEventController = std::make_unique<AddEvent::Controller>(
+        _project->getAllList<SeismReciever>(), this);
     connect(_addEventController.get(),
             SIGNAL(sendEvent(std::unique_ptr<Data::SeismEvent> &)), this,
             SLOT(recvEvent(std::unique_ptr<Data::SeismEvent> &)));
     connect(_addEventController.get(), SIGNAL(finished()), this,
             SLOT(deleteAddEventController()));
+
+    _addEventController->start();
   }
 }
 
 void Controller::handleViewEventClicked(const QUuid uuid) {
-  const std::unique_ptr<SeismEvent> &event = _project->getEvent(uuid);
+  const std::unique_ptr<SeismEvent> &event = _project->get<SeismEvent>(uuid);
   if (!_viewEventController) {
     _viewEventController = std::make_unique<ViewEvent::Controller>(this);
     connect(_viewEventController.get(), SIGNAL(finished()), this,
@@ -122,7 +158,7 @@ void Controller::handleViewEventClicked(const QUuid uuid) {
 }
 
 void Controller::handleRemoveEventClicked(const QUuid uuid) {
-  _project->removeEvent(uuid);
+  _project->remove<SeismEvent>(uuid);
 }
 
 void Controller::handleProcessEventsClicked() { _project->processEvents(); }
@@ -143,7 +179,27 @@ void Controller::handleHorizonsClicked() {
 }
 
 void Controller::handleRemoveHorizonClicked(const QUuid &uuid) {
-  _project->removeHorizon(uuid);
+  _project->remove<SeismHorizon>(uuid);
+}
+
+void Controller::handleRecieversClicked() {
+  if (!_recieverController) {
+    _recieverController = std::make_unique<RecieverOperation::Controller>(this);
+    connect(_recieverController.get(),
+            SIGNAL(sendReciever(std::unique_ptr<Data::SeismReciever> &)), this,
+            SLOT(recvReciever(std::unique_ptr<Data::SeismReciever> &)));
+    connect(_recieverController.get(),
+            SIGNAL(sendRemovedReciever(const QUuid &)), this,
+            SLOT(handleRemoveRecieverClicked(const QUuid &)));
+    connect(_recieverController.get(), SIGNAL(finished()), this,
+            SLOT(deleteRecieverController()));
+
+    _recieverController->viewRecievers(_project);
+  }
+}
+
+void Controller::handleRemoveRecieverClicked(const QUuid &uuid) {
+  _project->remove<SeismReciever>(uuid);
 }
 
 void Controller::handleCloseProjectClicked() {
@@ -180,6 +236,8 @@ void Controller::handleNewProjectClicked() {
               SLOT(recvProject(std::unique_ptr<Data::SeismProject> &)));
       connect(_newProjectController.get(), SIGNAL(finished()), this,
               SLOT(deleteNewProjectController()));
+
+      _newProjectController->start();
     }
   }
 }
@@ -204,6 +262,8 @@ void Controller::handleOpenProjectClicked() {
               SLOT(recvProject(std::unique_ptr<Data::SeismProject> &)));
       connect(_openProjectController.get(), SIGNAL(finished()), this,
               SLOT(deleteOpenProjectController()));
+
+      _openProjectController->start();
     }
   }
 }
@@ -213,7 +273,6 @@ void Controller::handleSaveProjectClicked() {
     _saveProjectController = std::make_unique<SaveProject::Controller>(this);
     connect(_saveProjectController.get(), SIGNAL(finished(bool)), this,
             SLOT(deleteSaveProjectController(bool)));
-
     _saveProjectController->saveProject(std::move(_project));
   }
 }
@@ -223,6 +282,8 @@ void Controller::deleteAddEventController() { _addEventController.reset(); }
 void Controller::deleteViewEventController() { _viewEventController.reset(); }
 
 void Controller::deleteHorizonController() { _horizonController.reset(); }
+
+void Controller::deleteRecieverController() { _recieverController.reset(); }
 
 void Controller::deleteCloseProjectController(bool closed) {
   _closeProjectController.reset();

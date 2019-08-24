@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 project(qseislab)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -18,10 +18,10 @@ set(_Q_MODULES
 
 find_package(Qt5 COMPONENTS ${_Q_MODULES} REQUIRED)
 
-set(RESOURCE
-    resources/resources.qrc)
 
 find_package(segyio REQUIRED)
+
+
 
 set(SOURCES
         event_operation/add_event/controller.cpp
@@ -45,12 +45,17 @@ set(SOURCES
         horizon_operation/view/filemanager.cpp
 
 
+        reciever_operation/controller.cpp
+        reciever_operation/view/view.cpp
+        reciever_operation/view/addrecievermanager.cpp
+
+
         data/seismproject.cpp
         data/seismcomponent.cpp
         data/seismevent.cpp
         data/seismtrace.cpp
         data/seismhorizon.cpp
-        data/seismeventinterpalation.cpp
+        data/seismreciever.cpp
         data/io/segyreader.cpp
         data/io/seismcomponentreader.cpp
         data/io/seismcomponentwriter.cpp
@@ -102,14 +107,20 @@ set(HEADERS
         horizon_operation/view/filemanager.h
 
 
+        reciever_operation/controller.h
+        reciever_operation/view/view.h
+        reciever_operation/view/addrecievermanager.h
+
+
         data/seism_data_type.h
         data/seismproject.h
+#        data/seismproject_impl.h
         data/seismcomponent.h
         data/seismevent.h
         data/seismtrace.h
         data/seismhorizon.h
-        data/seismeventinterpalation.h
-        data/io/defines.h
+        data/seismreciever.h
+        data/io/segy_files_params.h
         data/io/abstractsegyreader.h
         data/io/segyreader.h
         data/io/seismcomponentreader.h

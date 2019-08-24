@@ -4,37 +4,35 @@
 
 #include <QJsonDocument>
 
-
 typedef Data::SeismProject SeismProject;
-
 
 namespace ProjectOperation {
 namespace OpenProject {
-Model::Model(QObject* parent)
-    :QObject(parent)
-{}
+Model::Model(QObject *parent) : QObject(parent) {}
 
-std::unique_ptr<Data::SeismProject> Model::getSeismProjectFrom(const QString& path)
-{
-    QFile readFile( path );
-    if( !readFile.open(QIODevice::ReadOnly ) ) {
-        emit notify("Unable to open save file");
-        return std::move(_project);
-    }
-    QString val = readFile.readAll();
-    readFile.close();
+std::unique_ptr<Data::SeismProject>
+Model::getSeismProjectFrom(const QString &path) {
+  std::unique_ptr<SeismProject> project;
 
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(val.toUtf8());
-    QJsonObject jsonObj = jsonDoc.object();
+  QFile readFile(path);
+  if (!readFile.open(QIODevice::ReadOnly)) {
+    emit notify("Unable to open save file");
+    return project;
+  }
+  QString val = readFile.readAll();
+  readFile.close();
 
-    try {
-        _project = std::make_unique<SeismProject>(jsonObj, path);
-    } catch (const std::runtime_error& err) {
-        _project.reset();
-        emit notify(err.what());
-    }
+  QJsonDocument jsonDoc = QJsonDocument::fromJson(val.toUtf8());
+  QJsonObject jsonObj = jsonDoc.object();
 
-    return std::move(_project);
+  try {
+    project = std::make_unique<SeismProject>(jsonObj, path);
+  } catch (const std::runtime_error &err) {
+    project.reset();
+    emit notify(err.what());
+  }
+
+  return project;
 }
 
 } // namespace OpenProject

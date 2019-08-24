@@ -22,8 +22,8 @@ public:
   void viewHorizons(const std::unique_ptr<Data::SeismProject> &);
 
 signals:
-  void sendHorizon(std::unique_ptr<Data::SeismHorizon> &);
-  void sendRemovedHorizon(const QUuid &);
+  void sendHorizon(std::unique_ptr<Data::SeismHorizon> &) const;
+  void sendRemovedHorizon(const QUuid &) const;
   void finished() const;
 
 private slots:

@@ -16,7 +16,9 @@ Controller::Controller(QObject *parent)
           SLOT(recvNotification(const QString &)));
 
   connect(_view.get(), SIGNAL(finished(int)), this, SLOT(finish(int)));
+}
 
+void Controller::start() {
   _view->setModal(true);
   _view->show();
 }
@@ -32,9 +34,6 @@ void Controller::recvNotification(const QString &msg) {
 
 void Controller::finish(int result) {
   if (QDialog::Accepted == result) {
-    //        _project->setName(_view->getName());
-    //        _project->setDate(_view->getDate());
-    //        _project->setTime(_view->getTime());
     _view->settingProjectInfo(_project);
     emit sendProject(_project);
   }

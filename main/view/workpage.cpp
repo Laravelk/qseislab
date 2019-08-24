@@ -24,7 +24,6 @@ WorkPage::WorkPage(QWidget *parent)
   container->setMinimumSize(QSize(400, 400));
   container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   container->setFocusPolicy(Qt::StrongFocus);
-
   connect(_eventsTable, SIGNAL(cellDoubleClicked(int, int)), this,
           SLOT(handleEventClicked(int, int)));
 
@@ -40,10 +39,10 @@ WorkPage::WorkPage(QWidget *parent)
 void WorkPage::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
   _infoProject->update(project);
   _surface->setProject(project);
-
   clearTable();
 
-  for (auto &itr : project->getEventsMap()) {
+  //  for (auto &itr : project->getEventsMap()) {
+  for (auto &itr : project->getAllMap<SeismEvent>()) {
     insertEventInTable(itr.second);
   }
 }
@@ -51,6 +50,7 @@ void WorkPage::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
 void WorkPage::updateProject(const std::unique_ptr<Data::SeismEvent> &event) {
   _infoProject->addEvent();
   _surface->addEvent(event);
+
   insertEventInTable(event);
 }
 
@@ -70,6 +70,7 @@ void WorkPage::updateProject(
 void WorkPage::updateProjectRemoveEvent(const QUuid &uuid) {
   _infoProject->removeEvent();
   _surface->removeEvent(uuid);
+
   removeEventInTable(uuid);
 }
 
@@ -82,6 +83,17 @@ void WorkPage::updateProject(
 void WorkPage::updateProjectRemoveHorizon(const QUuid &uuid) {
   _infoProject->removeHorizon();
   _surface->removeHorizon(uuid);
+}
+
+void WorkPage::updateProject(
+    const std::unique_ptr<Data::SeismReciever> &reciever) {
+  _infoProject->addReciever();
+  _surface->addReciever(reciever);
+}
+
+void WorkPage::updateProjectRemoveReciever(const QUuid &uuid) {
+  _infoProject->removeReciever();
+  //  _surface->removeReciever(uuid);
 }
 
 void WorkPage::handleEventClicked(int row, int col) {
