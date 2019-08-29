@@ -44,21 +44,12 @@ void SegyReader::readBinHeader() {
   if (SEGY_OK != err) {
     throw std::runtime_error("segy_traces()");
   }
-
-  //    if(0 != _trace_num % TRACE_IN_COMPONENT) {
-  //        throw std::runtime_error("Number of routes is non-multiple to
-  //        traceInComponent");
-  //    }
 }
 
-bool SegyReader::hasNextComponent() const {
-  //    assert(0 == _alreadyRead % TRACE_IN_COMPONENT);
-
-  return _trace_num > _alreadyRead;
-}
+bool SegyReader::hasNextComponent() const { return _trace_num > _alreadyRead; }
 
 std::unique_ptr<SeismComponent>
-SegyReader::nextComponent(int traceInComponent) {
+SegyReader::nextComponent(const std::unique_ptr<SeismReceiver> &receiver) {
   int err;
   char traceh[SEGY_TRACE_HEADER_SIZE];
 
@@ -68,11 +59,11 @@ SegyReader::nextComponent(int traceInComponent) {
                                         // размер данных из библиотеки
 
   std::unique_ptr<SeismComponent> component =
-      std::make_unique<SeismComponent>();
+      std::make_unique<SeismComponent>(receiver);
   int p_wave_arrivel = 0;
   int s_wave_arrivel = 0;
 
-  for (int i = 0; i < traceInComponent; ++i) {
+  for (int i = 0; i < receiver->getChannelNum(); ++i) {
     if (_trace_num == _alreadyRead) {
       throw std::runtime_error("No more traces in the segy-file");
     }

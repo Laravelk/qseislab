@@ -1,7 +1,6 @@
 #include "chartview.h"
 
 #include <QtGui/QMouseEvent>
-#include <iostream> // TODO delete
 
 ChartView::ChartView(QChart *chart, QWidget *parent)
     : QChartView(chart, parent), m_isTouching(false) {
@@ -19,13 +18,6 @@ bool ChartView::viewportEvent(QEvent *event) {
 }
 
 void ChartView::mousePressEvent(QMouseEvent *event) {
-  for (int i = 0; i < _qRectVector.size(); i++) {
-    if (_qRectVector.at(i).contains(event->pos())) {
-      std::cerr << "IT'S HELLO ";
-    } else {
-      std::cerr << "NOO ";
-    }
-  }
   if (m_isTouching)
     return;
   QChartView::mousePressEvent(event);

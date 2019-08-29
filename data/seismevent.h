@@ -16,7 +16,9 @@ public:
   static const QString _default_path;
 
   explicit SeismEvent();
-  explicit SeismEvent(const QJsonObject &, const QDir &) noexcept(false);
+  explicit SeismEvent(const QJsonObject &,
+                      std::list<std::unique_ptr<SeismReceiver>> &,
+                      const QDir &) noexcept(false);
 
   int getComponentNumber() const;
   void addComponent(std::unique_ptr<SeismComponent>);

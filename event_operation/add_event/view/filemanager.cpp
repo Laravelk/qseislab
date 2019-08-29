@@ -21,10 +21,10 @@ FileManager::FileManager(QWidget *parent)
   _fileDialog->setOption(QFileDialog::DontResolveSymlinks);
   _fileDialog->setNameFilter("*.segy, *.sgy");
   //    _fileDialog->setDirectory(QDir::home());
-  connect(_fileDialog, SIGNAL(fileSelected(const QString &)), this,
-          SLOT(recvFilePath(const QString &)));
 
-  connect(_browseButton, SIGNAL(clicked()), _fileDialog, SLOT(open()));
+  connect(_browseButton, &QPushButton::clicked, [this] {
+    _fileDialog->open(this, SLOT(recvFilePath(const QString &)));
+  });
 
   QHBoxLayout *layout = new QHBoxLayout();
   layout->addWidget(_label);
@@ -36,8 +36,7 @@ FileManager::FileManager(QWidget *parent)
 void FileManager::clear() { _fileName->clear(); }
 
 void FileManager::recvFilePath(const QString &path) {
-  QFileInfo fileInfo(path);
-  _fileName->setText(fileInfo.fileName());
+  _fileName->setText(QFileInfo(path).fileName());
 
   emit sendFilePath(path);
 }

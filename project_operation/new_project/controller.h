@@ -19,13 +19,11 @@ public:
   explicit Controller(QObject *parent = nullptr);
 
   void start();
+  void finish(int);
 
 signals:
   void sendProject(std::unique_ptr<Data::SeismProject> &) const;
   void finished() const;
-
-private slots:
-  void finish(int);
 
 private:
   std::unique_ptr<View> _view;

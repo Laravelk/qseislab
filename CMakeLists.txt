@@ -22,7 +22,6 @@ find_package(Qt5 COMPONENTS ${_Q_MODULES} REQUIRED)
 find_package(segyio REQUIRED)
 
 
-
 set(SOURCES
         event_operation/add_event/controller.cpp
         event_operation/add_event/model.cpp
@@ -45,9 +44,17 @@ set(SOURCES
         horizon_operation/view/filemanager.cpp
 
 
-        reciever_operation/controller.cpp
-        reciever_operation/view/view.cpp
-        reciever_operation/view/addrecievermanager.cpp
+        receiver_operation/controller.cpp
+        receiver_operation/model.cpp
+        receiver_operation/view/view.cpp
+        receiver_operation/view/addreceivermanager.cpp
+
+
+        well_operation/controller.cpp
+        well_operation/model.cpp
+        well_operation/view/view.cpp
+        well_operation/view/addwellmanager.cpp
+        well_operation/view/filemanager.cpp
 
 
         data/seismproject.cpp
@@ -55,7 +62,9 @@ set(SOURCES
         data/seismevent.cpp
         data/seismtrace.cpp
         data/seismhorizon.cpp
-        data/seismreciever.cpp
+        data/seismwell.cpp
+        data/seismreceiver.cpp
+        data/seismchannelreceiver.cpp
         data/io/segyreader.cpp
         data/io/seismcomponentreader.cpp
         data/io/seismcomponentwriter.cpp
@@ -107,19 +116,28 @@ set(HEADERS
         horizon_operation/view/filemanager.h
 
 
-        reciever_operation/controller.h
-        reciever_operation/view/view.h
-        reciever_operation/view/addrecievermanager.h
+        receiver_operation/controller.h
+        receiver_operation/model.h
+        receiver_operation/view/view.h
+        receiver_operation/view/addreceivermanager.h
+
+
+        well_operation/controller.h
+        well_operation/model.h
+        well_operation/view/view.h
+        well_operation/view/addwellmanager.h
+        well_operation/view/filemanager.h
 
 
         data/seism_data_type.h
         data/seismproject.h
-#        data/seismproject_impl.h
         data/seismcomponent.h
         data/seismevent.h
         data/seismtrace.h
         data/seismhorizon.h
-        data/seismreciever.h
+        data/seismwell.h
+        data/seismreceiver.h
+        data/seismchannelreceiver.h
         data/io/segy_files_params.h
         data/io/abstractsegyreader.h
         data/io/segyreader.h
@@ -155,3 +173,5 @@ add_executable(qseislab ${SOURCES} ${HEADERS} resources/resources.qrc)
 qt5_use_modules(qseislab ${_Q_MODULES})
 
 target_link_libraries(qseislab segyio::segyio)
+
+#target_link_libraries(qseislab csv-parser)

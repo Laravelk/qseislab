@@ -13,21 +13,38 @@ AddHorizonManager::AddHorizonManager(QWidget *parent)
       _NxLineEdit(new QLineEdit()), _NyLineEdit(new QLineEdit()),
       _pointNumberLabel(new QLabel()), _addButton(new QPushButton("Add")) {
 
+  // Setting`s
   setWindowTitle("Add Horizon");
-
-  connect(_fileManager, SIGNAL(sendFilePath(const QString &)), this,
-          SLOT(recvFilePath(const QString &)));
 
   _nameLineEdit->setDisabled(true);
   _NxLineEdit->setDisabled(true);
   _NyLineEdit->setDisabled(true);
 
   _addButton->setDisabled(true);
-  connect(_addButton, SIGNAL(clicked()), this, SLOT(handleAccept()));
 
   QPushButton *cancelButton = new QPushButton("Cancel");
-  connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+  // Setting`s end
 
+  // Connecting
+  connect(_fileManager, &FileManager::sendFilePath,
+          [this](auto &path) { emit sendFilePath(path); });
+
+  connect(_addButton, &QPushButton::clicked, [this] {
+    const int pointNumber = _pointNumberLabel->text().toInt();
+    const int Nx = _NxLineEdit->text().toInt();
+    const int Ny = _NyLineEdit->text().toInt();
+    if (pointNumber != Nx * Ny) {
+      emit notify("Custom Nx * Ny != real size of horizon");
+    } else {
+      accept();
+    }
+  });
+
+  connect(cancelButton, &QPushButton::clicked, this,
+          &AddHorizonManager::reject);
+  // Connecting end
+
+  // Layout`s
   QFormLayout *infoHorizonLayout = new QFormLayout();
   infoHorizonLayout->addRow("Name: ", _nameLineEdit);
   infoHorizonLayout->addRow("Nx: ", _NxLineEdit);
@@ -46,6 +63,7 @@ AddHorizonManager::AddHorizonManager(QWidget *parent)
   mainLayout->addLayout(buttonLayout);
 
   setLayout(mainLayout);
+  // Layout`s end
 }
 
 void AddHorizonManager::update(
@@ -77,21 +95,6 @@ void AddHorizonManager::settingHorizonInfo(
   horizon->setName(_nameLineEdit->text());
   horizon->setNx(_NxLineEdit->text().toInt());
   horizon->setNy(_NyLineEdit->text().toInt());
-}
-
-void AddHorizonManager::handleAccept() {
-  const int pointNumber = _pointNumberLabel->text().toInt();
-  const int Nx = _NxLineEdit->text().toInt();
-  const int Ny = _NyLineEdit->text().toInt();
-  if (pointNumber != Nx * Ny) {
-    emit notify("Custom Nx * Ny != real size of horizon");
-  } else {
-    accept();
-  }
-}
-
-void AddHorizonManager::recvFilePath(const QString &filePath) {
-  emit sendFilePath(filePath);
 }
 
 } // namespace HorizonOperation

@@ -11,7 +11,7 @@ Controller::Controller(QObject *parent)
     : QObject(parent), _view(std::make_unique<View>()),
       _project(std::make_unique<SeismProject>()) {
 
-  connect(_view.get(), SIGNAL(finished(int)), this, SLOT(finish(int)));
+  connect(_view.get(), &View::finished, this, &Controller::finish);
 }
 
 void Controller::start() {

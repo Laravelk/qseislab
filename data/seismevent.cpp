@@ -13,7 +13,9 @@ const QString SeismEvent::_default_path = "data/events/";
 
 SeismEvent::SeismEvent() : _dateTime(QDateTime::currentDateTime()) {}
 
-SeismEvent::SeismEvent(const QJsonObject &json, const QDir &dir) {
+SeismEvent::SeismEvent(const QJsonObject &json,
+                       std::list<std::unique_ptr<SeismReceiver>> &receivers,
+                       const QDir &dir) {
   std::string err_msg;
 
   if (json.contains("date")) {
@@ -53,6 +55,7 @@ SeismEvent::SeismEvent(const QJsonObject &json, const QDir &dir) {
 
         SeismComponentReader reader(fileInfo);
         int idx = 0;
+        auto receivers_itr = receivers.begin();
         for (auto objComponent : componentsArray) {
 
           if (!reader.hasNext()) {
@@ -60,9 +63,14 @@ SeismEvent::SeismEvent(const QJsonObject &json, const QDir &dir) {
             break;
           }
 
+          if (receivers.end() == receivers_itr) {
+            err_msg += "::data : not enough receivers\n";
+            break;
+          }
+
           try {
             auto seismComponent = std::make_unique<SeismComponent>(
-                objComponent.toObject(), reader.nextData());
+                objComponent.toObject(), *receivers_itr, reader.nextData());
             _components.push_back(std::move(seismComponent));
           } catch (std::runtime_error &err) {
             err_msg += "Component (idx: " + std::to_string(idx) + ")\n";
@@ -70,6 +78,10 @@ SeismEvent::SeismEvent(const QJsonObject &json, const QDir &dir) {
           }
 
           ++idx;
+          ++receivers_itr;
+        }
+        if (receivers.end() != receivers_itr) {
+          err_msg += "::data : not enough components\n";
         }
       } else {
         err_msg += "::Components : not found\n";
@@ -141,7 +153,7 @@ QJsonObject &SeismEvent::writeToJson(QJsonObject &json, const QDir &dir) {
 
   QJsonArray componentsArray;
   QJsonObject componentObj;
-  for (const std::unique_ptr<SeismComponent> &component : _components) {
+  for (auto &component : _components) {
     componentsArray.append(component->writeToJson(componentObj));
     writer.writeComponent(component);
   }

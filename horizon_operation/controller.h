@@ -20,18 +20,12 @@ public:
   explicit Controller(QObject *parent = nullptr);
 
   void viewHorizons(const std::unique_ptr<Data::SeismProject> &);
+  void finish(int);
 
 signals:
   void sendHorizon(std::unique_ptr<Data::SeismHorizon> &) const;
   void sendRemovedHorizon(const QUuid &) const;
   void finished() const;
-
-private slots:
-  void handleRemoveHorizonClicked(const QUuid);
-  void handleAddHorizonClicked();
-  void recvFilePath(const QString &);
-  void recvNotification(const QString &);
-  void finish(int);
 
 private:
   Model *_model;

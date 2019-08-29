@@ -18,7 +18,7 @@ View::View(QWidget *parent)
 
   _infoEvent->setDisabled(true);
 
-  connect(_okButton, SIGNAL(clicked()), this, SLOT(accept()));
+  connect(_okButton, &QPushButton::clicked, this, &View::accept);
 
   QVBoxLayout *leftLayout = new QVBoxLayout();
   leftLayout->addWidget(_infoEvent);

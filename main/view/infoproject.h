@@ -22,8 +22,11 @@ public:
   void addHorizon();
   void removeHorizon();
 
-  void addReciever();
-  void removeReciever();
+  void addReceiver();
+  void removeReceiver();
+
+  void addWell();
+  void removeWell();
 
 private:
   QLabel *_nameLabel;
@@ -31,7 +34,8 @@ private:
   QLabel *_timeLabel;
   QLabel *_eventsNumber;
   QLabel *_horizonsNumber;
-  QLabel *_recieversNumber;
+  QLabel *_receiversNumber;
+  QLabel *_wellsNumber;
 };
 
 } // namespace Main

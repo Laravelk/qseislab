@@ -3,11 +3,13 @@
 #include <QJsonArray>
 
 namespace Data {
-SeismComponent::SeismComponent() {}
+SeismComponent::SeismComponent(const std::unique_ptr<SeismReceiver> &receiver)
+    : _receiver(receiver) {}
 
 SeismComponent::SeismComponent(
-    const QJsonObject &json,
-    std::vector<std::pair<uint32_t, std::unique_ptr<float[]>>> &data) {
+    const QJsonObject &json, const std::unique_ptr<SeismReceiver> &receiver,
+    std::vector<std::pair<uint32_t, std::unique_ptr<float[]>>> &data)
+    : _receiver(receiver) {
 
   std::string err_msg;
 
@@ -74,6 +76,14 @@ void SeismComponent::setSWaveArrival(int sWaveArrival) {
 
 float SeismComponent::getMaxValue() const { return _maxValue; }
 
+const std::unique_ptr<SeismReceiver> &SeismComponent::getReceiver() const {
+  return _receiver;
+}
+
+// const Point &SeismComponent::getOrientation() const {
+//  //  return _receiver->getOrientation();
+//}
+
 void SeismComponent::addTrace(std::unique_ptr<SeismTrace> trace) {
   if (_maxValue < trace->getMaxValue()) {
     _maxValue = trace->getMaxValue();
@@ -92,7 +102,6 @@ SeismComponent::getTraces() const {
 }
 
 QJsonObject &SeismComponent::writeToJson(QJsonObject &json) const {
-  //    json["maxValue"] = static_cast<double>(_maxValue);
   json["pWaveArrival"] = _pWaveArrival;
   json["sWaveArrival"] = _sWaveArrival;
 

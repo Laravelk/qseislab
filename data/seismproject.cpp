@@ -5,13 +5,25 @@
 
 namespace Data {
 SeismProject::SeismProject(QObject *parent) : QObject(parent) {
-  // NOTE: hard-code insert recievers
+  // NOTE: hard-code insert receivers
   for (int i = 0; i < 8; ++i) {
-    std::unique_ptr<SeismReciever> reciever = std::make_unique<SeismReciever>();
-    reciever->setName(QString::number(i + 1));
-    reciever->setChannelNum(3);
+    std::unique_ptr<SeismReceiver> receiver = std::make_unique<SeismReceiver>();
+    receiver->setName(QString::number(i + 1));
+    //    receiver->setChannelNum(3);
+    receiver->setUuid(generateUuid());
 
-    _recievers.push_back(std::move(reciever));
+    _receivers.push_back(std::move(receiver));
+  }
+  // end...
+
+  // NOTE: hard-code insert wells
+  for (int i = 0; i < 2; ++i) {
+    std::unique_ptr<SeismWell> well = std::make_unique<SeismWell>();
+    well->setName(QString::number(i + 1));
+
+    auto uuid = generateUuid();
+    well->setUuid(uuid);
+    _wells_map[uuid] = std::move(well);
   }
   // end...
 }
@@ -35,25 +47,6 @@ SeismProject::SeismProject(const QJsonObject &json, const QFileInfo &fileInfo,
     err_msg += "::date : not found\n";
   }
 
-  if (json.contains("Events")) {
-    QJsonArray eventsArray(json["Events"].toArray());
-    int idx = 0;
-    for (auto objEvent : eventsArray) {
-      try {
-        auto seismEvent =
-            std::make_unique<SeismEvent>(objEvent.toObject(), fileInfo.dir());
-        auto uuid = seismEvent->getUuid();
-        _events_map[uuid] = std::move(seismEvent);
-      } catch (std::runtime_error &err) {
-        err_msg += "Events (idx: " + std::to_string(idx) + ")\n";
-        err_msg += err.what();
-      }
-      ++idx;
-    }
-  } else {
-    err_msg += "::Horizons : not found\n";
-  }
-
   if (json.contains("Horizons")) {
     QJsonArray horizonsArray(json["Horizons"].toArray());
     int idx = 0;
@@ -73,25 +66,63 @@ SeismProject::SeismProject(const QJsonObject &json, const QFileInfo &fileInfo,
     err_msg += "::Horizons : not found\n";
   }
 
-  if (json.contains("Recievers")) {
-    QJsonArray recieversArray(json["Recievers"].toArray());
+  if (json.contains("Wells")) {
+    QJsonArray wellsArray(json["Wells"].toArray());
     int idx = 0;
-    for (auto objReciever : recieversArray) {
+    for (auto objWell : wellsArray) {
       try {
-        auto seismReciever =
-            std::make_unique<SeismReciever>(objReciever.toObject());
-        auto uuid = generateUuid();
-        seismReciever->setUuid(uuid);
-        //        _recievers_map[uuid] = std::move(seismReciever);
-        _recievers.push_back(std::move(seismReciever));
+        auto seismWell =
+            std::make_unique<SeismWell>(objWell.toObject(), fileInfo.dir());
+        auto uuid = seismWell->getUuid();
+        _wells_map[uuid] = std::move(seismWell);
       } catch (std::runtime_error &err) {
-        err_msg += "Recievers (idx: " + std::to_string(idx) + ")\n";
+        err_msg += "Wells (idx: " + std::to_string(idx) + ")\n";
         err_msg += err.what();
       }
       ++idx;
     }
   } else {
-    err_msg += "::Recievers : not found\n";
+    err_msg += "::Wells : not found\n";
+  }
+
+  if (json.contains("Receivers")) {
+    QJsonArray receiversArray(json["Receivers"].toArray());
+    int idx = 0;
+    for (auto objReceiver : receiversArray) {
+      try {
+        auto seismReceiver =
+            std::make_unique<SeismReceiver>(objReceiver.toObject());
+        auto uuid = generateUuid();
+        seismReceiver->setUuid(uuid);
+        //        _receivers_map[uuid] = std::move(seismReceiver);
+        _receivers.push_back(std::move(seismReceiver));
+      } catch (std::runtime_error &err) {
+        err_msg += "Receivers (idx: " + std::to_string(idx) + ")\n";
+        err_msg += err.what();
+      }
+      ++idx;
+    }
+  } else {
+    err_msg += "::Receivers : not found\n";
+  }
+
+  if (json.contains("Events")) {
+    QJsonArray eventsArray(json["Events"].toArray());
+    int idx = 0;
+    for (auto objEvent : eventsArray) {
+      try {
+        auto seismEvent = std::make_unique<SeismEvent>(
+            objEvent.toObject(), _receivers, fileInfo.dir());
+        auto uuid = seismEvent->getUuid();
+        _events_map[uuid] = std::move(seismEvent);
+      } catch (std::runtime_error &err) {
+        err_msg += "Events (idx: " + std::to_string(idx) + ")\n";
+        err_msg += err.what();
+      }
+      ++idx;
+    }
+  } else {
+    err_msg += "::Horizons : not found\n";
   }
 
   _isSaved = true;
@@ -128,6 +159,13 @@ QJsonObject &SeismProject::writeToJson(QJsonObject &json,
   }
   dataDir.mkpath(SeismHorizon::_default_path);
 
+  dataDir = _fileInfo.dir();
+  if (dataDir.cd(SeismWell::_default_path)) {
+    dataDir.removeRecursively();
+    dataDir = _fileInfo.dir();
+  }
+  dataDir.mkpath(SeismWell::_default_path);
+
   QJsonArray eventsArray;
   QJsonObject eventObj;
   for (auto &itr : _events_map) {
@@ -143,12 +181,19 @@ QJsonObject &SeismProject::writeToJson(QJsonObject &json,
   }
   json["Horizons"] = horizonsArray;
 
-  QJsonArray recieversArray;
-  QJsonObject recieverObj;
-  for (auto &reciever : _recievers) {
-    recieversArray.append(reciever->writeToJson(recieverObj));
+  QJsonArray receiversArray;
+  QJsonObject receiverObj;
+  for (auto &receiver : _receivers) {
+    receiversArray.append(receiver->writeToJson(receiverObj));
   }
-  json["Recievers"] = recieversArray;
+  json["Receivers"] = receiversArray;
+
+  QJsonArray wellsArray;
+  QJsonObject wellObj;
+  for (auto &itr : _wells_map) {
+    wellsArray.append((itr.second)->writeToJson(wellObj, _fileInfo.dir()));
+  }
+  json["Wells"] = wellsArray;
 
   _isSaved = true;
 
@@ -279,37 +324,73 @@ SeismProject::getAllMap<SeismHorizon>() const {
 }
 // end of Horizon template`s
 
-// Reciever template`s
-template <>
-void SeismProject::add<SeismReciever>(std::unique_ptr<SeismReciever> reciever) {
+// Well template`s
+template <> void SeismProject::add<SeismWell>(std::unique_ptr<SeismWell> well) {
   _isSaved = false;
   auto uuid = generateUuid();
-  reciever->setUuid(uuid);
-  _recievers.push_back(std::move(reciever));
+  well->setUuid(uuid);
+  _wells_map[uuid] = std::move(well);
 
-  emit addedReciever(_recievers.back());
+  emit addedWell(_wells_map[uuid]);
 }
 
-template <> bool SeismProject::remove<SeismReciever>(const QUuid &uuid) {
-  for (auto itr = _recievers.begin(); itr != _recievers.end(); ++itr) {
+template <> bool SeismProject::remove<SeismWell>(const QUuid &uuid) {
+  if (_wells_map.erase(uuid)) {
+    _isSaved = false;
+    emit removedWell(uuid);
+    return true;
+  }
+  return false;
+}
+
+template <> int SeismProject::getNumber<SeismWell>() const {
+  return static_cast<int>(_wells_map.size());
+}
+
+template <>
+const std::unique_ptr<SeismWell> &
+SeismProject::get<SeismWell>(const QUuid &uuid) const {
+  return _wells_map.at(uuid);
+}
+
+template <>
+const std::map<QUuid, std::unique_ptr<SeismWell>> &
+SeismProject::getAllMap<SeismWell>() const {
+  return _wells_map;
+}
+// end of Well template`s
+
+// Receiver template`s
+template <>
+void SeismProject::add<SeismReceiver>(std::unique_ptr<SeismReceiver> receiver) {
+  _isSaved = false;
+  auto uuid = generateUuid();
+  receiver->setUuid(uuid);
+  _receivers.push_back(std::move(receiver));
+
+  emit addedReceiver(_receivers.back());
+}
+
+template <> bool SeismProject::remove<SeismReceiver>(const QUuid &uuid) {
+  for (auto itr = _receivers.begin(); itr != _receivers.end(); ++itr) {
     if (uuid == (*itr)->getUuid()) {
-      _recievers.erase(itr);
-      emit removedReciever(uuid);
+      _receivers.erase(itr);
+      emit removedReceiver(uuid);
       return true;
     }
   }
   return false;
 }
 
-template <> int SeismProject::getNumber<SeismReciever>() const {
-  return static_cast<int>(_recievers.size());
+template <> int SeismProject::getNumber<SeismReceiver>() const {
+  return static_cast<int>(_receivers.size());
 }
 
 template <>
-const std::list<std::unique_ptr<SeismReciever>> &
-SeismProject::getAllList<SeismReciever>() const {
-  return _recievers;
+const std::list<std::unique_ptr<SeismReceiver>> &
+SeismProject::getAllList<SeismReceiver>() const {
+  return _receivers;
 }
-// end of Reciever template`s
+// end of Receiver template`s
 
 } // namespace Data

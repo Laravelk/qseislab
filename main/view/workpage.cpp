@@ -16,6 +16,8 @@ namespace Main {
 WorkPage::WorkPage(QWidget *parent)
     : QFrame(parent), _infoProject(new InfoProject(this)),
       _eventsTable(new QTableWidget(this)), _graph(new Q3DSurface) {
+
+  // Setting`s
   initEventsTable(_eventsTable);
   _graph->setMinimumWidth(400);
   _graph->setMinimumHeight(700);
@@ -24,9 +26,14 @@ WorkPage::WorkPage(QWidget *parent)
   container->setMinimumSize(QSize(400, 400));
   container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   container->setFocusPolicy(Qt::StrongFocus);
-  connect(_eventsTable, SIGNAL(cellDoubleClicked(int, int)), this,
-          SLOT(handleEventClicked(int, int)));
+  // Setting`s end
 
+  // Connecting
+  connect(_eventsTable, &QTableWidget::cellDoubleClicked, this,
+          &WorkPage::handleEventClicked);
+  // Connecting end
+
+  // Layout`s
   QVBoxLayout *vLayout = new QVBoxLayout();
   vLayout->addWidget(_infoProject);
   vLayout->addWidget(container);
@@ -34,6 +41,7 @@ WorkPage::WorkPage(QWidget *parent)
   vLayout->addWidget(_eventsTable);
 
   setLayout(vLayout);
+  // Layout`s end
 }
 
 void WorkPage::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
@@ -41,7 +49,6 @@ void WorkPage::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
   _surface->setProject(project);
   clearTable();
 
-  //  for (auto &itr : project->getEventsMap()) {
   for (auto &itr : project->getAllMap<SeismEvent>()) {
     insertEventInTable(itr.second);
   }
@@ -86,14 +93,24 @@ void WorkPage::updateProjectRemoveHorizon(const QUuid &uuid) {
 }
 
 void WorkPage::updateProject(
-    const std::unique_ptr<Data::SeismReciever> &reciever) {
-  _infoProject->addReciever();
-  _surface->addReciever(reciever);
+    const std::unique_ptr<Data::SeismReceiver> &receiver) {
+  _infoProject->addReceiver();
+  _surface->addReceiver(receiver);
 }
 
-void WorkPage::updateProjectRemoveReciever(const QUuid &uuid) {
-  _infoProject->removeReciever();
-  //  _surface->removeReciever(uuid);
+void WorkPage::updateProjectRemoveReceiver(const QUuid &uuid) {
+  _infoProject->removeReceiver();
+  _surface->removeReceiver(uuid);
+}
+
+void WorkPage::updateProject(const std::unique_ptr<Data::SeismWell> &well) {
+  _infoProject->addWell();
+  _surface->addWell(well);
+}
+
+void WorkPage::updateProjectRemoveWell(const QUuid &uuid) {
+  _infoProject->removeWell();
+  _surface->removeWell(uuid);
 }
 
 void WorkPage::handleEventClicked(int row, int col) {

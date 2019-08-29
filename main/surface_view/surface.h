@@ -17,7 +17,8 @@ class SeismEvent;
 class SeismHorizon;
 class SeismProject;
 class SeismPoint;
-class SeismReciever;
+class SeismReceiver;
+class SeismWell;
 } // namespace Data
 
 namespace Main {
@@ -29,7 +30,8 @@ public:
 
   void addEvent(const std::unique_ptr<Data::SeismEvent> &event);
   void addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon);
-  void addReciever(const std::unique_ptr<Data::SeismReciever> &reciever);
+  void addReceiver(const std::unique_ptr<Data::SeismReceiver> &receiver);
+  void addWell(const std::unique_ptr<Data::SeismWell> &well);
 
   bool showEvent(QUuid uid);
   bool showEvent(std::unique_ptr<Data::SeismEvent> &event);
@@ -40,8 +42,10 @@ public:
   bool removeEvent(const Uuid uid);
   bool removeHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon);
   bool removeHorizon(const Uuid uid);
-  bool removeReciever(const std::unique_ptr<Data::SeismReciever> &reciever);
-  bool removeReciever(const Uuid uid);
+  bool removeReceiver(const std::unique_ptr<Data::SeismReceiver> &receiver);
+  bool removeReceiver(const Uuid uid);
+  bool removeWell(const std::unique_ptr<Data::SeismWell> &well);
+  bool removeWell(const Uuid uid);
 
   bool hideEvent(QUuid uid);
   bool hideEvent(std::unique_ptr<Data::SeismEvent> &event);
@@ -73,10 +77,12 @@ private:
 private:
   void handleElementSelected(QAbstract3DGraph::ElementType type);
   void handleElementDoubleClicked(QAbstract3DGraph::ElementType type);
+  QVector3D vectorBy2Point(Point pointOne, Point pointTwo);
 
   std::map<Uuid, QCustom3DItem *> _eventMap;
   std::map<Uuid, QSurface3DSeries *> _horizonMap;
-  std::map<Uuid, QCustom3DItem *> _recieverMap;
+  std::map<Uuid, QCustom3DItem *> _receiverMap;
+  std::map<Uuid, QSurface3DSeries *> _wellMap;
   std::vector<QSurfaceDataRow *> _rowVector;
   std::vector<Point> _pointVector;
 };

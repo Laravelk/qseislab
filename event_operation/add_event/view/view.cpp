@@ -5,7 +5,6 @@
 #include "filemanager.h"
 
 #include <QBoxLayout>
-#include <QFileDialog>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
@@ -24,14 +23,14 @@ View::View(QWidget *parent)
   setWindowTitle("SeismWindow");
   setMinimumSize(1100, 590);
 
-  connect(_fileManager, SIGNAL(sendFilePath(const QString &)), this,
-          SLOT(recvFilePath(const QString &)));
-
   _infoEvent->setDisabled(true);
 
   _addButton->setDisabled(true);
-  connect(_addButton, SIGNAL(clicked()), this, SLOT(accept()));
-  connect(_cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+
+  connect(_fileManager, &FileManager::sendFilePath,
+          [this](const QString &path) { emit sendFilePath(path); });
+  connect(_addButton, &QPushButton::clicked, this, &View::accept);
+  connect(_cancelButton, &QPushButton::clicked, this, &View::reject);
 
   QVBoxLayout *leftLayout = new QVBoxLayout();
   leftLayout->addWidget(_fileManager);
@@ -83,7 +82,7 @@ void View::settingEventInfo(
   _infoEvent->settingEventInfo(event);
 }
 
-void View::recvFilePath(const QString &path) { emit sendFilePath(path); }
+// void View::recvFilePath(const QString &path) { emit sendFilePath(path); }
 
 } // namespace AddEvent
 } // namespace EventOperation

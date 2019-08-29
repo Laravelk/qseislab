@@ -24,8 +24,11 @@ public:
   void updateProjectRemoveEvent(const QUuid &);
   void updateProjectRemoveHorizon(const QUuid &);
 
-  void updateProject(const std::unique_ptr<Data::SeismReciever> &);
-  void updateProjectRemoveReciever(const QUuid &);
+  void updateProject(const std::unique_ptr<Data::SeismReceiver> &);
+  void updateProjectRemoveReceiver(const QUuid &);
+
+  void updateProject(const std::unique_ptr<Data::SeismWell> &);
+  void updateProjectRemoveWell(const QUuid &);
 
   void closeProject();
 
@@ -37,7 +40,9 @@ signals:
 
   void horizonsClicked() const;
 
-  void recieversClicked() const;
+  void receiversClicked() const;
+
+  void wellsClicked() const;
 
   void newProjectClicked() const;
   void openProjectClicked() const;
@@ -45,21 +50,6 @@ signals:
   void closeProjectClicked() const;
 
   void projectPresence(bool) const; // NOTE: for menu bar
-
-private slots:
-  void handleAddEventClicked();
-  void handleViewEventClicked(const QUuid);
-  void handleRemoveEventClicked(const QUuid);
-  void handleProcessEvetntsClicked();
-
-  void handleHorizonsClicked();
-
-  void handleRecieversClicked();
-
-  void handleNewProjectClicked();
-  void handleOpenProjectClicked();
-  void handleSaveProjectClicked();
-  void handleCloseProjectClicked();
 
 private:
   WorkPage *_workPage{nullptr}; // NOTE: правильно ли хранить этот указатель - ?

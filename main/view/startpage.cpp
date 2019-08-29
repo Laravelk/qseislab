@@ -1,17 +1,20 @@
 #include "startpage.h"
 
 #include <QBoxLayout>
-#include <QDateTimeEdit> // TODO: need to remove
 
 namespace Main {
 StartPage::StartPage(QWidget *parent)
     : QFrame(parent), _buttonNewProject(new QPushButton("New Project", this)),
       _buttonOpenproject(new QPushButton("Open Project", this)) {
-  connect(_buttonNewProject, SIGNAL(clicked()), this,
-          SLOT(handleNewProjectClicked()));
-  connect(_buttonOpenproject, SIGNAL(clicked()), this,
-          SLOT(handleOpenProjectClicked()));
 
+  // Connecting
+  connect(_buttonNewProject, &QPushButton::clicked,
+          [this] { emit newProjectClicked(); });
+  connect(_buttonOpenproject, &QPushButton::clicked,
+          [this] { emit openProjectClicked(); });
+  // Connecting end
+
+  // Layout`s
   QVBoxLayout *layout = new QVBoxLayout();
   layout->addStretch(1);
   layout->addWidget(_buttonNewProject);
@@ -19,10 +22,7 @@ StartPage::StartPage(QWidget *parent)
   layout->addStretch(1);
 
   setLayout(layout);
+  // Layout`s end
 }
-
-void StartPage::handleNewProjectClicked() { emit newProjectClicked(); }
-
-void StartPage::handleOpenProjectClicked() { emit openProjectClicked(); }
 
 } // namespace Main

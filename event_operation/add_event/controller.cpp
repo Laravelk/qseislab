@@ -10,31 +10,25 @@ typedef Data::IO::SegyReader SegyReader;
 namespace EventOperation {
 namespace AddEvent {
 Controller::Controller(
-    const std::list<std::unique_ptr<Data::SeismReciever>> &recievers,
+    const std::list<std::unique_ptr<Data::SeismReceiver>> &receivers,
     QObject *parent)
-    : QObject(parent), _recievers(recievers),
+    : QObject(parent), _receivers(receivers),
       _model(new Model(new SegyReader(), this)),
       _view(std::make_unique<View>()) {
-  connect(_view.get(), SIGNAL(sendFilePath(const QString &)), this,
-          SLOT(recvFilePath(const QString &)));
-  connect(_model, SIGNAL(notify(const QString &)), this,
-          SLOT(recvNotification(const QString &)));
-  connect(_view.get(), SIGNAL(finished(int)), this, SLOT(finish(int)));
+
+  connect(_model, &Model::notify,
+          [this](auto &msg) { _view->setNotification(msg); });
+
+  connect(_view.get(), &View::sendFilePath, [this](auto &path) {
+    _event = _model->getSeismEventFrom(path, _receivers);
+    _view->update(_event);
+  });
+  connect(_view.get(), &View::finished, this, &Controller::finish);
 }
 
 void Controller::start() {
   _view->setModal(true);
   _view->show();
-}
-
-void Controller::recvFilePath(const QString &path) {
-  //  _event = _model->getSeismEventFrom(path);
-  _event = _model->getSeismEventFrom(path, _recievers);
-  _view->update(_event);
-}
-
-void Controller::recvNotification(const QString &msg) {
-  _view->setNotification(msg);
 }
 
 void Controller::finish(int result) {

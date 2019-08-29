@@ -29,8 +29,11 @@ public:
   void updateProject(const std::unique_ptr<Data::SeismHorizon> &);
   void updateProjectRemoveHorizon(const QUuid &);
 
-  void updateProject(const std::unique_ptr<Data::SeismReciever> &);
-  void updateProjectRemoveReciever(const QUuid &);
+  void updateProject(const std::unique_ptr<Data::SeismReceiver> &);
+  void updateProjectRemoveReceiver(const QUuid &);
+
+  void updateProject(const std::unique_ptr<Data::SeismWell> &);
+  void updateProjectRemoveWell(const QUuid &);
 
 signals:
   void viewEventClicked(const QUuid) const;

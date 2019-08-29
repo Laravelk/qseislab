@@ -5,7 +5,7 @@
 #include <memory>
 
 namespace Data {
-class SeismReciever;
+class SeismReceiver;
 class SeismEvent;
 namespace IO {
 class AbstractSegyReader;
@@ -20,10 +20,9 @@ class Model : public QObject {
 public:
   explicit Model(Data::IO::AbstractSegyReader *, QObject *);
 
-  std::unique_ptr<Data::SeismEvent> getSeismEventFrom(const QString &);
   std::unique_ptr<Data::SeismEvent>
   getSeismEventFrom(const QString &,
-                    const std::list<std::unique_ptr<Data::SeismReciever>> &);
+                    const std::list<std::unique_ptr<Data::SeismReceiver>> &);
 
   ~Model();
 

@@ -1,6 +1,5 @@
 #pragma once
 
-//#include "defines.h"
 #include "abstractsegyreader.h"
 
 #include <segyio/segy.h>
@@ -15,7 +14,8 @@ public:
 
   bool hasNextComponent() const override;
 
-  std::unique_ptr<SeismComponent> nextComponent(int) noexcept(false) override;
+  std::unique_ptr<SeismComponent> nextComponent(
+      const std::unique_ptr<SeismReceiver> &) noexcept(false) override;
 
   void close() override;
 

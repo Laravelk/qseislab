@@ -2,48 +2,44 @@
 
 #include <QBoxLayout>
 
-
 namespace ProjectOperation {
 FileManager::FileManager(QWidget *parent)
-    :QFrame(parent),
-     _label(new QLabel("File: ", this)),
-     _fileName(new QLabel(this)),
-     _button(new QPushButton("Browse", this)),
-     _fileDialog(new QFileDialog(this))
-{
-    setFrameStyle(1);
+    : QFrame(parent), _label(new QLabel("File: ", this)),
+      _fileName(new QLabel(this)), _button(new QPushButton("Browse", this)),
+      _fileDialog(new QFileDialog(this)) {
 
-    _fileName->setMinimumWidth(100);
-    _fileName->setFrameStyle(1);
+  // Setting`s
+  setFrameStyle(1);
 
-    _fileDialog->setFileMode(QFileDialog::ExistingFile);
-    _fileDialog->setOption(QFileDialog::DontResolveSymlinks);
-    _fileDialog->setNameFilter("*.json");
-//    _fileDialog->setDirectory(QDir::home());
+  _fileName->setMinimumWidth(100);
+  _fileName->setFrameStyle(1);
 
-    connect(_button, SIGNAL(clicked()), _fileDialog, SLOT(open()));
-    connect(_fileDialog, SIGNAL(fileSelected(const QString& )), this, SLOT(recvFilePath(const QString& )));
-//    _fileDialog->open(); // NOTE: можно ли так сделать и будет ли это правильно? (чтобы диалог сразу появлялось)
+  _fileDialog->setFileMode(QFileDialog::ExistingFile);
+  _fileDialog->setOption(QFileDialog::DontResolveSymlinks);
+  _fileDialog->setNameFilter("*.json");
+  //    _fileDialog->setDirectory(QDir::home());
+  // Setting`s end
 
-    QHBoxLayout* layout = new QHBoxLayout();
-    layout->addWidget(_label);
-    layout->addWidget(_fileName,1);
-    layout->addWidget(_button);
-    setLayout(layout);
+  // Connecting
+  connect(_button, &QPushButton::clicked, [this] {
+    _fileDialog->open(this, SLOT(recvFilePath(const QString &)));
+  });
+  // Connecting end
+
+  // Layout`s
+  QHBoxLayout *layout = new QHBoxLayout();
+  layout->addWidget(_label);
+  layout->addWidget(_fileName, 1);
+  layout->addWidget(_button);
+  setLayout(layout);
+  // Layout`s end
 }
 
-void FileManager::clear()
-{
-    _fileName->clear();
+void FileManager::clear() { _fileName->clear(); }
+
+void FileManager::recvFilePath(const QString &path) {
+  _fileName->setText(QFileInfo(path).fileName());
+  emit sendFilePath(path);
 }
-
-void FileManager::recvFilePath(const QString& path)
-{
-    QFileInfo fileInfo(path);
-    _fileName->setText(fileInfo.fileName());
-
-    emit sendFilePath(path);
-}
-
 
 } // namespace ProjectOperation

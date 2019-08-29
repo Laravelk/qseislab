@@ -4,6 +4,7 @@
 
 namespace Data {
 class SeismComponent;
+class SeismReceiver;
 
 namespace IO {
 class AbstractSegyReader {
@@ -13,7 +14,8 @@ public:
   virtual void readBinHeader() = 0;
 
   virtual bool hasNextComponent() const = 0;
-  virtual std::unique_ptr<SeismComponent> nextComponent(int) = 0;
+  virtual std::unique_ptr<SeismComponent>
+  nextComponent(const std::unique_ptr<SeismReceiver> &) = 0;
 
   virtual void close() = 0;
 

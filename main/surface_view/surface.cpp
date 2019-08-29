@@ -3,12 +3,14 @@
 #include "../../data/seismevent.h"
 #include "../../data/seismhorizon.h"
 #include "../../data/seismproject.h"
+#include "../../data/seismwell.h"
 
 #include <iostream>
 
 typedef Data::SeismEvent SeismEvent;
 typedef Data::SeismHorizon SeismHorizon;
 typedef Data::SeismProject SeismProject;
+typedef Data::SeismWell SeismWell;
 
 namespace Main {
 Surface::Surface(Q3DSurface *surface) : _surface(surface), _isHandle(false) {
@@ -29,6 +31,10 @@ Surface::Surface(Q3DSurface *surface) : _surface(surface), _isHandle(false) {
   _surface->axisY()->setTitle("Z, meters");
   _surface->axisZ()->setTitle("Y, meters");
 
+  _surface->axisX()->setRange(-100, 0);
+  _surface->axisY()->setRange(-100, 0);
+  _surface->axisZ()->setRange(-100, 0);
+
   _surface->axisX()->setTitleVisible(true);
   _surface->axisY()->setTitleVisible(true);
   _surface->axisZ()->setTitleVisible(true);
@@ -41,12 +47,12 @@ void Surface::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
   Point eventPoint = event->getLocation();
   float x, y, z;
   std::tie(x, y, z) = eventPoint;
-  QVector3D position(x, y, z);
+  QVector3D position(x, z, y);
   QCustom3DItem *item = new QCustom3DItem(":/sphereSmooth.obj", position,
                                           QVector3D(0.035f, 0.035f, 0.035f),
                                           QQuaternion(), _blackColor);
   item->setShadowCasting(false);
-  item->setVisible(false); // don't visible element without analiz
+  item->setVisible(event->isProcessed());
   _surface->addCustomItem(item);
   _eventMap.insert(std::pair<Uuid, QCustom3DItem *>(event->getUuid(), item));
 }
@@ -82,20 +88,36 @@ void Surface::addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon) {
   _rowVector.clear();
 }
 
-void Surface::addReciever(
-    const std::unique_ptr<Data::SeismReciever> &reciever) {
-  //  Point recieverPoint = reciever->getLocation();
-  Point recieverPoint;
+void Surface::addReceiver(
+    const std::unique_ptr<Data::SeismReceiver> &receiver) {
+  Point receiverPoint = receiver->getLocation();
   float x, y, z;
-  std::tie(x, y, z) = recieverPoint;
-  QVector3D position(x, y, z);
+  std::tie(x, y, z) = receiverPoint;
+  QVector3D position(x, z, y);
   QCustom3DItem *item = new QCustom3DItem(":/minimalSmooth.obj", position,
                                           QVector3D(0.035f, 0.035f, 0.035f),
                                           QQuaternion(), _redColor);
   item->setShadowCasting(false);
   _surface->addCustomItem(item);
-  _recieverMap.insert(
-      std::pair<Uuid, QCustom3DItem *>(reciever->getUuid(), item));
+  _receiverMap.insert(
+      std::pair<Uuid, QCustom3DItem *>(receiver->getUuid(), item));
+}
+
+void Surface::addWell(const std::unique_ptr<Data::SeismWell> &well) {
+  Point lastPoint = well->getPoint(0);
+  for (auto &point : well->getPoints()) {
+    float x = 0, y = 0, z = 0;
+    std::tie(x, y, z) = point;
+    std::cerr << x << " " << y << " " << z << std::endl;
+    QVector3D rotateVector = vectorBy2Point(lastPoint, point);
+    QVector3D position(x, y, z);
+    lastPoint = point;
+    QCustom3DItem *item = new QCustom3DItem(
+        ":/cylinderFilledSmooth.obj", position,
+        QVector3D(0.035f, 0.035f, 0.035f), QQuaternion(), _blackColor);
+    item->setVisible(true);
+    _surface->addCustomItem(item);
+  }
 }
 
 bool Surface::showEvent(QUuid uid) {
@@ -151,6 +173,33 @@ bool Surface::removeHorizon(const Uuid uid) {
   return false;
 }
 
+bool Surface::removeReceiver(
+    const std::unique_ptr<Data::SeismReceiver> &receiver) {
+  return removeReceiver(receiver.get()->getUuid());
+}
+
+bool Surface::removeReceiver(const Uuid uid) {
+  QCustom3DItem *item = _receiverMap[uid];
+  if (_receiverMap.erase(uid)) {
+    _surface->removeCustomItem(item);
+    return true;
+  }
+  return false;
+}
+
+bool Surface::removeWell(const std::unique_ptr<Data::SeismWell> &well) {
+  return removeWell(well.get()->getUuid());
+}
+
+bool Surface::removeWell(const Uuid uid) {
+  QSurface3DSeries *series = _wellMap[uid];
+  if (_wellMap.erase(uid)) {
+    _surface->removeSeries(series);
+    return true;
+  }
+  return false;
+}
+
 bool Surface::hideEvent(QUuid uid) {
   if (_eventMap.at(uid)) {
     _eventMap.at(uid)->setVisible(true);
@@ -186,9 +235,9 @@ void Surface::handleElementSelected(QAbstract3DGraph::ElementType type) {
     positionOfLabel.setX(
         static_cast<float>(static_cast<double>(item->position().x()) + 0.1));
     positionOfLabel.setY(
-        static_cast<float>(static_cast<double>(item->position().z()) + 0.1));
-    positionOfLabel.setZ(
         static_cast<float>(static_cast<double>(item->position().y()) + 0.1));
+    positionOfLabel.setZ(
+        static_cast<float>(static_cast<double>(item->position().z()) + 0.1));
     _label = new QCustom3DLabel(
         "X:" +
             QString::number(static_cast<double>(item->position().x()), 'g', 3) +
@@ -204,6 +253,14 @@ void Surface::handleElementSelected(QAbstract3DGraph::ElementType type) {
     return;
   }
   _surface->clearSelection();
+}
+
+QVector3D Surface::vectorBy2Point(Point pointOne, Point pointTwo) {
+  float x1 = 0, y1 = 0, z1 = 0;
+  float x2 = 0, y2 = 0, z2 = 0;
+  std::tie(x1, y1, z1) = pointOne;
+  std::tie(x2, y2, z2) = pointTwo;
+  return QVector3D(x2 - x1, y2 - y1, z2 - z1);
 }
 
 } // namespace Main

@@ -62,11 +62,11 @@ void GraphicEvent::setWaveArrivalPen(QLineSeries &pWaveArrivalSeries,
 void GraphicEvent::addWaveArrivalSeries(QLineSeries &pWaveArrivalSeries,
                                         QLineSeries &sWaveArrivalSeries,
                                         int index) {
-  pWaveArrivalSeries.append(_pWaveArrival, 0.8 + index);
-  pWaveArrivalSeries.append(_pWaveArrival, -0.8 + index);
+  pWaveArrivalSeries.append(_pWaveArrival, 0.4 + index);
+  pWaveArrivalSeries.append(_pWaveArrival, -0.4 + index);
 
-  sWaveArrivalSeries.append(_sWaveArrival, 0.8 + index);
-  sWaveArrivalSeries.append(_sWaveArrival, -0.8 + index);
+  sWaveArrivalSeries.append(_sWaveArrival, 0.4 + index);
+  sWaveArrivalSeries.append(_sWaveArrival, -0.4 + index);
 
   _chart->addSeries(&pWaveArrivalSeries);
   _chart->addSeries(&sWaveArrivalSeries);
@@ -97,7 +97,16 @@ void EventOperation::GraphicEvent::addTraceSeries(
     SeismTrace *trace = component->getTraces().at(j).get();
     intervalAxisX = trace->getSampleInterval();
     for (int k = 0; k < trace->getBufferSize(); k++) {
-      series->append(tmp, 0.5 * trace->getBuffer()[k] / _norm + index);
+      if (k % 3 == 0) {
+        series->append(tmp, -0.2 + 0.5 * trace->getBuffer()[k] / _norm + index);
+      }
+      if (k % 3 == 1) {
+        series->append(tmp, 0.5 * trace->getBuffer()[k] / _norm + index);
+      }
+      if (k % 3 == 2) {
+        series->append(tmp, 0.2 + 0.5 * trace->getBuffer()[k] / _norm + index);
+      }
+
       tmp += intervalAxisX;
     }
     _chart->addSeries(series);

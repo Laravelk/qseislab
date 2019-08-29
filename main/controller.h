@@ -9,7 +9,9 @@
 
 #include "horizon_operation/controller.h"
 
-#include "reciever_operation/controller.h"
+#include "receiver_operation/controller.h"
+
+#include "well_operation/controller.h"
 
 #include "project_operation/close_project/controller.h"
 #include "project_operation/new_project/controller.h"
@@ -32,50 +34,22 @@ signals:
 
 private slots:
   void recvProject(std::unique_ptr<Data::SeismProject> &);
-  void recvEvent(std::unique_ptr<Data::SeismEvent> &);
-  void recvHorizon(std::unique_ptr<Data::SeismHorizon> &);
-  void recvReciever(std::unique_ptr<Data::SeismReciever> &);
-
-  void updateProject(const std::unique_ptr<Data::SeismEvent> &);
-  void updateProjectRemoveEvent(const QUuid &);
-  void updateProjectEvents();
-
-  void updateProject(const std::unique_ptr<Data::SeismHorizon> &);
-  void updateProjectRemoveHorizon(const QUuid &);
-
-  void updateProject(const std::unique_ptr<Data::SeismReciever> &);
-  void updateProjectRemoveReciever(const QUuid &);
 
   void handleAddEventClicked();
   void handleViewEventClicked(const QUuid);
-  void handleRemoveEventClicked(const QUuid);
-  void handleProcessEventsClicked();
 
   void handleHorizonsClicked();
-  void handleRemoveHorizonClicked(const QUuid &);
 
-  void handleRecieversClicked();
-  void handleRemoveRecieverClicked(const QUuid &);
+  void handleReceiversClicked();
+
+  void handleWellsClicked();
 
   void handleCloseProjectClicked();
   void handleNewProjectClicked();
   void handleOpenProjectClicked();
   void handleSaveProjectClicked();
 
-  void deleteAddEventController();
-  void deleteViewEventController();
-
-  void deleteHorizonController();
-
-  void deleteRecieverController();
-
   void deleteCloseProjectController(bool);
-  void deleteNewProjectController();
-  void deleteOpenProjectController();
-  void deleteSaveProjectController(bool);
-
-  void adapterFromDeleteToNewProject(bool);
-  void adapterFromDeleteToOpenProject(bool);
 
 private:
   std::unique_ptr<Data::SeismProject> _project;
@@ -87,7 +61,9 @@ private:
 
   std::unique_ptr<HorizonOperation::Controller> _horizonController;
 
-  std::unique_ptr<RecieverOperation::Controller> _recieverController;
+  std::unique_ptr<ReceiverOperation::Controller> _receiverController;
+
+  std::unique_ptr<WellOperation::Controller> _wellController;
 
   std::unique_ptr<ProjectOperation::CloseProject::Controller>
       _closeProjectController;

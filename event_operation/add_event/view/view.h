@@ -29,7 +29,7 @@ signals:
   void clear() const;
 
 private slots:
-  void recvFilePath(const QString &);
+  //  void recvFilePath(const QString &);
 
 private:
   FileManager *_fileManager;

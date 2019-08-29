@@ -6,7 +6,6 @@
 
 #include <memory>
 
-
 namespace Data {
 class SeismEvent;
 }
@@ -14,24 +13,22 @@ class SeismEvent;
 namespace EventOperation {
 namespace ViewEvent {
 class Controller : public QObject {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit Controller(QObject* parent = nullptr);
+  explicit Controller(QObject *parent = nullptr);
 
-    void viewEvent(const std::unique_ptr<Data::SeismEvent>& ) const;
+  void viewEvent(const std::unique_ptr<Data::SeismEvent> &) const;
 
 signals:
-    void finished() const;
+  void finished() const;
 
 private slots:
-    void finish(int);
+  //    void finish(int);
 
 private:
-    std::unique_ptr<View> _view;
+  std::unique_ptr<View> _view;
 };
-
 
 } // namespace ViewEvent
 } // namespace EventOperation
-

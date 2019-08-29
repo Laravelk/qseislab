@@ -8,7 +8,7 @@
 
 namespace Data {
 class SeismEvent;
-class SeismReciever;
+class SeismReceiver;
 } // namespace Data
 
 namespace EventOperation {
@@ -18,22 +18,18 @@ class Controller : public QObject {
   Q_OBJECT
 
 public:
-  explicit Controller(const std::list<std::unique_ptr<Data::SeismReciever>> &,
+  explicit Controller(const std::list<std::unique_ptr<Data::SeismReceiver>> &,
                       QObject *parent = nullptr);
 
   void start();
+  void finish(int);
 
 signals:
   void sendEvent(std::unique_ptr<Data::SeismEvent> &) const;
   void finished() const;
 
-private slots:
-  void recvFilePath(const QString &);
-  void recvNotification(const QString &);
-  void finish(int);
-
 private:
-  const std::list<std::unique_ptr<Data::SeismReciever>> &_recievers;
+  const std::list<std::unique_ptr<Data::SeismReceiver>> &_receivers;
 
   Model *_model;
 

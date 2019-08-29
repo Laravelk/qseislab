@@ -21,14 +21,10 @@ public:
 
   void start();
 
+  void finish(int);
 signals:
   void sendProject(std::unique_ptr<Data::SeismProject> &) const;
   void finished() const;
-
-private slots:
-  void recvFilePath(const QString &);
-  void recvNotification(const QString &);
-  void finish(int);
 
 private:
   Model *_model;
