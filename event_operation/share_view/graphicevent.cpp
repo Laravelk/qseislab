@@ -91,24 +91,32 @@ void EventOperation::GraphicEvent::addTraceSeries(
     const std::unique_ptr<Data::SeismComponent> &component, int index) {
   for (unsigned j = 0; j < component->getTraces().size(); j++) {
     float tmp = 0, intervalAxisX = 0;
-    _norm = component->getMaxValue();
+    _norm = component->getMaxValue() * 1.7;
     QLineSeries *series = new QLineSeries;
     series->setUseOpenGL(true);
     SeismTrace *trace = component->getTraces().at(j).get();
     intervalAxisX = trace->getSampleInterval();
-    for (int k = 0; k < trace->getBufferSize(); k++) {
-      if (k % 3 == 0) {
+    if (j % 3 == 0) {
+      for (int k = 0; k < trace->getBufferSize(); k++) {
         series->append(tmp, -0.2 + 0.5 * trace->getBuffer()[k] / _norm + index);
+        tmp += intervalAxisX;
       }
-      if (k % 3 == 1) {
-        series->append(tmp, 0.5 * trace->getBuffer()[k] / _norm + index);
-      }
-      if (k % 3 == 2) {
-        series->append(tmp, 0.2 + 0.5 * trace->getBuffer()[k] / _norm + index);
-      }
-
-      tmp += intervalAxisX;
     }
+    tmp = 0;
+    if (j % 3 == 1) {
+      for (int k = 0; k < trace->getBufferSize(); k++) {
+        series->append(tmp, 0.5 * trace->getBuffer()[k] / _norm + index);
+        tmp += intervalAxisX;
+      }
+    }
+    tmp = 0;
+    if (j % 3 == 2) {
+      for (int k = 0; k < trace->getBufferSize(); k++) {
+        series->append(tmp, 0.2 + 0.5 * trace->getBuffer()[k] / _norm + index);
+        tmp += intervalAxisX;
+      }
+    }
+
     _chart->addSeries(series);
     series->attachAxis(_axisX);
     series->attachAxis(_axisY);
