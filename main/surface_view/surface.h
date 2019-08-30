@@ -74,9 +74,13 @@ private:
                          QColor(128, 128, 128)};
   int _indexColor = 0;
 
+  float _minAxis;
+  float _maxAxis;
+
 private:
   void handleElementSelected(QAbstract3DGraph::ElementType type);
   void handleElementDoubleClicked(QAbstract3DGraph::ElementType type);
+  void checkAxisRange(QCustom3DItem &newItem);
   QVector3D vectorBy2Point(Point pointOne, Point pointTwo);
 
   std::map<Uuid, QCustom3DItem *> _eventMap;

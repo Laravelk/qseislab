@@ -20,7 +20,7 @@ WorkPage::WorkPage(QWidget *parent)
   // Setting`s
   initEventsTable(_eventsTable);
   _graph->setMinimumWidth(400);
-  _graph->setMinimumHeight(700);
+  _graph->setMinimumHeight(800);
   _surface = new Surface(_graph);
   QWidget *container = QWidget::createWindowContainer(_graph);
   container->setMinimumSize(QSize(400, 400));

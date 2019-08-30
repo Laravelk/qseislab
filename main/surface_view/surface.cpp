@@ -31,9 +31,16 @@ Surface::Surface(Q3DSurface *surface) : _surface(surface), _isHandle(false) {
   _surface->axisY()->setTitle("Z, meters");
   _surface->axisZ()->setTitle("Y, meters");
 
-  _surface->axisX()->setRange(-100, 0);
-  _surface->axisY()->setRange(-100, 0);
-  _surface->axisZ()->setRange(-100, 0);
+  _surface->axisX()->setAutoAdjustRange(true);
+  _surface->axisY()->setAutoAdjustRange(true);
+  _surface->axisZ()->setAutoAdjustRange(true);
+
+  _minAxis = -100;
+  _maxAxis = 100;
+
+  _surface->axisX()->setRange(_minAxis, _maxAxis);
+  _surface->axisY()->setRange(_minAxis, _maxAxis);
+  _surface->axisZ()->setRange(_minAxis, _maxAxis);
 
   _surface->axisX()->setTitleVisible(true);
   _surface->axisY()->setTitleVisible(true);
@@ -54,6 +61,7 @@ void Surface::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
   item->setShadowCasting(false);
   item->setVisible(event->isProcessed());
   _surface->addCustomItem(item);
+  checkAxisRange(*item);
   _eventMap.insert(std::pair<Uuid, QCustom3DItem *>(event->getUuid(), item));
 }
 
@@ -99,6 +107,7 @@ void Surface::addReceiver(
                                           QQuaternion(), _redColor);
   item->setShadowCasting(false);
   _surface->addCustomItem(item);
+  checkAxisRange(*item);
   _receiverMap.insert(
       std::pair<Uuid, QCustom3DItem *>(receiver->getUuid(), item));
 }
@@ -110,14 +119,17 @@ void Surface::addWell(const std::unique_ptr<Data::SeismWell> &well) {
     std::tie(x, y, z) = point;
     std::cerr << x << " " << y << " " << z << std::endl;
     QVector3D rotateVector = vectorBy2Point(lastPoint, point);
-    QVector3D position(x, y, z);
+    QVector3D position(x, z, y);
     lastPoint = point;
     QCustom3DItem *item = new QCustom3DItem(
         ":/cylinderFilledSmooth.obj", position,
-        QVector3D(0.035f, 0.035f, 0.035f), QQuaternion(), _blackColor);
+        QVector3D(0.005f, 0.005f, 0.005f), QQuaternion(), _blackColor);
     item->setVisible(true);
+    item->setRotation(QQuaternion::fromAxisAndAngle(1.0f, 0.0f, 0.0f, 60.0f));
+    checkAxisRange(*item);
     _surface->addCustomItem(item);
   }
+  std::cerr << _surface->customItems().size();
 }
 
 bool Surface::showEvent(QUuid uid) {
@@ -253,6 +265,27 @@ void Surface::handleElementSelected(QAbstract3DGraph::ElementType type) {
     return;
   }
   _surface->clearSelection();
+}
+
+void Surface::checkAxisRange(QCustom3DItem &newItem) {
+  QVector3D position = newItem.position();
+
+  if (position.x() < _minAxis | position.y() < _minAxis |
+      position.z() < _minAxis) {
+    float minValue =
+        std::min(std::min(position.x(), position.y()), position.z());
+    _minAxis = minValue;
+  }
+
+  if (position.x() > _maxAxis | position.y() > _maxAxis |
+      position.z() > _maxAxis) {
+    float maxValue =
+        std::max(std::max(position.x(), position.y()), position.z());
+    _maxAxis = maxValue;
+  }
+  _surface->axisX()->setRange(_minAxis, _maxAxis);
+  _surface->axisY()->setRange(_minAxis, _maxAxis);
+  _surface->axisZ()->setRange(_minAxis, _maxAxis);
 }
 
 QVector3D Surface::vectorBy2Point(Point pointOne, Point pointTwo) {
