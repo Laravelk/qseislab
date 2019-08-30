@@ -5,7 +5,7 @@
 #include "../../data/seismproject.h"
 #include "../../data/seismwell.h"
 
-#include <iostream>
+#include <iostream> // TODO: delete
 
 typedef Data::SeismEvent SeismEvent;
 typedef Data::SeismHorizon SeismHorizon;
@@ -117,19 +117,20 @@ void Surface::addWell(const std::unique_ptr<Data::SeismWell> &well) {
   for (auto &point : well->getPoints()) {
     float x = 0, y = 0, z = 0;
     std::tie(x, y, z) = point;
-    std::cerr << x << " " << y << " " << z << std::endl;
-    QVector3D rotateVector = vectorBy2Point(lastPoint, point);
+    QVector3D pipeVector = vectorBy2Point(lastPoint, point);
     QVector3D position(x, z, y);
+    std::cerr << pipeVector.x() << " " << pipeVector.y() << " "
+              << pipeVector.z() << std::endl;
     lastPoint = point;
     QCustom3DItem *item = new QCustom3DItem(
         ":/cylinderFilledSmooth.obj", position,
-        QVector3D(0.005f, 0.005f, 0.005f), QQuaternion(), _blackColor);
+        QVector3D(0.009f, 0.009f, 0.009f), QQuaternion(), _blackColor);
+    item->setRotationAxisAndAngle(QVector3D(0.0f, 0.0f, 1.0f), 90.0f);
+    item->setRotationAxisAndAngle(QVector3D(1.0f, 0.0f, 0.0f), 40.0f);
     item->setVisible(true);
-    item->setRotation(QQuaternion::fromAxisAndAngle(1.0f, 0.0f, 0.0f, 60.0f));
     checkAxisRange(*item);
     _surface->addCustomItem(item);
   }
-  std::cerr << _surface->customItems().size();
 }
 
 bool Surface::showEvent(QUuid uid) {
