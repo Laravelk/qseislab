@@ -114,23 +114,25 @@ void Surface::addReceiver(
 
 void Surface::addWell(const std::unique_ptr<Data::SeismWell> &well) {
   Point lastPoint = well->getPoint(0);
+  std::vector<QCustom3DItem *> wellVector;
   for (auto &point : well->getPoints()) {
     float x = 0, y = 0, z = 0;
+    float lx = 0, ly = 0, lz = 0;
     std::tie(x, y, z) = point;
+    std::tie(lx, ly, lz) = lastPoint;
     QVector3D pipeVector = vectorBy2Point(lastPoint, point);
-    QVector3D position(x, z, y);
-    std::cerr << pipeVector.x() << " " << pipeVector.y() << " "
-              << pipeVector.z() << std::endl;
+    QVector3D position(lx + (x - lx) / 2, lz + (z - lz) / 2, ly + (y - ly) / 2);
     lastPoint = point;
     QCustom3DItem *item = new QCustom3DItem(
         ":/cylinderFilledSmooth.obj", position,
-        QVector3D(0.009f, 0.009f, 0.009f), QQuaternion(), _blackColor);
-    item->setRotationAxisAndAngle(QVector3D(0.0f, 0.0f, 1.0f), 90.0f);
-    item->setRotationAxisAndAngle(QVector3D(1.0f, 0.0f, 0.0f), 40.0f);
-    item->setVisible(true);
+        QVector3D(0.012f, 0.020f, 0.012f),
+        QQuaternion::rotationTo(QVector3D(0.0f, 1.0f, 0.0f), pipeVector),
+        _blackColor);
     checkAxisRange(*item);
+    wellVector.push_back(item);
     _surface->addCustomItem(item);
   }
+  _wellMap[well->getUuid()] = wellVector;
 }
 
 bool Surface::showEvent(QUuid uid) {
@@ -205,9 +207,11 @@ bool Surface::removeWell(const std::unique_ptr<Data::SeismWell> &well) {
 }
 
 bool Surface::removeWell(const Uuid uid) {
-  QSurface3DSeries *series = _wellMap[uid];
+  std::vector<QCustom3DItem *> v = _wellMap[uid];
   if (_wellMap.erase(uid)) {
-    _surface->removeSeries(series);
+    for (auto &it : v) {
+      _surface->removeCustomItem(it);
+    }
     return true;
   }
   return false;
@@ -294,7 +298,40 @@ QVector3D Surface::vectorBy2Point(Point pointOne, Point pointTwo) {
   float x2 = 0, y2 = 0, z2 = 0;
   std::tie(x1, y1, z1) = pointOne;
   std::tie(x2, y2, z2) = pointTwo;
-  return QVector3D(x2 - x1, y2 - y1, z2 - z1);
+  return QVector3D(x2 - x1, z2 - z1, y2 - y1);
+}
+
+float Surface::calculateTheAngleX(QVector3D &vector) {
+  QVector3D vectorOX(1.0f, 0.0f, 0.0f);
+  float res = vectorOX.x() * vector.x() + vectorOX.y() + vector.y() +
+              vectorOX.z() * vector.z();
+  float f = sqrt(vector.x() * vector.x() + vector.y() * vector.y() +
+                 vector.z() * vector.z());
+  float h = sqrt(vectorOX.x() * vectorOX.x() + vectorOX.y() * vectorOX.y() +
+                 vectorOX.z() * vectorOX.z());
+  return acos(res / (f * h));
+}
+
+float Surface::calculateTheAngleY(QVector3D &vector) {
+  QVector3D vectorOY(0.0f, 0.0f, 1.0f);
+  float res = vectorOY.x() * vector.x() + vectorOY.y() + vector.y() +
+              vectorOY.z() * vector.z();
+  float f = sqrt(vector.x() * vector.x() + vector.y() * vector.y() +
+                 vector.z() * vector.z());
+  float h = sqrt(vectorOY.x() * vectorOY.x() + vectorOY.y() * vectorOY.y() +
+                 vectorOY.z() * vectorOY.z());
+  return acos(res / (f * h));
+}
+
+float Surface::calculateTheAngleZ(QVector3D &vector) {
+  QVector3D vectorOZ(0.0f, 1.0f, 0.0f);
+  float res = vectorOZ.x() * vector.x() + vectorOZ.y() + vector.y() +
+              vectorOZ.z() * vector.z();
+  float f = sqrt(vector.x() * vector.x() + vector.y() * vector.y() +
+                 vector.z() * vector.z());
+  float h = sqrt(vectorOZ.x() * vectorOZ.x() + vectorOZ.y() * vectorOZ.y() +
+                 vectorOZ.z() * vectorOZ.z());
+  return acos(res / (f * h));
 }
 
 } // namespace Main

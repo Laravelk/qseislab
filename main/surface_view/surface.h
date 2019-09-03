@@ -82,11 +82,14 @@ private:
   void handleElementDoubleClicked(QAbstract3DGraph::ElementType type);
   void checkAxisRange(QCustom3DItem &newItem);
   QVector3D vectorBy2Point(Point pointOne, Point pointTwo);
+  float calculateTheAngleX(QVector3D &vector);
+  float calculateTheAngleY(QVector3D &vector);
+  float calculateTheAngleZ(QVector3D &vector);
 
   std::map<Uuid, QCustom3DItem *> _eventMap;
   std::map<Uuid, QSurface3DSeries *> _horizonMap;
   std::map<Uuid, QCustom3DItem *> _receiverMap;
-  std::map<Uuid, QSurface3DSeries *> _wellMap;
+  std::map<Uuid, std::vector<QCustom3DItem *>> _wellMap;
   std::vector<QSurfaceDataRow *> _rowVector;
   std::vector<Point> _pointVector;
 };
