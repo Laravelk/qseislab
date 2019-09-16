@@ -62,11 +62,11 @@ void GraphicEvent::setWaveArrivalPen(QLineSeries &pWaveArrivalSeries,
 void GraphicEvent::addWaveArrivalSeries(QLineSeries &pWaveArrivalSeries,
                                         QLineSeries &sWaveArrivalSeries,
                                         int index) {
-  pWaveArrivalSeries.append(_pWaveArrival, 0.4 + index);
-  pWaveArrivalSeries.append(_pWaveArrival, -0.4 + index);
+  pWaveArrivalSeries.append(_pWaveArrival, _WAVE_ARRIVAL_RADIUS + index);
+  pWaveArrivalSeries.append(_pWaveArrival, -_WAVE_ARRIVAL_RADIUS + index);
 
-  sWaveArrivalSeries.append(_sWaveArrival, 0.4 + index);
-  sWaveArrivalSeries.append(_sWaveArrival, -0.4 + index);
+  sWaveArrivalSeries.append(_sWaveArrival, _WAVE_ARRIVAL_RADIUS + index);
+  sWaveArrivalSeries.append(_sWaveArrival, -_WAVE_ARRIVAL_RADIUS + index);
 
   _chart->addSeries(&pWaveArrivalSeries);
   _chart->addSeries(&sWaveArrivalSeries);
@@ -91,28 +91,37 @@ void EventOperation::GraphicEvent::addTraceSeries(
     const std::unique_ptr<Data::SeismComponent> &component, int index) {
   for (unsigned j = 0; j < component->getTraces().size(); j++) {
     float tmp = 0, intervalAxisX = 0;
-    _norm = component->getMaxValue() * 1.7;
+    _norm = component->getMaxValue() * _NORMED;
     QLineSeries *series = new QLineSeries;
     series->setUseOpenGL(true);
     SeismTrace *trace = component->getTraces().at(j).get();
     intervalAxisX = trace->getSampleInterval();
     if (j % 3 == 0) {
-      for (int k = 0; k < trace->getBufferSize(); k++) {
-        series->append(tmp, -0.2 + 0.5 * trace->getBuffer()[k] / _norm + index);
+      for (unsigned int k = 0;
+           k < static_cast<unsigned int>(trace->getBufferSize()); k++) {
+        series->append(static_cast<qreal>(tmp),
+                       -_TRACE_OFFSET +
+                           _AMPLITUDE_SCALAR * trace->getBuffer()[k] / _norm +
+                           index);
         tmp += intervalAxisX;
       }
     }
     tmp = 0;
     if (j % 3 == 1) {
       for (int k = 0; k < trace->getBufferSize(); k++) {
-        series->append(tmp, 0.5 * trace->getBuffer()[k] / _norm + index);
+        series->append(static_cast<qreal>(tmp),
+                       _AMPLITUDE_SCALAR * trace->getBuffer()[k] / _norm +
+                           index);
         tmp += intervalAxisX;
       }
     }
     tmp = 0;
     if (j % 3 == 2) {
       for (int k = 0; k < trace->getBufferSize(); k++) {
-        series->append(tmp, 0.2 + 0.5 * trace->getBuffer()[k] / _norm + index);
+        series->append(static_cast<qreal>(tmp),
+                       _TRACE_OFFSET +
+                           _AMPLITUDE_SCALAR * trace->getBuffer()[k] / _norm +
+                           index);
         tmp += intervalAxisX;
       }
     }

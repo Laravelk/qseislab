@@ -4,5 +4,6 @@
   <file>sphereSmooth.obj</file>
   <file>minimalSmooth.obj</file>
   <file>cylinderFilledSmooth.obj</file>
+  <file>test.obj</file>
 </qresource>
 </RCC>
