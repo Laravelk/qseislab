@@ -84,7 +84,7 @@ private:
   void checkAxisRange(QVector3D &position);
   void fillSurfaceDataRow(QSurfaceDataArray *, ulong, ulong);
   QSurface3DSeries *createHorizonSeries(QSurfaceDataArray *);
-  QVector3D vectorBy2Point(Point, Point);
+  QVector3D vectorBy2Point(QVector3D, QVector3D);
   float calculateLenght(QVector3D, QVector3D);
 
   std::map<Uuid, QCustom3DItem *> _events;
@@ -93,5 +93,12 @@ private:
   std::map<Uuid, std::vector<QCustom3DItem *>> _wells;
   std::vector<QSurfaceDataRow *> _rows;
   std::vector<Point> _points;
+
+  const float SCALING_OX = 0.006f;
+  const float SCALING_OY = 0.006f;
+  const float SCALING_SPHERE = 0.0035f;
+  const float SCALING_SMOOTH = 0.0035f;
+  const float DEFAULT_AXIS_MODULE_RANGE = 300;
+  const int FONT_SIZE = 30;
 };
 } // namespace Main

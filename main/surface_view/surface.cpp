@@ -5,8 +5,6 @@
 #include "../../data/seismproject.h"
 #include "../../data/seismwell.h"
 
-#include <iostream> // TODO: delete
-
 typedef Data::SeismEvent SeismEvent;
 typedef Data::SeismHorizon SeismHorizon;
 typedef Data::SeismProject SeismProject;
@@ -26,9 +24,10 @@ void Surface::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
   float x, y, z;
   std::tie(x, y, z) = event->getLocation();
   QVector3D position(x, z, y);
-  QCustom3DItem *item = new QCustom3DItem(":/sphereSmooth.obj", position,
-                                          QVector3D(0.035f, 0.035f, 0.035f),
-                                          QQuaternion(), _blackColor);
+  QCustom3DItem *item = new QCustom3DItem(
+      ":/sphereSmooth.obj", position,
+      QVector3D(SCALING_SPHERE, SCALING_SPHERE, SCALING_SPHERE), QQuaternion(),
+      _blackColor);
   item->setShadowCasting(false);
   item->setVisible(event->isProcessed());
   _surface->addCustomItem(item);
@@ -56,9 +55,10 @@ void Surface::addReceiver(
   float x, y, z;
   std::tie(x, y, z) = receiver->getLocation();
   QVector3D position(x, z, y);
-  QCustom3DItem *item = new QCustom3DItem(":/minimalSmooth.obj", position,
-                                          QVector3D(0.035f, 0.035f, 0.035f),
-                                          QQuaternion(), _redColor);
+  QCustom3DItem *item = new QCustom3DItem(
+      ":/minimalSmooth.obj", position,
+      QVector3D(SCALING_SMOOTH, SCALING_SMOOTH, SCALING_SMOOTH), QQuaternion(),
+      _redColor);
   item->setShadowCasting(false);
   _surface->addCustomItem(item);
   checkAxisRange(*item);
@@ -67,31 +67,29 @@ void Surface::addReceiver(
 }
 
 void Surface::addWell(const std::unique_ptr<Data::SeismWell> &well) {
-  Point lastPoint = well->getPoint(0);
+  Point firstPoint = well->getPoint(1);
+  float x = 0, y = 0, z = 0;
+  float lx = 0, ly = 0, lz = 0;
+  std::tie(lx, ly, lz) = firstPoint;
   std::vector<QCustom3DItem *> wellVector;
+
   for (auto &point : well->getPoints()) {
-    float x = 0, y = 0, z = 0;
-    float lx = 0, ly = 0, lz = 0;
     std::tie(x, y, z) = point;
-    std::tie(lx, ly, lz) = lastPoint;
-    QCustom3DItem *item2 = new QCustom3DItem(
-        ":/sphereSmooth.obj", QVector3D(x, z, y),
-        QVector3D(0.002f, 0.002f, 0.002f), QQuaternion(), _redColor);
-    _surface->addCustomItem(item2);
-    QVector3D pipeVector = vectorBy2Point(lastPoint, point);
-    //    QVector3D position((x + lx) / 2, (z + lz) / 2, (y + ly) / 2);
-    QVector3D position(x, z, y);
+    QVector3D pipeVector =
+        vectorBy2Point(QVector3D(lx, ly, lz), QVector3D(x, y, z));
+    float scaling = calculateLenght(QVector3D(x, y, z), QVector3D(lx, ly, lz)) /
+                    _maxAxisValue;
+    std::tie(lx, ly, lz) = point;
     QCustom3DItem *item = new QCustom3DItem(
-        ":/cylinderFilledSmooth.obj", position,
-        QVector3D(0.004f, 0.005f, 0.004f),
+        ":/cylinderFilledSmooth.obj", QVector3D(x, z, y),
+        QVector3D(SCALING_OX, scaling, SCALING_OY),
         QQuaternion::rotationTo(QVector3D(0.0f, 0.0f, 1.0f), pipeVector),
         _blackColor);
     item->setScalingAbsolute(true);
     item->setVisible(true);
-    checkAxisRange(*item);
-    lastPoint = point;
     wellVector.push_back(item);
     _surface->addCustomItem(item);
+    checkAxisRange(*item);
   }
   _wells[well->getUuid()] = wellVector;
 }
@@ -223,7 +221,7 @@ void Surface::handleElementSelected(QAbstract3DGraph::ElementType type) {
             QString::number(static_cast<double>(item->position().z()), 'g', 3) +
             " Z:" +
             QString::number(static_cast<double>(item->position().y()), 'g', 3),
-        QFont("Century Gothic", 30), positionOfLabel, sizeOfLabel,
+        QFont("Century Gothic", FONT_SIZE), positionOfLabel, sizeOfLabel,
         QQuaternion());
     _label->setFacingCamera(true);
     _surface->addCustomItem(_label);
@@ -251,8 +249,8 @@ void Surface::settingGraph() {
   _surface->axisY()->setAutoAdjustRange(true);
   _surface->axisZ()->setAutoAdjustRange(true);
 
-  _minAxisValue = -100;
-  _maxAxisValue = 100;
+  _minAxisValue = -DEFAULT_AXIS_MODULE_RANGE;
+  _maxAxisValue = DEFAULT_AXIS_MODULE_RANGE;
 
   _surface->axisX()->setRange(_minAxisValue, _maxAxisValue);
   _surface->axisY()->setRange(_minAxisValue, _maxAxisValue);
@@ -315,11 +313,9 @@ QSurface3DSeries *Surface::createHorizonSeries(QSurfaceDataArray *dataArray) {
   return series;
 }
 
-QVector3D Surface::vectorBy2Point(Point from, Point to) {
-  float x1 = 0, y1 = 0, z1 = 0;
-  float x2 = 0, y2 = 0, z2 = 0;
-  std::tie(x1, y1, z1) = from;
-  std::tie(x2, y2, z2) = to;
+QVector3D Surface::vectorBy2Point(QVector3D from, QVector3D to) {
+  float x1 = from.x(), y1 = from.y(), z1 = from.z();
+  float x2 = to.x(), y2 = to.y(), z2 = to.z();
   return QVector3D(x2 - x1, y2 - y1, z2 - z1);
 }
 
