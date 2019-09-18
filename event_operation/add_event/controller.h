@@ -8,7 +8,7 @@
 
 namespace Data {
 class SeismEvent;
-class SeismReceiver;
+class SeismWell;
 } // namespace Data
 
 namespace EventOperation {
@@ -18,7 +18,7 @@ class Controller : public QObject {
   Q_OBJECT
 
 public:
-  explicit Controller(const std::list<std::unique_ptr<Data::SeismReceiver>> &,
+  explicit Controller(const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &,
                       QObject *parent = nullptr);
 
   void start();
@@ -29,7 +29,7 @@ signals:
   void finished() const;
 
 private:
-  const std::list<std::unique_ptr<Data::SeismReceiver>> &_receivers;
+  const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &_wells_map;
 
   Model *_model;
 

@@ -1,5 +1,4 @@
 #include "surface.h"
-
 #include "../../data/seismevent.h"
 #include "../../data/seismhorizon.h"
 #include "../../data/seismproject.h"
@@ -60,6 +59,7 @@ void Surface::addReceiver(
       QVector3D(SCALING_SMOOTH, SCALING_SMOOTH, SCALING_SMOOTH), QQuaternion(),
       _redColor);
   item->setShadowCasting(false);
+  item->setVisible(true);
   _surface->addCustomItem(item);
   checkAxisRange(*item);
   _receivers.insert(
@@ -67,31 +67,29 @@ void Surface::addReceiver(
 }
 
 void Surface::addWell(const std::unique_ptr<Data::SeismWell> &well) {
-  Point firstPoint = well->getPoint(1);
   float x = 0, y = 0, z = 0;
   float lx = 0, ly = 0, lz = 0;
-  std::tie(lx, ly, lz) = firstPoint;
-  std::vector<QCustom3DItem *> wellVector;
-
-  for (auto &point : well->getPoints()) {
-    std::tie(x, y, z) = point;
+  std::tie(lx, ly, lz) = well->getPoint(0);
+  for (auto point = ++begin(well->getPoints()); point != end(well->getPoints());
+       ++point) {
+    std::tie(x, y, z) = *point;
     QVector3D pipeVector =
         vectorBy2Point(QVector3D(lx, ly, lz), QVector3D(x, y, z));
     float scaling = calculateLenght(QVector3D(x, y, z), QVector3D(lx, ly, lz)) /
                     _maxAxisValue;
-    std::tie(lx, ly, lz) = point;
+    std::tie(lx, ly, lz) = *point;
     QCustom3DItem *item = new QCustom3DItem(
-        ":/cylinderFilledSmooth.obj", QVector3D(x, z, y),
+        ":/cylinderFilledSmooth.obj",
+        QVector3D((x + lx) / 2, (z + lz) / 2, (y + ly) / 2),
         QVector3D(SCALING_OX, scaling, SCALING_OY),
         QQuaternion::rotationTo(QVector3D(0.0f, 0.0f, 1.0f), pipeVector),
         _blackColor);
     item->setScalingAbsolute(true);
     item->setVisible(true);
-    wellVector.push_back(item);
+    _wells[well->getUuid()].push_back(item);
     _surface->addCustomItem(item);
     checkAxisRange(*item);
   }
-  _wells[well->getUuid()] = wellVector;
 }
 
 bool Surface::showEvent(QUuid uid) {
@@ -320,9 +318,9 @@ QVector3D Surface::vectorBy2Point(QVector3D from, QVector3D to) {
 }
 
 float Surface::calculateLenght(QVector3D from, QVector3D to) {
-  return sqrt((from.x() - to.x()) * (from.x() - to.x()) +
-              (from.y() - to.y()) * (from.y() - to.y()) +
-              (from.z() - to.z()) * (from.z() - to.z()));
+  return static_cast<float>(sqrt((from.x() - to.x()) * (from.x() - to.x()) +
+                                 (from.y() - to.y()) * (from.y() - to.y()) +
+                                 (from.z() - to.z()) * (from.z() - to.z())));
 }
 
 } // namespace Main

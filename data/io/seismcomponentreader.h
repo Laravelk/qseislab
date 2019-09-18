@@ -8,7 +8,7 @@
 #include <memory>
 
 namespace Data {
-class SesismComponent;
+class SeismTrace;
 namespace IO {
 class SeismComponentReader {
 public:
@@ -16,7 +16,8 @@ public:
 
   bool hasNext() const;
 
-  std::vector<std::pair<uint32_t, std::unique_ptr<float[]>>> &nextData();
+  //  std::vector<std::pair<uint32_t, std::unique_ptr<float[]>>> &nextData();
+  std::unique_ptr<SeismTrace> nextTrace();
 
   ~SeismComponentReader();
 
@@ -24,7 +25,7 @@ private:
   QFile _file;
   QDataStream _instream;
 
-  std::vector<std::pair<uint32_t, std::unique_ptr<float[]>>> _data;
+  //  std::vector<std::pair<uint32_t, std::unique_ptr<float[]>>> _data;
 };
 
 } // namespace IO

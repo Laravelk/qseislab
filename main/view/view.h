@@ -24,8 +24,8 @@ public:
   void updateProjectRemoveEvent(const QUuid &);
   void updateProjectRemoveHorizon(const QUuid &);
 
-  void updateProject(const std::unique_ptr<Data::SeismReceiver> &);
-  void updateProjectRemoveReceiver(const QUuid &);
+  //  void updateProject(const std::unique_ptr<Data::SeismReceiver> &);
+  //  void updateProjectRemoveReceiver(const QUuid &);
 
   void updateProject(const std::unique_ptr<Data::SeismWell> &);
   void updateProjectRemoveWell(const QUuid &);

@@ -8,23 +8,30 @@
 
 #include <memory>
 
+namespace Data {
+class SeismReceiver;
+}
+
 namespace ReceiverOperation {
 class View : public QDialog {
   Q_OBJECT
 
 public:
-  explicit View(QWidget *parent = nullptr);
+  explicit View(const std::map<QUuid, QString> &, QWidget *parent = nullptr);
 
   void addReceiver(const std::unique_ptr<Data::SeismReceiver> &);
   void removeReceiver(const QUuid &);
 
-  void settingReceiverInfo(const std::unique_ptr<Data::SeismReceiver> &);
+  void viewFullInfo(const std::unique_ptr<Data::SeismReceiver> &);
 
-  void changed(bool);
+  const QUuid settingReceiverInfo(const std::unique_ptr<Data::SeismReceiver> &);
+
+  void changed(bool b = true);
 
   void setNotification(const QString &);
 
 signals:
+  void receiverClicked(const QUuid &) const;
   void sendCsvFilePath(const QString &) const;
   void addReceiverClicked() const;
   void removeReceiverClicked(const QUuid) const;
@@ -47,6 +54,7 @@ private:
   QPushButton *_saveButton;
 
   std::unique_ptr<AddReceiverManager> _addReceiverManager;
+  std::map<QUuid, QString> _wellNames_map;
 };
 
 } // namespace ReceiverOperation

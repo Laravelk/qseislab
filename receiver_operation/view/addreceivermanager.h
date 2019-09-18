@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QComboBox>
 #include <QDialog>
 #include <QLineEdit>
 
@@ -14,9 +15,10 @@ class AddReceiverManager : public QDialog {
   Q_OBJECT
 
 public:
-  explicit AddReceiverManager(QWidget *parent = nullptr);
+  explicit AddReceiverManager(const std::map<QUuid, QString> &,
+                              QWidget *parent = nullptr);
 
-  void settingReceiverInfo(const std::unique_ptr<Data::SeismReceiver> &);
+  const QUuid settingReceiverInfo(const std::unique_ptr<Data::SeismReceiver> &);
 
 signals:
   void notify(const QString &);
@@ -26,10 +28,13 @@ private slots:
 
 private:
   QLineEdit *_nameLineEdit;
-  QLineEdit *_channelNumLineEdit;
+  //  QLineEdit *_channelNumLineEdit;
   QLineEdit *_X_LineEdit;
   QLineEdit *_Y_LineEdit;
   QLineEdit *_Z_LineEdit;
+
+  //  QLineEdit *_wellNameEdit;
+  QComboBox *_comboBox;
 };
 
 } // namespace ReceiverOperation

@@ -45,7 +45,7 @@ public:
 
   template <typename T>
   const std::map<QUuid, std::unique_ptr<T>> &getAllMap() const;
-  template <typename T> const std::list<std::unique_ptr<T>> &getAllList() const;
+  template <typename T> void setAllMap(std::map<QUuid, std::unique_ptr<T>> &);
 
   void processEvents();
 
@@ -57,15 +57,10 @@ signals:
   void addedHorizon(const std::unique_ptr<Data::SeismHorizon> &) const;
   void removedHorizon(const QUuid &) const;
 
-  void addedReceiver(const std::unique_ptr<Data::SeismReceiver> &) const;
-  void removedReceiver(const QUuid &) const;
-
   void addedWell(const std::unique_ptr<Data::SeismWell> &) const;
   void removedWell(const QUuid &) const;
 
 private:
-  static const QUuid generateUuid();
-
   bool _isSaved{false};
 
   QString _name;
@@ -75,10 +70,6 @@ private:
   std::map<QUuid, std::unique_ptr<SeismEvent>> _events_map;
   std::map<QUuid, std::unique_ptr<SeismHorizon>> _horizons_map;
   std::map<QUuid, std::unique_ptr<SeismWell>> _wells_map;
-
-  std::list<std::unique_ptr<SeismReceiver>> _receivers;
 };
 
 } // namespace Data
-
-//#include "seismproject_impl.h"

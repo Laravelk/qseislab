@@ -7,30 +7,30 @@
 #include <memory>
 
 namespace Data {
-class SeismProject;
-class SeismReceiver;
+class SeismWell;
 } // namespace Data
 
 namespace ReceiverOperation {
+class Model;
 class Controller : public QObject {
   Q_OBJECT
 
 public:
-  explicit Controller(QObject *parent = nullptr);
+  explicit Controller(const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &,
+                      QObject *parent = nullptr);
 
-  void viewReceivers(const std::unique_ptr<Data::SeismProject> &);
+  void viewReceivers();
   void finish(int);
 
 signals:
-  void sendReceiver(std::unique_ptr<Data::SeismReceiver> &) const;
-  void sendRemovedReceiver(const QUuid &) const;
   void finished() const;
+  void sendWells(std::map<QUuid, std::unique_ptr<Data::SeismWell>> &);
 
 private:
+  Model *_model;
   std::unique_ptr<View> _view;
 
-  std::vector<std::unique_ptr<Data::SeismReceiver>> _newReceivers;
-  std::vector<QUuid> _removedReceivers;
+  std::map<QUuid, std::unique_ptr<Data::SeismWell>> _wells_map;
 };
 
 } // namespace ReceiverOperation

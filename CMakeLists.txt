@@ -26,6 +26,7 @@ set(SOURCES
         event_operation/add_event/controller.cpp
         event_operation/add_event/model.cpp
         event_operation/add_event/view/filemanager.cpp
+        event_operation/add_event/view/wellmanager.cpp
         event_operation/add_event/view/view.cpp
 
         event_operation/view_event/controller.cpp
@@ -46,7 +47,9 @@ set(SOURCES
 
         receiver_operation/controller.cpp
         receiver_operation/model.cpp
+        receiver_operation/CSVparser.cpp
         receiver_operation/view/view.cpp
+        receiver_operation/view/inforeceiver.cpp
         receiver_operation/view/addreceivermanager.cpp
 
 
@@ -78,6 +81,7 @@ set(SOURCES
         main/view/startpage.cpp
         main/view/workpage.cpp
         main/view/infoproject.cpp
+        main/view/tableassistant.cpp
         main/surface_view/surface.cpp
 
         project_operation/new_project/controller.cpp
@@ -99,6 +103,7 @@ set(HEADERS
         event_operation/add_event/controller.h
         event_operation/add_event/model.h
         event_operation/add_event/view/filemanager.h
+        event_operation/add_event/view/wellmanager.h
         event_operation/add_event/view/view.h
 
         event_operation/view_event/controller.h
@@ -118,7 +123,9 @@ set(HEADERS
 
         receiver_operation/controller.h
         receiver_operation/model.h
+        receiver_operation/CSVparser.hpp
         receiver_operation/view/view.h
+        receiver_operation/view/inforeceiver.h
         receiver_operation/view/addreceivermanager.h
 
 
@@ -151,6 +158,7 @@ set(HEADERS
         main/view/startpage.h
         main/view/workpage.h
         main/view/infoproject.h
+        main/view/tableassistant.h
         main/surface_view/surface.h
 
         project_operation/new_project/controller.h
@@ -173,5 +181,3 @@ add_executable(qseislab ${SOURCES} ${HEADERS} resources/resources.qrc)
 qt5_use_modules(qseislab ${_Q_MODULES})
 
 target_link_libraries(qseislab segyio::segyio)
-
-#target_link_libraries(qseislab csv-parser)

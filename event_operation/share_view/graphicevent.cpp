@@ -15,7 +15,7 @@ GraphicEvent::GraphicEvent(QWidget *parent)
   _view = new ChartView(_chart);
   _chart->setAnimationOptions(QChart::NoAnimation);
   _chart->legend()->hide();
-  _chart->setMinimumSize(750, 500);
+  _chart->setMinimumSize(WINDOW_WIDHT, WINDOW_HEIGHT);
   _chart->addAxis(_axisX, Qt::AlignBottom);
   _chart->addAxis(_axisY, Qt::AlignLeft);
   _view->hide();
@@ -62,11 +62,11 @@ void GraphicEvent::setWaveArrivalPen(QLineSeries &pWaveArrivalSeries,
 void GraphicEvent::addWaveArrivalSeries(QLineSeries &pWaveArrivalSeries,
                                         QLineSeries &sWaveArrivalSeries,
                                         int index) {
-  pWaveArrivalSeries.append(_pWaveArrival, _WAVE_ARRIVAL_RADIUS + index);
-  pWaveArrivalSeries.append(_pWaveArrival, -_WAVE_ARRIVAL_RADIUS + index);
+  pWaveArrivalSeries.append(_pWaveArrival, WAVE_ARRIVAL_RADIUS + index);
+  pWaveArrivalSeries.append(_pWaveArrival, -WAVE_ARRIVAL_RADIUS + index);
 
-  sWaveArrivalSeries.append(_sWaveArrival, _WAVE_ARRIVAL_RADIUS + index);
-  sWaveArrivalSeries.append(_sWaveArrival, -_WAVE_ARRIVAL_RADIUS + index);
+  sWaveArrivalSeries.append(_sWaveArrival, WAVE_ARRIVAL_RADIUS + index);
+  sWaveArrivalSeries.append(_sWaveArrival, -WAVE_ARRIVAL_RADIUS + index);
 
   _chart->addSeries(&pWaveArrivalSeries);
   _chart->addSeries(&sWaveArrivalSeries);
@@ -89,43 +89,21 @@ void GraphicEvent::setInterval(const std::unique_ptr<SeismEvent> &event) {
 
 void EventOperation::GraphicEvent::addTraceSeries(
     const std::unique_ptr<Data::SeismComponent> &component, int index) {
-  for (unsigned j = 0; j < component->getTraces().size(); j++) {
-    float tmp = 0, intervalAxisX = 0;
-    _norm = component->getMaxValue() * _NORMED;
+  const float intervalAxisX = component->getSampleInterval();
+  int idx = -1;
+  for (unsigned j = 0; j < component->getTraces().size(); ++j, ++idx) {
+    _norm = component->getMaxValue() * NORMED;
     QLineSeries *series = new QLineSeries;
     series->setUseOpenGL(true);
     SeismTrace *trace = component->getTraces().at(j).get();
-    intervalAxisX = trace->getSampleInterval();
-    if (j % 3 == 0) {
-      for (unsigned int k = 0;
-           k < static_cast<unsigned int>(trace->getBufferSize()); k++) {
-        series->append(static_cast<qreal>(tmp),
-                       -_TRACE_OFFSET +
-                           _AMPLITUDE_SCALAR * trace->getBuffer()[k] / _norm +
-                           index);
-        tmp += intervalAxisX;
-      }
+    float tmp = 0;
+    for (int k = 0; k < trace->getBufferSize(); k++) {
+      series->append(static_cast<qreal>(tmp),
+                     TRACE_OFFSET * (idx) +
+                         AMPLITUDE_SCALAR * trace->getBuffer()[k] / _norm +
+                         index);
+      tmp += intervalAxisX;
     }
-    tmp = 0;
-    if (j % 3 == 1) {
-      for (int k = 0; k < trace->getBufferSize(); k++) {
-        series->append(static_cast<qreal>(tmp),
-                       _AMPLITUDE_SCALAR * trace->getBuffer()[k] / _norm +
-                           index);
-        tmp += intervalAxisX;
-      }
-    }
-    tmp = 0;
-    if (j % 3 == 2) {
-      for (int k = 0; k < trace->getBufferSize(); k++) {
-        series->append(static_cast<qreal>(tmp),
-                       _TRACE_OFFSET +
-                           _AMPLITUDE_SCALAR * trace->getBuffer()[k] / _norm +
-                           index);
-        tmp += intervalAxisX;
-      }
-    }
-
     _chart->addSeries(series);
     series->attachAxis(_axisX);
     series->attachAxis(_axisY);

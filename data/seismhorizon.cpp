@@ -9,9 +9,10 @@ typedef Data::IO::PointWriter PointWriter;
 namespace Data {
 const QString SeismHorizon::_default_path = "data/horizons/";
 
-SeismHorizon::SeismHorizon() {}
+SeismHorizon::SeismHorizon() : _uuid(QUuid::createUuid()) {}
 
-SeismHorizon::SeismHorizon(const QJsonObject &json, const QDir &dir) {
+SeismHorizon::SeismHorizon(const QJsonObject &json, const QDir &dir)
+    : _uuid(QUuid::createUuid()) {
   std::string err_msg;
 
   if (json.contains("name")) {
@@ -78,6 +79,14 @@ SeismHorizon::SeismHorizon(const QJsonObject &json, const QDir &dir) {
   }
 }
 
+SeismHorizon::SeismHorizon(const SeismHorizon &other)
+    : _uuid(other._uuid), _path(other._path), _name(other._name),
+      _Nx(other._Nx), _Ny(other._Ny), _points(other._points) {}
+
+// void SeismHorizon::setUuid(const QUuid &uuid) { _uuid = uuid; }
+
+const QUuid &SeismHorizon::getUuid() const { return _uuid; }
+
 void SeismHorizon::setName(const QString &name) { _name = name; }
 
 const QString &SeismHorizon::getName() const { return _name; }
@@ -86,7 +95,7 @@ int SeismHorizon::getPointsNumber() const {
   return static_cast<int>(_points.size());
 }
 
-void SeismHorizon::addPoint(const Point &point) { _points.push_back(point); }
+void SeismHorizon::addPoint(Point point) { _points.push_back(point); }
 
 const Point &SeismHorizon::getPoint(int idx) {
   assert(0 <= idx && idx < getPointsNumber());
@@ -95,10 +104,6 @@ const Point &SeismHorizon::getPoint(int idx) {
 }
 
 const std::vector<Point> &SeismHorizon::getPoints() { return _points; }
-
-void SeismHorizon::setUuid(const QUuid &uuid) { _uuid = uuid; }
-
-const QUuid &SeismHorizon::getUuid() const { return _uuid; }
 
 void SeismHorizon::setNx(int Nx) { _Nx = Nx; }
 

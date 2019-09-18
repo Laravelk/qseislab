@@ -2,6 +2,7 @@
 
 #include "data/seismproject.h"
 
+#include "tableassistant.h" // TODO: definition-class
 #include <QFrame>
 #include <QTableWidget>
 #include <QtDataVisualization>
@@ -29,9 +30,6 @@ public:
   void updateProject(const std::unique_ptr<Data::SeismHorizon> &);
   void updateProjectRemoveHorizon(const QUuid &);
 
-  void updateProject(const std::unique_ptr<Data::SeismReceiver> &);
-  void updateProjectRemoveReceiver(const QUuid &);
-
   void updateProject(const std::unique_ptr<Data::SeismWell> &);
   void updateProjectRemoveWell(const QUuid &);
 
@@ -40,17 +38,18 @@ signals:
   void removeEventClicked(const QUuid) const;
 
 private slots:
-  void handleEventClicked(int, int);
+  //  void handleEventClicked(int, int);
 
 private:
-  void clearTable();
-  void initEventsTable(QTableWidget *);
+  //  void clearTable();
+  //  void initEventsTable(QTableWidget *);
 
-  void insertEventInTable(const std::unique_ptr<Data::SeismEvent> &);
-  void removeEventInTable(const QUuid &);
+  //  void insertEventInTable(const std::unique_ptr<Data::SeismEvent> &);
+  //  void removeEventInTable(const QUuid &);
 
   InfoProject *_infoProject;
-  QTableWidget *_eventsTable;
+  TableAssistant *_eventsTable;
+  //  QTableWidget *_eventsTable;
   Surface *_surface;
   Q3DSurface *_graph;
 };

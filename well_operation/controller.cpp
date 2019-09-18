@@ -1,11 +1,9 @@
 #include "controller.h"
 
-#include "data/seismproject.h"
 #include "data/seismwell.h"
 #include "model.h"
 
 typedef Data::SeismWell SeismWell;
-typedef Data::SeismProject SeismProject;
 
 namespace WellOperation {
 Controller::Controller(QObject *parent)
@@ -19,13 +17,14 @@ Controller::Controller(QObject *parent)
     _view->settingWellInfo(_tmpWell);
     _view->addWell(_tmpWell);
     _view->changed(true);
-    _newWells.push_back(std::move(_tmpWell));
+    _wells[_tmpWell->getUuid()] = std::move(_tmpWell);
+    ;
   });
 
   connect(_view.get(), &View::removeWellClicked, [this](auto uuid) {
     _view->removeWell(uuid);
     _view->changed(true);
-    _removedWells.push_back(uuid);
+    _wells.erase(uuid);
   });
 
   connect(_view.get(), &View::sendFilePath, [this](auto path) {
@@ -40,9 +39,11 @@ Controller::Controller(QObject *parent)
   connect(_view.get(), &View::finished, this, &Controller::finish);
 }
 
-void Controller::viewWells(const std::unique_ptr<SeismProject> &project) {
-  for (auto &itr : project->getAllMap<SeismWell>()) {
-    _view->addWell(itr.second);
+void Controller::viewWells(
+    const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &wells_map) {
+  for (auto &pair : wells_map) {
+    _wells[pair.first] = std::make_unique<Data::SeismWell>(*(pair.second));
+    _view->addWell(_wells[pair.first]);
   }
 
   _view->setModal(true);
@@ -51,12 +52,7 @@ void Controller::viewWells(const std::unique_ptr<SeismProject> &project) {
 
 void Controller::finish(int result) {
   if (QDialog::Accepted == result) {
-    for (auto &removedWell : _removedWells) {
-      emit sendRemovedWell(removedWell);
-    }
-    for (auto &well : _newWells) {
-      emit sendWell(well);
-    }
+    emit sendWells(_wells);
   }
 
   emit finished();

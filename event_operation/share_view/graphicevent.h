@@ -27,16 +27,15 @@ public:
   void clear();
 
 private:
+  float _norm;
+  float _interval;
   int _pWaveArrival;
   int _sWaveArrival;
-  float _interval;
-  float _norm;
   ChartView *_view;
   Chart *_chart;
   QValueAxis *_axisX = new QValueAxis;
   QValueAxis *_axisY = new QValueAxis;
 
-private:
   void setWaveArrivalPen(QLineSeries &pWaveArrivalSeries,
                          QLineSeries &sWaveArrivalSeries);
   void addWaveArrivalSeries(QLineSeries &pWaveArrivalSeries,
@@ -47,10 +46,12 @@ private:
   void setAxesY(int componentNumber);
 
 private:
-  const qreal _AMPLITUDE_SCALAR = 0.5;
-  const qreal _TRACE_OFFSET = 0.15;
-  const qreal _WAVE_ARRIVAL_RADIUS = 0.4;
-  const float _NORMED = 1.7f;
+  const qreal AMPLITUDE_SCALAR = 0.5;
+  const qreal TRACE_OFFSET = 0.15;
+  const qreal WAVE_ARRIVAL_RADIUS = 0.4;
+  const float NORMED = 1.7f;
+  const int WINDOW_WIDHT = 750;
+  const int WINDOW_HEIGHT = 500;
 };
 
 } // namespace EventOperation

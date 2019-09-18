@@ -7,6 +7,10 @@ StartPage::StartPage(QWidget *parent)
     : QFrame(parent), _buttonNewProject(new QPushButton("New Project", this)),
       _buttonOpenproject(new QPushButton("Open Project", this)) {
 
+  // Setting`s
+  setMinimumSize(700, 400); // TODO: remove
+  // Setting`s end
+
   // Connecting
   connect(_buttonNewProject, &QPushButton::clicked,
           [this] { emit newProjectClicked(); });
@@ -15,13 +19,20 @@ StartPage::StartPage(QWidget *parent)
   // Connecting end
 
   // Layout`s
-  QVBoxLayout *layout = new QVBoxLayout();
-  layout->addStretch(1);
-  layout->addWidget(_buttonNewProject);
-  layout->addWidget(_buttonOpenproject);
-  layout->addStretch(1);
+  QVBoxLayout *buttonLayuot = new QVBoxLayout();
+  buttonLayuot->addWidget(_buttonNewProject);
+  buttonLayuot->addWidget(_buttonOpenproject);
+  //  buttonLayuot->addStretch(1);
 
-  setLayout(layout);
+  QVBoxLayout *leftLayout = new QVBoxLayout();
+  leftLayout->addLayout(buttonLayuot);
+  leftLayout->addStretch(1);
+
+  QHBoxLayout *mainLayout = new QHBoxLayout();
+  mainLayout->addLayout(leftLayout);
+  mainLayout->addStretch(1);
+
+  setLayout(mainLayout);
   // Layout`s end
 }
 

@@ -1,6 +1,7 @@
 #include "segyreader.h"
 
 #include "data/seismcomponent.h"
+#include "data/seismreceiver.h"
 
 #include <memory>
 
@@ -59,7 +60,7 @@ SegyReader::nextComponent(const std::unique_ptr<SeismReceiver> &receiver) {
                                         // размер данных из библиотеки
 
   std::unique_ptr<SeismComponent> component =
-      std::make_unique<SeismComponent>(receiver);
+      std::make_unique<SeismComponent>(receiver->getUuid());
   int p_wave_arrivel = 0;
   int s_wave_arrivel = 0;
 
@@ -99,7 +100,7 @@ SegyReader::nextComponent(const std::unique_ptr<SeismReceiver> &receiver) {
           "Fields do not match in the component (s_wave_arrivel)");
     }
 
-    float buffer[buffer_size];
+    float *buffer = new float[buffer_size];
     err = segy_readtrace(_fp, _alreadyRead, buffer, _trace0, _trace_bsize);
     if (SEGY_OK != err) {
       throw std::runtime_error("segy_readtrace()");
@@ -108,14 +109,15 @@ SegyReader::nextComponent(const std::unique_ptr<SeismReceiver> &receiver) {
 
     std::unique_ptr<SeismTrace> trace = std::make_unique<SeismTrace>();
     trace = std::make_unique<SeismTrace>();
-    trace->setSampleInterval(_sam_intr);
     trace->setBuffer(buffer_size, buffer);
+    delete[] buffer;
 
     component->addTrace(std::move(trace));
 
     ++_alreadyRead;
   }
 
+  component->setSampleInterval(_sam_intr);
   component->setPWaveArrival(p_wave_arrivel);
   component->setSWaveArrival(s_wave_arrivel);
 

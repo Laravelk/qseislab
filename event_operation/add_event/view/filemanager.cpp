@@ -24,6 +24,7 @@ FileManager::FileManager(QWidget *parent)
 
   connect(_browseButton, &QPushButton::clicked, [this] {
     _fileDialog->open(this, SLOT(recvFilePath(const QString &)));
+    _browseButton->setDisabled(true);
   });
 
   QHBoxLayout *layout = new QHBoxLayout();

@@ -34,7 +34,7 @@ private:
   QLabel *_timeLabel;
   QLabel *_eventsNumber;
   QLabel *_horizonsNumber;
-  QLabel *_receiversNumber;
+  //  QLabel *_receiversNumber;
   QLabel *_wellsNumber;
 };
 

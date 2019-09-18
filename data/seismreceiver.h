@@ -1,7 +1,7 @@
 #pragma once
 
 #include "data/seism_data_type.h"
-#include "seismchannelReceiver.h"
+#include "seismchannelreceiver.h"
 
 #include <QJsonObject>
 #include <QUuid>
@@ -15,14 +15,16 @@ public:
   explicit SeismReceiver();
   explicit SeismReceiver(const QJsonObject &) noexcept(false);
 
-  void setUuid(const QUuid &);
+  explicit SeismReceiver(const SeismReceiver &);
+
+  //  void setUuid(const QUuid &);
   const QUuid &getUuid() const;
 
   void setName(const QString &);
   const QString &getName() const;
 
-  void setWellNum(int);
-  int getWellNum() const;
+  void setReceiverNum(int);
+  int getReceiverNum() const;
 
   void setLocation(const Point &);
   const Point &getLocation() const;
@@ -48,6 +50,9 @@ public:
   void setHighFreq(int);
   int getHighFreq() const;
 
+  void setWellReceiverNum(int);
+  int getWellReceiverNum() const;
+
   int getChannelNum() const;
   void addChannel(std::unique_ptr<Data::SeismChannelReceiver>);
   const std::vector<std::unique_ptr<Data::SeismChannelReceiver>> &
@@ -59,7 +64,7 @@ private:
   QUuid _uuid;
 
   QString _name;
-  int _wellNum{-1};
+  int _receiverNum;
   Point _location{0, 0, 0};
   bool _on{false};
   int _type;
@@ -68,7 +73,7 @@ private:
   int _vMax;
   int _lowFreq;
   int _highFreq;
-
+  int _wellReceiverNum;
   std::vector<std::unique_ptr<Data::SeismChannelReceiver>> _channels;
 };
 

@@ -7,7 +7,6 @@
 #include <memory>
 
 namespace Data {
-class SeismProject;
 class SeismWell;
 } // namespace Data
 
@@ -19,12 +18,12 @@ class Controller : public QObject {
 public:
   explicit Controller(QObject *parent = nullptr);
 
-  void viewWells(const std::unique_ptr<Data::SeismProject> &);
+  void viewWells(const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &);
+
   void finish(int);
 
 signals:
-  void sendWell(std::unique_ptr<Data::SeismWell> &) const;
-  void sendRemovedWell(const QUuid &) const;
+  void sendWells(std::map<QUuid, std::unique_ptr<Data::SeismWell>> &);
   void finished() const;
 
 private:
@@ -32,9 +31,7 @@ private:
   std::unique_ptr<View> _view;
 
   std::unique_ptr<Data::SeismWell> _tmpWell;
-
-  std::vector<std::unique_ptr<Data::SeismWell>> _newWells;
-  std::vector<QUuid> _removedWells;
+  std::map<QUuid, std::unique_ptr<Data::SeismWell>> _wells;
 };
 
 } // namespace WellOperation

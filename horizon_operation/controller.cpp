@@ -1,11 +1,11 @@
 #include "controller.h"
 
 #include "data/seismhorizon.h"
-#include "data/seismproject.h"
+//#include "data/seismproject.h"
 #include "model.h"
 
 typedef Data::SeismHorizon SeismHorizon;
-typedef Data::SeismProject SeismProject;
+// typedef Data::SeismProject SeismProject;
 
 namespace HorizonOperation {
 Controller::Controller(QObject *parent)
@@ -19,13 +19,15 @@ Controller::Controller(QObject *parent)
     _view->settingHorizonInfo(_tmpHorizon);
     _view->addHorizon(_tmpHorizon);
     _view->changed(true);
-    _newHorizons.push_back(std::move(_tmpHorizon));
+    _horizons[_tmpHorizon->getUuid()] = std::move(_tmpHorizon);
+    //    _newHorizons.push_back(std::move(_tmpHorizon));
   });
 
   connect(_view.get(), &View::removeHorizonClicked, [this](auto uuid) {
     _view->removeHorizon(uuid);
     _view->changed(true);
-    _removedHorizons.push_back(uuid);
+    //    _removedHorizons.push_back(uuid);
+    _horizons.erase(uuid);
   });
 
   connect(_view.get(), &View::sendFilePath, [this](auto path) {
@@ -40,23 +42,37 @@ Controller::Controller(QObject *parent)
   connect(_view.get(), &View::finished, this, &Controller::finish);
 }
 
-void Controller::viewHorizons(const std::unique_ptr<SeismProject> &project) {
-  for (auto &itr : project->getAllMap<SeismHorizon>()) {
-    _view->addHorizon(itr.second);
+void Controller::viewHorizons(
+    const std::map<QUuid, std::unique_ptr<SeismHorizon>> &horizons_map) {
+
+  for (auto &pair : horizons_map) {
+    _horizons[pair.first] = std::make_unique<SeismHorizon>(*(pair.second));
+    _view->addHorizon(_horizons[pair.first]);
   }
 
   _view->setModal(true);
   _view->show();
 }
 
+// void Controller::viewHorizons(const std::unique_ptr<SeismProject> &project) {
+//  for (auto &itr : project->getAllMap<SeismHorizon>()) {
+//    _view->addHorizon(itr.second);
+//  }
+
+//  _view->setModal(true);
+//  _view->show();
+//}
+
 void Controller::finish(int result) {
   if (QDialog::Accepted == result) {
-    for (auto &removedHorizon : _removedHorizons) {
-      emit sendRemovedHorizon(removedHorizon);
-    }
-    for (auto &horizon : _newHorizons) {
-      emit sendHorizon(horizon);
-    }
+    //    for (auto &removedHorizon : _removedHorizons) {
+    //      emit sendRemovedHorizon(removedHorizon);
+    //    }
+    //    for (auto &horizon : _newHorizons) {
+    //      emit sendHorizon(horizon);
+    //    }
+
+    emit sendHorizons(_horizons);
   }
 
   emit finished();

@@ -3,15 +3,82 @@
 #include <QJsonArray>
 
 namespace Data {
-SeismComponent::SeismComponent(const std::unique_ptr<SeismReceiver> &receiver)
-    : _receiver(receiver) {}
-
 SeismComponent::SeismComponent(
-    const QJsonObject &json, const std::unique_ptr<SeismReceiver> &receiver,
-    std::vector<std::pair<uint32_t, std::unique_ptr<float[]>>> &data)
-    : _receiver(receiver) {
+    /*const QUuid &wellUuid, */ const QUuid &receiverUuid)
+    : //    _wellUuid(wellUuid),
+      _receiverUuid(receiverUuid) {}
+
+// SeismComponent::SeismComponent(
+//    const QJsonObject &json,
+//    std::vector<std::pair<uint32_t, std::unique_ptr<float[]>>> &data) {
+
+//  std::string err_msg;
+
+//  if (json.contains("pWaveArrival")) {
+//    _pWaveArrival = json["pWaveArrival"].toInt();
+//  } else {
+//    err_msg += "::pWaveArrival : not found\n";
+//  }
+
+//  if (json.contains("sWaveArrival")) {
+//    _sWaveArrival = json["sWaveArrival"].toInt();
+//  } else {
+//    err_msg += "::sWaveArrival : not found\n";
+//  }
+
+//  if (json.contains("Traces")) {
+//    QJsonArray tracesArray(json["Traces"].toArray());
+
+//    if (static_cast<int>(data.size()) == tracesArray.count()) {
+//      unsigned idx = 0;
+//      for (auto objTrace : tracesArray) {
+//        try {
+//          auto seismTrace =
+//              std::make_unique<SeismTrace>(objTrace.toObject(), data[idx]);
+//          _traces.push_back(std::move(seismTrace));
+//        } catch (std::runtime_error &err) {
+//          err_msg += "Trace (idx: " + std::to_string(idx) + ")\n";
+//          err_msg += err.what();
+//        }
+//        ++idx;
+//      }
+//    } else {
+//      err_msg += "::data : traces-size in json-file doesn`t match traces-size
+//      "
+//                 "in bin-file\n";
+//    }
+//  } else {
+//    err_msg += "::Traces : not found\n";
+//  }
+
+//  if (!err_msg.empty()) {
+//    err_msg += "\n";
+//    throw std::runtime_error(err_msg);
+//  }
+
+//  for (unsigned i = 0; i < _traces.size(); ++i) {
+//    float traceMaxValue = (_traces[i])->getMaxValue();
+//    if (traceMaxValue > _maxValue) {
+//      _maxValue = traceMaxValue;
+//    }
+//  }
+//}
+
+SeismComponent::SeismComponent(const QJsonObject &json) {
 
   std::string err_msg;
+
+  //  if (json.contains("wellUuid")) {
+  //    _wellUuid = json["wellUuid"].toString();
+  //  } else {
+  //    err_msg += "::wellUuid : not found\n";
+  //  }
+
+  if (json.contains("receiverUuid")) {
+    _receiverUuid = json["receiverUuid"].toString();
+  } else {
+    err_msg += "::receiverUuid : not found\n";
+  }
 
   if (json.contains("pWaveArrival")) {
     _pWaveArrival = json["pWaveArrival"].toInt();
@@ -25,41 +92,61 @@ SeismComponent::SeismComponent(
     err_msg += "::sWaveArrival : not found\n";
   }
 
-  if (json.contains("Traces")) {
-    QJsonArray tracesArray(json["Traces"].toArray());
+  //  if (json.contains("Traces")) {
+  //    QJsonArray tracesArray(json["Traces"].toArray());
 
-    if (static_cast<int>(data.size()) == tracesArray.count()) {
-      unsigned idx = 0;
-      for (auto objTrace : tracesArray) {
-        try {
-          auto seismTrace =
-              std::make_unique<SeismTrace>(objTrace.toObject(), data[idx]);
-          _traces.push_back(std::move(seismTrace));
-        } catch (std::runtime_error &err) {
-          err_msg += "Trace (idx: " + std::to_string(idx) + ")\n";
-          err_msg += err.what();
-        }
-        ++idx;
-      }
-    } else {
-      err_msg += "::data : traces-size in json-file doesn`t match traces-size "
-                 "in bin-file\n";
-    }
-  } else {
-    err_msg += "::Traces : not found\n";
-  }
+  //    if (static_cast<int>(data.size()) == tracesArray.count()) {
+  //      unsigned idx = 0;
+  //      for (auto objTrace : tracesArray) {
+  //        try {
+  //          auto seismTrace =
+  //              std::make_unique<SeismTrace>(objTrace.toObject(), data[idx]);
+  //          _traces.push_back(std::move(seismTrace));
+  //        } catch (std::runtime_error &err) {
+  //          err_msg += "Trace (idx: " + std::to_string(idx) + ")\n";
+  //          err_msg += err.what();
+  //        }
+  //        ++idx;
+  //      }
+  //    } else {
+  //      err_msg += "::data : traces-size in json-file doesn`t match
+  //      traces-size "
+  //                 "in bin-file\n";
+  //    }
+  //  } else {
+  //    err_msg += "::Traces : not found\n";
+  //  }
 
   if (!err_msg.empty()) {
     err_msg += "\n";
     throw std::runtime_error(err_msg);
   }
 
-  for (unsigned i = 0; i < _traces.size(); ++i) {
-    float traceMaxValue = (_traces[i])->getMaxValue();
-    if (traceMaxValue > _maxValue) {
-      _maxValue = traceMaxValue;
-    }
+  //  for (unsigned i = 0; i < _traces.size(); ++i) {
+  //    float traceMaxValue = (_traces[i])->getMaxValue();
+  //    if (traceMaxValue > _maxValue) {
+  //      _maxValue = traceMaxValue;
+  //    }
+  //  }
+}
+
+SeismComponent::SeismComponent(const SeismComponent &other)
+    : //    _wellUuid(other._wellUuid),
+      _receiverUuid(other._receiverUuid), _pWaveArrival(other._pWaveArrival),
+      _sWaveArrival(other._sWaveArrival), _maxValue(other._maxValue) {
+  for (auto &trace : other._traces) {
+    _traces.push_back(std::make_unique<SeismTrace>(*trace));
   }
+}
+
+// const QUuid &SeismComponent::getWellUuid() const { return _wellUuid; }
+
+const QUuid &SeismComponent::getReceiverUuid() const { return _receiverUuid; }
+
+float SeismComponent::getSampleInterval() const { return _sampleInterval; }
+
+void SeismComponent::setSampleInterval(float sampleInterval) {
+  _sampleInterval = sampleInterval;
 }
 
 int SeismComponent::getPWaveArrival() const { return _pWaveArrival; }
@@ -76,9 +163,9 @@ void SeismComponent::setSWaveArrival(int sWaveArrival) {
 
 float SeismComponent::getMaxValue() const { return _maxValue; }
 
-const std::unique_ptr<SeismReceiver> &SeismComponent::getReceiver() const {
-  return _receiver;
-}
+// const std::unique_ptr<SeismReceiver> &SeismComponent::getReceiver() const {
+//  return _receiver;
+//}
 
 // const Point &SeismComponent::getOrientation() const {
 //  //  return _receiver->getOrientation();
@@ -102,6 +189,8 @@ SeismComponent::getTraces() const {
 }
 
 QJsonObject &SeismComponent::writeToJson(QJsonObject &json) const {
+  json["receiverUuid"] = _receiverUuid.toString();
+  //  json["wellUuid"] = _wellUuid.toString();
   json["pWaveArrival"] = _pWaveArrival;
   json["sWaveArrival"] = _sWaveArrival;
 

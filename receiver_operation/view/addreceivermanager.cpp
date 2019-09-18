@@ -7,14 +7,21 @@
 
 namespace ReceiverOperation {
 
-AddReceiverManager::AddReceiverManager(QWidget *parent)
+AddReceiverManager::AddReceiverManager(
+    const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
-      _nameLineEdit(new QLineEdit()), _channelNumLineEdit(new QLineEdit()),
+      _nameLineEdit(new QLineEdit()),
+      //    _channelNumLineEdit(new QLineEdit()),
       _X_LineEdit(new QLineEdit()), _Y_LineEdit(new QLineEdit()),
-      _Z_LineEdit(new QLineEdit()) {
+      _Z_LineEdit(new QLineEdit()), _comboBox(new QComboBox()) {
 
   // Setting`s
   setWindowTitle("Add Receiver");
+
+  _comboBox->addItem("Select a well name...");
+  for (auto &uuid_name : wellNames_map) {
+    _comboBox->addItem(uuid_name.second, uuid_name.first);
+  }
 
   QPushButton *addButton = new QPushButton("Add");
 
@@ -36,13 +43,14 @@ AddReceiverManager::AddReceiverManager(QWidget *parent)
 
   QFormLayout *formLayout = new QFormLayout();
   formLayout->addRow("Name: ", _nameLineEdit);
-  formLayout->addRow("Channel Num: ", _channelNumLineEdit);
+  //  formLayout->addRow("Channel Num: ", _channelNumLineEdit);
   formLayout->addRow("X: ", _X_LineEdit);
   formLayout->addRow("Y: ", _Y_LineEdit);
   formLayout->addRow("Z: ", _Z_LineEdit);
 
   QVBoxLayout *mainLayout = new QVBoxLayout();
   mainLayout->addLayout(formLayout);
+  mainLayout->addWidget(_comboBox);
   mainLayout->addStretch(1);
   mainLayout->addLayout(buttonLayout);
 
@@ -50,13 +58,15 @@ AddReceiverManager::AddReceiverManager(QWidget *parent)
   // Layout`s end
 }
 
-void AddReceiverManager::settingReceiverInfo(
+const QUuid AddReceiverManager::settingReceiverInfo(
     const std::unique_ptr<Data::SeismReceiver> &receiver) {
   receiver->setName(_nameLineEdit->text());
   //  receiver->setChannelNum(_channelNumLineEdit->text().toInt());
   receiver->setLocation({_X_LineEdit->text().toFloat(),
                          _Y_LineEdit->text().toFloat(),
                          _Z_LineEdit->text().toFloat()});
+
+  return _comboBox->currentData().toUuid();
 }
 
 void AddReceiverManager::handleAccept() {
@@ -64,9 +74,9 @@ void AddReceiverManager::handleAccept() {
   if (_nameLineEdit->text().isEmpty()) {
     err_msg += "Name-field is empty\n";
   }
-  if (_channelNumLineEdit->text().isEmpty()) {
-    err_msg += "ChannelNum-field is empty\n";
-  }
+  //  if (_channelNumLineEdit->text().isEmpty()) {
+  //    err_msg += "ChannelNum-field is empty\n";
+  //  }
   if (_X_LineEdit->text().isEmpty()) {
     err_msg += "X-coordinate-field is empty\n";
   }
@@ -75,6 +85,9 @@ void AddReceiverManager::handleAccept() {
   }
   if (_Z_LineEdit->text().isEmpty()) {
     err_msg += "Z-coordinate-field is empty\n";
+  }
+  if (0 == _comboBox->currentIndex()) {
+    err_msg += "Well-name isn`t selected\n";
   }
 
   if (err_msg.isEmpty()) {

@@ -12,7 +12,6 @@ typedef Data::SeismProject SeismProject;
 namespace Main {
 View::View(QWidget *parent) : QMainWindow(parent) {
   setWindowTitle("MainWindow");
-  setMinimumSize(750, 850);
 
   QAction *act;
 
@@ -121,17 +120,18 @@ void View::updateProjectRemoveHorizon(const QUuid &uuid) {
   _workPage->updateProjectRemoveHorizon(uuid);
 }
 
-void View::updateProject(const std::unique_ptr<Data::SeismReceiver> &receiver) {
-  assert(nullptr != _workPage);
+// void View::updateProject(const std::unique_ptr<Data::SeismReceiver>
+// &receiver) {
+//  assert(nullptr != _workPage);
 
-  _workPage->updateProject(receiver);
-}
+//  _workPage->updateProject(receiver);
+//}
 
-void View::updateProjectRemoveReceiver(const QUuid &uuid) {
-  assert(nullptr != _workPage);
+// void View::updateProjectRemoveReceiver(const QUuid &uuid) {
+//  assert(nullptr != _workPage);
 
-  _workPage->updateProjectRemoveReceiver(uuid);
-}
+//  _workPage->updateProjectRemoveReceiver(uuid);
+//}
 
 void View::updateProject(const std::unique_ptr<Data::SeismWell> &well) {
   assert(nullptr != _workPage);

@@ -7,7 +7,7 @@
 #include <memory>
 
 namespace Data {
-class SeismProject;
+// class SeismProject;
 class SeismHorizon;
 } // namespace Data
 
@@ -19,13 +19,17 @@ class Controller : public QObject {
 public:
   explicit Controller(QObject *parent = nullptr);
 
-  void viewHorizons(const std::unique_ptr<Data::SeismProject> &);
+  //  void viewHorizons(const std::unique_ptr<Data::SeismProject> &);
+  void
+  viewHorizons(const std::map<QUuid, std::unique_ptr<Data::SeismHorizon>> &);
   void finish(int);
 
 signals:
-  void sendHorizon(std::unique_ptr<Data::SeismHorizon> &) const;
-  void sendRemovedHorizon(const QUuid &) const;
+  //  void sendHorizon(std::unique_ptr<Data::SeismHorizon> &) const;
+  //  void sendRemovedHorizon(const QUuid &) const;
   void finished() const;
+
+  void sendHorizons(std::map<QUuid, std::unique_ptr<Data::SeismHorizon>> &);
 
 private:
   Model *_model;
@@ -33,8 +37,10 @@ private:
 
   std::unique_ptr<Data::SeismHorizon> _tmpHorizon;
 
-  std::vector<std::unique_ptr<Data::SeismHorizon>> _newHorizons;
-  std::vector<QUuid> _removedHorizons;
+  //  std::vector<std::unique_ptr<Data::SeismHorizon>> _newHorizons;
+  //  std::vector<QUuid> _removedHorizons;
+
+  std::map<QUuid, std::unique_ptr<Data::SeismHorizon>> _horizons;
 };
 
 } // namespace HorizonOperation

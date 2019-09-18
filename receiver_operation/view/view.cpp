@@ -1,4 +1,5 @@
 #include "view.h"
+#include "inforeceiver.h"
 
 #include "data/seismreceiver.h"
 
@@ -12,11 +13,11 @@ typedef Data::SeismReceiver SeismReceiver;
 namespace ReceiverOperation {
 const int View::remove_receiver_col = 4;
 
-View::View(QWidget *parent)
+View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
       _totalChannelNumLabel(new QLabel("0")),
       _receiversTable(new QTableWidget(this)),
-      _saveButton(new QPushButton("Save")) {
+      _saveButton(new QPushButton("Save")), _wellNames_map(wellNames_map) {
 
   // Setting`s
   setWindowTitle("Receivers");
@@ -59,8 +60,8 @@ View::View(QWidget *parent)
 
   QVBoxLayout *mainLayout = new QVBoxLayout();
   mainLayout->addLayout(totalNumLayout);
-  mainLayout->addWidget(_receiversTable);
-  mainLayout->addStretch(1);
+  mainLayout->addWidget(_receiversTable, 1);
+  //  mainLayout->addStretch(1);
   mainLayout->addLayout(buttonLayout);
 
   setLayout(mainLayout);
@@ -80,6 +81,8 @@ void View::handleReceiverClicked(int row, int col) {
     emit removeReceiverClicked(uuid);
     return;
   }
+
+  emit receiverClicked(uuid);
 }
 
 void View::finishReceiverManager(int result) {
@@ -102,8 +105,15 @@ void View::removeReceiver(const QUuid &uuid) {
   }
 }
 
-void View::settingReceiverInfo(const std::unique_ptr<SeismReceiver> &horizon) {
-  _addReceiverManager->settingReceiverInfo(horizon);
+void View::viewFullInfo(const std::unique_ptr<Data::SeismReceiver> &receiver) {
+  InfoReceiver *about = new InfoReceiver(receiver, this);
+  about->setModal(true);
+  about->show();
+}
+
+const QUuid
+View::settingReceiverInfo(const std::unique_ptr<SeismReceiver> &horizon) {
+  return _addReceiverManager->settingReceiverInfo(horizon);
 }
 
 void View::changed(bool b) {
@@ -204,7 +214,8 @@ void View::handleFromCsvClicked() {
 }
 
 void View::handleAddReceiverClicked() {
-  _addReceiverManager = std::make_unique<AddReceiverManager>(this);
+  _addReceiverManager =
+      std::make_unique<AddReceiverManager>(_wellNames_map, this);
   connect(_addReceiverManager.get(), &AddReceiverManager::notify, this,
           &View::setNotification);
   connect(_addReceiverManager.get(), &AddReceiverManager::finished, this,

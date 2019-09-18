@@ -64,12 +64,13 @@ void Controller::recvProject(std::unique_ptr<SeismProject> &project) {
     _mainWindow->updateProjectRemoveHorizon(uuid);
   });
 
-  // Receiver`s connecting
-  connect(_project.get(), &SeismProject::addedReceiver,
-          [this](auto &receiver) { _mainWindow->updateProject(receiver); });
-  connect(_project.get(), &SeismProject::removedReceiver, [this](auto &uuid) {
-    _mainWindow->updateProjectRemoveReceiver(uuid);
-  });
+  //  // Receiver`s connecting
+  //  connect(_project.get(), &SeismProject::addedReceiver,
+  //          [this](auto &receiver) { _mainWindow->updateProject(receiver); });
+  //  connect(_project.get(), &SeismProject::removedReceiver, [this](auto &uuid)
+  //  {
+  //    _mainWindow->updateProjectRemoveReceiver(uuid);
+  //  });
 
   // Well`s connecting
   connect(_project.get(), &SeismProject::addedWell,
@@ -83,7 +84,7 @@ void Controller::recvProject(std::unique_ptr<SeismProject> &project) {
 void Controller::handleAddEventClicked() {
   if (!_addEventController) {
     _addEventController = std::make_unique<AddEvent::Controller>(
-        _project->getAllList<SeismReceiver>(), this);
+        _project->getAllMap<SeismWell>(), this);
 
     connect(
         _addEventController.get(), &AddEvent::Controller::sendEvent,
@@ -110,36 +111,50 @@ void Controller::handleHorizonsClicked() {
   if (!_horizonController) {
     _horizonController = std::make_unique<HorizonOperation::Controller>(this);
 
+    //    connect(_horizonController.get(),
+    //            &HorizonOperation::Controller::sendHorizon, [this](auto
+    //            &horizon) {
+    //              _project->add<SeismHorizon>(std::move(horizon));
+    //            });
+    //    connect(_horizonController.get(),
+    //            &HorizonOperation::Controller::sendRemovedHorizon,
+    //            [this](auto &uuid) { _project->remove<SeismHorizon>(uuid); });
+
     connect(_horizonController.get(),
-            &HorizonOperation::Controller::sendHorizon, [this](auto &horizon) {
-              _project->add<SeismHorizon>(std::move(horizon));
+            &HorizonOperation::Controller::sendHorizons,
+            [this](auto &horizons_map) {
+              _project->setAllMap<SeismHorizon>(horizons_map);
             });
-    connect(_horizonController.get(),
-            &HorizonOperation::Controller::sendRemovedHorizon,
-            [this](auto &uuid) { _project->remove<SeismHorizon>(uuid); });
+
     connect(_horizonController.get(), &HorizonOperation::Controller::finished,
             [this] { _horizonController.reset(); });
 
-    _horizonController->viewHorizons(_project);
+    _horizonController->viewHorizons(_project->getAllMap<SeismHorizon>());
   }
 }
 
 void Controller::handleReceiversClicked() {
   if (!_receiverController) {
-    _receiverController = std::make_unique<ReceiverOperation::Controller>(this);
+    _receiverController = std::make_unique<ReceiverOperation::Controller>(
+        _project->getAllMap<SeismWell>(), this);
 
-    connect(_receiverController.get(),
-            &ReceiverOperation::Controller::sendReceiver,
-            [this](auto &receiver) {
-              _project->add<SeismReceiver>(std::move(receiver));
-            });
-    connect(_receiverController.get(),
-            &ReceiverOperation::Controller::sendRemovedReceiver,
-            [this](auto &uuid) { _project->remove<SeismReceiver>(uuid); });
+    //    connect(_receiverController.get(),
+    //            &ReceiverOperation::Controller::sendReceiver,
+    //            [this](auto &receiver) {
+    //              _project->add<SeismReceiver>(std::move(receiver));
+    //            });
+    //    connect(_receiverController.get(),
+    //            &ReceiverOperation::Controller::sendRemovedReceiver,
+    //            [this](auto &uuid) { _project->remove<SeismReceiver>(uuid);
+    //            });
+    connect(
+        _receiverController.get(), &ReceiverOperation::Controller::sendWells,
+        [this](auto &wells_map) { _project->setAllMap<SeismWell>(wells_map); });
+
     connect(_receiverController.get(), &ReceiverOperation::Controller::finished,
             [this] { _receiverController.reset(); });
 
-    _receiverController->viewReceivers(_project);
+    _receiverController->viewReceivers();
   }
 }
 
@@ -147,14 +162,20 @@ void Controller::handleWellsClicked() {
   if (!_wellController) {
     _wellController = std::make_unique<WellOperation::Controller>(this);
 
-    connect(_wellController.get(), &WellOperation::Controller::sendWell,
-            [this](auto &well) { _project->add<SeismWell>(std::move(well)); });
-    connect(_wellController.get(), &WellOperation::Controller::sendRemovedWell,
-            [this](auto &uuid) { _project->remove<SeismWell>(uuid); });
+    //    connect(_wellController.get(), &WellOperation::Controller::sendWell,
+    //            [this](auto &well) {
+    //            _project->add<SeismWell>(std::move(well)); });
+    //    connect(_wellController.get(),
+    //    &WellOperation::Controller::sendRemovedWell,
+    //            [this](auto &uuid) { _project->remove<SeismWell>(uuid); });
+
+    connect(
+        _wellController.get(), &WellOperation::Controller::sendWells,
+        [this](auto &wells_map) { _project->setAllMap<SeismWell>(wells_map); });
     connect(_wellController.get(), &WellOperation::Controller::finished,
             [this] { _wellController.reset(); });
 
-    _wellController->viewWells(_project);
+    _wellController->viewWells(_project->getAllMap<SeismWell>());
   }
 }
 
