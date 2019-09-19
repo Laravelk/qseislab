@@ -32,6 +32,13 @@ SeismProject::SeismProject(QObject *parent) : QObject(parent) {
   well = std::make_unique<SeismWell>();
   well->setName("Mon_TOOLS_244");
   uuid = well->getUuid();
+  for (int j = 0; j < 8; ++j) {
+    auto receiver = std::make_unique<Data::SeismReceiver>();
+    for (int i = 0; i < 3; ++i) {
+      receiver->addChannel(std::make_unique<Data::SeismChannelReceiver>());
+    }
+    well->addReceiver(std::move(receiver));
+  }
   _wells_map[uuid] = std::move(well);
   // end...
 }

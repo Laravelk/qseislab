@@ -12,7 +12,7 @@ class SeismWell;
 
 namespace EventOperation {
 class InfoEvent;
-class GraphicEvent;
+class Controller;
 namespace AddEvent {
 class View : public QDialog {
   Q_OBJECT
@@ -35,7 +35,7 @@ private:
   InfoEvent *_infoEvent;
   QVBoxLayout *_wellManegersLayout;
   QPushButton *_addButtonManagers;
-  GraphicEvent *_graphicEvent;
+  Controller *_graphicEvent;
   QPushButton *_okButton;
   QPushButton *_cancelButton;
 

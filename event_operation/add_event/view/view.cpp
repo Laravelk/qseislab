@@ -1,6 +1,6 @@
 #include "view.h"
 
-#include "event_operation/share_view/graphicevent.h"
+#include "event_operation/share_view/controller.h"
 #include "event_operation/share_view/infoevent.h"
 #include "filemanager.h"
 #include "wellmanager.h"
@@ -17,7 +17,7 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
       _infoEvent(new InfoEvent(this)), _wellManegersLayout(new QVBoxLayout()),
       _addButtonManagers(new QPushButton("Add")),
-      _graphicEvent(new GraphicEvent(this)),
+      _graphicEvent(new Controller(this)),
       _okButton(new QPushButton("Ok", this)),
       _cancelButton(new QPushButton("Cancel", this)),
       _wellNames_map(wellNames_map) {

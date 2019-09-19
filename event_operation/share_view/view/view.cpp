@@ -1,44 +1,48 @@
-#include "chartview.h"
+#include "view.h"
 
 #include <QtGui/QMouseEvent>
+#include <iostream> // TODO: delete
 
-ChartView::ChartView(QChart *chart, QWidget *parent)
-    : QChartView(chart, parent), m_isTouching(false) {
+View::View(QChart *chart, QWidget *parent)
+    : QChartView(chart, parent), mouseIsTouching(false) {
   setRubberBand(QChartView::RectangleRubberBand);
 }
 
-void ChartView::addWaveRect(QRect rect) { _qRectVector.push_back(rect); }
+void View::addWaveRect(QRect rect) { _qRectVector.push_back(rect); }
 
-bool ChartView::viewportEvent(QEvent *event) {
+bool View::viewportEvent(QEvent *event) {
   if (event->type() == QEvent::TouchBegin) {
-    m_isTouching = true;
+    mouseIsTouching = true;
     chart()->setAnimationOptions(QChart::NoAnimation);
   }
   return QChartView::viewportEvent(event);
 }
 
-void ChartView::mousePressEvent(QMouseEvent *event) {
-  if (m_isTouching)
+void View::mousePressEvent(QMouseEvent *event) {
+  if (mouseIsTouching)
     return;
   QChartView::mousePressEvent(event);
 }
 
-void ChartView::mouseMoveEvent(QMouseEvent *event) {
-  if (m_isTouching)
+void View::mouseMoveEvent(QMouseEvent *event) {
+  if (mouseIsTouching)
     return;
   QChartView::mouseMoveEvent(event);
 }
 
-void ChartView::mouseReleaseEvent(QMouseEvent *event) {
-  if (m_isTouching)
-    m_isTouching = false;
+void View::mouseReleaseEvent(QMouseEvent *event) {
+  if (mouseIsTouching)
+    mouseIsTouching = false;
   chart()->setAnimationOptions(QChart::NoAnimation);
 
   QChartView::mouseReleaseEvent(event);
 }
 
-void ChartView::keyPressEvent(QKeyEvent *event) {
+void View::keyPressEvent(QKeyEvent *event) {
   switch (event->key()) {
+  case Qt::Key_Alt:
+    altIsTouching = true;
+    break;
   case Qt::Key_Plus:
     chart()->zoomIn();
     break;
@@ -75,7 +79,15 @@ void ChartView::keyPressEvent(QKeyEvent *event) {
   }
 }
 
-void ChartView::wheelEvent(QWheelEvent *event) {
+void View::keyReleaseEvent(QKeyEvent *event) {
+  if (altIsTouching) {
+    altIsTouching = false;
+    std::cerr << "F";
+  }
+  QChartView::keyReleaseEvent(event);
+}
+
+void View::wheelEvent(QWheelEvent *event) {
   //  chart()->zoomReset();
 
   //  _mFactor *= event->angleDelta().y() > 0 ? 0.5 : 2;

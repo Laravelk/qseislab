@@ -1,4 +1,4 @@
-#include "graphicevent.h"
+#include "controller.h"
 
 #include "data/seismcomponent.h"
 #include "data/seismevent.h"
@@ -9,19 +9,19 @@ typedef Data::SeismEvent SeismEvent;
 typedef Data::SeismTrace SeismTrace;
 
 namespace EventOperation {
-GraphicEvent::GraphicEvent(QWidget *parent)
-    : QFrame(parent), _chart(new Chart()), _axisX(new QValueAxis),
+Controller::Controller(QWidget *parent)
+    : QFrame(parent), _model(new Model()), _axisX(new QValueAxis),
       _axisY(new QValueAxis) {
-  _view = new ChartView(_chart);
-  _chart->setAnimationOptions(QChart::NoAnimation);
-  _chart->legend()->hide();
-  _chart->setMinimumSize(WINDOW_WIDHT, WINDOW_HEIGHT);
-  _chart->addAxis(_axisX, Qt::AlignBottom);
-  _chart->addAxis(_axisY, Qt::AlignLeft);
+  _view = new View(_model);
+  _model->setAnimationOptions(QChart::NoAnimation);
+  _model->legend()->hide();
+  _model->setMinimumSize(WINDOW_WIDHT, WINDOW_HEIGHT);
+  _model->addAxis(_axisX, Qt::AlignBottom);
+  _model->addAxis(_axisY, Qt::AlignLeft);
   _view->hide();
 }
 
-void GraphicEvent::update(const std::unique_ptr<SeismEvent> &event) {
+void Controller::update(const std::unique_ptr<SeismEvent> &event) {
   _view->chart()->removeAllSeries();
   setInterval(event);
   setAxesY(event->getComponentNumber());
@@ -40,13 +40,13 @@ void GraphicEvent::update(const std::unique_ptr<SeismEvent> &event) {
   _view->show();
 }
 
-void GraphicEvent::clear() {
+void Controller::clear() {
   _view->chart()->removeAllSeries();
   _view->hide();
 }
 
-void GraphicEvent::setWaveArrivalPen(QLineSeries &pWaveArrivalSeries,
-                                     QLineSeries &sWaveArrivalSeries) {
+void Controller::setWaveArrivalPen(QLineSeries &pWaveArrivalSeries,
+                                   QLineSeries &sWaveArrivalSeries) {
   QColor red, blue;
   QPen pen = pWaveArrivalSeries.pen();
   pen.setWidth(5);
@@ -59,17 +59,17 @@ void GraphicEvent::setWaveArrivalPen(QLineSeries &pWaveArrivalSeries,
   pWaveArrivalSeries.setColor(blue);
 }
 
-void GraphicEvent::addWaveArrivalSeries(QLineSeries &pWaveArrivalSeries,
-                                        QLineSeries &sWaveArrivalSeries,
-                                        int index) {
+void Controller::addWaveArrivalSeries(QLineSeries &pWaveArrivalSeries,
+                                      QLineSeries &sWaveArrivalSeries,
+                                      int index) {
   pWaveArrivalSeries.append(_pWaveArrival, WAVE_ARRIVAL_RADIUS + index);
   pWaveArrivalSeries.append(_pWaveArrival, -WAVE_ARRIVAL_RADIUS + index);
 
   sWaveArrivalSeries.append(_sWaveArrival, WAVE_ARRIVAL_RADIUS + index);
   sWaveArrivalSeries.append(_sWaveArrival, -WAVE_ARRIVAL_RADIUS + index);
 
-  _chart->addSeries(&pWaveArrivalSeries);
-  _chart->addSeries(&sWaveArrivalSeries);
+  _model->addSeries(&pWaveArrivalSeries);
+  _model->addSeries(&sWaveArrivalSeries);
 
   pWaveArrivalSeries.attachAxis(_axisX);
   pWaveArrivalSeries.attachAxis(_axisY);
@@ -78,7 +78,7 @@ void GraphicEvent::addWaveArrivalSeries(QLineSeries &pWaveArrivalSeries,
   sWaveArrivalSeries.attachAxis(_axisY);
 }
 
-void GraphicEvent::setInterval(const std::unique_ptr<SeismEvent> &event) {
+void Controller::setInterval(const std::unique_ptr<SeismEvent> &event) {
   _interval = 0;
   for (auto &component : event->getComponents()) {
     if (_interval < component->getMaxValue()) {
@@ -87,7 +87,7 @@ void GraphicEvent::setInterval(const std::unique_ptr<SeismEvent> &event) {
   }
 }
 
-void EventOperation::GraphicEvent::addTraceSeries(
+void EventOperation::Controller::addTraceSeries(
     const std::unique_ptr<Data::SeismComponent> &component, int index) {
   const float intervalAxisX = component->getSampleInterval();
   int idx = -1;
@@ -104,13 +104,13 @@ void EventOperation::GraphicEvent::addTraceSeries(
                          index);
       tmp += intervalAxisX;
     }
-    _chart->addSeries(series);
+    _model->addSeries(series);
     series->attachAxis(_axisX);
     series->attachAxis(_axisY);
   }
 }
 
-void GraphicEvent::setAxesY(int componentNumber) {
+void Controller::setAxesY(int componentNumber) {
   _axisY->setTickCount(componentNumber);
   _axisY->setRange(-1, componentNumber + 0.5);
   _axisY->setTickInterval(1);

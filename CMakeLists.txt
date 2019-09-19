@@ -31,11 +31,11 @@ set(SOURCES
 
         event_operation/view_event/controller.cpp
         event_operation/view_event/view.cpp
+        event_operation/share_view/view/view.cpp
 
         event_operation/share_view/infoevent.cpp
-        event_operation/share_view/chart.cpp
-        event_operation/share_view/chartview.cpp
-        event_operation/share_view/graphicevent.cpp
+        event_operation/share_view/controller.cpp
+        event_operation/share_view/model.cpp
 
 
         horizon_operation/controller.cpp
@@ -110,9 +110,9 @@ set(HEADERS
         event_operation/view_event/view.h
 
         event_operation/share_view/infoevent.h
-        event_operation/share_view/chart.h
-        event_operation/share_view/chartview.h
-        event_operation/share_view/graphicevent.h
+        event_operation/share_view/controller.h
+        event_operation/share_view/model.h
+        event_operation/share_view/view/view.h
 
         horizon_operation/controller.h
         horizon_operation/model.h
