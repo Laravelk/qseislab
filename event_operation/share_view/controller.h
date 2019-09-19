@@ -23,7 +23,7 @@ public:
   void setChart(Model *chart) { _model = chart; }
   void setView(View *view) { _view = view; }
 
-  void update(const std::unique_ptr<Data::SeismEvent> &event);
+  void update(const std::unique_ptr<Data::SeismEvent> &);
   void clear();
 
 private:
@@ -31,24 +31,26 @@ private:
   float _interval;
   int _pWaveArrival;
   int _sWaveArrival;
+  float _rangeAxisX;
   View *_view;
   Model *_model;
   QValueAxis *_axisX = new QValueAxis;
   QValueAxis *_axisY = new QValueAxis;
 
-  void setWaveArrivalPen(QLineSeries &pWaveArrivalSeries,
-                         QLineSeries &sWaveArrivalSeries);
-  void addWaveArrivalSeries(QLineSeries &pWaveArrivalSeries,
-                            QLineSeries &sWaveArrivalSeries, int index);
-  void setInterval(const std::unique_ptr<Data::SeismEvent> &event);
-  void addTraceSeries(const std::unique_ptr<Data::SeismComponent> &component,
-                      int index);
-  void setAxesY(int componentNumber);
+  void setWaveArrivalPen(QLineSeries &, QLineSeries &);
+  void setBorderPen(QLineSeries &, QLineSeries &);
+  void addWaveArrivalSeries(QLineSeries &, QLineSeries &, int);
+  void addBorderWavesSeries(QLineSeries &, QLineSeries &, int, int);
+  void setInterval(const std::unique_ptr<Data::SeismEvent> &);
+  void addTraceSeries(const std::unique_ptr<Data::SeismComponent> &, int);
+  void setAxesY(int);
+  void getRangeX(const std::unique_ptr<Data::SeismEvent> &);
 
 private:
   const qreal AMPLITUDE_SCALAR = 0.5;
   const qreal TRACE_OFFSET = 0.15;
-  const qreal WAVE_ARRIVAL_RADIUS = 0.4;
+  const qreal WAVE_RADIUS = 0.4;
+  const qreal BORDER_RADIUS = 0.35;
   const float NORMED = 1.7f;
   const int WINDOW_WIDHT = 750;
   const int WINDOW_HEIGHT = 500;

@@ -10,6 +10,8 @@ Model::Model(QGraphicsItem *parent, Qt::WindowFlags wFlags)
   grabGesture(Qt::PinchGesture);
 }
 
+void Model::addWave(QRectF &rect) { waves.push_back(rect); }
+
 bool Model::sceneEvent(QEvent *event) {
   if (event->type() == QEvent::Gesture)
     return gestureEvent(static_cast<QGestureEvent *>(event));

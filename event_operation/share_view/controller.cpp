@@ -11,7 +11,7 @@ typedef Data::SeismTrace SeismTrace;
 namespace EventOperation {
 Controller::Controller(QWidget *parent)
     : QFrame(parent), _model(new Model()), _axisX(new QValueAxis),
-      _axisY(new QValueAxis) {
+      _axisY(new QValueAxis), _rangeAxisX(0) {
   _view = new View(_model);
   _model->setAnimationOptions(QChart::NoAnimation);
   _model->legend()->hide();
@@ -23,16 +23,24 @@ Controller::Controller(QWidget *parent)
 
 void Controller::update(const std::unique_ptr<SeismEvent> &event) {
   _view->chart()->removeAllSeries();
+  getRangeX(event);
   setInterval(event);
   setAxesY(event->getComponentNumber());
   int idx = 0;
   for (auto &component : event->getComponents()) {
     _pWaveArrival = component->getPWaveArrival();
     _sWaveArrival = component->getSWaveArrival();
-    QLineSeries *seriesPWaveArrival = new QLineSeries;
-    QLineSeries *seriesSWaveArrival = new QLineSeries;
-    setWaveArrivalPen(*seriesPWaveArrival, *seriesSWaveArrival);
-    addWaveArrivalSeries(*seriesPWaveArrival, *seriesSWaveArrival, idx);
+    QLineSeries *PWaveArrival = new QLineSeries;
+    QLineSeries *SWaveArrival = new QLineSeries;
+    QLineSeries *PWaveLeftBorder = new QLineSeries;
+    QLineSeries *PWaveRightBorder = new QLineSeries;
+    QLineSeries *SWaveLeftBorder = new QLineSeries;
+    QLineSeries *SWaveRightBorder = new QLineSeries;
+    addWaveArrivalSeries(*PWaveArrival, *SWaveArrival, idx);
+    addBorderWavesSeries(*SWaveRightBorder, *SWaveLeftBorder, _sWaveArrival,
+                         idx);
+    addBorderWavesSeries(*PWaveRightBorder, *PWaveLeftBorder, _pWaveArrival,
+                         idx);
     addTraceSeries(component, idx);
     ++idx;
   }
@@ -45,37 +53,73 @@ void Controller::clear() {
   _view->hide();
 }
 
-void Controller::setWaveArrivalPen(QLineSeries &pWaveArrivalSeries,
-                                   QLineSeries &sWaveArrivalSeries) {
+void Controller::setWaveArrivalPen(QLineSeries &pWaveArrival,
+                                   QLineSeries &sWaveArrival) {
   QColor red, blue;
-  QPen pen = pWaveArrivalSeries.pen();
+  QPen pen = pWaveArrival.pen();
   pen.setWidth(5);
-  pen.setBrush(QBrush("red"));
-  pWaveArrivalSeries.setPen(pen);
-  sWaveArrivalSeries.setPen(pen);
+  pWaveArrival.setPen(pen);
+  sWaveArrival.setPen(pen);
   red.setRed(100);
   blue.setBlue(100);
-  sWaveArrivalSeries.setColor(red);
-  pWaveArrivalSeries.setColor(blue);
+  sWaveArrival.setColor(red);
+  pWaveArrival.setColor(blue);
 }
 
-void Controller::addWaveArrivalSeries(QLineSeries &pWaveArrivalSeries,
-                                      QLineSeries &sWaveArrivalSeries,
+void Controller::setBorderPen(QLineSeries &leftBorder,
+                              QLineSeries &rightBorder) {
+  QColor green, orange;
+  QPen pen = leftBorder.pen();
+  pen.setWidth(4);
+  leftBorder.setPen(pen);
+  rightBorder.setPen(pen);
+  green.setGreen(100);
+  orange.setHsl(39, 100, 50); // orange color in hsl format
+  leftBorder.setColor(green);
+  leftBorder.setColor(orange);
+}
+
+void Controller::addWaveArrivalSeries(QLineSeries &pWaveArrival,
+                                      QLineSeries &sWaveArrival, int index) {
+  setWaveArrivalPen(pWaveArrival, sWaveArrival);
+
+  pWaveArrival.append(_pWaveArrival, WAVE_RADIUS + index);
+  pWaveArrival.append(_pWaveArrival, -WAVE_RADIUS + index);
+  sWaveArrival.append(_sWaveArrival, WAVE_RADIUS + index);
+  sWaveArrival.append(_sWaveArrival, -WAVE_RADIUS + index);
+
+  _model->addSeries(&pWaveArrival);
+  _model->addSeries(&sWaveArrival);
+
+  pWaveArrival.attachAxis(_axisX);
+  pWaveArrival.attachAxis(_axisY);
+
+  sWaveArrival.attachAxis(_axisX);
+  sWaveArrival.attachAxis(_axisY);
+}
+
+void Controller::addBorderWavesSeries(QLineSeries &rightBorder,
+                                      QLineSeries &leftBorder, int waveCord,
                                       int index) {
-  pWaveArrivalSeries.append(_pWaveArrival, WAVE_ARRIVAL_RADIUS + index);
-  pWaveArrivalSeries.append(_pWaveArrival, -WAVE_ARRIVAL_RADIUS + index);
+  setBorderPen(rightBorder, leftBorder);
 
-  sWaveArrivalSeries.append(_sWaveArrival, WAVE_ARRIVAL_RADIUS + index);
-  sWaveArrivalSeries.append(_sWaveArrival, -WAVE_ARRIVAL_RADIUS + index);
+  rightBorder.append(static_cast<qreal>(waveCord + _rangeAxisX / 20),
+                     BORDER_RADIUS + index);
+  rightBorder.append(static_cast<qreal>(waveCord + _rangeAxisX / 20),
+                     -BORDER_RADIUS + index);
 
-  _model->addSeries(&pWaveArrivalSeries);
-  _model->addSeries(&sWaveArrivalSeries);
+  leftBorder.append(static_cast<qreal>(waveCord - _rangeAxisX / 20),
+                    BORDER_RADIUS + index);
+  leftBorder.append(static_cast<qreal>(waveCord - _rangeAxisX / 20),
+                    -BORDER_RADIUS + index);
 
-  pWaveArrivalSeries.attachAxis(_axisX);
-  pWaveArrivalSeries.attachAxis(_axisY);
+  _model->addSeries(&rightBorder);
+  _model->addSeries(&leftBorder);
 
-  sWaveArrivalSeries.attachAxis(_axisX);
-  sWaveArrivalSeries.attachAxis(_axisY);
+  rightBorder.attachAxis(_axisX);
+  rightBorder.attachAxis(_axisY);
+  leftBorder.attachAxis(_axisX);
+  leftBorder.attachAxis(_axisY);
 }
 
 void Controller::setInterval(const std::unique_ptr<SeismEvent> &event) {
@@ -117,6 +161,20 @@ void Controller::setAxesY(int componentNumber) {
   _axisY->setTickAnchor(0);
   _axisY->setTickType(QValueAxis::TicksDynamic);
   _axisY->setLabelFormat("%d");
+}
+
+void Controller::getRangeX(const std::unique_ptr<Data::SeismEvent> &event) {
+  float sampleInterval = 0;
+  int maxCountElementInTrace = 0;
+  for (auto &component : event->getComponents()) {
+    for (auto &trace : component->getTraces()) {
+      if (trace->getBufferSize() > _rangeAxisX) {
+        maxCountElementInTrace = trace->getBufferSize();
+        sampleInterval = component->getSampleInterval();
+      }
+    }
+  }
+  _rangeAxisX = sampleInterval * maxCountElementInTrace;
 }
 
 } // namespace EventOperation
