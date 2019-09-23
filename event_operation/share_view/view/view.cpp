@@ -1,4 +1,5 @@
 #include "view.h"
+#include "../model.h"
 
 #include <QtGui/QMouseEvent>
 #include <iostream> // TODO: delete
@@ -7,8 +8,6 @@ View::View(QChart *chart, QWidget *parent)
     : QChartView(chart, parent), mouseIsTouching(false) {
   setRubberBand(QChartView::RectangleRubberBand);
 }
-
-void View::addWaveRect(QRect rect) { _qRectVector.push_back(rect); }
 
 bool View::viewportEvent(QEvent *event) {
   if (event->type() == QEvent::TouchBegin) {
@@ -19,6 +18,16 @@ bool View::viewportEvent(QEvent *event) {
 }
 
 void View::mousePressEvent(QMouseEvent *event) {
+  if (altIsTouching) {
+    if (_model->isWave((_model->mapToValue(event->pos())).x(),
+                       (_model->mapToValue(event->pos())).y())) {
+      std::cerr << "is rect";
+    } else {
+      std::cerr << "no rect. Mouse Position: "
+                << (_model->mapToValue(event->pos())).x() << " "
+                << (_model->mapToValue(event->pos())).y() << std::endl;
+    }
+  }
   if (mouseIsTouching)
     return;
   QChartView::mousePressEvent(event);
@@ -42,6 +51,7 @@ void View::keyPressEvent(QKeyEvent *event) {
   switch (event->key()) {
   case Qt::Key_Alt:
     altIsTouching = true;
+    //    std::cerr << "alt is touching";
     break;
   case Qt::Key_Plus:
     chart()->zoomIn();
@@ -82,7 +92,7 @@ void View::keyPressEvent(QKeyEvent *event) {
 void View::keyReleaseEvent(QKeyEvent *event) {
   if (altIsTouching) {
     altIsTouching = false;
-    std::cerr << "F";
+    // std::cerr << "\n end touching alt";
   }
   QChartView::keyReleaseEvent(event);
 }

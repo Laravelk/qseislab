@@ -14,7 +14,6 @@ class SeismTrace;
 namespace EventOperation {
 class Controller : public QFrame {
   Q_OBJECT
-
 public:
   explicit Controller(QWidget *parent = nullptr);
 
@@ -54,6 +53,8 @@ private:
   const float NORMED = 1.7f;
   const int WINDOW_WIDHT = 750;
   const int WINDOW_HEIGHT = 500;
+  const int WAVE_PEN_WIDTH = 4;
+  const int BORDER_PEN_WIDTH = 2;
 };
 
 } // namespace EventOperation

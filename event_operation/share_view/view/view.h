@@ -1,16 +1,21 @@
 #pragma once
 
+#include "../model.h"
+
 #include <QWheelEvent>
 #include <QtCharts/QChartView>
 #include <QtWidgets/QRubberBand>
+#include <vector>
 
 using namespace QtCharts;
 
 class View : public QChartView {
+  Q_OBJECT
 public:
   View(QChart *, QWidget *parent = nullptr);
+  ~View() {}
 
-  void addWaveRect(QRect);
+  void addModel(Model *model) { _model = model; }
 
 protected:
   bool viewportEvent(QEvent *);
@@ -25,6 +30,9 @@ private:
   bool mouseIsTouching = false;
   bool altIsTouching = false;
   qreal _mFactor = 1.0;
+  Model *_model;
 
-  std::vector<QRect> _qRectVector;
+private:
+  bool isWave();
+  bool isBoard();
 };

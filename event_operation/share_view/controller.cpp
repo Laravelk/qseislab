@@ -13,6 +13,7 @@ Controller::Controller(QWidget *parent)
     : QFrame(parent), _model(new Model()), _axisX(new QValueAxis),
       _axisY(new QValueAxis), _rangeAxisX(0) {
   _view = new View(_model);
+  _view->addModel(_model);
   _model->setAnimationOptions(QChart::NoAnimation);
   _model->legend()->hide();
   _model->setMinimumSize(WINDOW_WIDHT, WINDOW_HEIGHT);
@@ -44,6 +45,7 @@ void Controller::update(const std::unique_ptr<SeismEvent> &event) {
     addTraceSeries(component, idx);
     ++idx;
   }
+  _model->printWaves();
   _view->setRenderHint(QPainter::Antialiasing);
   _view->show();
 }
@@ -70,7 +72,7 @@ void Controller::setBorderPen(QLineSeries &leftBorder,
                               QLineSeries &rightBorder) {
   QColor green, orange;
   QPen pen = leftBorder.pen();
-  pen.setWidth(4);
+  pen.setWidth(WAVE_PEN_WIDTH);
   leftBorder.setPen(pen);
   rightBorder.setPen(pen);
   green.setGreen(100);
@@ -96,6 +98,13 @@ void Controller::addWaveArrivalSeries(QLineSeries &pWaveArrival,
 
   sWaveArrival.attachAxis(_axisX);
   sWaveArrival.attachAxis(_axisY);
+
+  _model->addWaves(
+      *(new QRectF(_pWaveArrival - WAVE_PEN_WIDTH / 2, WAVE_RADIUS + index,
+                   WAVE_PEN_WIDTH, WAVE_RADIUS * 2)));
+  _model->addWaves(
+      *(new QRectF(_sWaveArrival - WAVE_PEN_WIDTH / 2, WAVE_RADIUS + index,
+                   WAVE_PEN_WIDTH, WAVE_RADIUS * 2)));
 }
 
 void Controller::addBorderWavesSeries(QLineSeries &rightBorder,

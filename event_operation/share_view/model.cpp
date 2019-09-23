@@ -3,6 +3,7 @@
 #include <QtWidgets/QGesture>
 #include <QtWidgets/QGraphicsScene>
 #include <QtWidgets/QGraphicsView>
+#include <iostream> // TODO: delete
 
 Model::Model(QGraphicsItem *parent, Qt::WindowFlags wFlags)
     : QChart(QChart::ChartTypeCartesian, parent, wFlags) {
@@ -10,7 +11,17 @@ Model::Model(QGraphicsItem *parent, Qt::WindowFlags wFlags)
   grabGesture(Qt::PinchGesture);
 }
 
-void Model::addWave(QRectF &rect) { waves.push_back(rect); }
+void Model::addWaves(const QRectF &wave) { waves.push_back(wave); }
+void Model::addBorders(const QRectF &border) { borders.push_back(border); }
+
+bool Model::isWave(const qreal x, const qreal y) const {
+  for (auto rect : waves) {
+    if (rect.contains(x, y)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 bool Model::sceneEvent(QEvent *event) {
   if (event->type() == QEvent::Gesture)
@@ -31,4 +42,11 @@ bool Model::gestureEvent(QGestureEvent *event) {
   }
 
   return true;
+}
+
+void Model::printWaves() {
+  for (auto it : waves) {
+    std::cerr << it.x() << " " << it.y() << " " << it.x() + it.width() << " "
+              << std::endl;
+  }
 }
