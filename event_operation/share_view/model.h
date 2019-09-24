@@ -18,9 +18,7 @@ public:
 
   void addWaves(const QRectF &);
   void addBorders(const QRectF &);
-
   bool isWave(const qreal x, const qreal y) const;
-  void printWaves();
 
 protected:
   bool sceneEvent(QEvent *event);

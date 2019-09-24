@@ -21,7 +21,7 @@ void View::mousePressEvent(QMouseEvent *event) {
   if (altIsTouching) {
     if (_model->isWave((_model->mapToValue(event->pos())).x(),
                        (_model->mapToValue(event->pos())).y())) {
-      std::cerr << "is rect";
+      std::cerr << "is rect\n";
     } else {
       std::cerr << "no rect. Mouse Position: "
                 << (_model->mapToValue(event->pos())).x() << " "
@@ -34,6 +34,10 @@ void View::mousePressEvent(QMouseEvent *event) {
 }
 
 void View::mouseMoveEvent(QMouseEvent *event) {
+  if (altIsTouching) {
+    std::cerr << "alt is touching";
+  }
+
   if (mouseIsTouching)
     return;
   QChartView::mouseMoveEvent(event);

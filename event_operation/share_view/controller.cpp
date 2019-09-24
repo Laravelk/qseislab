@@ -45,7 +45,6 @@ void Controller::update(const std::unique_ptr<SeismEvent> &event) {
     addTraceSeries(component, idx);
     ++idx;
   }
-  _model->printWaves();
   _view->setRenderHint(QPainter::Antialiasing);
   _view->show();
 }
@@ -100,11 +99,11 @@ void Controller::addWaveArrivalSeries(QLineSeries &pWaveArrival,
   sWaveArrival.attachAxis(_axisY);
 
   _model->addWaves(
-      *(new QRectF(_pWaveArrival - WAVE_PEN_WIDTH / 2, WAVE_RADIUS + index,
-                   WAVE_PEN_WIDTH, WAVE_RADIUS * 2)));
+      *(new QRectF(_pWaveArrival - WAVE_PEN_WIDTH * 40, WAVE_RADIUS + index,
+                   WAVE_PEN_WIDTH * 60, -WAVE_RADIUS * 2)));
   _model->addWaves(
-      *(new QRectF(_sWaveArrival - WAVE_PEN_WIDTH / 2, WAVE_RADIUS + index,
-                   WAVE_PEN_WIDTH, WAVE_RADIUS * 2)));
+      *(new QRectF(_sWaveArrival - WAVE_PEN_WIDTH * 40, WAVE_RADIUS + index,
+                   WAVE_PEN_WIDTH * 60, -WAVE_RADIUS * 2)));
 }
 
 void Controller::addBorderWavesSeries(QLineSeries &rightBorder,
@@ -124,6 +123,13 @@ void Controller::addBorderWavesSeries(QLineSeries &rightBorder,
 
   _model->addSeries(&rightBorder);
   _model->addSeries(&leftBorder);
+
+  _model->addBorders(*(new QRectF(
+      waveCord - static_cast<qreal>(_rangeAxisX / 20) - BORDER_PEN_WIDTH * 20,
+      BORDER_RADIUS + index, BORDER_PEN_WIDTH * 35, -BORDER_RADIUS * 2)));
+  _model->addBorders(*(new QRectF(
+      waveCord + static_cast<qreal>(_rangeAxisX / 20) + BORDER_PEN_WIDTH * 20,
+      BORDER_RADIUS + index, BORDER_PEN_WIDTH * 35, -BORDER_RADIUS * 2)));
 
   rightBorder.attachAxis(_axisX);
   rightBorder.attachAxis(_axisY);

@@ -43,10 +43,3 @@ bool Model::gestureEvent(QGestureEvent *event) {
 
   return true;
 }
-
-void Model::printWaves() {
-  for (auto it : waves) {
-    std::cerr << it.x() << " " << it.y() << " " << it.x() + it.width() << " "
-              << std::endl;
-  }
-}
