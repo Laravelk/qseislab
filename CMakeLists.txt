@@ -31,8 +31,9 @@ set(SOURCES
 
         event_operation/view_event/controller.cpp
         event_operation/view_event/view.cpp
-        event_operation/share_view/view/view.cpp
 
+        event_operation/share_view/view/view.cpp
+        event_operation/share_view/view/graphicswaveitem.cpp
         event_operation/share_view/infoevent.cpp
         event_operation/share_view/controller.cpp
         event_operation/share_view/model.cpp
@@ -113,6 +114,8 @@ set(HEADERS
         event_operation/share_view/controller.h
         event_operation/share_view/model.h
         event_operation/share_view/view/view.h
+        event_operation/share_view/view/graphicswaveitem.h
+
 
         horizon_operation/controller.h
         horizon_operation/model.h

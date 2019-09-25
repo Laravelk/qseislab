@@ -51,8 +51,8 @@ private:
   const qreal WAVE_RADIUS = 0.4;
   const qreal BORDER_RADIUS = 0.35;
   const float NORMED = 1.7f;
-  const int WINDOW_WIDHT = 750;
-  const int WINDOW_HEIGHT = 500;
+  const int GRAPH_WIDHT = 750;
+  const int GRAPH_HEIGHT = 500;
   const int WAVE_PEN_WIDTH = 4;
   const int BORDER_PEN_WIDTH = 2;
 };

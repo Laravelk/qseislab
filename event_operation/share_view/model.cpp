@@ -20,6 +20,7 @@ bool Model::isWave(const qreal x, const qreal y) const {
       return true;
     }
   }
+  QGraphicsRectItem *rect = new QGraphicsRectItem(5, -10, 50, 50);
   return false;
 }
 

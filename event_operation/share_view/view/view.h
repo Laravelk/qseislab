@@ -5,6 +5,7 @@
 #include <QWheelEvent>
 #include <QtCharts/QChartView>
 #include <QtWidgets/QRubberBand>
+#include <QtWidgets>
 #include <vector>
 
 using namespace QtCharts;
@@ -25,12 +26,16 @@ protected:
   void keyPressEvent(QKeyEvent *);
   void wheelEvent(QWheelEvent *);
   void keyReleaseEvent(QKeyEvent *);
+  void mouseDoubleClickEvent(QMouseEvent *);
 
 private:
   bool mouseIsTouching = false;
   bool altIsTouching = false;
+  bool waveIsLock = false;
+  bool borderIsLock = false;
   qreal _mFactor = 1.0;
   Model *_model;
+  int x = 1000;
 
 private:
   bool isWave();
