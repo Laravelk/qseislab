@@ -14,19 +14,17 @@ class View : public QChartView {
   Q_OBJECT
 public:
   View(QChart *, QWidget *parent = nullptr);
-  ~View() {}
-
   void addModel(Model *model) { _model = model; }
 
 protected:
-  bool viewportEvent(QEvent *);
-  void mousePressEvent(QMouseEvent *);
-  void mouseMoveEvent(QMouseEvent *);
-  void mouseReleaseEvent(QMouseEvent *);
-  void keyPressEvent(QKeyEvent *);
-  void wheelEvent(QWheelEvent *);
-  void keyReleaseEvent(QKeyEvent *);
-  void mouseDoubleClickEvent(QMouseEvent *);
+  bool viewportEvent(QEvent *) override;
+  void mousePressEvent(QMouseEvent *) override;
+  void mouseMoveEvent(QMouseEvent *) override;
+  void mouseReleaseEvent(QMouseEvent *) override;
+  void keyPressEvent(QKeyEvent *) override;
+  void wheelEvent(QWheelEvent *) override;
+  void keyReleaseEvent(QKeyEvent *) override;
+  void mouseDoubleClickEvent(QMouseEvent *) override;
 
 private:
   bool mouseIsTouching = false;
@@ -35,9 +33,11 @@ private:
   bool borderIsLock = false;
   qreal _mFactor = 1.0;
   Model *_model;
-  int x = 1000;
 
 private:
   bool isWave();
   bool isBoard();
+
+public slots:
+  void f(QRectF &);
 };

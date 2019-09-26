@@ -3,6 +3,8 @@
 #include <QtCharts/QChart>
 #include <vector>
 
+#include "view/graphicswaveitem.h"
+
 QT_BEGIN_NAMESPACE
 class QGestureEvent;
 QT_END_NAMESPACE
@@ -14,14 +16,16 @@ class Model : public QChart {
 
 public:
   explicit Model(QGraphicsItem *parent = nullptr, Qt::WindowFlags wFlags = 0);
-  ~Model() = default;
 
   void addWaves(const QRectF &);
   void addBorders(const QRectF &);
+  void addItem(const EventOperation::GraphicsWaveItem *);
   bool isWave(const qreal x, const qreal y) const;
 
+  std::vector<EventOperation::GraphicsWaveItem *> items;
+
 protected:
-  bool sceneEvent(QEvent *event);
+  bool sceneEvent(QEvent *) override;
 
 private:
   bool gestureEvent(QGestureEvent *event);

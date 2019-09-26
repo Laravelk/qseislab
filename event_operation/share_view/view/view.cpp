@@ -7,10 +7,13 @@
 View::View(QChart *chart, QWidget *parent)
     : QChartView(chart, parent), mouseIsTouching(false) {
   setRubberBand(QChartView::RectangleRubberBand);
+  setDragMode(ScrollHandDrag); // sceneRectChange
+  connect(this->scene(), SIGNAL(sceneRectChanged(QRectF &)), this,
+          SLOT(f(QRectF)));
 }
 
 bool View::viewportEvent(QEvent *event) {
-  if (!altIsTouching && event->type() == QEvent::TouchBegin) {
+  if (event->type() == QEvent::TouchBegin) {
     mouseIsTouching = true;
     chart()->setAnimationOptions(QChart::NoAnimation);
   }
@@ -18,14 +21,19 @@ bool View::viewportEvent(QEvent *event) {
 }
 
 void View::mousePressEvent(QMouseEvent *event) {
-  if (mouseIsTouching && !altIsTouching)
+  if (event->button() == Qt::RightButton) {
+    for (auto &it : _model->items) {
+      it->setPos(0, 0);
+    }
+  }
+  if (mouseIsTouching)
     return;
   QChartView::mousePressEvent(event);
 }
 
 void View::mouseMoveEvent(QMouseEvent *event) {
 
-  if (mouseIsTouching && !altIsTouching)
+  if (mouseIsTouching)
     return;
   QChartView::mouseMoveEvent(event);
 }
@@ -34,7 +42,6 @@ void View::mouseReleaseEvent(QMouseEvent *event) {
   if (mouseIsTouching)
     mouseIsTouching = false;
   chart()->setAnimationOptions(QChart::NoAnimation);
-
   QChartView::mouseReleaseEvent(event);
 }
 
@@ -42,7 +49,6 @@ void View::keyPressEvent(QKeyEvent *event) {
   switch (event->key()) {
   case Qt::Key_Alt:
     altIsTouching = true;
-    std::cerr << "alt is touching";
     break;
   case Qt::Key_Plus:
     chart()->zoomIn();
@@ -81,27 +87,14 @@ void View::keyPressEvent(QKeyEvent *event) {
 }
 
 void View::keyReleaseEvent(QKeyEvent *event) {
-  if (altIsTouching) {
-    altIsTouching = false;
-    std::cerr << "\n end touching alt";
-  }
   QChartView::keyReleaseEvent(event);
 }
 
 void View::mouseDoubleClickEvent(QMouseEvent *event) {
+  _model->setMinimumHeight(1000);
   QChartView::mouseDoubleClickEvent(event);
 }
 
-void View::wheelEvent(QWheelEvent *event) {
-  //  chart()->zoomReset();
+void View::f(QRectF &) { std::cerr << "2222222222"; }
 
-  //  _mFactor *= event->angleDelta().y() > 0 ? 0.5 : 2;
-
-  //  QRectF rect = chart()->plotArea();
-  //  QPointF c = chart()->plotArea().center();
-  //  rect.setWidth(_mFactor * rect.width());
-  //  rect.moveCenter(c);
-  //  chart()->zoomIn(rect);
-
-  QChartView::wheelEvent(event);
-}
+void View::wheelEvent(QWheelEvent *event) { QChartView::wheelEvent(event); }

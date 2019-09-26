@@ -21,9 +21,9 @@ Controller::Controller(QWidget *parent)
   _model->setMinimumSize(GRAPH_WIDHT, GRAPH_HEIGHT);
   _model->addAxis(_axisX, Qt::AlignBottom);
   _model->addAxis(_axisY, Qt::AlignLeft);
-  int w = _view->width();
-  int h = _view->height();
-  _model->scene()->setSceneRect(0, 0, w, h);
+  qreal w = _model->scene()->width();
+  qreal h = _model->scene()->height();
+  _model->scene()->setSceneRect(0, 0, GRAPH_WIDHT, GRAPH_HEIGHT);
   _view->hide();
 }
 
@@ -50,9 +50,9 @@ void Controller::update(const std::unique_ptr<SeismEvent> &event) {
     addTraceSeries(component, idx);
     ++idx;
   }
-  GraphicsWaveItem *rect = new GraphicsWaveItem(150, 140, 5, 10);
+  GraphicsWaveItem *rect = new GraphicsWaveItem(150, 140, 40, 20);
   _model->scene()->addItem(rect);
-  rect->setPos(80, 80);
+  _model->items.push_back(rect);
   _view->setRenderHint(QPainter::Antialiasing);
   _view->show();
 }
