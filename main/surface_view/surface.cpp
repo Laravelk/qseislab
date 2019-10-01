@@ -4,6 +4,8 @@
 #include "../../data/seismproject.h"
 #include "../../data/seismwell.h"
 
+#include <iostream> // TODO: delete
+
 typedef Data::SeismEvent SeismEvent;
 typedef Data::SeismHorizon SeismHorizon;
 typedef Data::SeismProject SeismProject;

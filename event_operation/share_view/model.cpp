@@ -5,22 +5,11 @@
 #include <QtWidgets/QGraphicsView>
 #include <iostream> // TODO: delete
 
+namespace EventOperation {
 Model::Model(QGraphicsItem *parent, Qt::WindowFlags wFlags)
     : QChart(QChart::ChartTypeCartesian, parent, wFlags) {
   grabGesture(Qt::PanGesture);
   grabGesture(Qt::PinchGesture);
-}
-
-void Model::addWaves(const QRectF &wave) { waves.push_back(wave); }
-void Model::addBorders(const QRectF &border) { borders.push_back(border); }
-
-bool Model::isWave(const qreal x, const qreal y) const {
-  for (auto rect : waves) {
-    if (rect.contains(x, y)) {
-      return true;
-    }
-  }
-  return false;
 }
 
 bool Model::sceneEvent(QEvent *event) {
@@ -43,3 +32,4 @@ bool Model::gestureEvent(QGestureEvent *event) {
 
   return true;
 }
+} // namespace EventOperation

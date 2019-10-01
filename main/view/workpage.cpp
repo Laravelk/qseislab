@@ -6,6 +6,8 @@
 #include "data/seismreceiver.h"
 #include "infoproject.h"
 
+#include <iostream> // TODO: delete
+
 #include <QDateTime>
 #include <QHBoxLayout>
 #include <QMessageBox>
@@ -71,6 +73,8 @@ void WorkPage::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
 }
 
 void WorkPage::updateProject(const std::unique_ptr<Data::SeismEvent> &event) {
+  std::cerr << "f";
+
   _infoProject->addEvent();
   _surface->addEvent(event);
 
@@ -88,8 +92,7 @@ void WorkPage::updateProject(
 
 void WorkPage::updateProjectRemoveEvent(const QUuid &uuid) {
   _infoProject->removeEvent();
-  //  _surface->removeEvent(uuid); // TODO: uncomment
-
+  _surface->removeEvent(uuid);
   _eventsTable->remove<SeismEvent>(uuid);
 }
 
@@ -104,13 +107,16 @@ void WorkPage::updateProjectRemoveHorizon(const QUuid &uuid) {
   _surface->removeHorizon(uuid);
 }
 
-void WorkPage::updateProject(
-    const std::unique_ptr<Data::SeismWell> & /*well*/) {
+void WorkPage::updateProject(const std::unique_ptr<Data::SeismWell> &well) {
   _infoProject->addWell();
+  std::cerr << "f";
+
+  _surface->addWell(well);
 }
 
-void WorkPage::updateProjectRemoveWell(const QUuid & /*uuid*/) {
+void WorkPage::updateProjectRemoveWell(const QUuid &uuid) {
   _infoProject->removeWell();
+  _surface->removeWell(uuid);
 }
 
 // void WorkPage::handleEventClicked(int row, int col) {

@@ -4,7 +4,7 @@
 #include "data/seismevent.h"
 #include "data/seismtrace.h"
 
-#include "view/graphicswaveitem.h"
+#include "view/wavepick.h"
 
 typedef Data::SeismComponent SeismComponent;
 typedef Data::SeismEvent SeismEvent;
@@ -21,9 +21,7 @@ Controller::Controller(QWidget *parent)
   _model->setMinimumSize(GRAPH_WIDHT, GRAPH_HEIGHT);
   _model->addAxis(_axisX, Qt::AlignBottom);
   _model->addAxis(_axisY, Qt::AlignLeft);
-  qreal w = _model->scene()->width();
-  qreal h = _model->scene()->height();
-  _model->scene()->setSceneRect(0, 0, GRAPH_WIDHT, GRAPH_HEIGHT);
+  _model->setAcceptHoverEvents(true);
   _view->hide();
 }
 
@@ -50,10 +48,7 @@ void Controller::update(const std::unique_ptr<SeismEvent> &event) {
     addTraceSeries(component, idx);
     ++idx;
   }
-  GraphicsWaveItem *rect = new GraphicsWaveItem(150, 140, 40, 20);
-  _model->scene()->addItem(rect);
-  _model->items.push_back(rect);
-  _view->setRenderHint(QPainter::Antialiasing);
+  _view->addPick();
   _view->show();
 }
 
@@ -105,13 +100,6 @@ void Controller::addWaveArrivalSeries(QLineSeries &pWaveArrival,
 
   sWaveArrival.attachAxis(_axisX);
   sWaveArrival.attachAxis(_axisY);
-
-  _model->addWaves(
-      *(new QRectF(_pWaveArrival - WAVE_PEN_WIDTH * 40, WAVE_RADIUS + index,
-                   WAVE_PEN_WIDTH * 60, -WAVE_RADIUS * 2)));
-  _model->addWaves(
-      *(new QRectF(_sWaveArrival - WAVE_PEN_WIDTH * 40, WAVE_RADIUS + index,
-                   WAVE_PEN_WIDTH * 60, -WAVE_RADIUS * 2)));
 }
 
 void Controller::addBorderWavesSeries(QLineSeries &rightBorder,
@@ -131,13 +119,6 @@ void Controller::addBorderWavesSeries(QLineSeries &rightBorder,
 
   _model->addSeries(&rightBorder);
   _model->addSeries(&leftBorder);
-
-  _model->addBorders(*(new QRectF(
-      waveCord - static_cast<qreal>(_rangeAxisX / 20) - BORDER_PEN_WIDTH * 20,
-      BORDER_RADIUS + index, BORDER_PEN_WIDTH * 35, -BORDER_RADIUS * 2)));
-  _model->addBorders(*(new QRectF(
-      waveCord + static_cast<qreal>(_rangeAxisX / 20) + BORDER_PEN_WIDTH * 20,
-      BORDER_RADIUS + index, BORDER_PEN_WIDTH * 35, -BORDER_RADIUS * 2)));
 
   rightBorder.attachAxis(_axisX);
   rightBorder.attachAxis(_axisY);

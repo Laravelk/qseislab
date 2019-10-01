@@ -1,38 +1,47 @@
 #include "view.h"
 #include "../model.h"
+#include "wavepick.h"
 
 #include <QtGui/QMouseEvent>
 #include <iostream> // TODO: delete
 
+namespace EventOperation {
 View::View(QChart *chart, QWidget *parent)
     : QChartView(chart, parent), mouseIsTouching(false) {
   setRubberBand(QChartView::RectangleRubberBand);
-  setDragMode(ScrollHandDrag); // sceneRectChange
-  connect(this->scene(), SIGNAL(sceneRectChanged(QRectF &)), this,
-          SLOT(f(QRectF)));
+  chart->setAnimationOptions(QChart::NoAnimation);
+  setDragMode(QGraphicsView::NoDrag);
+  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  setRenderHint(QPainter::Antialiasing);
+  scene()->addItem(chart);
+}
+
+void View::addPick(EventOperation::WavePick *pick) {
+  wavePicks.push_back(pick);
+}
+
+void View::addPick() {
+  WavePick *p = new WavePick(_chart, QPointF(5, 5), QSize(40, 15));
+  p->setAnchor(QPointF(5, 5));
+  wavePicks.push_back(p);
 }
 
 bool View::viewportEvent(QEvent *event) {
+
   if (event->type() == QEvent::TouchBegin) {
     mouseIsTouching = true;
-    chart()->setAnimationOptions(QChart::NoAnimation);
   }
   return QChartView::viewportEvent(event);
 }
 
 void View::mousePressEvent(QMouseEvent *event) {
-  if (event->button() == Qt::RightButton) {
-    for (auto &it : _model->items) {
-      it->setPos(0, 0);
-    }
-  }
   if (mouseIsTouching)
     return;
   QChartView::mousePressEvent(event);
 }
 
 void View::mouseMoveEvent(QMouseEvent *event) {
-
   if (mouseIsTouching)
     return;
   QChartView::mouseMoveEvent(event);
@@ -41,44 +50,40 @@ void View::mouseMoveEvent(QMouseEvent *event) {
 void View::mouseReleaseEvent(QMouseEvent *event) {
   if (mouseIsTouching)
     mouseIsTouching = false;
-  chart()->setAnimationOptions(QChart::NoAnimation);
   QChartView::mouseReleaseEvent(event);
 }
 
 void View::keyPressEvent(QKeyEvent *event) {
   switch (event->key()) {
-  case Qt::Key_Alt:
-    altIsTouching = true;
-    break;
   case Qt::Key_Plus:
-    chart()->zoomIn();
+    scaleContentsBy(2);
     break;
   case Qt::Key_Minus:
-    chart()->zoomOut();
+    scaleContentsBy(0.5);
     break;
   case Qt::Key_Left:
-    chart()->scroll(-10, 0);
+    scrollContentsBy(-10, 0);
     break;
   case Qt::Key_A:
-    chart()->scroll(-10, 0);
+    scrollContentsBy(-10, 0);
     break;
   case Qt::Key_Right:
-    chart()->scroll(10, 0);
+    scrollContentsBy(10, 0);
     break;
   case Qt::Key_D:
-    chart()->scroll(10, 0);
+    scrollContentsBy(10, 0);
     break;
   case Qt::Key_Up:
-    chart()->scroll(0, 10);
+    scrollContentsBy(0, 10);
     break;
   case Qt::Key_W:
-    chart()->scroll(0, 10);
+    scrollContentsBy(0, 10);
     break;
   case Qt::Key_Down:
-    chart()->scroll(0, -10);
+    scrollContentsBy(0, -10);
     break;
   case Qt::Key_S:
-    chart()->scroll(0, -10);
+    scrollContentsBy(0, -10);
     break;
   default:
     QGraphicsView::keyPressEvent(event);
@@ -91,10 +96,38 @@ void View::keyReleaseEvent(QKeyEvent *event) {
 }
 
 void View::mouseDoubleClickEvent(QMouseEvent *event) {
-  _model->setMinimumHeight(1000);
   QChartView::mouseDoubleClickEvent(event);
 }
 
-void View::f(QRectF &) { std::cerr << "2222222222"; }
+void View::paintEvent(QPaintEvent *event) { QChartView::paintEvent(event); }
 
-void View::wheelEvent(QWheelEvent *event) { QChartView::wheelEvent(event); }
+void View::scrollContentsBy(int dx, int dy) {
+  if (scene()) {
+    _chart->scroll(dx, dy);
+    for (auto &wave : wavePicks) {
+      wave->updateGeomety();
+    }
+  }
+}
+
+void View::resizeEvent(QResizeEvent *event) {
+  if (scene()) {
+    scene()->setSceneRect(QRect(QPoint(0, 0), event->size()));
+    _chart->resize(event->size());
+    for (auto &wave : wavePicks) {
+      wave->updateGeomety();
+    }
+  }
+  QGraphicsView::resizeEvent(event);
+}
+
+void View::scaleContentsBy(qreal factor) {
+  if (scene()) {
+    _chart->zoom(factor);
+    for (auto &wave : wavePicks) {
+      wave->setScale(wave->scale() * factor);
+      wave->updateGeomety();
+    }
+  }
+}
+} // namespace EventOperation

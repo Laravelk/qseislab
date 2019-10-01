@@ -1,20 +1,23 @@
 #pragma once
 
 #include "../model.h"
-
-#include <QWheelEvent>
+#include "wavepick.h"
 #include <QtCharts/QChartView>
 #include <QtWidgets/QRubberBand>
-#include <QtWidgets>
-#include <vector>
 
-using namespace QtCharts;
+QT_CHARTS_BEGIN_NAMESPACE
+class QChart;
+QT_CHARTS_END_NAMESPACE
+QT_CHARTS_USE_NAMESPACE
 
+namespace EventOperation {
 class View : public QChartView {
   Q_OBJECT
 public:
   View(QChart *, QWidget *parent = nullptr);
-  void addModel(Model *model) { _model = model; }
+  void addModel(Model *model) { _chart = model; }
+  void addPick(WavePick *pick);
+  void addPick(); // test
 
 protected:
   bool viewportEvent(QEvent *) override;
@@ -22,22 +25,19 @@ protected:
   void mouseMoveEvent(QMouseEvent *) override;
   void mouseReleaseEvent(QMouseEvent *) override;
   void keyPressEvent(QKeyEvent *) override;
-  void wheelEvent(QWheelEvent *) override;
   void keyReleaseEvent(QKeyEvent *) override;
   void mouseDoubleClickEvent(QMouseEvent *) override;
+  void paintEvent(QPaintEvent *) override;
+  void scrollContentsBy(int dx, int dy) override;
+  void resizeEvent(QResizeEvent *) override;
+  void scaleContentsBy(qreal factor);
 
 private:
   bool mouseIsTouching = false;
-  bool altIsTouching = false;
-  bool waveIsLock = false;
-  bool borderIsLock = false;
   qreal _mFactor = 1.0;
-  Model *_model;
+  Model *_chart;
+  QList<WavePick *> wavePicks;
 
 private:
-  bool isWave();
-  bool isBoard();
-
-public slots:
-  void f(QRectF &);
 };
+} // namespace EventOperation

@@ -1,11 +1,16 @@
-#include <QtWidgets>
-
 #include "graphicswaveitem.h"
+#include <QtWidgets>
+#include <iostream> // TODO: delete
+
+// WavePick
 
 namespace EventOperation {
-GraphicsWaveItem::GraphicsWaveItem(qreal x, qreal y, int width, int height)
-    : _x(x), _y(y), _width(width), _height(height) {
+GraphicsWaveItem::GraphicsWaveItem(QChart *chart, qreal x, qreal y, int width,
+                                   int height, qreal)
+    : QGraphicsItem(chart), _x(x), _y(y), _width(width), _height(height),
+      _chart(chart) {
   setFlags(ItemIsSelectable | ItemIsMovable); // ItemIgnoresTransformations
+  setAcceptDrops(true);
   setAcceptHoverEvents(true);
   setAcceptedMouseButtons(Qt::LeftButton);
 }
@@ -30,12 +35,7 @@ void GraphicsWaveItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
   setCursor(QCursor(Qt::ArrowCursor));
 }
 
-void GraphicsWaveItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
-  //  qreal newX = event->scenePos().x();
-  //  setPos(newX, _y);
-  setX((mapToScene(event->pos() + m_shiftMouseCoords)).x());
-  //  setPos(mapToScene(event->pos() + m_shiftMouseCoords));
-}
+void GraphicsWaveItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {}
 
 void GraphicsWaveItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) {
   QGraphicsItem::mouseDoubleClickEvent(event);

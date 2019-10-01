@@ -52,7 +52,7 @@ private:
   const qreal BORDER_RADIUS = 0.35;
   const float NORMED = 1.7f;
   const int GRAPH_WIDHT = 750;
-  const int GRAPH_HEIGHT = 500;
+  const int GRAPH_HEIGHT = 470;
   const int WAVE_PEN_WIDTH = 4;
   const int BORDER_PEN_WIDTH = 2;
 };
