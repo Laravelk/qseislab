@@ -54,6 +54,6 @@ void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
 }
 
 void WavePick::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
-  setPos(mapToParent(event->pos() - event->buttonDownPos(Qt::LeftButton)));
+  //  _anchor = mapFromParent(_chart->mapToPosition(_anchor));
 }
 } // namespace EventOperation

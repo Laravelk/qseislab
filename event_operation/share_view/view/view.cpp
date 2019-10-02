@@ -28,7 +28,6 @@ void View::addPick() {
 }
 
 bool View::viewportEvent(QEvent *event) {
-
   if (event->type() == QEvent::TouchBegin) {
     mouseIsTouching = true;
   }
@@ -99,7 +98,14 @@ void View::mouseDoubleClickEvent(QMouseEvent *event) {
   QChartView::mouseDoubleClickEvent(event);
 }
 
-void View::paintEvent(QPaintEvent *event) { QChartView::paintEvent(event); }
+void View::paintEvent(QPaintEvent *event) {
+  if (scene()) {
+    for (auto &wave : wavePicks) {
+      wave->updateGeomety();
+    }
+  }
+  QChartView::paintEvent(event);
+}
 
 void View::scrollContentsBy(int dx, int dy) {
   if (scene()) {
