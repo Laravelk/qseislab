@@ -49,6 +49,7 @@ void Controller::update(const std::unique_ptr<SeismEvent> &event) {
     ++idx;
   }
   _view->addPick();
+  _model->addPicks(_view->getPickcs());
   _view->show();
 }
 

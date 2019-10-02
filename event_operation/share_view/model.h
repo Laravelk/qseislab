@@ -10,11 +10,12 @@ QT_END_NAMESPACE
 using namespace QtCharts;
 
 namespace EventOperation {
+class WavePick;
 class Model : public QChart {
   Q_OBJECT
-
 public:
   explicit Model(QGraphicsItem *parent = nullptr, Qt::WindowFlags wFlags = 0);
+  void addPicks(QList<WavePick *> wavePicks) { _wavePicks = wavePicks; }
 
 protected:
   bool sceneEvent(QEvent *) override;
@@ -24,5 +25,6 @@ private:
 public slots:
 
 private:
+  QList<WavePick *> _wavePicks;
 };
 } // namespace EventOperation

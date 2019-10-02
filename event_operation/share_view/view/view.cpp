@@ -15,6 +15,8 @@ View::View(QChart *chart, QWidget *parent)
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setRenderHint(QPainter::Antialiasing);
   scene()->addItem(chart);
+  QGraphicsRectItem *rect = scene()->addRect(chart->plotArea());
+  rect->setFlag(QGraphicsItem::ItemClipsChildrenToShape);
 }
 
 void View::addPick(EventOperation::WavePick *pick) {
@@ -28,6 +30,7 @@ void View::addPick() {
 }
 
 bool View::viewportEvent(QEvent *event) {
+
   if (event->type() == QEvent::TouchBegin) {
     mouseIsTouching = true;
   }
@@ -38,6 +41,11 @@ void View::mousePressEvent(QMouseEvent *event) {
   if (mouseIsTouching)
     return;
   QChartView::mousePressEvent(event);
+  if (event->button() == Qt::RightButton) {
+    for (auto &wave : wavePicks) {
+      wave->updateGeomety();
+    }
+  }
 }
 
 void View::mouseMoveEvent(QMouseEvent *event) {
@@ -47,8 +55,14 @@ void View::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void View::mouseReleaseEvent(QMouseEvent *event) {
-  if (mouseIsTouching)
+  if (event->button() == Qt::RightButton) {
+    if (scene()) {
+      // scaleContentsBy(0.5);
+    }
+  }
+  if (mouseIsTouching) {
     mouseIsTouching = false;
+  }
   QChartView::mouseReleaseEvent(event);
 }
 
@@ -98,14 +112,7 @@ void View::mouseDoubleClickEvent(QMouseEvent *event) {
   QChartView::mouseDoubleClickEvent(event);
 }
 
-void View::paintEvent(QPaintEvent *event) {
-  if (scene()) {
-    for (auto &wave : wavePicks) {
-      wave->updateGeomety();
-    }
-  }
-  QChartView::paintEvent(event);
-}
+void View::paintEvent(QPaintEvent *event) { QChartView::paintEvent(event); }
 
 void View::scrollContentsBy(int dx, int dy) {
   if (scene()) {

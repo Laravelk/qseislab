@@ -2,6 +2,7 @@
 #include <QtCharts/QChart>
 #include <QtGui/QPainter>
 #include <QtWidgets/QGraphicsSceneMouseEvent>
+#include <iostream> // TODO: delete
 
 namespace EventOperation {
 WavePick::WavePick(QChart *chart, QPointF pos, QSize size)
@@ -27,7 +28,8 @@ void WavePick::setAnchor(const QPointF point) { _anchor = point; }
 
 void WavePick::updateGeomety() {
   prepareGeometryChange();
-  setPos(_chart->mapToPosition(_anchor) + QPoint(-10 * scale(), 50 * scale()));
+  setPos(_chart->mapToPosition(
+      _anchor) /* + QPoint(-10 * scale(), 50 * scale())*/);
 }
 
 QRectF WavePick::boundingRect() const {
@@ -54,6 +56,8 @@ void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
 }
 
 void WavePick::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
-  //  _anchor = mapFromParent(_chart->mapToPosition(_anchor));
+  _anchor = _chart->mapToValue(mapToParent(event->pos()) -
+                               event->buttonDownPos(Qt::LeftButton));
+  //  std::cerr << (_anchor).x() << " " << _anchor.y() << "\n";
 }
 } // namespace EventOperation

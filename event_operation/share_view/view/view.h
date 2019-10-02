@@ -19,6 +19,8 @@ public:
   void addPick(WavePick *pick);
   void addPick(); // test
 
+  QList<WavePick *> getPickcs() { return wavePicks; }
+
 protected:
   bool viewportEvent(QEvent *) override;
   void mousePressEvent(QMouseEvent *) override;

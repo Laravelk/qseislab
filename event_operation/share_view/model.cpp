@@ -5,6 +5,8 @@
 #include <QtWidgets/QGraphicsView>
 #include <iostream> // TODO: delete
 
+#include "view/wavepick.h"
+
 namespace EventOperation {
 Model::Model(QGraphicsItem *parent, Qt::WindowFlags wFlags)
     : QChart(QChart::ChartTypeCartesian, parent, wFlags) {
@@ -22,12 +24,20 @@ bool Model::gestureEvent(QGestureEvent *event) {
   if (QGesture *gesture = event->gesture(Qt::PanGesture)) {
     QPanGesture *pan = static_cast<QPanGesture *>(gesture);
     QChart::scroll(-(pan->delta().x()), pan->delta().y());
+    for (auto &it : _wavePicks) {
+      it->updateGeomety();
+    }
   }
 
   if (QGesture *gesture = event->gesture(Qt::PinchGesture)) {
     QPinchGesture *pinch = static_cast<QPinchGesture *>(gesture);
-    if (pinch->changeFlags() & QPinchGesture::ScaleFactorChanged)
+    if (pinch->changeFlags() & QPinchGesture::ScaleFactorChanged) {
       QChart::zoom(pinch->scaleFactor());
+      for (auto &it : _wavePicks) {
+        it->setScale(it->scale() * pinch->scaleFactor());
+        it->updateGeomety();
+      }
+    }
   }
 
   return true;
