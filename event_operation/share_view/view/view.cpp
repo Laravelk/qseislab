@@ -13,9 +13,10 @@ View::View(QChart *chart, QWidget *parent)
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setRenderHint(QPainter::Antialiasing);
+  chart->setFlag(QGraphicsItem::ItemClipsChildrenToShape);
   scene()->addItem(chart);
-  rect = scene()->addRect(chart->plotArea());
-  rect->setFlag(QGraphicsItem::ItemClipsChildrenToShape);
+  //  rect = scene()->addRect(chart->plotArea());
+  //  rect->setFlag(QGraphicsItem::ItemClipsChildrenToShape);
 }
 
 void View::addPick(qreal ax, qreal ay, int width, int height, QBrush brush,

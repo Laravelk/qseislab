@@ -75,10 +75,17 @@ void WavePick::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
   if (event->buttons() & Qt::LeftButton) {
     QPointF newPosition =
-        mapToParent(event->pos() - event->buttonDownPos(Qt::LeftButton));
+        QPointF(_chart
+                    ->mapToValue(mapToParent(event->pos()) -
+                                 event->buttonDownPos(Qt::LeftButton))
+                    .x(),
+                _anchor.y());
+    ;
     if (newPosition.x() < _valueRightBorder &&
-        newPosition.x() >= _valueLeftBorder) {
-      setPos(QPointF(newPosition.x(), pos().y()));
+        newPosition.x() > _valueLeftBorder) {
+      setPos(QPointF(
+          mapToParent(event->pos() - event->buttonDownPos(Qt::LeftButton)).x(),
+          pos().y()));
     }
     event->setAccepted(true);
   } else {
@@ -105,7 +112,7 @@ void WavePick::updateBorders() {
   };
   _valueLeftBorder = std::visit(border_visitor, _leftBorder);
   _valueRightBorder = std::visit(border_visitor, _rightBorder);
-  //  std::cerr << _valueLeftBorder << " " << _valueRightBorder << std::endl;
+  std::cerr << _valueLeftBorder << " " << _valueRightBorder << std::endl;
 }
 
 } // namespace EventOperation
