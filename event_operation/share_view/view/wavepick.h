@@ -25,7 +25,7 @@ public:
 
   void setAnchor(const QPointF);
   void updateGeomety();
-  qreal getXPos() { return pos().x(); }
+  qreal getXPos() { return _anchor.x(); }
   void setLeftBorder(std::variant<WavePick *, qreal>);
   void setRightBorder(std::variant<WavePick *, qreal>);
   void setBorders(std::variant<WavePick *, qreal>,

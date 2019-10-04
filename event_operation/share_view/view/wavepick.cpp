@@ -13,9 +13,9 @@ WavePick::WavePick(QChart *chart, QPointF pos, QSize size, QBrush brush,
                    std::variant<WavePick *, qreal> rightBorder)
     : QGraphicsItem(chart), _chart(chart), _pos(pos), _size(size),
       _brush(brush), _leftBorder(leftBorder), _rightBorder(rightBorder) {
-  updateBorders();
   _anchor = pos;
   setPos(_anchor);
+  updateBorders();
   _rect = QRectF(0, 0, size.width(), size.height());
 }
 
@@ -74,9 +74,12 @@ void WavePick::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 
 void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
   if (event->buttons() & Qt::LeftButton) {
-    setPos(QPointF(
-        (mapToParent(event->pos() - event->buttonDownPos(Qt::LeftButton))).x(),
-        pos().y()));
+    QPointF newPosition =
+        mapToParent(event->pos() - event->buttonDownPos(Qt::LeftButton));
+    if (newPosition.x() < _valueRightBorder &&
+        newPosition.x() >= _valueLeftBorder) {
+      setPos(QPointF(newPosition.x(), pos().y()));
+    }
     event->setAccepted(true);
   } else {
     event->setAccepted(false);
@@ -97,12 +100,12 @@ void WavePick::updateBorders() {
     if constexpr (std::is_same_v<T, qreal>) {
       return arg;
     } else if constexpr (std::is_same_v<T, WavePick *>) {
-      arg->getXPos();
+      return arg->getXPos();
     }
   };
   _valueLeftBorder = std::visit(border_visitor, _leftBorder);
   _valueRightBorder = std::visit(border_visitor, _rightBorder);
-  std::cerr << _valueLeftBorder << " " << _valueRightBorder << std::endl;
+  //  std::cerr << _valueLeftBorder << " " << _valueRightBorder << std::endl;
 }
 
 } // namespace EventOperation

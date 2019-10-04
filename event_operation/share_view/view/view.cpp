@@ -26,11 +26,11 @@ void View::addPick(qreal ax, qreal ay, int width, int height, QBrush brush,
 void View::addPick(QPointF pos, QSize size, QBrush brush, qreal rangeX) {
   WavePick *pick = new WavePick(chart(), pos, size, brush, 2, 4);
   WavePick *leftBorder = new WavePick(
-      chart(), QPointF(pos.x() - 20000, pos.y()), size, Qt::darkGreen, 0, pick);
+      chart(), QPointF(pos.x() - 40000, pos.y()), size, Qt::darkGreen, 0, pick);
   WavePick *rightBorder =
-      new WavePick(chart(), QPointF(pos.x() + 20000, pos.y()), size,
+      new WavePick(chart(), QPointF(pos.x() + 40000, pos.y()), size,
                    Qt::darkGreen, pick, rangeX);
-  pick->setBorders(rightBorder, leftBorder);
+  pick->setBorders(leftBorder, rightBorder);
   _wavePicks.push_back(leftBorder);
   _wavePicks.push_back(rightBorder);
   _wavePicks.push_back(pick);

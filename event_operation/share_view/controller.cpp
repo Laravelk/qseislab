@@ -50,9 +50,9 @@ void Controller::clear() {
 
 void Controller::addWaveArrival(int index) {
   _view->addPick(QPointF(_pWaveArrival - 500, WAVE_RADIUS + index),
-                 QSize(10, 30), Qt::darkRed, _rangeAxisX);
+                 QSize(5, 30), Qt::darkRed, _rangeAxisX);
   _view->addPick(QPointF(_sWaveArrival - 500, WAVE_RADIUS + index),
-                 QSize(10, 30), Qt::darkBlue, _rangeAxisX);
+                 QSize(5, 30), Qt::darkBlue, _rangeAxisX);
 }
 
 void Controller::setInterval(const std::unique_ptr<SeismEvent> &event) {
