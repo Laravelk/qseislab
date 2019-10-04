@@ -48,59 +48,11 @@ void Controller::clear() {
   _view->hide();
 }
 
-void Controller::setWaveArrivalPen(QLineSeries &pWaveArrival,
-                                   QLineSeries &sWaveArrival) {
-  QColor red, blue;
-  QPen pen = pWaveArrival.pen();
-  pen.setWidth(5);
-  pWaveArrival.setPen(pen);
-  sWaveArrival.setPen(pen);
-  red.setRed(100);
-  blue.setBlue(100);
-  sWaveArrival.setColor(red);
-  pWaveArrival.setColor(blue);
-}
-
-void Controller::setBorderPen(QLineSeries &leftBorder,
-                              QLineSeries &rightBorder) {
-  QColor green, orange;
-  QPen pen = leftBorder.pen();
-  pen.setWidth(WAVE_PEN_WIDTH);
-  leftBorder.setPen(pen);
-  rightBorder.setPen(pen);
-  green.setGreen(100);
-  orange.setHsl(39, 100, 50); // orange color in hsl format
-  leftBorder.setColor(green);
-  leftBorder.setColor(orange);
-}
-
 void Controller::addWaveArrival(int index) {
   _view->addPick(QPointF(_pWaveArrival - 500, WAVE_RADIUS + index),
-                 QSize(20, 40));
-}
-
-void Controller::addBorderWavesSeries(QLineSeries &rightBorder,
-                                      QLineSeries &leftBorder, int waveCord,
-                                      int index) {
-  setBorderPen(rightBorder, leftBorder);
-
-  rightBorder.append(static_cast<qreal>(waveCord + _rangeAxisX / 20),
-                     BORDER_RADIUS + index);
-  rightBorder.append(static_cast<qreal>(waveCord + _rangeAxisX / 20),
-                     -BORDER_RADIUS + index);
-
-  leftBorder.append(static_cast<qreal>(waveCord - _rangeAxisX / 20),
-                    BORDER_RADIUS + index);
-  leftBorder.append(static_cast<qreal>(waveCord - _rangeAxisX / 20),
-                    -BORDER_RADIUS + index);
-
-  _model->addSeries(&rightBorder);
-  _model->addSeries(&leftBorder);
-
-  rightBorder.attachAxis(_axisX);
-  rightBorder.attachAxis(_axisY);
-  leftBorder.attachAxis(_axisX);
-  leftBorder.attachAxis(_axisY);
+                 QSize(10, 30), Qt::darkRed, _rangeAxisX);
+  _view->addPick(QPointF(_sWaveArrival - 500, WAVE_RADIUS + index),
+                 QSize(10, 30), Qt::darkBlue, _rangeAxisX);
 }
 
 void Controller::setInterval(const std::unique_ptr<SeismEvent> &event) {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QBrush>
 #include <QtCharts/QChartGlobal>
 #include <QtWidgets/QGraphicsItem>
 
@@ -14,13 +15,21 @@ QT_CHARTS_END_NAMESPACE
 QT_CHARTS_USE_NAMESPACE;
 
 namespace EventOperation {
+class WaveBorder;
+
 class WavePick : public QGraphicsItem {
 public:
-  WavePick(QChart *, QPointF, QSize);
-  WavePick(QChart *, qreal, qreal, int, int);
+  WavePick(QChart *, QPointF, QSize, QBrush, std::variant<WavePick *, qreal>,
+           std::variant<WavePick *, qreal>);
+  WavePick(QChart *, qreal, qreal, int, int, QBrush, WavePick *);
 
   void setAnchor(const QPointF);
   void updateGeomety();
+  qreal getXPos() { return pos().x(); }
+  void setLeftBorder(std::variant<WavePick *, qreal>);
+  void setRightBorder(std::variant<WavePick *, qreal>);
+  void setBorders(std::variant<WavePick *, qreal>,
+                  std::variant<WavePick *, qreal>);
 
   QRectF boundingRect() const;
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
@@ -31,10 +40,19 @@ protected:
   void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
 
 private:
+  const qreal DEFAULT_OFFSET_TO_BORDER = 10000;
   QChart *_chart;
   QPointF _pos;
   QSize _size;
   QPointF _anchor;
+  std::variant<WavePick *, qreal> _leftBorder;
+  std::variant<WavePick *, qreal> _rightBorder;
+  qreal _valueLeftBorder;
+  qreal _valueRightBorder;
   QRectF _rect;
+  QBrush _brush;
+
+private:
+  void updateBorders();
 };
 } // namespace EventOperation

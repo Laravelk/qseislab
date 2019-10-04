@@ -17,11 +17,11 @@ public:
   View(QChart *, QWidget *parent = nullptr);
   void addModel(Model *model) { _chart = model; }
   void addPick(WavePick *);
-  void addPick(qreal, qreal, int, int);
-  void addPick(QPointF, QSize);
-  void addPick(); // test
+  void addPick(qreal, qreal, int, int, QBrush, qreal);
+  void addPick(QPointF, QSize, QBrush, qreal);
 
-  QList<WavePick *> getPickcs() { return wavePicks; }
+  QList<WavePick *> getPickcs() { return _wavePicks; }
+  QList<WaveBorder *> getBorders() { return _waveBorders; }
 
 protected:
   bool viewportEvent(QEvent *) override;
@@ -35,14 +35,14 @@ protected:
   void scrollContentsBy(int dx, int dy) override;
   void resizeEvent(QResizeEvent *) override;
   void wheelEvent(QWheelEvent *) override;
-  void dragLeaveEvent(QDragLeaveEvent *) override; // test
   void scaleContentsBy(qreal factor);
 
 private:
   bool mouseIsTouching = false;
   qreal _mFactor = 1.0;
   Model *_chart;
-  QList<WavePick *> wavePicks;
+  QList<WavePick *> _wavePicks;
+  QList<WaveBorder *> _waveBorders;
 
 private:
   QGraphicsRectItem *rect;

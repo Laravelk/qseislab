@@ -18,23 +18,22 @@ View::View(QChart *chart, QWidget *parent)
   rect->setFlag(QGraphicsItem::ItemClipsChildrenToShape);
 }
 
-void View::addPick(qreal ax, qreal ay, int width, int height) {
-  addPick(QPointF(ax, ay), QSize(width, height));
+void View::addPick(qreal ax, qreal ay, int width, int height, QBrush brush,
+                   qreal rangeX) {
+  addPick(QPointF(ax, ay), QSize(width, height), brush, rangeX);
 }
 
-void View::addPick(QPointF pos, QSize size) {
-  WavePick *pick = new WavePick(chart(), pos, size);
-  scene()->addItem(pick);
-  wavePicks.push_back(pick);
-}
-
-void View::addPick() {
-  WavePick *p = new WavePick(chart(), QPointF(20000, 5), QSize(40, 15));
-  WavePick *p2 = new WavePick(chart(), QPointF(10000, 5), QSize(40, 15));
-  scene()->addItem(p);
-  scene()->addItem(p2);
-  wavePicks.push_back(p);
-  wavePicks.push_back(p2);
+void View::addPick(QPointF pos, QSize size, QBrush brush, qreal rangeX) {
+  WavePick *pick = new WavePick(chart(), pos, size, brush, 2, 4);
+  WavePick *leftBorder = new WavePick(
+      chart(), QPointF(pos.x() - 20000, pos.y()), size, Qt::darkGreen, 0, pick);
+  WavePick *rightBorder =
+      new WavePick(chart(), QPointF(pos.x() + 20000, pos.y()), size,
+                   Qt::darkGreen, pick, rangeX);
+  pick->setBorders(rightBorder, leftBorder);
+  _wavePicks.push_back(leftBorder);
+  _wavePicks.push_back(rightBorder);
+  _wavePicks.push_back(pick);
 }
 
 bool View::viewportEvent(QEvent *event) {
@@ -50,7 +49,7 @@ void View::mousePressEvent(QMouseEvent *event) {
     return;
   QChartView::mousePressEvent(event);
   if (event->button() == Qt::RightButton) {
-    for (auto &wave : wavePicks) {
+    for (auto &wave : _wavePicks) {
       wave->updateGeomety();
     }
   }
@@ -126,7 +125,7 @@ void View::paintEvent(QPaintEvent *event) { QChartView::paintEvent(event); }
 void View::scrollContentsBy(int dx, int dy) {
   if (scene()) {
     _chart->scroll(dx, dy);
-    for (auto &wave : wavePicks) {
+    for (auto &wave : _wavePicks) {
       wave->updateGeomety();
     }
   }
@@ -136,7 +135,7 @@ void View::resizeEvent(QResizeEvent *event) {
   if (scene()) {
     scene()->setSceneRect(QRect(QPoint(0, 0), event->size()));
     _chart->resize(event->size());
-    for (auto &wave : wavePicks) {
+    for (auto &wave : _wavePicks) {
       wave->updateGeomety();
     }
   }
@@ -150,12 +149,10 @@ void View::wheelEvent(QWheelEvent *event) {
   //  QChartView::wheelEvent(event);
 }
 
-void View::dragLeaveEvent(QDragLeaveEvent *) { std::cerr << "DRAG"; }
-
 void View::scaleContentsBy(qreal factor) {
   if (scene()) {
     _chart->zoom(factor);
-    for (auto &wave : wavePicks) {
+    for (auto &wave : _wavePicks) {
       wave->setScale(wave->scale() * factor);
       wave->updateGeomety();
     }

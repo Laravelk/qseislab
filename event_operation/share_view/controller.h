@@ -36,10 +36,7 @@ private:
   QValueAxis *_axisX = new QValueAxis;
   QValueAxis *_axisY = new QValueAxis;
 
-  void setWaveArrivalPen(QLineSeries &, QLineSeries &);
-  void setBorderPen(QLineSeries &, QLineSeries &);
   void addWaveArrival(int);
-  void addBorderWavesSeries(QLineSeries &, QLineSeries &, int, int);
   void setInterval(const std::unique_ptr<Data::SeismEvent> &);
   void addTraceSeries(const std::unique_ptr<Data::SeismComponent> &, int);
   void setAxesY(int);
