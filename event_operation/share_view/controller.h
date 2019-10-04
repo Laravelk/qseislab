@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model.h"
+#include "chartgesture.h"
 #include "view/view.h"
 
 #include <QtCharts>
@@ -18,8 +18,8 @@ public:
   explicit Controller(QWidget *parent = nullptr);
 
   View *getView() const { return _view; }
-  Model *getModel() const { return _model; }
-  void setChart(Model *chart) { _model = chart; }
+  ChartGesture *getModel() const { return _chart; }
+  void setChart(ChartGesture *chart) { _chart = chart; }
   void setView(View *view) { _view = view; }
 
   void update(const std::unique_ptr<Data::SeismEvent> &);
@@ -32,7 +32,7 @@ private:
   int _sWaveArrival;
   float _rangeAxisX;
   View *_view;
-  Model *_model;
+  ChartGesture *_chart;
   QValueAxis *_axisX = new QValueAxis;
   QValueAxis *_axisY = new QValueAxis;
 

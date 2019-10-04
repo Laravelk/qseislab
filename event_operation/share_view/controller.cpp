@@ -13,16 +13,16 @@ typedef Data::SeismTrace SeismTrace;
 
 namespace EventOperation {
 Controller::Controller(QWidget *parent)
-    : QFrame(parent), _model(new Model()), _axisX(new QValueAxis),
+    : QFrame(parent), _chart(new ChartGesture()), _axisX(new QValueAxis),
       _axisY(new QValueAxis), _rangeAxisX(0) {
-  _view = new View(_model);
-  _view->addModel(_model);
-  _model->setAnimationOptions(QChart::NoAnimation);
-  _model->legend()->hide();
-  _model->setMinimumSize(GRAPH_WIDHT, GRAPH_HEIGHT);
-  _model->addAxis(_axisX, Qt::AlignBottom);
-  _model->addAxis(_axisY, Qt::AlignLeft);
-  _model->setAcceptHoverEvents(true);
+  _view = new View(_chart);
+  _view->addModel(_chart);
+  _chart->setAnimationOptions(QChart::NoAnimation);
+  _chart->legend()->hide();
+  _chart->setMinimumSize(GRAPH_WIDHT, GRAPH_HEIGHT);
+  _chart->addAxis(_axisX, Qt::AlignBottom);
+  _chart->addAxis(_axisY, Qt::AlignLeft);
+  _chart->setAcceptHoverEvents(true);
   _view->hide();
 }
 
@@ -39,7 +39,7 @@ void Controller::update(const std::unique_ptr<SeismEvent> &event) {
     addTraceSeries(component, idx);
     idx++;
   }
-  _model->addPicks(_view->getPickcs());
+  _chart->addPicks(_view->getPickcs());
   _view->show();
 }
 
@@ -81,7 +81,7 @@ void EventOperation::Controller::addTraceSeries(
                          index);
       tmp += intervalAxisX;
     }
-    _model->addSeries(series);
+    _chart->addSeries(series);
     series->attachAxis(_axisX);
     series->attachAxis(_axisY);
   }

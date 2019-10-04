@@ -3,7 +3,6 @@
 #include <QtCharts/QChart>
 #include <QtGui/QPainter>
 #include <QtWidgets/QGraphicsSceneMouseEvent>
-#include <iostream> // TODO: delete
 #include <type_traits>
 #include <variant>
 
@@ -112,7 +111,6 @@ void WavePick::updateBorders() {
   };
   _valueLeftBorder = std::visit(border_visitor, _leftBorder);
   _valueRightBorder = std::visit(border_visitor, _rightBorder);
-  std::cerr << _valueLeftBorder << " " << _valueRightBorder << std::endl;
 }
 
 } // namespace EventOperation

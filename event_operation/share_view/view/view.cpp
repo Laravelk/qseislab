@@ -1,5 +1,4 @@
 #include "view.h"
-#include "../model.h"
 #include "wavepick.h"
 
 #include <QtGui/QMouseEvent>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../model.h"
+#include "../chartgesture.h"
 #include "wavepick.h"
 #include <QtCharts/QChartView>
 #include <QtWidgets/QRubberBand>
@@ -15,7 +15,7 @@ class View : public QChartView {
   Q_OBJECT
 public:
   View(QChart *, QWidget *parent = nullptr);
-  void addModel(Model *model) { _chart = model; }
+  void addModel(ChartGesture *model) { _chart = model; }
   void addPick(WavePick *);
   void addPick(qreal, qreal, int, int, QBrush, qreal);
   void addPick(QPointF, QSize, QBrush, qreal);
@@ -40,7 +40,7 @@ protected:
 private:
   bool mouseIsTouching = false;
   qreal _mFactor = 1.0;
-  Model *_chart;
+  ChartGesture *_chart;
   QList<WavePick *> _wavePicks;
   QList<WaveBorder *> _waveBorders;
 

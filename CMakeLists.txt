@@ -36,7 +36,7 @@ set(SOURCES
         event_operation/share_view/view/wavepick.cpp
         event_operation/share_view/infoevent.cpp
         event_operation/share_view/controller.cpp
-        event_operation/share_view/model.cpp
+        event_operation/share_view/chartgesture.cpp
 
 
         horizon_operation/controller.cpp
@@ -112,7 +112,7 @@ set(HEADERS
 
         event_operation/share_view/infoevent.h
         event_operation/share_view/controller.h
-        event_operation/share_view/model.h
+        event_operation/share_view/chartgesture.h
         event_operation/share_view/view/view.h
         event_operation/share_view/view/wavepick.h
 

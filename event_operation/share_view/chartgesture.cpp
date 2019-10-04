@@ -1,4 +1,4 @@
-#include "model.h"
+#include "chartgesture.h"
 
 #include <QtWidgets/QGesture>
 #include <QtWidgets/QGraphicsScene>
@@ -8,20 +8,20 @@
 #include "view/wavepick.h"
 
 namespace EventOperation {
-Model::Model(QGraphicsItem *parent, Qt::WindowFlags wFlags)
+ChartGesture::ChartGesture(QGraphicsItem *parent, Qt::WindowFlags wFlags)
     : QChart(QChart::ChartTypeCartesian, parent, wFlags) {
   grabGesture(Qt::PanGesture);
   grabGesture(Qt::PinchGesture);
 }
 
-bool Model::sceneEvent(QEvent *event) {
+bool ChartGesture::sceneEvent(QEvent *event) {
   if (event->type() == QEvent::Gesture) {
     return gestureEvent(static_cast<QGestureEvent *>(event));
   }
   return QChart::event(event);
 }
 
-bool Model::gestureEvent(QGestureEvent *event) {
+bool ChartGesture::gestureEvent(QGestureEvent *event) {
   if (QGesture *gesture = event->gesture(Qt::PanGesture)) {
     QPanGesture *pan = static_cast<QPanGesture *>(gesture);
     QChart::scroll(-(pan->delta().x()), pan->delta().y());

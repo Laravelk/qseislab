@@ -11,10 +11,11 @@ using namespace QtCharts;
 
 namespace EventOperation {
 class WavePick;
-class Model : public QChart {
+class ChartGesture : public QChart {
   Q_OBJECT
 public:
-  explicit Model(QGraphicsItem *parent = nullptr, Qt::WindowFlags wFlags = 0);
+  explicit ChartGesture(QGraphicsItem *parent = nullptr,
+                        Qt::WindowFlags wFlags = 0);
   void addPicks(QList<WavePick *> wavePicks) { _wavePicks = wavePicks; }
 
 protected:
