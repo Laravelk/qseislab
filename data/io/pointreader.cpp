@@ -36,8 +36,7 @@ Point PointReader::next() {
   if (_isBin)
     _instreamBin >> x >> y >> z;
   else
-    //    _instreamText >> x >> y >> z;
-    _instreamBin >> z >> x >> y; // NOTE: в файле потому что так
+    _instreamText >> z >> x >> y; // NOTE: в файле потому что так
 
   return Point(x, y, z);
 }

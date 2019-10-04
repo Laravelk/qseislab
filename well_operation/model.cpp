@@ -3,6 +3,8 @@
 #include "data/io/pointreader.h"
 #include "data/seismwell.h"
 
+#include <iostream>
+
 typedef Data::SeismWell SeismWell;
 typedef Data::IO::PointReader PointReader;
 

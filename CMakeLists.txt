@@ -19,6 +19,13 @@ set(_Q_MODULES
 find_package(Qt5 COMPONENTS ${_Q_MODULES} REQUIRED)
 
 
+# Bad way
+set(Boost_INCLUDE_DIR C:/Users/seismuser/all/boost_1_71_0/boost_1_71_0)
+find_package(Boost REQUIRED)
+if(Boost_FOUND)
+  include_directories(${Boost_INCLUDE_DIRS})
+endif()
+
 find_package(segyio REQUIRED)
 
 
@@ -162,6 +169,7 @@ set(HEADERS
         main/view/workpage.h
         main/view/infoproject.h
         main/view/tableassistant.h
+        main/view/parser.h
         main/surface_view/surface.h
 
         project_operation/new_project/controller.h

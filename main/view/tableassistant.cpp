@@ -2,6 +2,8 @@
 
 #include "data/seismevent.h"
 
+#include "parser.h"
+
 #include <QBoxLayout>
 #include <QCheckBox>
 #include <QHeaderView>
@@ -9,8 +11,6 @@
 #include <QPushButton>
 #include <QSplitter>
 #include <QUuid>
-
-//#include <iostream> // TODO: remove
 
 typedef Data::SeismEvent SeismEvent;
 
@@ -28,6 +28,13 @@ TableAssistant::TableAssistant(Mode mode, QWidget *parent)
   _objectsTable->setSortingEnabled(true);
   _objectsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
   _objectsTable->setSelectionMode(QAbstractItemView::SingleSelection);
+
+  // Double-clicking on object
+  connect(_objectsTable, &QTableWidget::cellDoubleClicked,
+          [this](int row, int) {
+            emit viewClicked(
+                _objectsTable->item(row, 0)->data(Qt::DisplayRole).toUuid());
+          });
 
   auto horizontalHeaderObjectTable = _objectsTable->horizontalHeader();
   horizontalHeaderObjectTable->setSectionResizeMode(
@@ -170,12 +177,42 @@ void TableAssistant::enbledFilter(int enable, const QString &filterName,
 bool TableAssistant::applicable(const QString &pattern,
                                 const QString &value) const {
 
-  // TODO: realize
-  if (pattern.toInt() > value.toInt()) {
-    return true;
+  typedef std::string::const_iterator It;
+  std::string std_pattern = pattern.toStdString();
+  //    std::cout << "std_pattern == " << std_pattern << std::endl;
+  It phrase_begin(std_pattern.begin());
+  It phrase_end(std_pattern.end());
+  //  StringParser<std::string, It> p;
+  TableFilterParsing::Parser<std::string, It> parser;
+
+  try {
+    TableFilterParsing::expr result;
+    bool ok = qi::phrase_parse(phrase_begin, phrase_end, parser > ';',
+                               qi::space, result);
+
+    if (!ok) {
+      //            std::cerr << "invalid input\n";
+      return false;
+    } else {
+      std::string std_value = value.toStdString();
+      bool eval = TableFilterParsing::Evaluator<std::string>::evaluate(
+          result, value.toStdString());
+      //            std::cout << "evaluated:\t" << eval << "\n\n";
+      return !eval;
+    }
+  } catch (const qi::expectation_failure<It> &e) {
+    //        std::cout << "expectation_failure at '" << std::string(e.first,
+    //        e.last)
+    //                  << "'\n\n";
+    return false;
   }
 
-  return false;
+  if (phrase_begin != phrase_end) {
+    //        std::cerr << "unparsed: '" << std::string(phrase_begin,
+    //        phrase_end)
+    //                  << "'\n\n";
+    return false;
+  }
 }
 
 template <>

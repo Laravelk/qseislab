@@ -27,8 +27,8 @@ WorkPage::WorkPage(QWidget *parent)
 
   // Setting`s
   //  initEventsTable(_eventsTable);
-  //  _graph->setMinimumWidth(400);
-  //  _graph->setMinimumHeight(700);
+  _graph->setMinimumWidth(400);
+  _graph->setMinimumHeight(700);
   _surface = new Surface(_graph);
   QWidget *container = QWidget::createWindowContainer(_graph);
   container->setMinimumSize(QSize(400, 400));
@@ -73,12 +73,11 @@ void WorkPage::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
 }
 
 void WorkPage::updateProject(const std::unique_ptr<Data::SeismEvent> &event) {
-  std::cerr << "f";
 
   _infoProject->addEvent();
   _surface->addEvent(event);
 
-  //  _eventsTable->add<SeismEvent>(event); // TODO: uncomment
+  _eventsTable->add<SeismEvent>(event); // TODO: uncomment
 }
 
 void WorkPage::updateProject(
@@ -109,9 +108,14 @@ void WorkPage::updateProjectRemoveHorizon(const QUuid &uuid) {
 
 void WorkPage::updateProject(const std::unique_ptr<Data::SeismWell> &well) {
   _infoProject->addWell();
-  std::cerr << "f";
-
   _surface->addWell(well);
+  for (auto &point : well->getPoints()) {
+    std::cout << std::get<0>(point) << " " << std::get<1>(point) << " "
+              << std::get<2>(point) << std::endl;
+  }
+  for (auto &receiver : well->getReceivers()) {
+    _surface->addReceiver(receiver);
+  }
 }
 
 void WorkPage::updateProjectRemoveWell(const QUuid &uuid) {

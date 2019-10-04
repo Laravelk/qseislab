@@ -78,7 +78,7 @@ void Surface::addWell(const std::unique_ptr<Data::SeismWell> &well) {
     QVector3D pipeVector =
         vectorBy2Point(QVector3D(lx, ly, lz), QVector3D(x, y, z));
     float scaling = calculateLenght(QVector3D(x, y, z), QVector3D(lx, ly, lz)) /
-                    _maxAxisValue;
+                    _maxAxisValue / 1.4;
     std::tie(lx, ly, lz) = *point;
     QCustom3DItem *item = new QCustom3DItem(
         ":/cylinderFilledSmooth.obj",
@@ -86,11 +86,11 @@ void Surface::addWell(const std::unique_ptr<Data::SeismWell> &well) {
         QVector3D(SCALING_OX, scaling, SCALING_OY),
         QQuaternion::rotationTo(QVector3D(0.0f, 0.0f, 1.0f), pipeVector),
         _blackColor);
+    checkAxisRange(*item);
     item->setScalingAbsolute(true);
     item->setVisible(true);
     _wells[well->getUuid()].push_back(item);
     _surface->addCustomItem(item);
-    checkAxisRange(*item);
   }
 }
 
@@ -267,7 +267,8 @@ void Surface::settingGraph() {
 
 void Surface::checkAxisRange(QCustom3DItem &newItem) {
   QVector3D position = newItem.position();
-
+  //  std::cerr << position.x() << " " << position.y() << " " << position.z()
+  //            << std::endl;
   if (position.x() < _minAxisValue | position.y() < _minAxisValue |
       position.z() < _minAxisValue) {
     float minValue =
