@@ -38,7 +38,7 @@ private:
 
   void setWaveArrivalPen(QLineSeries &, QLineSeries &);
   void setBorderPen(QLineSeries &, QLineSeries &);
-  void addWaveArrivalSeries(QLineSeries &, QLineSeries &, int);
+  void addWaveArrival(int);
   void addBorderWavesSeries(QLineSeries &, QLineSeries &, int, int);
   void setInterval(const std::unique_ptr<Data::SeismEvent> &);
   void addTraceSeries(const std::unique_ptr<Data::SeismComponent> &, int);

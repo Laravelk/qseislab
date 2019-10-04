@@ -1,9 +1,10 @@
 #include "controller.h"
 
+#include <iostream> // TODO: delete
+
 #include "data/seismcomponent.h"
 #include "data/seismevent.h"
 #include "data/seismtrace.h"
-
 #include "view/wavepick.h"
 
 typedef Data::SeismComponent SeismComponent;
@@ -34,21 +35,10 @@ void Controller::update(const std::unique_ptr<SeismEvent> &event) {
   for (auto &component : event->getComponents()) {
     _pWaveArrival = component->getPWaveArrival();
     _sWaveArrival = component->getSWaveArrival();
-    QLineSeries *PWaveArrival = new QLineSeries;
-    QLineSeries *SWaveArrival = new QLineSeries;
-    QLineSeries *PWaveLeftBorder = new QLineSeries;
-    QLineSeries *PWaveRightBorder = new QLineSeries;
-    QLineSeries *SWaveLeftBorder = new QLineSeries;
-    QLineSeries *SWaveRightBorder = new QLineSeries;
-    addWaveArrivalSeries(*PWaveArrival, *SWaveArrival, idx);
-    addBorderWavesSeries(*SWaveRightBorder, *SWaveLeftBorder, _sWaveArrival,
-                         idx);
-    addBorderWavesSeries(*PWaveRightBorder, *PWaveLeftBorder, _pWaveArrival,
-                         idx);
+    addWaveArrival(idx);
     addTraceSeries(component, idx);
-    ++idx;
+    idx++;
   }
-  _view->addPick();
   _model->addPicks(_view->getPickcs());
   _view->show();
 }
@@ -84,23 +74,9 @@ void Controller::setBorderPen(QLineSeries &leftBorder,
   leftBorder.setColor(orange);
 }
 
-void Controller::addWaveArrivalSeries(QLineSeries &pWaveArrival,
-                                      QLineSeries &sWaveArrival, int index) {
-  setWaveArrivalPen(pWaveArrival, sWaveArrival);
-
-  pWaveArrival.append(_pWaveArrival, WAVE_RADIUS + index);
-  pWaveArrival.append(_pWaveArrival, -WAVE_RADIUS + index);
-  sWaveArrival.append(_sWaveArrival, WAVE_RADIUS + index);
-  sWaveArrival.append(_sWaveArrival, -WAVE_RADIUS + index);
-
-  _model->addSeries(&pWaveArrival);
-  _model->addSeries(&sWaveArrival);
-
-  pWaveArrival.attachAxis(_axisX);
-  pWaveArrival.attachAxis(_axisY);
-
-  sWaveArrival.attachAxis(_axisX);
-  sWaveArrival.attachAxis(_axisY);
+void Controller::addWaveArrival(int index) {
+  _view->addPick(QPointF(_pWaveArrival - 500, WAVE_RADIUS + index),
+                 QSize(20, 40));
 }
 
 void Controller::addBorderWavesSeries(QLineSeries &rightBorder,

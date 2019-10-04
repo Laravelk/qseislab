@@ -8,25 +8,33 @@
 namespace EventOperation {
 View::View(QChart *chart, QWidget *parent)
     : QChartView(chart, parent), mouseIsTouching(false) {
-  setRubberBand(QChartView::RectangleRubberBand);
   chart->setAnimationOptions(QChart::NoAnimation);
   setDragMode(QGraphicsView::NoDrag);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setRenderHint(QPainter::Antialiasing);
   scene()->addItem(chart);
-  QGraphicsRectItem *rect = scene()->addRect(chart->plotArea());
+  rect = scene()->addRect(chart->plotArea());
   rect->setFlag(QGraphicsItem::ItemClipsChildrenToShape);
 }
 
-void View::addPick(EventOperation::WavePick *pick) {
+void View::addPick(qreal ax, qreal ay, int width, int height) {
+  addPick(QPointF(ax, ay), QSize(width, height));
+}
+
+void View::addPick(QPointF pos, QSize size) {
+  WavePick *pick = new WavePick(chart(), pos, size);
+  scene()->addItem(pick);
   wavePicks.push_back(pick);
 }
 
 void View::addPick() {
-  WavePick *p = new WavePick(_chart, QPointF(5, 5), QSize(40, 15));
-  p->setAnchor(QPointF(5, 5));
+  WavePick *p = new WavePick(chart(), QPointF(20000, 5), QSize(40, 15));
+  WavePick *p2 = new WavePick(chart(), QPointF(10000, 5), QSize(40, 15));
+  scene()->addItem(p);
+  scene()->addItem(p2);
   wavePicks.push_back(p);
+  wavePicks.push_back(p2);
 }
 
 bool View::viewportEvent(QEvent *event) {
@@ -57,7 +65,8 @@ void View::mouseMoveEvent(QMouseEvent *event) {
 void View::mouseReleaseEvent(QMouseEvent *event) {
   if (event->button() == Qt::RightButton) {
     if (scene()) {
-      // scaleContentsBy(0.5);
+      scaleContentsBy(0.7);
+      return;
     }
   }
   if (mouseIsTouching) {
@@ -133,6 +142,15 @@ void View::resizeEvent(QResizeEvent *event) {
   }
   QGraphicsView::resizeEvent(event);
 }
+
+// uncomment for wheelEvent on Windows
+void View::wheelEvent(QWheelEvent *event) {
+  //  qreal factor = event->angleDelta().y() > 0 ? 0.7 : 1.3;
+  //  scaleContentsBy(factor);
+  //  QChartView::wheelEvent(event);
+}
+
+void View::dragLeaveEvent(QDragLeaveEvent *) { std::cerr << "DRAG"; }
 
 void View::scaleContentsBy(qreal factor) {
   if (scene()) {

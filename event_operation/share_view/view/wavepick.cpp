@@ -7,20 +7,24 @@
 namespace EventOperation {
 WavePick::WavePick(QChart *chart, QPointF pos, QSize size)
     : QGraphicsItem(chart), _chart(chart), _pos(pos), _size(size) {
-  _rect = QRectF(pos.x(), pos.y(), size.width(), size.height());
+  _anchor = pos;
+  setPos(_anchor);
+  _rect = QRectF(0, 0, size.width(), size.height());
 }
 
 WavePick::WavePick(QChart *chart, qreal ax, qreal ay, int width, int height)
     : QGraphicsItem(chart), _chart(chart), _pos(QPointF(ax, ay)),
       _size(QSize(width, height)) {
-  _rect = QRectF(0, 0, 40, 20);
+  _anchor = QPointF(ax, ay);
+  setPos(_anchor);
+  _rect = QRectF(0, 0, width, height);
 }
 
 void WavePick::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
                      QWidget *) {
   QPainterPath path;
   path.addRoundedRect(_rect, 5, 5);
-  painter->setBrush(Qt::darkGray);
+  painter->setBrush(Qt::darkRed);
   painter->drawPath(path);
 }
 
@@ -28,8 +32,7 @@ void WavePick::setAnchor(const QPointF point) { _anchor = point; }
 
 void WavePick::updateGeomety() {
   prepareGeometryChange();
-  setPos(_chart->mapToPosition(
-      _anchor) /* + QPoint(-10 * scale(), 50 * scale())*/);
+  setPos(_chart->mapToPosition(_anchor));
 }
 
 QRectF WavePick::boundingRect() const {
@@ -48,7 +51,7 @@ void WavePick::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 
 void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
   if (event->buttons() & Qt::LeftButton) {
-    setPos(mapToParent(event->pos() - event->buttonDownPos(Qt::LeftButton)));
+    setPos((mapToParent(event->pos() - event->buttonDownPos(Qt::LeftButton))));
     event->setAccepted(true);
   } else {
     event->setAccepted(false);
@@ -56,8 +59,11 @@ void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
 }
 
 void WavePick::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
-  _anchor = _chart->mapToValue(mapToParent(event->pos()) -
-                               event->buttonDownPos(Qt::LeftButton));
-  //  std::cerr << (_anchor).x() << " " << _anchor.y() << "\n";
+  _anchor = QPointF(_chart
+                        ->mapToValue(mapToParent(event->pos()) -
+                                     event->buttonDownPos(Qt::LeftButton))
+                        .x(),
+                    _anchor.y());
 }
+
 } // namespace EventOperation

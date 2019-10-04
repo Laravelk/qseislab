@@ -15,8 +15,9 @@ Model::Model(QGraphicsItem *parent, Qt::WindowFlags wFlags)
 }
 
 bool Model::sceneEvent(QEvent *event) {
-  if (event->type() == QEvent::Gesture)
+  if (event->type() == QEvent::Gesture) {
     return gestureEvent(static_cast<QGestureEvent *>(event));
+  }
   return QChart::event(event);
 }
 
@@ -39,7 +40,6 @@ bool Model::gestureEvent(QGestureEvent *event) {
       }
     }
   }
-
   return true;
 }
 } // namespace EventOperation

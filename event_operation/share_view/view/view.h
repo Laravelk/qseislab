@@ -16,7 +16,9 @@ class View : public QChartView {
 public:
   View(QChart *, QWidget *parent = nullptr);
   void addModel(Model *model) { _chart = model; }
-  void addPick(WavePick *pick);
+  void addPick(WavePick *);
+  void addPick(qreal, qreal, int, int);
+  void addPick(QPointF, QSize);
   void addPick(); // test
 
   QList<WavePick *> getPickcs() { return wavePicks; }
@@ -32,6 +34,8 @@ protected:
   void paintEvent(QPaintEvent *) override;
   void scrollContentsBy(int dx, int dy) override;
   void resizeEvent(QResizeEvent *) override;
+  void wheelEvent(QWheelEvent *) override;
+  void dragLeaveEvent(QDragLeaveEvent *) override; // test
   void scaleContentsBy(qreal factor);
 
 private:
@@ -39,6 +43,9 @@ private:
   qreal _mFactor = 1.0;
   Model *_chart;
   QList<WavePick *> wavePicks;
+
+private:
+  QGraphicsRectItem *rect;
 
 private:
 };
