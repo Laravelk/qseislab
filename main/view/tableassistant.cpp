@@ -183,6 +183,7 @@ bool TableAssistant::applicable(const QString &pattern,
   It phrase_begin(std_pattern.begin());
   It phrase_end(std_pattern.end());
   //  StringParser<std::string, It> p;
+  //  TableFilterParsing::Parser<QDate, It> parser;
   TableFilterParsing::Parser<std::string, It> parser;
 
   try {
@@ -197,6 +198,8 @@ bool TableAssistant::applicable(const QString &pattern,
       std::string std_value = value.toStdString();
       bool eval = TableFilterParsing::Evaluator<std::string>::evaluate(
           result, value.toStdString());
+      //      bool eval = TableFilterParsing::Evaluator<QDate>::evaluate(
+      //          result, QDate::fromString(value));
       //            std::cout << "evaluated:\t" << eval << "\n\n";
       return !eval;
     }

@@ -41,6 +41,12 @@ typedef boost::variant<
 
 template <typename tag, typename param_t> struct param_unop {
   explicit param_unop(const param_t &p) : param1(p) {}
+  //  //  explicit param_unop(const std::string &p_str) {
+  //  //    if constexpr (std::is_same_v<QDate, param_t>) {
+  //  //      param1 = QDate::fromString(QString::fromStdString(p_str));
+  //  //    }
+  //  //  }
+
   param_t param1;
 };
 
