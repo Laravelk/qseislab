@@ -1,5 +1,7 @@
 #include "controller.h"
 
+#include "data/seismevent.h"
+#include "data/seismwell.h"
 #include "model.h"
 
 #include "data/io/segyreader.h"
@@ -8,26 +10,48 @@ typedef Data::IO::SegyReader SegyReader;
 
 namespace EventOperation {
 namespace AddEvent {
-Controller::Controller(QObject *parent)
-    : QObject(parent), _model(new Model(new SegyReader(), this)),
-      _view(std::make_unique<View>()) {
-  connect(_view.get(), SIGNAL(sendFilePath(const QString &)), this,
-          SLOT(recvFilePath(const QString &)));
-  connect(_model, SIGNAL(notify(const QString &)), this,
-          SLOT(recvNotification(const QString &)));
-  connect(_view.get(), SIGNAL(finished(int)), this, SLOT(finish(int)));
+Controller::Controller(
+    const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &wells_map,
+    QObject *parent)
+    : QObject(parent), _wells_map(wells_map),
+      _model(new Model(new SegyReader(), this)),
+      _event(std::make_unique<Data::SeismEvent>()) {
 
+  std::map<QUuid, QString> wellNames_map;
+  for (auto &uuid_well : wells_map) {
+    wellNames_map[uuid_well.first] = uuid_well.second->getName();
+  }
+  _view = std::make_unique<View>(wellNames_map);
+
+  connect(_model, &Model::notify,
+          [this](auto &msg) { _view->setNotification(msg); });
+
+  connect(_view.get(), &View::sendWellUuidAndFilePath,
+          [this](auto wellUuid_filePath) {
+            auto components = _model->getSeismComponents(
+                _wells_map.at(wellUuid_filePath.first),
+                wellUuid_filePath.second);
+            if (!components.empty()) {
+              for (auto &component : components) {
+                _event->addComponent(std::move(component));
+              }
+              _view->update(_event, wellUuid_filePath.first);
+            }
+          });
+
+  connect(_view.get(), &View::sendWellUuidForRemove, [this](auto &uuid) {
+    auto &well = _wells_map.at(uuid);
+    for (auto &reciever : well->getReceivers()) {
+      _event->removeComponentByReceiverUuid(reciever->getUuid());
+    }
+    _view->update(_event, uuid, well->getName());
+  });
+  connect(_view.get(), &View::finished, this, &Controller::finish);
+}
+
+void Controller::start() {
   _view->setModal(true);
   _view->show();
-}
-
-void Controller::recvFilePath(const QString &path) {
-  _event = _model->getSeismEventFrom(path);
-  _view->update(_event);
-}
-
-void Controller::recvNotification(const QString &msg) {
-  _view->setNotification(msg);
 }
 
 void Controller::finish(int result) {

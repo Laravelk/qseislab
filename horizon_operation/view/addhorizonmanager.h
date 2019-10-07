@@ -26,10 +26,6 @@ signals:
   void sendFilePath(const QString &) const;
   void notify(const QString &) const;
 
-private slots:
-  void handleAccept();
-  void recvFilePath(const QString &);
-
 private:
   FileManager *_fileManager;
   QLineEdit *_nameLineEdit;

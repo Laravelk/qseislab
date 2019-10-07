@@ -1,11 +1,15 @@
 #pragma once
 
-#include "data/seismevent.h"
 #include "view/view.h"
 
 #include <QObject>
 
 #include <memory>
+
+namespace Data {
+class SeismEvent;
+class SeismWell;
+} // namespace Data
 
 namespace EventOperation {
 namespace AddEvent {
@@ -14,18 +18,19 @@ class Controller : public QObject {
   Q_OBJECT
 
 public:
-  explicit Controller(QObject *parent = nullptr);
+  explicit Controller(const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &,
+                      QObject *parent = nullptr);
+
+  void start();
+  void finish(int);
 
 signals:
   void sendEvent(std::unique_ptr<Data::SeismEvent> &) const;
   void finished() const;
 
-private slots:
-  void recvFilePath(const QString &);
-  void recvNotification(const QString &);
-  void finish(int);
-
 private:
+  const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &_wells_map;
+
   Model *_model;
 
   std::unique_ptr<View> _view;

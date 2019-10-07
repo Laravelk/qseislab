@@ -1,6 +1,6 @@
 #include "view.h"
 
-#include "event_operation/share_view/graphicevent.h"
+#include "event_operation/share_view/controller.h"
 #include "event_operation/share_view/infoevent.h"
 
 #include <QBoxLayout>
@@ -10,7 +10,7 @@ namespace EventOperation {
 namespace ViewEvent {
 View::View(QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
-      _infoEvent(new InfoEvent(this)), _graphicEvent(new GraphicEvent(this)),
+      _infoEvent(new InfoEvent(this)), _graphicEvent(new Controller(this)),
       _okButton(new QPushButton("Ok", this)) {
 
   setWindowTitle("SeismWindow");
@@ -18,7 +18,7 @@ View::View(QWidget *parent)
 
   _infoEvent->setDisabled(true);
 
-  connect(_okButton, SIGNAL(clicked()), this, SLOT(accept()));
+  connect(_okButton, &QPushButton::clicked, this, &View::accept);
 
   QVBoxLayout *leftLayout = new QVBoxLayout();
   leftLayout->addWidget(_infoEvent);

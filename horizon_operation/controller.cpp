@@ -1,72 +1,80 @@
 #include "controller.h"
 
 #include "data/seismhorizon.h"
-#include "data/seismproject.h"
+//#include "data/seismproject.h"
 #include "model.h"
 
 typedef Data::SeismHorizon SeismHorizon;
-typedef Data::SeismProject SeismProject;
+// typedef Data::SeismProject SeismProject;
 
 namespace HorizonOperation {
+
 Controller::Controller(QObject *parent)
     : QObject(parent), _model(new Model(this)),
       _view(std::make_unique<View>()) {
 
-  connect(_model, SIGNAL(notify(const QString &)), this,
-          SLOT(recvNotification(const QString &)));
+  connect(_model, &Model::notify, [this](auto &msg) {
+    _view->setNotification(msg);
+  });
 
-  connect(_view.get(), SIGNAL(addHorizonClicked()), this,
-          SLOT(handleAddHorizonClicked()));
-  connect(_view.get(), SIGNAL(removeHorizonClicked(const QUuid)), this,
-          SLOT(handleRemoveHorizonClicked(const QUuid)));
-  connect(_view.get(), SIGNAL(sendFilePath(const QString &)), this,
-          SLOT(recvFilePath(const QString &)));
-  connect(_view.get(), SIGNAL(finished(int)), this, SLOT(finish(int)));
+  connect(_view.get(), &View::addHorizonClicked, [this] {
+    _view->settingHorizonInfo(_tmpHorizon);
+    _view->addHorizon(_tmpHorizon);
+    _view->changed(true);
+    _horizons[_tmpHorizon->getUuid()] = std::move(_tmpHorizon);
+    //    _newHorizons.push_back(std::move(_tmpHorizon));
+  });
+
+  connect(_view.get(), &View::removeHorizonClicked, [this](auto uuid) {
+    _view->removeHorizon(uuid);
+    _view->changed(true);
+    //    _removedHorizons.push_back(uuid);
+    _horizons.erase(uuid);
+  });
+
+  connect(_view.get(), &View::sendFilePath, [this](auto path) {
+    std::unique_ptr<SeismHorizon> horizon = _model->getSeismHorizonFrom(path);
+    // TODO: может удалить if - ?
+    if (horizon) {
+      _tmpHorizon = std::move(horizon);
+      _view->updateHorizon(_tmpHorizon);
+    }
+  });
+
+  connect(_view.get(), &View::finished, this, &Controller::finish);
 }
 
-void Controller::viewHorizons(const std::unique_ptr<SeismProject> &project) {
-  for (auto &itr : project->getHorizonsMap()) {
-    _view->addHorizon(itr.second);
+void Controller::viewHorizons(
+    const std::map<QUuid, std::unique_ptr<SeismHorizon>> &horizons_map) {
+
+  for (auto &pair : horizons_map) {
+    _horizons[pair.first] = std::make_unique<SeismHorizon>(*(pair.second));
+    _view->addHorizon(_horizons[pair.first]);
   }
 
   _view->setModal(true);
   _view->show();
 }
 
-void Controller::handleRemoveHorizonClicked(const QUuid uuid) {
-  _view->removeHorizon(uuid);
-  _view->changed(true);
-  _removedHorizons.push_back(uuid);
-}
+// void Controller::viewHorizons(const std::unique_ptr<SeismProject> &project) {
+//  for (auto &itr : project->getAllMap<SeismHorizon>()) {
+//    _view->addHorizon(itr.second);
+//  }
 
-void Controller::handleAddHorizonClicked() {
-  assert(_tmpHorizon);
-
-  _view->addHorizon(_tmpHorizon);
-  _view->changed(true);
-  _newHorizons.push_back(std::move(_tmpHorizon));
-}
-
-void Controller::recvFilePath(const QString &filePath) {
-  std::unique_ptr<SeismHorizon> horizon = _model->getSeismHorizonFrom(filePath);
-  if (horizon) {
-    _tmpHorizon = std::move(horizon);
-    _view->updateHorizon(_tmpHorizon);
-  }
-}
-
-void Controller::recvNotification(const QString &text) {
-  _view->setNotification(text);
-}
+//  _view->setModal(true);
+//  _view->show();
+//}
 
 void Controller::finish(int result) {
   if (QDialog::Accepted == result) {
-    for (auto &removedHorizon : _removedHorizons) {
-      emit sendRemovedHorizon(removedHorizon);
-    }
-    for (auto &horizon : _newHorizons) {
-      emit sendHorizon(horizon);
-    }
+    //    for (auto &removedHorizon : _removedHorizons) {
+    //      emit sendRemovedHorizon(removedHorizon);
+    //    }
+    //    for (auto &horizon : _newHorizons) {
+    //      emit sendHorizon(horizon);
+    //    }
+
+    emit sendHorizons(_horizons);
   }
 
   emit finished();

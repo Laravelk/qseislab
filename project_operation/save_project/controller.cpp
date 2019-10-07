@@ -2,7 +2,6 @@
 
 #include <QFileDialog>
 #include <QJsonDocument>
-#include <QMessageBox>
 
 typedef Data::SeismProject SeismProject;
 
@@ -32,22 +31,29 @@ void Controller::saveProject(std::unique_ptr<Data::SeismProject> project) {
 void Controller::saveAsProject(std::unique_ptr<Data::SeismProject> project) {
   assert(project);
 
-  // NOTE: _project = std::move(project); // сам в себя, что происходит - ?
-  if (_project.get() != project.get()) {
-    _project = std::move(project);
-  }
+  _project = std::move(project);
 
   QFileDialog *fileDialog = new QFileDialog();
   fileDialog->setFileMode(QFileDialog::Directory);
 
-  connect(fileDialog, SIGNAL(fileSelected(const QString &)), this,
-          SLOT(recvFilePath(const QString &)));
-  connect(fileDialog, SIGNAL(finished(int)), this, SLOT(finish(int)));
+  connect(fileDialog, &QFileDialog::fileSelected, this,
+          &Controller::recvFilePath);
+  connect(fileDialog, &QFileDialog::finished, this, &Controller::finish);
+
   fileDialog->open();
 }
 
 std::unique_ptr<Data::SeismProject> Controller::getProject() {
   return std::move(_project);
+}
+
+void Controller::finish(int result) {
+  if (QDialog::Rejected == result) {
+    emit finished(false);
+  } else {
+    setNotification("Project is saved", QMessageBox::Information);
+    emit finished(true);
+  }
 }
 
 void Controller::recvFilePath(const QString &path) {
@@ -61,16 +67,6 @@ void Controller::recvFilePath(const QString &path) {
   QFileInfo fileInfo(dir, projectName + ".json");
 
   finish(save(fileInfo));
-}
-
-void Controller::finish(int result) {
-  if (QDialog::Rejected == result ||
-      false == result) { // NOTE: QDialog::Rejected == false
-    emit finished(false);
-  } else {
-    setNotification("Project is saved");
-    emit finished(true);
-  }
 }
 
 bool Controller::save(const QFileInfo &fileInfo) {
@@ -100,12 +96,9 @@ bool Controller::save(const QFileInfo &fileInfo) {
   return true;
 }
 
-void Controller::setNotification(const QString &text) {
-  QMessageBox *msg = new QMessageBox();
-  msg->setWindowTitle("Message");
-  msg->addButton(QMessageBox::StandardButton::Ok);
-  msg->setText(text);
-  msg->exec();
+void Controller::setNotification(const QString &text, QMessageBox::Icon icon) {
+  QMessageBox *msg = new QMessageBox(icon, "Message", text, QMessageBox::Ok);
+  msg->show();
 }
 
 } // namespace SaveProject

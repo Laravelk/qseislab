@@ -4,6 +4,7 @@
 
 #include <QDataStream>
 #include <QFileInfo>
+#include <QTextStream>
 
 namespace Data {
 namespace IO {
@@ -18,8 +19,12 @@ public:
   ~PointReader();
 
 private:
+  bool _isBin;
+
   QFile _file;
-  QDataStream _instream;
+
+  QTextStream _instreamText;
+  QDataStream _instreamBin;
 };
 
 } // namespace IO

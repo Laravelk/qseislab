@@ -1,12 +1,12 @@
 #pragma once
 
-#include "data/seismevent.h"
-
 #include <QObject>
 
 #include <memory>
 
 namespace Data {
+class SeismComponent;
+class SeismWell;
 namespace IO {
 class AbstractSegyReader;
 }
@@ -20,7 +20,8 @@ class Model : public QObject {
 public:
   explicit Model(Data::IO::AbstractSegyReader *, QObject *);
 
-  std::unique_ptr<Data::SeismEvent> getSeismEventFrom(const QString &);
+  std::list<std::unique_ptr<Data::SeismComponent>>
+  getSeismComponents(const std::unique_ptr<Data::SeismWell> &, const QString &);
 
   ~Model();
 
@@ -29,7 +30,6 @@ signals:
 
 private:
   Data::IO::AbstractSegyReader *_reader;
-  std::unique_ptr<Data::SeismEvent> _event;
 };
 
 } // namespace AddEvent

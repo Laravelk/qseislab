@@ -20,9 +20,6 @@ public:
 
 signals:
   void notify(const QString &) const;
-
-private:
-  std::unique_ptr<Data::SeismProject> _project;
 };
 
 } // namespace OpenProject

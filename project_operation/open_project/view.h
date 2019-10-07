@@ -26,9 +26,6 @@ public:
 signals:
   void sendFilePath(const QString &) const;
 
-private slots:
-  void recvFilePath(const QString &);
-
 private:
   FileManager *_fileManager;
   InfoProject *_infoProject;

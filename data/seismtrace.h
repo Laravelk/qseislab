@@ -8,12 +8,11 @@ namespace Data {
 class SeismTrace {
 public:
   explicit SeismTrace();
-  explicit SeismTrace(
-      const QJsonObject &,
-      std::pair<uint_fast32_t, std::unique_ptr<float[]>> &) noexcept(false);
+  //  explicit SeismTrace(
+  //      const QJsonObject &,
+  //      std::pair<uint32_t, std::unique_ptr<float[]>> &) noexcept(false);
 
-  float getSampleInterval() const;
-  void setSampleInterval(float);
+  explicit SeismTrace(const SeismTrace &);
 
   float getMaxValue() const;
 
@@ -25,7 +24,7 @@ public:
   QJsonObject &writeToJson(QJsonObject &) const;
 
 private:
-  float _sampleInterval{0.0};
+  //  float _sampleInterval{0.0};
 
   float _maxValue{-1.0};
 

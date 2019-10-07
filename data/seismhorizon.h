@@ -16,17 +16,19 @@ public:
   explicit SeismHorizon();
   explicit SeismHorizon(const QJsonObject &, const QDir &) noexcept(false);
 
+  explicit SeismHorizon(const SeismHorizon &);
+
+  //  void setUuid(const QUuid &);
+  const QUuid &getUuid() const;
+
   void setName(const QString &);
   const QString &getName() const;
 
   int getPointsNumber() const;
 
-  void addPoint(const Point &);
+  void addPoint(Point);
   const Point &getPoint(int);
   const std::vector<Point> &getPoints();
-
-  void setUuid(const QUuid &);
-  const QUuid &getUuid() const;
 
   void setNx(int);
   int getNx() const;
@@ -37,10 +39,10 @@ public:
   QJsonObject &writeToJson(QJsonObject &, const QDir &) noexcept(false);
 
 private:
+  QUuid _uuid;
+
   QString _path;
   QString _name;
-
-  QUuid _uuid;
 
   int _Nx{0};
   int _Ny{0};

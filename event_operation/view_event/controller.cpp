@@ -4,7 +4,8 @@ namespace EventOperation {
 namespace ViewEvent {
 Controller::Controller(QObject *parent)
     : QObject(parent), _view(std::make_unique<View>()) {
-  connect(_view.get(), SIGNAL(finished(int)), this, SLOT(finish(int)));
+
+  connect(_view.get(), &View::finished, [this] { emit finished(); });
 }
 
 void Controller::viewEvent(
@@ -14,7 +15,7 @@ void Controller::viewEvent(
   _view->show();
 }
 
-void Controller::finish(int /*result*/) { emit finished(); }
+// void Controller::finish(int /*result*/) { emit finished(); }
 
 } // namespace ViewEvent
 } // namespace EventOperation

@@ -12,10 +12,12 @@ Model::Model(QObject *parent) : QObject(parent) {}
 
 std::unique_ptr<Data::SeismProject>
 Model::getSeismProjectFrom(const QString &path) {
+  std::unique_ptr<SeismProject> project;
+
   QFile readFile(path);
   if (!readFile.open(QIODevice::ReadOnly)) {
     emit notify("Unable to open save file");
-    return std::move(_project);
+    return project;
   }
   QString val = readFile.readAll();
   readFile.close();
@@ -24,13 +26,13 @@ Model::getSeismProjectFrom(const QString &path) {
   QJsonObject jsonObj = jsonDoc.object();
 
   try {
-    _project = std::make_unique<SeismProject>(jsonObj, path);
+    project = std::make_unique<SeismProject>(jsonObj, path);
   } catch (const std::runtime_error &err) {
-    _project.reset();
+    project.reset();
     emit notify(err.what());
   }
 
-  return std::move(_project);
+  return project;
 }
 
 } // namespace OpenProject

@@ -12,40 +12,51 @@ typedef Data::SeismProject SeismProject;
 namespace Main {
 View::View(QWidget *parent) : QMainWindow(parent) {
   setWindowTitle("MainWindow");
-  setMinimumSize(800, 750);
 
   QAction *act;
 
   QMenu *fileMenu = new QMenu("&File");
-  act = fileMenu->addAction("New Project", this,
-                            SLOT(handleNewProjectClicked()), QKeySequence::New);
+  act = fileMenu->addAction(
+      "New Project", [this] { emit newProjectClicked(); }, QKeySequence::New);
 
-  act =
-      fileMenu->addAction("Open Project", this,
-                          SLOT(handleOpenProjectClicked()), QKeySequence::Open);
+  act = fileMenu->addAction(
+      "Open Project", [this] { emit openProjectClicked(); },
+      QKeySequence::Open);
 
-  act =
-      fileMenu->addAction("Save Project", this,
-                          SLOT(handleSaveProjectClicked()), QKeySequence::Save);
+  act = fileMenu->addAction(
+      "Save Project", [this] { emit saveProjectClicked(); },
+      QKeySequence::Save);
   act->setDisabled(true);
-  connect(this, SIGNAL(projectPresence(bool)), act, SLOT(setEnabled(bool)));
+  connect(this, &View::projectPresence, act, &QAction::setEnabled);
 
-  act = fileMenu->addAction("Close Project", this,
-                            SLOT(handleCloseProjectClicked()),
-                            QKeySequence::Close);
+  act = fileMenu->addAction(
+      "Close Project", [this] { emit closeProjectClicked(); },
+      QKeySequence::Close);
   act->setDisabled(true);
-  connect(this, SIGNAL(projectPresence(bool)), act, SLOT(setEnabled(bool)));
+  connect(this, &View::projectPresence, act, &QAction::setEnabled);
 
   QMenu *editMenu = new QMenu("&Edit");
-  act = editMenu->addAction("Add Event", this, SLOT(handleAddEventClicked()));
+  act = editMenu->addAction("Add Event", [this] { emit addEventClicked(); });
   act->setDisabled(true);
-  connect(this, SIGNAL(projectPresence(bool)), act, SLOT(setEnabled(bool)));
+  connect(this, &View::projectPresence, act, &QAction::setEnabled);
 
-  act = editMenu->addAction("Horizons", this, SLOT(handleHorizonsClicked()));
+  act = editMenu->addAction("Process Events",
+                            [this] { emit processEventsClicked(); });
   act->setDisabled(true);
-  connect(this, SIGNAL(projectPresence(bool)), act, SLOT(setEnabled(bool)));
+  connect(this, &View::projectPresence, act, &QAction::setEnabled);
 
   QMenu *viewMenu = new QMenu("&View");
+  act = viewMenu->addAction("Horizons", [this] { emit horizonsClicked(); });
+  act->setDisabled(true);
+  connect(this, &View::projectPresence, act, &QAction::setEnabled);
+
+  act = viewMenu->addAction("Receivers", [this] { emit receiversClicked(); });
+  act->setDisabled(true);
+  connect(this, &View::projectPresence, act, &QAction::setEnabled);
+
+  act = viewMenu->addAction("Wells", [this] { emit wellsClicked(); });
+  act->setDisabled(true);
+  connect(this, &View::projectPresence, act, &QAction::setEnabled);
 
   QMenu *helpMenu = new QMenu("&Help");
 
@@ -57,10 +68,10 @@ View::View(QWidget *parent) : QMainWindow(parent) {
   setMenuBar(menuBar);
 
   StartPage *startPage = new StartPage(this);
-  connect(startPage, SIGNAL(newProjectClicked()), this,
-          SLOT(handleNewProjectClicked()));
-  connect(startPage, SIGNAL(openProjectClicked()), this,
-          SLOT(handleOpenProjectClicked()));
+  connect(startPage, &StartPage::newProjectClicked,
+          [this] { emit newProjectClicked(); });
+  connect(startPage, &StartPage::openProjectClicked,
+          [this] { emit openProjectClicked(); });
   setCentralWidget(startPage);
 }
 
@@ -70,19 +81,10 @@ void View::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
   _workPage->loadProject(project);
   setCentralWidget(_workPage);
 
-  //    connect(_workPage, SIGNAL(addEventClicked()), this,
-  //    SLOT(handleAddEventClicked()));
-  connect(_workPage, SIGNAL(removeEventClicked(const QUuid)), this,
-          SLOT(handleRemoveEventClicked(const QUuid)));
-  connect(_workPage, SIGNAL(viewEventClicked(const QUuid)), this,
-          SLOT(handleViewEventClicked(const QUuid)));
-
-  //    connect(_workPage, SIGNAL(addHorizonClicked()), this,
-  //    SLOT(handleAddHorizonClicked()));
-
-  //    connect(_workPage, SIGNAL(saveProjectClicked()), this,
-  //    SLOT(handleSaveProjectClicked())); connect(_workPage,
-  //    SIGNAL(closeProjectClicked()), this, SLOT(handleCloseProjectClicked()));
+  connect(_workPage, &WorkPage::removeEventClicked,
+          [this](const QUuid uuid) { emit removeEventClicked(uuid); });
+  connect(_workPage, &WorkPage::viewEventClicked,
+          [this](const QUuid uuid) { emit viewEventClicked(uuid); });
 
   emit projectPresence(true);
 }
@@ -91,6 +93,13 @@ void View::updateProject(const std::unique_ptr<Data::SeismEvent> &event) {
   assert(nullptr != _workPage);
 
   _workPage->updateProject(event);
+}
+
+void View::updateProject(
+    const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &events) {
+  assert(nullptr != _workPage);
+
+  _workPage->updateProject(events);
 }
 
 void View::updateProject(const std::unique_ptr<Data::SeismHorizon> &horizon) {
@@ -111,36 +120,41 @@ void View::updateProjectRemoveHorizon(const QUuid &uuid) {
   _workPage->updateProjectRemoveHorizon(uuid);
 }
 
+// void View::updateProject(const std::unique_ptr<Data::SeismReceiver>
+// &receiver) {
+//  assert(nullptr != _workPage);
+
+//  _workPage->updateProject(receiver);
+//}
+
+// void View::updateProjectRemoveReceiver(const QUuid &uuid) {
+//  assert(nullptr != _workPage);
+
+//  _workPage->updateProjectRemoveReceiver(uuid);
+//}
+
+void View::updateProject(const std::unique_ptr<Data::SeismWell> &well) {
+  assert(nullptr != _workPage);
+
+  _workPage->updateProject(well);
+}
+
+void View::updateProjectRemoveWell(const QUuid &uuid) {
+  assert(nullptr != _workPage);
+
+  _workPage->updateProjectRemoveWell(uuid);
+}
+
 void View::closeProject() {
   delete centralWidget();
   StartPage *startPage = new StartPage(this);
-  connect(startPage, SIGNAL(newProjectClicked()), this,
-          SLOT(handleNewProjectClicked()));
-  connect(startPage, SIGNAL(openProjectClicked()), this,
-          SLOT(handleOpenProjectClicked()));
+  connect(startPage, &StartPage::newProjectClicked,
+          [this] { emit newProjectClicked(); });
+  connect(startPage, &StartPage::openProjectClicked,
+          [this] { emit openProjectClicked(); });
   setCentralWidget(startPage);
 
   emit projectPresence(false);
 }
-
-void View::handleNewProjectClicked() { emit newProjectClicked(); }
-
-void View::handleOpenProjectClicked() { emit openProjectClicked(); }
-
-void View::handleAddEventClicked() { emit addEventClicked(); }
-
-void View::handleViewEventClicked(const QUuid uuid) {
-  emit viewEventClicked(uuid);
-}
-
-void View::handleRemoveEventClicked(const QUuid uuid) {
-  emit removeEventClicked(uuid);
-}
-
-void View::handleHorizonsClicked() { emit horizonsClicked(); }
-
-void View::handleSaveProjectClicked() { emit saveProjectClicked(); }
-
-void View::handleCloseProjectClicked() { emit closeProjectClicked(); }
 
 } // namespace Main

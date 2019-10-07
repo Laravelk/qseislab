@@ -8,17 +8,22 @@ typedef Data::SeismEvent SeismEvent;
 
 namespace EventOperation {
 InfoEvent::InfoEvent(QWidget *parent)
-    : QFrame(parent), _dateLineEdit(new QLineEdit(this)),
-      _timeLineEdit(new QLineEdit(this)), _traceNumberLabel(new QLabel(this)),
-      _lengthLabel(new QLabel(this)), _groupeCoordinate(new QLabel(this)) {
+    : QFrame(parent), _dateEdit(new QDateEdit(QDate::currentDate(), this)),
+      _timeEdit(new QTimeEdit(QTime::currentTime(), this)),
+      _traceNumberLabel(new QLabel(this)), _lengthLabel(new QLabel(this)),
+      _groupeCoordinate(new QLabel(this)) {
+
   setFixedWidth(250);
   setFrameStyle(1);
 
-  // TODO: поставить валидатор на поля ввода
+  _dateEdit->setMinimumDate(QDate::currentDate().addDays(-365));
+  _dateEdit->setMaximumDate(QDate::currentDate().addDays(365));
+  _dateEdit->setDisplayFormat("dd.MM.yy");
+  _dateEdit->setCalendarPopup(true);
 
   QFormLayout *formLayout = new QFormLayout;
-  formLayout->addRow("Date:", _dateLineEdit);
-  formLayout->addRow("Time:", _timeLineEdit);
+  formLayout->addRow("Date:", _dateEdit);
+  formLayout->addRow("Time:", _timeEdit);
   formLayout->addRow("Component Number:", _traceNumberLabel);
   formLayout->addRow("Length:", _lengthLabel);
   formLayout->addRow("Groupe Coordinate:", _groupeCoordinate);
@@ -30,26 +35,26 @@ InfoEvent::InfoEvent(QWidget *parent)
 }
 
 void InfoEvent::setDisabled(bool b) {
-  _dateLineEdit->setDisabled(b);
-  _timeLineEdit->setDisabled(b);
+  _dateEdit->setDisabled(b);
+  _timeEdit->setDisabled(b);
 }
 
 void InfoEvent::setEnabled(bool b) {
-  _dateLineEdit->setEnabled(b);
-  _timeLineEdit->setEnabled(b);
+  _dateEdit->setEnabled(b);
+  _timeEdit->setEnabled(b);
 }
 
 void InfoEvent::update(const std::unique_ptr<Data::SeismEvent> &event) {
   if (event) {
-    _dateLineEdit->setText(event->getDateTime().date().toString("dd.MM.yy"));
-    _timeLineEdit->setText(event->getDateTime().time().toString("hh:mm"));
+    _dateEdit->setDate(event->getDateTime().date());
+    _timeEdit->setTime(event->getDateTime().time());
     _traceNumberLabel->setText(QString::number(event->getComponentNumber()));
   }
 }
 
 void InfoEvent::clear() {
-  _dateLineEdit->clear();
-  _timeLineEdit->clear();
+  //  _dateEdit->clear();
+  //  _timeEdit->clear();
   _traceNumberLabel->clear();
   _lengthLabel->clear();
   _groupeCoordinate->clear();
@@ -57,9 +62,7 @@ void InfoEvent::clear() {
 
 void InfoEvent::settingEventInfo(
     const std::unique_ptr<Data::SeismEvent> &event) const {
-  QDate date = QDate::fromString(_dateLineEdit->text(), "dd.MM.yy");
-  QTime time = QTime::fromString(_timeLineEdit->text(), "hh:mm");
-  event->setDateTime(QDateTime(date, time));
+  event->setDateTime({_dateEdit->date(), _timeEdit->time()});
 }
 
 } // namespace EventOperation

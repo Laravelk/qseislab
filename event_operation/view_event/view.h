@@ -10,7 +10,7 @@ class SeismEvent;
 
 namespace EventOperation {
 class InfoEvent;
-class GraphicEvent;
+class Controller;
 namespace ViewEvent {
 class View : public QDialog {
   Q_OBJECT
@@ -22,7 +22,7 @@ public:
 
 private:
   InfoEvent *_infoEvent;
-  GraphicEvent *_graphicEvent;
+  Controller *_graphicEvent; // share_view controller
   QPushButton *_okButton;
 };
 

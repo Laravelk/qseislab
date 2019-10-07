@@ -4,47 +4,45 @@
 
 #include <QDateTime>
 #include <QFormLayout>
-//#include <QRegExpValidator>
 
 namespace ProjectOperation {
 InfoProject::InfoProject(MODE mode, QWidget *parent)
     : QFrame(parent), _nameLineEdit(new QLineEdit(this)),
-      _dateLineEdit(new QLineEdit(this)), _timeLineEdit(new QLineEdit(this)) {
+      _dateEdit(new QDateEdit(QDate::currentDate(), this)),
+      _timeEdit(new QTimeEdit(QTime::currentTime(), this)) {
   setFrameStyle(1);
 
-  // TODO: поставить валидатор на поля ввода
-  //    _dateLineEdit->setValidator(new QRegExpValidator(QRegExp("")));
+  _dateEdit->setMinimumDate(QDate::currentDate().addDays(-365));
+  _dateEdit->setMaximumDate(QDate::currentDate().addDays(365));
+  _dateEdit->setDisplayFormat("dd.MM.yy");
+  _dateEdit->setCalendarPopup(true);
 
   switch (mode) {
   case CLEAN:
     break;
   case DEFAULT:
     _nameLineEdit->setText("Default Name Project");
-    _dateLineEdit->setText(
-        QDateTime::currentDateTime().date().toString("dd.MM.yy"));
-    _timeLineEdit->setText(
-        QDateTime::currentDateTime().time().toString("hh:mm"));
     break;
   }
 
-  QFormLayout *formLayout = new QFormLayout;
-  formLayout->addRow("Name:", _nameLineEdit);
-  formLayout->addRow("Date:", _dateLineEdit);
-  formLayout->addRow("Time:", _timeLineEdit);
+  QFormLayout *formLayout = new QFormLayout();
+  formLayout->addRow("Name: ", _nameLineEdit);
+  formLayout->addRow("Date: ", _dateEdit);
+  formLayout->addRow("Time: ", _timeEdit);
 
   setLayout(formLayout);
 }
 
 void InfoProject::setDisabled(bool b) {
   _nameLineEdit->setDisabled(b);
-  _dateLineEdit->setDisabled(b);
-  _timeLineEdit->setDisabled(b);
+  _dateEdit->setDisabled(b);
+  _timeEdit->setDisabled(b);
 }
 
 void InfoProject::setEnabled(bool b) {
   _nameLineEdit->setEnabled(b);
-  _dateLineEdit->setEnabled(b);
-  _timeLineEdit->setEnabled(b);
+  _dateEdit->setEnabled(b);
+  _timeEdit->setEnabled(b);
 }
 
 void InfoProject::update(const std::unique_ptr<Data::SeismProject> &project) {
@@ -52,8 +50,8 @@ void InfoProject::update(const std::unique_ptr<Data::SeismProject> &project) {
     setDisabled(true);
   } else {
     _nameLineEdit->setText(project->getName());
-    _dateLineEdit->setText(project->getDateTime().date().toString("dd.MM.yy"));
-    _timeLineEdit->setText(project->getDateTime().time().toString("hh:mm"));
+    _dateEdit->setDate(project->getDateTime().date());
+    _timeEdit->setTime(project->getDateTime().time());
     setDisabled(false);
   }
 }
@@ -61,14 +59,14 @@ void InfoProject::update(const std::unique_ptr<Data::SeismProject> &project) {
 void InfoProject::settingProjectInfo(
     const std::unique_ptr<Data::SeismProject> &project) {
   project->setName(_nameLineEdit->text());
-  project->setDate(QDate::fromString(_dateLineEdit->text(), "dd.MM.yy"));
-  project->setTime(QTime::fromString(_timeLineEdit->text(), "hh:mm"));
+  project->setDate(_dateEdit->date());
+  project->setTime(_timeEdit->time());
 }
 
 void InfoProject::clear() {
   _nameLineEdit->clear();
-  _dateLineEdit->clear();
-  _timeLineEdit->clear();
+  _dateEdit->clear();
+  _timeEdit->clear();
 }
 
 } // namespace ProjectOperation

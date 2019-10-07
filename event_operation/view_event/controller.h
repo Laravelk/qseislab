@@ -24,7 +24,7 @@ signals:
   void finished() const;
 
 private slots:
-  void finish(int);
+  //    void finish(int);
 
 private:
   std::unique_ptr<View> _view;

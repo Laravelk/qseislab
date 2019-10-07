@@ -14,23 +14,29 @@ View::View(QWidget *parent)
       _horizonsTable(new QTableWidget(this)),
       _saveButton(new QPushButton("Save")) {
 
+  // Setting`s
   setWindowTitle("Horizons");
   setMinimumWidth(440);
 
   initHorizonsTable(_horizonsTable);
-  connect(_horizonsTable, SIGNAL(cellDoubleClicked(int, int)), this,
-          SLOT(handleHorizonClicked(int, int)));
 
   QPushButton *addHorizonButton = new QPushButton("Add Horizon");
-  connect(addHorizonButton, SIGNAL(clicked()), this,
-          SLOT(handleAddHorizonClicked()));
 
   _saveButton->setDisabled(true);
-  connect(_saveButton, SIGNAL(clicked()), this, SLOT(accept()));
 
   QPushButton *cancelButton = new QPushButton("Cancel");
-  connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+  // Setting`s end
 
+  // Connecting
+  connect(_horizonsTable, &QTableWidget::cellDoubleClicked, this,
+          &View::handleHorizonClicked);
+  connect(addHorizonButton, &QPushButton::clicked, this,
+          &View::handleAddHorizonClicked);
+  connect(_saveButton, &QPushButton::clicked, this, &View::accept);
+  connect(cancelButton, &QPushButton::clicked, this, &View::reject);
+  // Connecting end
+
+  // Layout`s
   QHBoxLayout *buttonLayout = new QHBoxLayout();
   buttonLayout->addWidget(addHorizonButton);
   buttonLayout->addStretch(1);
@@ -43,6 +49,7 @@ View::View(QWidget *parent)
   mainLayout->addLayout(buttonLayout);
 
   setLayout(mainLayout);
+  // Layout`s end
 }
 
 void View::addHorizon(const std::unique_ptr<SeismHorizon> &horizon) {
@@ -62,11 +69,11 @@ void View::handleHorizonClicked(int row, int col) {
   }
 }
 
-void View::finishHorizonManager(int result) {
-  if (QDialog::Accepted == result) {
-    emit addHorizonClicked();
-  }
-}
+// void View::finishHorizonManager(int result) {
+//  if (QDialog::Accepted == result) {
+//    emit addHorizonClicked();
+//  }
+//}
 
 void View::removeHorizon(const QUuid &uuid) {
   const QString str_uuid = uuid.toString();
@@ -84,21 +91,22 @@ void View::settingHorizonInfo(
 }
 
 void View::setNotification(const QString &text) {
-  QMessageBox *msg = new QMessageBox(this);
-  msg->setWindowTitle("Message");
-  msg->addButton(QMessageBox::StandardButton::Ok);
-  msg->setText(text);
-  msg->exec();
+  QMessageBox *msg = new QMessageBox(QMessageBox::Critical, "Message", text,
+                                     QMessageBox::Ok, this);
+  msg->show();
 }
 
-void View::changed(bool b) { _saveButton->setEnabled(b); }
+void View::changed(bool b) {
+  _saveButton->setEnabled(b);
+  _saveButton->setFocus();
+}
 
 void View::initHorizonsTable(QTableWidget *table) {
   table->setEditTriggers(QAbstractItemView::NoEditTriggers);
   table->setColumnCount(6);
 
   // configure column settings
-  table->setHorizontalHeaderItem(0, new QTableWidgetItem("id"));
+  table->setHorizontalHeaderItem(0, new QTableWidgetItem("uuid"));
   table->setColumnHidden(0, true);
   table->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
   table->setHorizontalHeaderItem(2, new QTableWidgetItem("Point Number"));
@@ -139,19 +147,23 @@ void View::insertHorizonInTable(const std::unique_ptr<SeismHorizon> &horizon) {
 void View::handleAddHorizonClicked() {
   _addHorizonManager = std::make_unique<AddHorizonManager>(this);
 
-  connect(_addHorizonManager.get(), SIGNAL(sendFilePath(const QString &)), this,
-          SLOT(recvFilePath(const QString &)));
-  connect(_addHorizonManager.get(), SIGNAL(notify(const QString &)), this,
-          SLOT(setNotification(const QString &)));
-  connect(_addHorizonManager.get(), SIGNAL(finished(int)), this,
-          SLOT(finishHorizonManager(int)));
+  connect(_addHorizonManager.get(), &AddHorizonManager::sendFilePath,
+          [this](auto &path) { emit sendFilePath(path); });
+  connect(_addHorizonManager.get(), &AddHorizonManager::notify, this,
+          &View::setNotification);
+  connect(_addHorizonManager.get(), &AddHorizonManager::finished,
+          [this](int res) {
+            if (QDialog::Accepted == res) {
+              emit addHorizonClicked();
+            };
+          });
 
   _addHorizonManager->setModal(true);
   _addHorizonManager->show();
 }
 
-void View::recvFilePath(const QString &filePath) {
-  emit sendFilePath(filePath);
-}
+// void View::recvFilePath(const QString &filePath) {
+//  emit sendFilePath(filePath);
+//}
 
 } // namespace HorizonOperation

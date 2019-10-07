@@ -12,11 +12,17 @@ View::View(QWidget *parent)
       _infoProject(new InfoProject(InfoProject::DEFAULT, this)),
       _createButton(new QPushButton("Create", this)),
       _cancelButton(new QPushButton("Cancel", this)) {
+
+  // Setting`s
   setWindowTitle("Create New Project");
+  // Setting`s end
 
-  connect(_createButton, SIGNAL(clicked()), this, SLOT(accept()));
-  connect(_cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+  // Connecting
+  connect(_createButton, &QPushButton::clicked, this, &View::accept);
+  connect(_cancelButton, &QPushButton::clicked, this, &View::reject);
+  // Connecting end
 
+  // Layout`s
   QHBoxLayout *buttonLayout = new QHBoxLayout();
   buttonLayout->addStretch(1);
   buttonLayout->addWidget(_createButton);
@@ -28,6 +34,7 @@ View::View(QWidget *parent)
   vLayout->addLayout(buttonLayout);
 
   setLayout(vLayout);
+  // Layout`s end
 }
 
 void View::settingProjectInfo(

@@ -17,17 +17,23 @@ View::View(QWidget *parent)
       _infoProject(new InfoProject(InfoProject::CLEAN, this)),
       _openButton(new QPushButton("Open", this)),
       _cancelButton(new QPushButton("Cancel", this)) {
-  setWindowTitle("Open Project");
 
-  connect(_fileManager, SIGNAL(sendFilePath(const QString &)), this,
-          SLOT(recvFilePath(const QString &)));
+  // Setting`s
+  setWindowTitle("Open Project");
 
   _infoProject->setDisabled(true);
   _openButton->setDisabled(true);
+  // Setting`s end
 
-  connect(_openButton, SIGNAL(clicked()), this, SLOT(accept()));
-  connect(_cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+  // Connecting
+  connect(_fileManager, &FileManager::sendFilePath,
+          [this](auto &path) { emit sendFilePath(path); });
 
+  connect(_openButton, &QPushButton::clicked, this, &View::accept);
+  connect(_cancelButton, &QPushButton::clicked, this, &View::reject);
+  // Connecting end
+
+  // Layout`s
   QHBoxLayout *buttonsLayout = new QHBoxLayout();
   buttonsLayout->addStretch(1);
   buttonsLayout->addWidget(_openButton);
@@ -40,6 +46,7 @@ View::View(QWidget *parent)
   vLayout->addLayout(buttonsLayout);
 
   setLayout(vLayout);
+  // Layout`s end
 }
 
 void View::update(const std::unique_ptr<Data::SeismProject> &project) {
@@ -55,19 +62,15 @@ void View::update(const std::unique_ptr<Data::SeismProject> &project) {
 }
 
 void View::setNotification(const QString &text) {
-  QMessageBox *msg = new QMessageBox(this);
-  msg->setWindowTitle("Message");
-  msg->addButton(QMessageBox::StandardButton::Ok);
-  msg->setText(text);
-  msg->exec();
+  QMessageBox *msg = new QMessageBox(QMessageBox::Critical, "Message", text,
+                                     QMessageBox::Ok, this);
+  msg->show();
 }
 
 void View::settingProjectInfo(
     const std::unique_ptr<Data::SeismProject> &project) {
   _infoProject->settingProjectInfo(project);
 }
-
-void View::recvFilePath(const QString &path) { emit sendFilePath(path); }
 
 } // namespace OpenProject
 } // namespace ProjectOperation

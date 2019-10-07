@@ -26,7 +26,6 @@ public:
 
   void changed(bool);
 
-public slots:
   void setNotification(const QString &);
 
 signals:
@@ -38,8 +37,8 @@ private slots:
   void handleAddHorizonClicked();
   void handleHorizonClicked(int, int);
 
-  void recvFilePath(const QString &);
-  void finishHorizonManager(int);
+  //  void recvFilePath(const QString &);
+  //  void finishHorizonManager(int);
 
 private:
   void initHorizonsTable(QTableWidget *);

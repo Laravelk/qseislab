@@ -14,10 +14,6 @@ signals:
   void newProjectClicked() const;
   void openProjectClicked() const;
 
-private slots:
-  void handleNewProjectClicked();
-  void handleOpenProjectClicked();
-
 private:
   QPushButton *_buttonNewProject;
   QPushButton *_buttonOpenproject;

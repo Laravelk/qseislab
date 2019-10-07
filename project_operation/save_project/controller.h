@@ -3,7 +3,9 @@
 #include "data/seismproject.h"
 
 #include <QFileInfo>
+#include <QMessageBox>
 #include <QObject>
+
 #include <memory>
 
 namespace ProjectOperation {
@@ -19,16 +21,18 @@ public:
 
   std::unique_ptr<Data::SeismProject> getProject();
 
+  void finish(int);
+
 signals:
   void finished(bool) const;
 
 private slots:
   void recvFilePath(const QString &);
-  void finish(int);
 
 private:
   bool save(const QFileInfo &);
-  static void setNotification(const QString &);
+  static void setNotification(const QString &,
+                              QMessageBox::Icon icon = QMessageBox::Critical);
 
   std::unique_ptr<Data::SeismProject> _project;
 };

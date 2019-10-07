@@ -7,7 +7,7 @@
 #include <memory>
 
 namespace Data {
-class SeismProject;
+// class SeismProject;
 class SeismHorizon;
 } // namespace Data
 
@@ -19,19 +19,17 @@ class Controller : public QObject {
 public:
   explicit Controller(QObject *parent = nullptr);
 
-  void viewHorizons(const std::unique_ptr<Data::SeismProject> &);
+  //  void viewHorizons(const std::unique_ptr<Data::SeismProject> &);
+  void
+  viewHorizons(const std::map<QUuid, std::unique_ptr<Data::SeismHorizon>> &);
+  void finish(int);
 
 signals:
-  void sendHorizon(std::unique_ptr<Data::SeismHorizon> &);
-  void sendRemovedHorizon(const QUuid &);
+  //  void sendHorizon(std::unique_ptr<Data::SeismHorizon> &) const;
+  //  void sendRemovedHorizon(const QUuid &) const;
   void finished() const;
 
-private slots:
-  void handleRemoveHorizonClicked(const QUuid);
-  void handleAddHorizonClicked();
-  void recvFilePath(const QString &);
-  void recvNotification(const QString &);
-  void finish(int);
+  void sendHorizons(std::map<QUuid, std::unique_ptr<Data::SeismHorizon>> &);
 
 private:
   Model *_model;
@@ -39,29 +37,10 @@ private:
 
   std::unique_ptr<Data::SeismHorizon> _tmpHorizon;
 
-  std::vector<std::unique_ptr<Data::SeismHorizon>> _newHorizons;
-  std::vector<QUuid> _removedHorizons;
+  //  std::vector<std::unique_ptr<Data::SeismHorizon>> _newHorizons;
+  //  std::vector<QUuid> _removedHorizons;
+
+  std::map<QUuid, std::unique_ptr<Data::SeismHorizon>> _horizons;
 };
-
-// class Controller : public QObject {
-//  Q_OBJECT
-
-// public:
-//  explicit Controller(QObject *parent = nullptr);
-
-// signals:
-//  void sendHorizon(std::unique_ptr<Data::SeismHorizon> &) const;
-//  void finished() const;
-
-// private slots:
-//  void recvFilePath(const QString &);
-//  void recvNotification(const QString &);
-//  void finish(int);
-
-// private:
-//  Model *_model;
-
-//  std::unique_ptr<Data::SeismHorizon> _horizon;
-//};
 
 } // namespace HorizonOperation

@@ -18,8 +18,15 @@ public:
 
   void addEvent();
   void removeEvent();
+
   void addHorizon();
   void removeHorizon();
+
+  void addReceiver();
+  void removeReceiver();
+
+  void addWell();
+  void removeWell();
 
 private:
   QLabel *_nameLabel;
@@ -27,6 +34,8 @@ private:
   QLabel *_timeLabel;
   QLabel *_eventsNumber;
   QLabel *_horizonsNumber;
+  //  QLabel *_receiversNumber;
+  QLabel *_wellsNumber;
 };
 
 } // namespace Main

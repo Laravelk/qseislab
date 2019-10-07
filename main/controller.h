@@ -9,6 +9,10 @@
 
 #include "horizon_operation/controller.h"
 
+#include "receiver_operation/controller.h"
+
+#include "well_operation/controller.h"
+
 #include "project_operation/close_project/controller.h"
 #include "project_operation/new_project/controller.h"
 #include "project_operation/open_project/controller.h"
@@ -23,42 +27,29 @@ class Controller : public QObject {
   Q_OBJECT
 
 public:
-  explicit Controller();
+  explicit Controller(QObject *parent = nullptr);
 
 signals:
   void savedProject(bool) const;
 
 private slots:
   void recvProject(std::unique_ptr<Data::SeismProject> &);
-  void recvEvent(std::unique_ptr<Data::SeismEvent> &);
-  void recvHorizon(std::unique_ptr<Data::SeismHorizon> &);
-
-  void updateProject(const std::unique_ptr<Data::SeismEvent> &);
-  void updateProjectRemoveEvent(const QUuid &);
-  void updateProject(const std::unique_ptr<Data::SeismHorizon> &);
-  void updateProjectRemoveHorizon(const QUuid &);
 
   void handleAddEventClicked();
   void handleViewEventClicked(const QUuid);
-  void handleRemoveEventClicked(const QUuid);
 
   void handleHorizonsClicked();
-  void handleRemoveHorizonClicked(const QUuid &);
+
+  void handleReceiversClicked();
+
+  void handleWellsClicked();
 
   void handleCloseProjectClicked();
   void handleNewProjectClicked();
   void handleOpenProjectClicked();
   void handleSaveProjectClicked();
 
-  void deleteAddEventController();
-  void deleteViewEventController();
-
-  void deleteAddHorizonController();
-
   void deleteCloseProjectController(bool);
-  void deleteNewProjectController();
-  void deleteOpenProjectController();
-  void deleteSaveProjectController(bool);
 
 private:
   std::unique_ptr<Data::SeismProject> _project;
@@ -69,6 +60,10 @@ private:
   std::unique_ptr<EventOperation::ViewEvent::Controller> _viewEventController;
 
   std::unique_ptr<HorizonOperation::Controller> _horizonController;
+
+  std::unique_ptr<ReceiverOperation::Controller> _receiverController;
+
+  std::unique_ptr<WellOperation::Controller> _wellController;
 
   std::unique_ptr<ProjectOperation::CloseProject::Controller>
       _closeProjectController;

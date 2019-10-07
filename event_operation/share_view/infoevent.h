@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QDateTimeEdit>
 #include <QFrame>
 #include <QLabel>
 #include <QLineEdit>
@@ -26,8 +27,8 @@ public:
   void settingEventInfo(const std::unique_ptr<Data::SeismEvent> &) const;
 
 private:
-  QLineEdit *_dateLineEdit;
-  QLineEdit *_timeLineEdit;
+  QDateEdit *_dateEdit;
+  QTimeEdit *_timeEdit;
   QLabel *_traceNumberLabel;
   QLabel *_lengthLabel;
   QLabel *_groupeCoordinate;

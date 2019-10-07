@@ -1,7 +1,7 @@
 #pragma once
 
 #include "data/seismcomponent.h"
-#include "defines.h"
+#include "segy_files_params.h"
 
 #include <QDataStream>
 #include <QFileInfo>

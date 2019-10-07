@@ -6,22 +6,34 @@ namespace Main {
 StartPage::StartPage(QWidget *parent)
     : QFrame(parent), _buttonNewProject(new QPushButton("New Project", this)),
       _buttonOpenproject(new QPushButton("Open Project", this)) {
-  connect(_buttonNewProject, SIGNAL(clicked()), this,
-          SLOT(handleNewProjectClicked()));
-  connect(_buttonOpenproject, SIGNAL(clicked()), this,
-          SLOT(handleOpenProjectClicked()));
 
-  QVBoxLayout *layout = new QVBoxLayout();
-  layout->addStretch(1);
-  layout->addWidget(_buttonNewProject);
-  layout->addWidget(_buttonOpenproject);
-  layout->addStretch(1);
+  // Setting`s
+  setMinimumSize(700, 400); // TODO: remove
+  // Setting`s end
 
-  setLayout(layout);
+  // Connecting
+  connect(_buttonNewProject, &QPushButton::clicked,
+          [this] { emit newProjectClicked(); });
+  connect(_buttonOpenproject, &QPushButton::clicked,
+          [this] { emit openProjectClicked(); });
+  // Connecting end
+
+  // Layout`s
+  QVBoxLayout *buttonLayuot = new QVBoxLayout();
+  buttonLayuot->addWidget(_buttonNewProject);
+  buttonLayuot->addWidget(_buttonOpenproject);
+  //  buttonLayuot->addStretch(1);
+
+  QVBoxLayout *leftLayout = new QVBoxLayout();
+  leftLayout->addLayout(buttonLayuot);
+  leftLayout->addStretch(1);
+
+  QHBoxLayout *mainLayout = new QHBoxLayout();
+  mainLayout->addLayout(leftLayout);
+  mainLayout->addStretch(1);
+
+  setLayout(mainLayout);
+  // Layout`s end
 }
-
-void StartPage::handleNewProjectClicked() { emit newProjectClicked(); }
-
-void StartPage::handleOpenProjectClicked() { emit openProjectClicked(); }
 
 } // namespace Main

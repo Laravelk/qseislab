@@ -1,6 +1,7 @@
 #include "segyreader.h"
 
 #include "data/seismcomponent.h"
+#include "data/seismreceiver.h"
 
 #include <memory>
 
@@ -44,20 +45,12 @@ void SegyReader::readBinHeader() {
   if (SEGY_OK != err) {
     throw std::runtime_error("segy_traces()");
   }
-
-  if (0 != _trace_num % TRACE_IN_COMPONENT) {
-    throw std::runtime_error(
-        "Number of routes is non-multiple to traceInComponent");
-  }
 }
 
-bool SegyReader::hasNextComponent() const {
-  assert(0 == _alreadyRead % TRACE_IN_COMPONENT);
+bool SegyReader::hasNextComponent() const { return _trace_num > _alreadyRead; }
 
-  return _trace_num > _alreadyRead;
-}
-
-std::unique_ptr<SeismComponent> SegyReader::nextComponent() {
+std::unique_ptr<SeismComponent>
+SegyReader::nextComponent(const std::unique_ptr<SeismReceiver> &receiver) {
   int err;
   char traceh[SEGY_TRACE_HEADER_SIZE];
 
@@ -67,11 +60,15 @@ std::unique_ptr<SeismComponent> SegyReader::nextComponent() {
                                         // размер данных из библиотеки
 
   std::unique_ptr<SeismComponent> component =
-      std::make_unique<SeismComponent>();
+      std::make_unique<SeismComponent>(receiver->getUuid());
   int p_wave_arrivel = 0;
   int s_wave_arrivel = 0;
 
-  for (unsigned i = 0; i < TRACE_IN_COMPONENT; ++i) {
+  for (int i = 0; i < receiver->getChannelNum(); ++i) {
+    if (_trace_num == _alreadyRead) {
+      throw std::runtime_error("No more traces in the segy-file");
+    }
+
     err = segy_traceheader(_fp, _alreadyRead, traceh, _trace0, _trace_bsize);
     if (SEGY_OK != err) {
       throw std::runtime_error("segy_traceheader()");
@@ -103,7 +100,7 @@ std::unique_ptr<SeismComponent> SegyReader::nextComponent() {
           "Fields do not match in the component (s_wave_arrivel)");
     }
 
-    float buffer[buffer_size];
+    float *buffer = new float[buffer_size];
     err = segy_readtrace(_fp, _alreadyRead, buffer, _trace0, _trace_bsize);
     if (SEGY_OK != err) {
       throw std::runtime_error("segy_readtrace()");
@@ -112,21 +109,26 @@ std::unique_ptr<SeismComponent> SegyReader::nextComponent() {
 
     std::unique_ptr<SeismTrace> trace = std::make_unique<SeismTrace>();
     trace = std::make_unique<SeismTrace>();
-    trace->setSampleInterval(_sam_intr);
     trace->setBuffer(buffer_size, buffer);
+    delete[] buffer;
 
     component->addTrace(std::move(trace));
 
     ++_alreadyRead;
   }
 
+  component->setSampleInterval(_sam_intr);
   component->setPWaveArrival(p_wave_arrivel);
   component->setSWaveArrival(s_wave_arrivel);
 
   return component;
 }
 
-void SegyReader::close() { segy_close(_fp); }
+void SegyReader::close() {
+  _alreadyRead = 0;
+  segy_close(_fp);
+  _fp = nullptr;
+}
 
 } // namespace IO
 } // namespace Data
