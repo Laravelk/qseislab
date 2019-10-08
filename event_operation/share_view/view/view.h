@@ -19,6 +19,8 @@ public:
   void addPick(WavePick *);
   void addPick(qreal, qreal, int, int, QBrush, qreal);
   void addPick(QPointF, QSize, QBrush, qreal);
+  void setAddPickFlag(bool);
+  void setWaveRadius(qreal wr) { WAVE_RADIUS = wr; }
 
   QList<WavePick *> getPickcs() { return _wavePicks; }
   void clearPicks() {
@@ -27,8 +29,6 @@ public:
     }
     _wavePicks.clear();
   }
-
-  enum PickType { LEFT_BORDER, RIGHT_BORDER, PWAVE, SWAVE };
 
 protected:
   bool viewportEvent(QEvent *) override;
@@ -45,17 +45,18 @@ protected:
   void scaleContentsBy(qreal factor);
 
 private:
+  qreal WAVE_RADIUS;
   bool mouseIsTouching = false;
+  bool addPickButtonPress = false;
   qreal _mFactor = 1.0;
   ChartGesture *_chart;
   QList<WavePick *> _wavePicks;
+  QPointF calculatePickPosition(QPointF);
 
 signals:
   void sendTypeNumCompY(PickType, int, qreal);
 
 private:
   QGraphicsRectItem *rect;
-
-private:
 };
 } // namespace EventOperation

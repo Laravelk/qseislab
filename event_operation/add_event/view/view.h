@@ -38,6 +38,7 @@ private:
   Controller *_graphicEvent;
   QPushButton *_okButton;
   QPushButton *_cancelButton;
+  QPushButton *_addWaveButton;
 
   std::map<QUuid, QString> _wellNames_map;
 };

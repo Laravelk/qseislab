@@ -21,11 +21,10 @@ public:
   ChartGesture *getModel() const { return _chart; }
   void setChart(ChartGesture *chart) { _chart = chart; }
   void setView(View *view) { _view = view; }
+  void addPick();
 
   void update(const std::unique_ptr<Data::SeismEvent> &);
   void clear();
-
-  enum PickType { LEFT_BORDER, RIGHT_BORDER, PWAVE, SWAVE };
 
 private:
   float _norm;
@@ -52,7 +51,7 @@ private:
   const qreal TRACE_OFFSET = 0.25;
   const qreal WAVE_RADIUS = 0.4;
   const qreal BORDER_RADIUS = 0.35;
-  const float NORMED = 1.7f;
+  const float NORMED = 1.8f;
   const int GRAPH_WIDHT = 750;
   const int GRAPH_HEIGHT = 470;
   const int WAVE_PEN_WIDTH = 4;

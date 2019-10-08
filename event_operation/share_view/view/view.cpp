@@ -3,6 +3,7 @@
 
 #include <QtGui/QMouseEvent>
 #include <iostream> // TODO: delete
+#include <math.h>
 
 namespace EventOperation {
 View::View(QChart *chart, QWidget *parent)
@@ -22,21 +23,32 @@ void View::addPick(qreal ax, qreal ay, int width, int height, QBrush brush,
 }
 
 void View::addPick(QPointF pos, QSize size, QBrush brush, qreal rangeX) {
+  QBrush borderBrush;
+  if (brush == Qt::darkRed) {
+    borderBrush = Qt::darkGreen;
+  } else {
+    borderBrush = Qt::darkCyan;
+  }
   WavePick *pick = new WavePick(chart(), pos, size, brush, 2, 4);
   connect(pick, &WavePick::sendTypeNumCompY,
           [this](auto type, auto num, auto newPos) {
             emit sendTypeNumCompY(type, num, newPos);
           });
   WavePick *leftBorder = new WavePick(
-      chart(), QPointF(pos.x() - 40000, pos.y()), size, Qt::darkGreen, 0, pick);
+      chart(), QPointF(pos.x() - 40000, pos.y()), size, borderBrush, 0, pick);
   WavePick *rightBorder =
       new WavePick(chart(), QPointF(pos.x() + 40000, pos.y()), size,
-                   Qt::darkGreen, pick, rangeX);
+                   borderBrush, pick, rangeX);
   pick->setBorders(leftBorder, rightBorder);
+  pick->setZValue(11);
+  leftBorder->setZValue(11);
+  rightBorder->setZValue(11);
   _wavePicks.push_back(leftBorder);
   _wavePicks.push_back(rightBorder);
   _wavePicks.push_back(pick);
 }
+
+void View::setAddPickFlag(bool t) { addPickButtonPress = t; }
 
 bool View::viewportEvent(QEvent *event) {
 
@@ -47,8 +59,11 @@ bool View::viewportEvent(QEvent *event) {
 }
 
 void View::mousePressEvent(QMouseEvent *event) {
-  if (mouseIsTouching)
-    return;
+  if (addPickButtonPress) {
+    QPointF pos = calculatePickPosition(chart()->mapToValue(event->pos()));
+    addPick(pos, QSize(5, 40), Qt::darkRed, 510000);
+    addPickButtonPress = false;
+  }
   QChartView::mousePressEvent(event);
   if (event->button() == Qt::RightButton) {
     for (auto &wave : _wavePicks) {
@@ -159,5 +174,17 @@ void View::scaleContentsBy(qreal factor) {
       wave->updateGeomety();
     }
   }
+}
+
+QPointF View::calculatePickPosition(QPointF pointByMouse) {
+  if (pointByMouse.y() > 7) {
+    return QPointF(pointByMouse.x(), 7 + WAVE_RADIUS);
+  }
+
+  if (pointByMouse.y() < 0) {
+    return QPointF(pointByMouse.x(), 0 + WAVE_RADIUS);
+  }
+
+  return QPointF(pointByMouse.x(), round(pointByMouse.y()) + WAVE_RADIUS);
 }
 } // namespace EventOperation

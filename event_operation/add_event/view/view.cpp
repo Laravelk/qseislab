@@ -20,6 +20,7 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
       _graphicEvent(new Controller(this)),
       _okButton(new QPushButton("Ok", this)),
       _cancelButton(new QPushButton("Cancel", this)),
+      _addWaveButton(new QPushButton("+", this)),
       _wellNames_map(wellNames_map) {
 
   // Setting`s
@@ -27,6 +28,9 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
   setMinimumSize(1100, 590);
 
   _infoEvent->setDisabled(true);
+
+  connect(_addWaveButton, &QPushButton::clicked,
+          [this]() { _graphicEvent->addPick(); });
 
   connect(_addButtonManagers, &QPushButton::clicked, [this]() {
     _addButtonManagers->setDisabled(true);
@@ -87,6 +91,7 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
   buttonsLayout->addStretch(1);
   buttonsLayout->addWidget(_okButton);
   buttonsLayout->addWidget(_cancelButton);
+  buttonsLayout->addWidget(_addWaveButton);
 
   QVBoxLayout *graphicLayout = new QVBoxLayout();
   graphicLayout->addWidget(_graphicEvent->getView(), 10);
