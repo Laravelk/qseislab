@@ -41,12 +41,6 @@ typedef boost::variant<
 
 template <typename tag, typename param_t> struct param_unop {
   explicit param_unop(const param_t &p) : param1(p) {}
-  //  //  explicit param_unop(const std::string &p_str) {
-  //  //    if constexpr (std::is_same_v<QDate, param_t>) {
-  //  //      param1 = QDate::fromString(QString::fromStdString(p_str));
-  //  //    }
-  //  //  }
-
   param_t param1;
 };
 
@@ -86,10 +80,12 @@ public:
     var_ = qi::lexeme[+(alpha | digit)];
 
     if constexpr (std::is_same_v<QString, param_t>) {
-      param_ = qi::lexeme[+(alpha | digit)];
+      param_ =
+          (as_string[+(alpha | digit)]) [_val = phx::bind(&QString::fromStdString, _1)];
     } else if constexpr (std::is_same_v<QDate, param_t>) {
       param_ = qi::lexeme[digit >> digit >> lit('.') >> digit >> digit >>
                           lit('.') >> digit >> digit];
+
     } else if constexpr (std::is_same_v<QTime, param_t>) {
       param_ = qi::lexeme[digit >> digit >> lit(':') >> digit >> digit];
     } else if constexpr (std::is_same_v<float, param_t>) {
