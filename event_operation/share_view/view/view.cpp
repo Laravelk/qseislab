@@ -61,7 +61,7 @@ bool View::viewportEvent(QEvent *event) {
 void View::mousePressEvent(QMouseEvent *event) {
   if (addPickButtonPress) {
     QPointF pos = calculatePickPosition(chart()->mapToValue(event->pos()));
-    addPick(pos, QSize(5, 40), Qt::darkRed, 510000);
+    addPick(pos, QSize(5, 40), Qt::darkRed, _rangeX);
     addPickButtonPress = false;
   }
   QChartView::mousePressEvent(event);
@@ -178,13 +178,13 @@ void View::scaleContentsBy(qreal factor) {
 
 QPointF View::calculatePickPosition(QPointF pointByMouse) {
   if (pointByMouse.y() > 7) {
-    return QPointF(pointByMouse.x(), 7 + WAVE_RADIUS);
+    return QPointF(pointByMouse.x() - 500, 7 + WAVE_RADIUS);
   }
 
   if (pointByMouse.y() < 0) {
-    return QPointF(pointByMouse.x(), 0 + WAVE_RADIUS);
+    return QPointF(pointByMouse.x() - 500, 0 + WAVE_RADIUS);
   }
 
-  return QPointF(pointByMouse.x(), round(pointByMouse.y()) + WAVE_RADIUS);
+  return QPointF(pointByMouse.x() - 500, round(pointByMouse.y()) + WAVE_RADIUS);
 }
 } // namespace EventOperation

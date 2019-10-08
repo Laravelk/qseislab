@@ -21,8 +21,9 @@ public:
   void addPick(QPointF, QSize, QBrush, qreal);
   void setAddPickFlag(bool);
   void setWaveRadius(qreal wr) { WAVE_RADIUS = wr; }
+  void setRangeX(qreal rangeX) { _rangeX = rangeX; }
 
-  QList<WavePick *> getPickcs() { return _wavePicks; }
+  QList<WavePick *> *getPickcs() { return &_wavePicks; }
   void clearPicks() {
     for (auto &pick : _wavePicks) {
       scene()->removeItem(pick);
@@ -46,6 +47,7 @@ protected:
 
 private:
   qreal WAVE_RADIUS;
+  qreal _rangeX;
   bool mouseIsTouching = false;
   bool addPickButtonPress = false;
   qreal _mFactor = 1.0;

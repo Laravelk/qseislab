@@ -3,7 +3,6 @@
 #include <QtWidgets/QGesture>
 #include <QtWidgets/QGraphicsScene>
 #include <QtWidgets/QGraphicsView>
-#include <iostream> // TODO: delete
 
 #include "view/wavepick.h"
 
@@ -25,7 +24,7 @@ bool ChartGesture::gestureEvent(QGestureEvent *event) {
   if (QGesture *gesture = event->gesture(Qt::PanGesture)) {
     QPanGesture *pan = static_cast<QPanGesture *>(gesture);
     QChart::scroll(-(pan->delta().x()), pan->delta().y());
-    for (auto &it : _wavePicks) {
+    for (auto &it : *_wavePicks) {
       it->updateGeomety();
     }
   }
@@ -34,7 +33,7 @@ bool ChartGesture::gestureEvent(QGestureEvent *event) {
     QPinchGesture *pinch = static_cast<QPinchGesture *>(gesture);
     if (pinch->changeFlags() & QPinchGesture::ScaleFactorChanged) {
       QChart::zoom(pinch->scaleFactor());
-      for (auto &it : _wavePicks) {
+      for (auto &it : *_wavePicks) {
         it->setScale(it->scale() * pinch->scaleFactor());
         it->updateGeomety();
       }
