@@ -30,7 +30,7 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
   _infoEvent->setDisabled(true);
 
   connect(_addWaveButton, &QPushButton::clicked,
-          [this]() { _graphicEvent->addPick(); });
+          [this]() { _graphicEvent->getView()->setAddPickFlag(true); });
 
   connect(_addButtonManagers, &QPushButton::clicked, [this]() {
     _addButtonManagers->setDisabled(true);

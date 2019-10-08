@@ -29,8 +29,6 @@ Controller::Controller(QWidget *parent)
   _view->hide();
 }
 
-void Controller::addPick() { _view->setAddPickFlag(true); }
-
 // подумать, как вызывать удаление, сделать полную очистку
 void Controller::update(const std::unique_ptr<SeismEvent> &event) {
   _view->chart()->removeAllSeries();

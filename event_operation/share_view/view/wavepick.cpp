@@ -16,6 +16,7 @@ WavePick::WavePick(QChart *chart, QPointF pos, QSize size, QBrush brush,
   setPos(_anchor);
   updateBorders();
   _rect = QRectF(0, 0, size.width(), size.height());
+  updateGeomety();
 }
 
 WavePick::WavePick(QChart *chart, qreal ax, qreal ay, int width, int height,
@@ -25,6 +26,7 @@ WavePick::WavePick(QChart *chart, qreal ax, qreal ay, int width, int height,
   _anchor = QPointF(ax, ay);
   setPos(_anchor);
   _rect = QRectF(0, 0, width, height);
+  updateGeomety();
 }
 
 void WavePick::paint(QPainter *painter, const QStyleOptionGraphicsItem *,

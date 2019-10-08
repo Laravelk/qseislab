@@ -23,6 +23,7 @@ void View::addPick(qreal ax, qreal ay, int width, int height, QBrush brush,
 }
 
 void View::addPick(QPointF pos, QSize size, QBrush brush, qreal rangeX) {
+  const qreal DEFAULT_OFFSET = 20000;
   QBrush borderBrush;
   if (brush == Qt::darkRed) {
     borderBrush = Qt::darkGreen;
@@ -30,14 +31,24 @@ void View::addPick(QPointF pos, QSize size, QBrush brush, qreal rangeX) {
     borderBrush = Qt::darkCyan;
   }
   WavePick *pick = new WavePick(chart(), pos, size, brush, 2, 4);
+  qreal leftBorderXOffset = pos.x() - DEFAULT_OFFSET;
+  qreal rightBorderXOffset = pos.x() + DEFAULT_OFFSET;
+
+  if (0 >= leftBorderXOffset) {
+    leftBorderXOffset = 1;
+  }
+
+  if (rightBorderXOffset >= rangeX) {
+    rightBorderXOffset = rangeX - 1;
+  }
   connect(pick, &WavePick::sendTypeNumCompY,
           [this](auto type, auto num, auto newPos) {
             emit sendTypeNumCompY(type, num, newPos);
           });
   WavePick *leftBorder = new WavePick(
-      chart(), QPointF(pos.x() - 40000, pos.y()), size, borderBrush, 0, pick);
+      chart(), QPointF(leftBorderXOffset, pos.y()), size, borderBrush, 0, pick);
   WavePick *rightBorder =
-      new WavePick(chart(), QPointF(pos.x() + 40000, pos.y()), size,
+      new WavePick(chart(), QPointF(rightBorderXOffset, pos.y()), size,
                    borderBrush, pick, rangeX);
   pick->setBorders(leftBorder, rightBorder);
   pick->setZValue(11);
@@ -169,9 +180,9 @@ void View::wheelEvent(QWheelEvent *event) {
 void View::scaleContentsBy(qreal factor) {
   if (scene()) {
     _chart->zoom(factor);
-    for (auto &wave : _wavePicks) {
-      wave->setScale(wave->scale() * factor);
-      wave->updateGeomety();
+    for (auto &wavePick : _wavePicks) {
+      wavePick->setScale(wavePick->scale() * factor);
+      wavePick->updateGeomety();
     }
   }
 }

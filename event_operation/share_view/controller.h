@@ -21,7 +21,6 @@ public:
   ChartGesture *getModel() const { return _chart; }
   void setChart(ChartGesture *chart) { _chart = chart; }
   void setView(View *view) { _view = view; }
-  void addPick();
 
   void update(const std::unique_ptr<Data::SeismEvent> &);
   void clear();
