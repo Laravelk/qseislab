@@ -21,6 +21,7 @@ public:
   ChartGesture *getModel() const { return _chart; }
   void setChart(ChartGesture *chart) { _chart = chart; }
   void setView(View *view) { _view = view; }
+  void addPick();
 
   void update(const std::unique_ptr<Data::SeismEvent> &);
   void clear();
@@ -42,12 +43,15 @@ private:
   void setAxesY(int);
   void getRangeX(const std::unique_ptr<Data::SeismEvent> &);
 
+signals:
+  void sendTypeNumCompY(Data::SeismWavePick::Type, int, int);
+
 private:
   const qreal AMPLITUDE_SCALAR = 0.5;
-  const qreal TRACE_OFFSET = 0.15;
+  const qreal TRACE_OFFSET = 0.25;
   const qreal WAVE_RADIUS = 0.4;
   const qreal BORDER_RADIUS = 0.35;
-  const float NORMED = 1.7f;
+  const float NORMED = 1.8f;
   const int GRAPH_WIDHT = 750;
   const int GRAPH_HEIGHT = 470;
   const int WAVE_PEN_WIDTH = 4;

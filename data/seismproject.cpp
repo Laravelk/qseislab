@@ -8,40 +8,40 @@
 namespace Data {
 SeismProject::SeismProject(QObject *parent) : QObject(parent) {
   // NOTE: hard-code insert events
-  //  for (int i = 0; i < 4; ++i) {
-  //    std::unique_ptr<SeismEvent> event = std::make_unique<SeismEvent>();
+  for (int i = 0; i < 4; ++i) {
+    std::unique_ptr<SeismEvent> event = std::make_unique<SeismEvent>();
 
-  //    event->setDateTime(QDateTime::currentDateTime());
-  //    event->setType(i);
+    event->setDateTime(QDateTime::currentDateTime());
+    event->setType(i);
 
-  //    _events_map[event->getUuid()] = std::move(event);
-  //  }
-  // end...
+    _events_map[event->getUuid()] = std::move(event);
+  }
+  //   end...
 
-  // NOTE: hard-code insert wells
-  //  std::unique_ptr<SeismWell> well = std::make_unique<SeismWell>();
-  //  well->setName("Mon_TOOLS_233");
-  //  auto uuid = well->getUuid();
-  //  for (int j = 0; j < 8; ++j) {
-  //    auto receiver = std::make_unique<Data::SeismReceiver>();
-  //    for (int i = 0; i < 3; ++i) {
-  //      receiver->addChannel(std::make_unique<Data::SeismChannelReceiver>());
-  //    }
-  //    well->addReceiver(std::move(receiver));
-  //  }
-  //  _wells_map[uuid] = std::move(well);
+  //   NOTE: hard-code insert wells
+  std::unique_ptr<SeismWell> well = std::make_unique<SeismWell>();
+  well->setName("Mon_TOOLS_233");
+  auto uuid = well->getUuid();
+  for (int j = 0; j < 8; ++j) {
+    auto receiver = std::make_unique<Data::SeismReceiver>();
+    for (int i = 0; i < 3; ++i) {
+      receiver->addChannel(std::make_unique<Data::SeismChannelReceiver>());
+    }
+    well->addReceiver(std::move(receiver));
+  }
+  _wells_map[uuid] = std::move(well);
 
-  //  well = std::make_unique<SeismWell>();
-  //  well->setName("Mon_TOOLS_244");
-  //  uuid = well->getUuid();
-  //  for (int j = 0; j < 8; ++j) {
-  //    auto receiver = std::make_unique<Data::SeismReceiver>();
-  //    for (int i = 0; i < 3; ++i) {
-  //      receiver->addChannel(std::make_unique<Data::SeismChannelReceiver>());
-  //    }
-  //    well->addReceiver(std::move(receiver));
-  //  }
-  //  _wells_map[uuid] = std::move(well);
+  well = std::make_unique<SeismWell>();
+  well->setName("Mon_TOOLS_244");
+  uuid = well->getUuid();
+  for (int j = 0; j < 8; ++j) {
+    auto receiver = std::make_unique<Data::SeismReceiver>();
+    for (int i = 0; i < 3; ++i) {
+      receiver->addChannel(std::make_unique<Data::SeismChannelReceiver>());
+    }
+    well->addReceiver(std::move(receiver));
+  }
+  _wells_map[uuid] = std::move(well);
   // end...
 }
 
@@ -63,7 +63,6 @@ SeismProject::SeismProject(const QJsonObject &json, const QFileInfo &fileInfo,
   } else {
     err_msg += "::date : not found\n";
   }
-
   if (json.contains("Horizons")) {
     QJsonArray horizonsArray(json["Horizons"].toArray());
     int idx = 0;

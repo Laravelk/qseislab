@@ -1,7 +1,5 @@
 #include "controller.h"
 
-#include <iostream> // TODO: delete
-
 #include "data/seismcomponent.h"
 #include "data/seismevent.h"
 #include "data/seismtrace.h"
@@ -17,24 +15,39 @@ Controller::Controller(QWidget *parent)
       _axisY(new QValueAxis), _rangeAxisX(0) {
   _view = new View(_chart);
   _view->addModel(_chart);
+  _view->setWaveRadius(WAVE_RADIUS);
   _chart->setAnimationOptions(QChart::NoAnimation);
   _chart->legend()->hide();
   _chart->setMinimumSize(GRAPH_WIDHT, GRAPH_HEIGHT);
   _chart->addAxis(_axisX, Qt::AlignBottom);
   _chart->addAxis(_axisY, Qt::AlignLeft);
   _chart->setAcceptHoverEvents(true);
+
+  connect(_view, &View::sendTypeNumCompY,
+          [this](auto type, auto num, auto newPos) {
+            emit sendTypeNumCompY(type, num, newPos);
+          });
   _view->hide();
 }
 
+void Controller::addPick() { _view->setAddPickFlag(true); }
+
+// подумать, как вызывать удаление, сделать полную очистку
 void Controller::update(const std::unique_ptr<SeismEvent> &event) {
   _view->chart()->removeAllSeries();
+  _view->clearPicks();
   getRangeX(event);
+  _view->setRangeX(_rangeAxisX);
   setInterval(event);
   setAxesY(event->getComponentNumber());
   int idx = 0;
   for (auto &component : event->getComponents()) {
-    _pWaveArrival = component->getPWaveArrival();
-    _sWaveArrival = component->getSWaveArrival();
+    //    _pWaveArrival = component->getPWaveArrival();
+    //    _sWaveArrival = component->getSWaveArrival();
+    _pWaveArrival =
+        component->getWavePick(Data::SeismWavePick::Type::PWAVE).getArrival();
+    _sWaveArrival =
+        component->getWavePick(Data::SeismWavePick::Type::SWAVE).getArrival();
     addWaveArrival(idx);
     addTraceSeries(component, idx);
     idx++;
@@ -50,9 +63,9 @@ void Controller::clear() {
 
 void Controller::addWaveArrival(int index) {
   _view->addPick(QPointF(_pWaveArrival - 500, WAVE_RADIUS + index),
-                 QSize(5, 30), Qt::darkRed, _rangeAxisX);
+                 QSize(5, 40), Qt::darkRed, _rangeAxisX);
   _view->addPick(QPointF(_sWaveArrival - 500, WAVE_RADIUS + index),
-                 QSize(5, 30), Qt::darkBlue, _rangeAxisX);
+                 QSize(5, 40), Qt::darkBlue, _rangeAxisX);
 }
 
 void Controller::setInterval(const std::unique_ptr<SeismEvent> &event) {
@@ -67,11 +80,13 @@ void Controller::setInterval(const std::unique_ptr<SeismEvent> &event) {
 void EventOperation::Controller::addTraceSeries(
     const std::unique_ptr<Data::SeismComponent> &component, int index) {
   const float intervalAxisX = component->getSampleInterval();
+  const QColor color[] = {QColor(220, 20, 60), QColor(50, 205, 50),
+                          QColor(65, 105, 225)};
   int idx = -1;
   for (unsigned j = 0; j < component->getTraces().size(); ++j, ++idx) {
     _norm = component->getMaxValue() * NORMED;
     QLineSeries *series = new QLineSeries;
-    series->setUseOpenGL(true);
+    series->setUseOpenGL(true); // NOTE: COMMENT FOR RELEASE
     SeismTrace *trace = component->getTraces().at(j).get();
     float tmp = 0;
     for (int k = 0; k < trace->getBufferSize(); k++) {
@@ -82,6 +97,7 @@ void EventOperation::Controller::addTraceSeries(
       tmp += intervalAxisX;
     }
     _chart->addSeries(series);
+    series->setColor(color[j]);
     series->attachAxis(_axisX);
     series->attachAxis(_axisY);
   }

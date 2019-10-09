@@ -12,7 +12,8 @@
 
 namespace Data {
 class SeismWell;
-class SeismEvent {
+class SeismEvent : public QObject {
+  Q_OBJECT
 public:
   static const QString _default_path;
 
@@ -42,6 +43,9 @@ public:
   const Point &getLocation() const;
 
   QJsonObject &writeToJson(QJsonObject &, const QDir &) noexcept(false);
+
+signals:
+  void changed();
 
 private:
   QUuid _uuid;

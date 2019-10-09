@@ -20,8 +20,17 @@ public:
   void addPick(qreal, qreal, int, int, QBrush, qreal);
   void addPick(QPointF, QSize, QBrush, qreal);
 
-  QList<WavePick *> getPickcs() { return _wavePicks; }
-  QList<WaveBorder *> getBorders() { return _waveBorders; }
+  void setAddPickFlag(bool);
+  void setWaveRadius(qreal wr) { WAVE_RADIUS = wr; }
+  void setRangeX(qreal rangeX) { _rangeX = rangeX; }
+
+  QList<WavePick *> *getPickcs() { return &_wavePicks; }
+  void clearPicks() {
+    for (auto &pick : _wavePicks) {
+      scene()->removeItem(pick);
+    }
+    _wavePicks.clear();
+  }
 
 protected:
   bool viewportEvent(QEvent *) override;
@@ -38,15 +47,19 @@ protected:
   void scaleContentsBy(qreal factor);
 
 private:
+  qreal WAVE_RADIUS;
+  qreal _rangeX;
   bool mouseIsTouching = false;
+  bool addPickButtonPress = false;
   qreal _mFactor = 1.0;
   ChartGesture *_chart;
   QList<WavePick *> _wavePicks;
-  QList<WaveBorder *> _waveBorders;
+  QPointF calculatePickPosition(QPointF);
+
+signals:
+  void sendTypeNumCompY(Data::SeismWavePick::Type, int, int);
 
 private:
   QGraphicsRectItem *rect;
-
-private:
 };
 } // namespace EventOperation

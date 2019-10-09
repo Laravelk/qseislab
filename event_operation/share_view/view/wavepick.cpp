@@ -79,7 +79,6 @@ void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
                                  event->buttonDownPos(Qt::LeftButton))
                     .x(),
                 _anchor.y());
-    ;
     if (newPosition.x() < _valueRightBorder &&
         newPosition.x() > _valueLeftBorder) {
       setPos(QPointF(
@@ -93,11 +92,13 @@ void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
 }
 
 void WavePick::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
-  _anchor = QPointF(_chart
-                        ->mapToValue(mapToParent(event->pos()) -
-                                     event->buttonDownPos(Qt::LeftButton))
-                        .x(),
-                    _anchor.y());
+  qreal newX = QPointF(_chart->mapToValue(mapToParent(event->pos()) -
+                                          event->buttonDownPos(Qt::LeftButton)))
+                   .x();
+  _anchor = QPointF(newX, _anchor.y());
+
+  // TODO: send valid new value
+  emit sendTypeNumCompY(Data::SeismWavePick::Type::PWAVE, _anchor.y(), 67);
 }
 
 void WavePick::updateBorders() {

@@ -80,12 +80,11 @@ public:
     var_ = qi::lexeme[+(alpha | digit)];
 
     if constexpr (std::is_same_v<QString, param_t>) {
-      param_ =
-          (as_string[+(alpha | digit)]) [_val = phx::bind(&QString::fromStdString, _1)];
+      param_ = (as_string[+(alpha | digit)])[_val = phx::bind(
+                                                 &QString::fromStdString, _1)];
     } else if constexpr (std::is_same_v<QDate, param_t>) {
       param_ = qi::lexeme[digit >> digit >> lit('.') >> digit >> digit >>
                           lit('.') >> digit >> digit];
-
     } else if constexpr (std::is_same_v<QTime, param_t>) {
       param_ = qi::lexeme[digit >> digit >> lit(':') >> digit >> digit];
     } else if constexpr (std::is_same_v<float, param_t>) {

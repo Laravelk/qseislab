@@ -6,6 +6,8 @@
 
 #include "data/io/segyreader.h"
 
+#include <iostream> // TODO: remove
+
 typedef Data::IO::SegyReader SegyReader;
 
 namespace EventOperation {
@@ -22,6 +24,9 @@ Controller::Controller(
     wellNames_map[uuid_well.first] = uuid_well.second->getName();
   }
   _view = std::make_unique<View>(wellNames_map);
+
+  connect(_event.get(), &Data::SeismEvent::changed,
+          []() { std::cout << "event changed" << std::endl; });
 
   connect(_model, &Model::notify,
           [this](auto &msg) { _view->setNotification(msg); });
@@ -46,6 +51,18 @@ Controller::Controller(
     }
     _view->update(_event, uuid, well->getName());
   });
+
+  connect(_view.get(), &View::sendWavePickTypeNumCompY,
+          [this](const auto type, const auto num, const auto val) {
+            int idx = 0;
+            for (auto &component : _event->getComponents()) {
+              if (num == idx) {
+                component->addWavePick(type, Data::SeismWavePick(val));
+              }
+              ++idx;
+            }
+          });
+
   connect(_view.get(), &View::finished, this, &Controller::finish);
 }
 

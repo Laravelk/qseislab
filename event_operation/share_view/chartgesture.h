@@ -16,7 +16,7 @@ class ChartGesture : public QChart {
 public:
   explicit ChartGesture(QGraphicsItem *parent = nullptr,
                         Qt::WindowFlags wFlags = 0);
-  void addPicks(QList<WavePick *> wavePicks) { _wavePicks = wavePicks; }
+  void addPicks(QList<WavePick *> *wavePicks) { _wavePicks = wavePicks; }
 
 protected:
   bool sceneEvent(QEvent *) override;
@@ -26,6 +26,6 @@ private:
 public slots:
 
 private:
-  QList<WavePick *> _wavePicks;
+  QList<WavePick *> *_wavePicks;
 };
 } // namespace EventOperation
