@@ -61,8 +61,8 @@ SegyReader::nextComponent(const std::unique_ptr<SeismReceiver> &receiver) {
 
   std::unique_ptr<SeismComponent> component =
       std::make_unique<SeismComponent>(receiver->getUuid());
-  int p_wave_arrivel = 0;
-  int s_wave_arrivel = 0;
+  int p_wave_arrival = 0;
+  int s_wave_arrival = 0;
 
   for (int i = 0; i < receiver->getChannelNum(); ++i) {
     if (_trace_num == _alreadyRead) {
@@ -74,28 +74,28 @@ SegyReader::nextComponent(const std::unique_ptr<SeismReceiver> &receiver) {
       throw std::runtime_error("segy_traceheader()");
     }
 
-    int p_wave_arrivel_trace;
-    err = segy_get_field(traceh, SEGY_TR_CDP_X, &p_wave_arrivel_trace);
+    int p_wave_arrival_trace;
+    err = segy_get_field(traceh, SEGY_TR_CDP_X, &p_wave_arrival_trace);
     if (SEGY_OK != err) {
       throw std::runtime_error("segy_get_field(SEGY_TR_CDP_X)");
     }
     if (0 == i) {
-      p_wave_arrivel = p_wave_arrivel_trace;
+      p_wave_arrival = p_wave_arrival_trace;
     }
-    if (p_wave_arrivel != p_wave_arrivel_trace) {
+    if (p_wave_arrival != p_wave_arrival_trace) {
       throw std::runtime_error(
           "Fields do not match in the component (p_wave_arrivel)");
     }
 
-    int s_wave_arrivel_trace;
-    err = segy_get_field(traceh, SEGY_TR_CDP_Y, &s_wave_arrivel_trace);
+    int s_wave_arrival_trace;
+    err = segy_get_field(traceh, SEGY_TR_CDP_Y, &s_wave_arrival_trace);
     if (SEGY_OK != err) {
       throw std::runtime_error("segy_get_field(SEGY_TR_CDP_Y)");
     }
     if (0 == i) {
-      s_wave_arrivel = s_wave_arrivel_trace;
+      s_wave_arrival = s_wave_arrival_trace;
     }
-    if (s_wave_arrivel != s_wave_arrivel_trace) {
+    if (s_wave_arrival != s_wave_arrival_trace) {
       throw std::runtime_error(
           "Fields do not match in the component (s_wave_arrivel)");
     }
@@ -118,8 +118,8 @@ SegyReader::nextComponent(const std::unique_ptr<SeismReceiver> &receiver) {
   }
 
   component->setSampleInterval(_sam_intr);
-  component->setPWaveArrival(p_wave_arrivel);
-  component->setSWaveArrival(s_wave_arrivel);
+  component->addWavePick(Data::SeismWavePick::Type::PWAVE, p_wave_arrival);
+  component->addWavePick(Data::SeismWavePick::Type::SWAVE, s_wave_arrival);
 
   return component;
 }

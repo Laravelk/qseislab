@@ -43,7 +43,7 @@ private:
   void getRangeX(const std::unique_ptr<Data::SeismEvent> &);
 
 signals:
-  void sendTypeNumCompY(PickType, int, qreal);
+  void sendTypeNumCompY(Data::SeismWavePick::Type, int, int);
 
 private:
   const qreal AMPLITUDE_SCALAR = 0.5;

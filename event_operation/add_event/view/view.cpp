@@ -8,6 +8,7 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
+#include <iostream> // TODO: delete
 
 typedef Data::SeismEvent SeismEvent;
 
@@ -29,8 +30,12 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
 
   _infoEvent->setDisabled(true);
 
-  connect(_addWaveButton, &QPushButton::clicked,
-          [this]() { _graphicEvent->getView()->setAddPickFlag(true); });
+  QMenu *addWaveButtonMenu = new QMenu(_addWaveButton);
+  _addPWave = new QAction("PWAVE", _addWaveButton);
+  _addSWave = new QAction("SWAVE", _addWaveButton);
+  addWaveButtonMenu->addAction(_addPWave);
+  addWaveButtonMenu->addAction(_addSWave);
+  _addWaveButton->setMenu(addWaveButtonMenu);
 
   connect(_addButtonManagers, &QPushButton::clicked, [this]() {
     _addButtonManagers->setDisabled(true);
@@ -77,8 +82,16 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
   // Setting`s end
 
   // Connecting
+  connect(_graphicEvent, &EventOperation::Controller::sendTypeNumCompY,
+          [this](auto type, auto num, auto val) {
+            emit sendWavePickTypeNumCompY(type, num, val);
+          });
   connect(_okButton, &QPushButton::clicked, this, &View::accept);
   connect(_cancelButton, &QPushButton::clicked, this, &View::reject);
+  connect(_addPWave, &QAction::triggered,
+          [this]() { _graphicEvent->getView()->setPWaveAddTriggerFlag(true); });
+  connect(_addSWave, &QAction::triggered,
+          [this]() { _graphicEvent->getView()->setSWaveAddTriggerFlag(true); });
   // Connecting end
 
   // Layout`s

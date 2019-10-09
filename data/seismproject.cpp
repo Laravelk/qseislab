@@ -63,7 +63,6 @@ SeismProject::SeismProject(const QJsonObject &json, const QFileInfo &fileInfo,
   } else {
     err_msg += "::date : not found\n";
   }
-
   if (json.contains("Horizons")) {
     QJsonArray horizonsArray(json["Horizons"].toArray());
     int idx = 0;

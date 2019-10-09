@@ -70,6 +70,7 @@ set(SOURCES
 
         data/seismproject.cpp
         data/seismcomponent.cpp
+        data/seismwavepick.cpp
         data/seismevent.cpp
         data/seismtrace.cpp
         data/seismhorizon.cpp
@@ -149,6 +150,7 @@ set(HEADERS
         data/seism_data_type.h
         data/seismproject.h
         data/seismcomponent.h
+        data/seismwavepick.h
         data/seismevent.h
         data/seismtrace.h
         data/seismhorizon.h

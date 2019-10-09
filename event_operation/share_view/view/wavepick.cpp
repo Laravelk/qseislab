@@ -12,6 +12,7 @@ WavePick::WavePick(QChart *chart, QPointF pos, QSize size, QBrush brush,
                    std::variant<WavePick *, qreal> rightBorder)
     : QGraphicsItem(chart), _chart(chart), _pos(pos), _size(size),
       _brush(brush), _leftBorder(leftBorder), _rightBorder(rightBorder) {
+  type = Data::SeismWavePick::PWAVE; // TODO: delete. HARDCODE
   _anchor = pos;
   setPos(_anchor);
   updateBorders();
@@ -81,7 +82,6 @@ void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
                                  event->buttonDownPos(Qt::LeftButton))
                     .x(),
                 _anchor.y());
-    ;
     if (newPosition.x() < _valueRightBorder &&
         newPosition.x() > _valueLeftBorder) {
       setPos(QPointF(
@@ -100,7 +100,7 @@ void WavePick::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
                    .x();
   _anchor = QPointF(newX, _anchor.y());
 
-  emit sendTypeNumCompY(LEFT_BORDER, _anchor.y(), newX);
+  emit sendTypeNumCompY(type, _anchor.y(), newX);
 }
 
 void WavePick::updateBorders() {

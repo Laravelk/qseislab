@@ -3,10 +3,8 @@
 #include <QJsonArray>
 
 namespace Data {
-SeismComponent::SeismComponent(
-    /*const QUuid &wellUuid, */ const QUuid &receiverUuid)
-    : //    _wellUuid(wellUuid),
-      _receiverUuid(receiverUuid) {}
+SeismComponent::SeismComponent(const QUuid &receiverUuid)
+    : _receiverUuid(receiverUuid) {}
 
 // SeismComponent::SeismComponent(
 //    const QJsonObject &json,
@@ -80,17 +78,19 @@ SeismComponent::SeismComponent(const QJsonObject &json) {
     err_msg += "::receiverUuid : not found\n";
   }
 
-  if (json.contains("pWaveArrival")) {
-    _pWaveArrival = json["pWaveArrival"].toInt();
-  } else {
-    err_msg += "::pWaveArrival : not found\n";
-  }
+  // TODO: refactor -> wavePicks_map
+  //  if (json.contains("pWaveArrival")) {
+  //        _pWaveArrival = json["pWaveArrival"].toInt();
+  //  } else {
+  //    err_msg += "::pWaveArrival : not found\n";
+  //  }
 
-  if (json.contains("sWaveArrival")) {
-    _sWaveArrival = json["sWaveArrival"].toInt();
-  } else {
-    err_msg += "::sWaveArrival : not found\n";
-  }
+  // TODO: refactor -> wavePicks_map
+  //  if (json.contains("sWaveArrival")) {
+  //        _sWaveArrival = json["sWaveArrival"].toInt();
+  //  } else {
+  //    err_msg += "::sWaveArrival : not found\n";
+  //  }
 
   //  if (json.contains("Traces")) {
   //    QJsonArray tracesArray(json["Traces"].toArray());
@@ -132,8 +132,10 @@ SeismComponent::SeismComponent(const QJsonObject &json) {
 
 SeismComponent::SeismComponent(const SeismComponent &other)
     : //    _wellUuid(other._wellUuid),
-      _receiverUuid(other._receiverUuid), _pWaveArrival(other._pWaveArrival),
-      _sWaveArrival(other._sWaveArrival), _maxValue(other._maxValue) {
+      _receiverUuid(other._receiverUuid),
+      //    _pWaveArrival(other._pWaveArrival),
+      //      _sWaveArrival(other._sWaveArrival),
+      _maxValue(other._maxValue) {
   for (auto &trace : other._traces) {
     _traces.push_back(std::make_unique<SeismTrace>(*trace));
   }
@@ -149,17 +151,17 @@ void SeismComponent::setSampleInterval(float sampleInterval) {
   _sampleInterval = sampleInterval;
 }
 
-int SeismComponent::getPWaveArrival() const { return _pWaveArrival; }
+// int SeismComponent::getPWaveArrival() const { return _pWaveArrival; }
 
-void SeismComponent::setPWaveArrival(int pWaveArrival) {
-  _pWaveArrival = pWaveArrival;
-}
+// void SeismComponent::setPWaveArrival(int pWaveArrival) {
+//  _pWaveArrival = pWaveArrival;
+//}
 
-int SeismComponent::getSWaveArrival() const { return _sWaveArrival; }
+// int SeismComponent::getSWaveArrival() const { return _sWaveArrival; }
 
-void SeismComponent::setSWaveArrival(int sWaveArrival) {
-  _sWaveArrival = sWaveArrival;
-}
+// void SeismComponent::setSWaveArrival(int sWaveArrival) {
+//  _sWaveArrival = sWaveArrival;
+//}
 
 float SeismComponent::getMaxValue() const { return _maxValue; }
 
@@ -188,11 +190,32 @@ SeismComponent::getTraces() const {
   return _traces;
 }
 
+void SeismComponent::addWavePick(SeismWavePick::Type type,
+                                 const SeismWavePick &wavePick) {
+  _wavePicks_map[type] = wavePick;
+  emit changed();
+}
+
+void SeismComponent::removeWavePick(SeismWavePick::Type type) {
+  _wavePicks_map.erase(type);
+  emit changed();
+}
+
+const SeismWavePick &
+SeismComponent::getWavePick(SeismWavePick::Type type) const {
+  return _wavePicks_map.at(type);
+}
+
+const std::map<SeismWavePick::Type, SeismWavePick> &
+SeismComponent::getWavePicks() const {
+  return _wavePicks_map;
+}
+
 QJsonObject &SeismComponent::writeToJson(QJsonObject &json) const {
   json["receiverUuid"] = _receiverUuid.toString();
   //  json["wellUuid"] = _wellUuid.toString();
-  json["pWaveArrival"] = _pWaveArrival;
-  json["sWaveArrival"] = _sWaveArrival;
+  //  json["pWaveArrival"] = _pWaveArrival;
+  //  json["sWaveArrival"] = _sWaveArrival;
 
   QJsonArray tracesArray;
   QJsonObject traceObj;

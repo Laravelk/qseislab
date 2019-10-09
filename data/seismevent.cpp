@@ -88,7 +88,8 @@ SeismEvent::SeismEvent(const QJsonObject &json,
                   for (int i = 0; i < receiver->getChannelNum(); ++i) {
                     seismComponent->addTrace(reader.nextTrace());
                   }
-                  _components.push_back(std::move(seismComponent));
+                  addComponent(std::move(seismComponent));
+                  //                  _components.push_back(std::move(seismComponent));
                   break;
                 }
               }
@@ -175,6 +176,8 @@ int SeismEvent::getComponentNumber() const {
 
 void SeismEvent::addComponent(std::unique_ptr<SeismComponent> component) {
   _components.push_back(std::move(component));
+  connect(_components.back().get(), &SeismComponent::changed,
+          [this]() { emit changed(); });
 }
 
 bool SeismEvent::removeComponentByReceiverUuid(const QUuid &receiverUuid) {

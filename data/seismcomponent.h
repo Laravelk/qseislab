@@ -2,15 +2,19 @@
 
 #include "seism_data_type.h"
 #include "seismtrace.h"
+#include "seismwavepick.h"
 
 #include <QJsonObject>
+#include <QObject>
 #include <QUuid>
 
+#include <map>
 #include <memory>
 #include <vector>
 
 namespace Data {
-class SeismComponent {
+class SeismComponent : public QObject {
+  Q_OBJECT
 public:
   explicit SeismComponent(const QUuid &);
   //  explicit SeismComponent(
@@ -28,11 +32,11 @@ public:
   float getSampleInterval() const;
   void setSampleInterval(float);
 
-  int getPWaveArrival() const;
-  void setPWaveArrival(int);
+  //  int getPWaveArrival() const;
+  //  void setPWaveArrival(int);
 
-  int getSWaveArrival() const;
-  void setSWaveArrival(int);
+  //  int getSWaveArrival() const;
+  //  void setSWaveArrival(int);
 
   float getMaxValue() const;
 
@@ -46,15 +50,23 @@ public:
   unsigned getTracesNumber() const;
   const std::vector<std::unique_ptr<SeismTrace>> &getTraces() const;
 
+  void addWavePick(SeismWavePick::Type, const SeismWavePick &);
+  void removeWavePick(SeismWavePick::Type);
+  const SeismWavePick &getWavePick(SeismWavePick::Type) const;
+  const std::map<SeismWavePick::Type, SeismWavePick> &getWavePicks() const;
+
   QJsonObject &writeToJson(QJsonObject &) const;
+
+signals:
+  void changed();
 
 private:
   //  QUuid _wellUuid;
   QUuid _receiverUuid;
 
   float _sampleInterval{0.0};
-  int _pWaveArrival{0};
-  int _sWaveArrival{0};
+  //  int _pWaveArrival{0};
+  //  int _sWaveArrival{0};
 
   float _maxValue{-1.0};
 
@@ -63,6 +75,8 @@ private:
   //  const std::unique_ptr<SeismReceiver> &_receiver;
 
   std::vector<std::unique_ptr<SeismTrace>> _traces;
+
+  std::map<SeismWavePick::Type, SeismWavePick> _wavePicks_map;
 };
 
 } // namespace Data

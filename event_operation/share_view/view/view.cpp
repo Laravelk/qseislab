@@ -17,12 +17,13 @@ View::View(QChart *chart, QWidget *parent)
   scene()->addItem(chart);
 }
 
-void View::addPick(qreal ax, qreal ay, int width, int height, QBrush brush,
-                   qreal rangeX) {
-  addPick(QPointF(ax, ay), QSize(width, height), brush, rangeX);
+void View::addPick(Data::SeismWavePick::Type type, qreal ax, qreal ay,
+                   int width, int height, QBrush brush, qreal rangeX) {
+  addPick(type, QPointF(ax, ay), QSize(width, height), brush, rangeX);
 }
 
-void View::addPick(QPointF pos, QSize size, QBrush brush, qreal rangeX) {
+void View::addPick(Data::SeismWavePick::Type type, QPointF pos, QSize size,
+                   QBrush brush, qreal rangeX) {
   const qreal DEFAULT_OFFSET = 20000;
   QBrush borderBrush;
   if (brush == Qt::darkRed) {
@@ -59,10 +60,17 @@ void View::addPick(QPointF pos, QSize size, QBrush brush, qreal rangeX) {
   _wavePicks.push_back(pick);
 }
 
-void View::setAddPickFlag(bool t) { addPickButtonPress = t; }
+void View::setPWaveAddTriggerFlag(bool t) {
+  _isAddPWaveTriggerPressed = t;
+  _isAddSWaveTriggerPressed = false;
+}
+
+void View::setSWaveAddTriggerFlag(bool t) {
+  _isAddSWaveTriggerPressed = t;
+  _isAddPWaveTriggerPressed = false;
+}
 
 bool View::viewportEvent(QEvent *event) {
-
   if (event->type() == QEvent::TouchBegin) {
     mouseIsTouching = true;
   }
@@ -70,11 +78,26 @@ bool View::viewportEvent(QEvent *event) {
 }
 
 void View::mousePressEvent(QMouseEvent *event) {
-  if (addPickButtonPress) {
+  if (_isAddPWaveTriggerPressed) {
     QPointF pos = calculatePickPosition(chart()->mapToValue(event->pos()));
-    addPick(pos, QSize(5, 40), Qt::darkRed, _rangeX);
-    addPickButtonPress = false;
+    if (checkAvailability(Data::SeismWavePick::PWAVE,
+                          static_cast<int>(pos.y()))) {
+      addPick(Data::SeismWavePick::PWAVE, pos, QSize(5, 40), Qt::darkRed,
+              _rangeX);
+    }
+    _isAddPWaveTriggerPressed = false;
   }
+
+  if (_isAddSWaveTriggerPressed) {
+    QPointF pos = calculatePickPosition(chart()->mapToValue(event->pos()));
+    if (checkAvailability(Data::SeismWavePick::SWAVE,
+                          static_cast<int>(pos.y()))) {
+      addPick(Data::SeismWavePick::SWAVE, pos, QSize(5, 40), Qt::darkRed,
+              _rangeX);
+    }
+    _isAddSWaveTriggerPressed = false;
+  }
+
   QChartView::mousePressEvent(event);
   if (event->button() == Qt::RightButton) {
     for (auto &wave : _wavePicks) {
@@ -197,5 +220,15 @@ QPointF View::calculatePickPosition(QPointF pointByMouse) {
   }
 
   return QPointF(pointByMouse.x() - 500, round(pointByMouse.y()) + WAVE_RADIUS);
+}
+
+bool View::checkAvailability(Data::SeismWavePick::Type type, int index) {
+  for (auto &wavePick : _wavePicks) {
+    if (wavePick->getType() == type &&
+        wavePick->getComponentNumber() == index) {
+      return false;
+    }
+  }
+  return true;
 }
 } // namespace EventOperation

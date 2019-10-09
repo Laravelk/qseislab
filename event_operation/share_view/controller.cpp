@@ -22,6 +22,7 @@ Controller::Controller(QWidget *parent)
   _chart->addAxis(_axisX, Qt::AlignBottom);
   _chart->addAxis(_axisY, Qt::AlignLeft);
   _chart->setAcceptHoverEvents(true);
+
   connect(_view, &View::sendTypeNumCompY,
           [this](auto type, auto num, auto newPos) {
             emit sendTypeNumCompY(type, num, newPos);
@@ -39,8 +40,12 @@ void Controller::update(const std::unique_ptr<SeismEvent> &event) {
   setAxesY(event->getComponentNumber());
   int idx = 0;
   for (auto &component : event->getComponents()) {
-    _pWaveArrival = component->getPWaveArrival();
-    _sWaveArrival = component->getSWaveArrival();
+    //    _pWaveArrival = component->getPWaveArrival();
+    //    _sWaveArrival = component->getSWaveArrival();
+    _pWaveArrival =
+        component->getWavePick(Data::SeismWavePick::Type::PWAVE).getArrival();
+    _sWaveArrival =
+        component->getWavePick(Data::SeismWavePick::Type::SWAVE).getArrival();
     addWaveArrival(idx);
     addTraceSeries(component, idx);
     idx++;
@@ -55,9 +60,11 @@ void Controller::clear() {
 }
 
 void Controller::addWaveArrival(int index) {
-  _view->addPick(QPointF(_pWaveArrival - 500, WAVE_RADIUS + index),
+  _view->addPick(Data::SeismWavePick::PWAVE,
+                 QPointF(_pWaveArrival - 500, WAVE_RADIUS + index),
                  QSize(5, 40), Qt::darkRed, _rangeAxisX);
-  _view->addPick(QPointF(_sWaveArrival - 500, WAVE_RADIUS + index),
+  _view->addPick(Data::SeismWavePick::SWAVE,
+                 QPointF(_sWaveArrival - 500, WAVE_RADIUS + index),
                  QSize(5, 40), Qt::darkBlue, _rangeAxisX);
 }
 

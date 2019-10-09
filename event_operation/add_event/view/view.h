@@ -1,5 +1,7 @@
 #pragma once
 
+#include "data/seismwavepick.h"
+
 #include <QDialog>
 
 #include <QBoxLayout>
@@ -31,6 +33,8 @@ signals:
   void sendWellUuidAndFilePath(const QPair<QUuid, QString> &) const;
   void sendWellUuidForRemove(const QUuid &) const;
 
+  void sendWavePickTypeNumCompY(Data::SeismWavePick::Type, int, int);
+
 private:
   InfoEvent *_infoEvent;
   QVBoxLayout *_wellManegersLayout;
@@ -39,6 +43,9 @@ private:
   QPushButton *_okButton;
   QPushButton *_cancelButton;
   QPushButton *_addWaveButton;
+
+  QAction *_addPWave;
+  QAction *_addSWave;
 
   std::map<QUuid, QString> _wellNames_map;
 };

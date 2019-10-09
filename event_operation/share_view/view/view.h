@@ -17,9 +17,12 @@ public:
   View(QChart *, QWidget *parent = nullptr);
   void addModel(ChartGesture *model) { _chart = model; }
   void addPick(WavePick *);
-  void addPick(qreal, qreal, int, int, QBrush, qreal);
-  void addPick(QPointF, QSize, QBrush, qreal);
-  void setAddPickFlag(bool);
+  void addPick(Data::SeismWavePick::Type, qreal, qreal, int, int, QBrush,
+               qreal);
+  void addPick(Data::SeismWavePick::Type, QPointF, QSize, QBrush, qreal);
+
+  void setPWaveAddTriggerFlag(bool);
+  void setSWaveAddTriggerFlag(bool);
   void setWaveRadius(qreal wr) { WAVE_RADIUS = wr; }
   void setRangeX(qreal rangeX) { _rangeX = rangeX; }
 
@@ -49,14 +52,17 @@ private:
   qreal WAVE_RADIUS;
   qreal _rangeX;
   bool mouseIsTouching = false;
-  bool addPickButtonPress = false;
+  bool _isAddPWaveTriggerPressed = false;
+  bool _isAddSWaveTriggerPressed = false;
   qreal _mFactor = 1.0;
   ChartGesture *_chart;
   QList<WavePick *> _wavePicks;
+
   QPointF calculatePickPosition(QPointF);
+  bool checkAvailability(Data::SeismWavePick::Type, int);
 
 signals:
-  void sendTypeNumCompY(PickType, int, qreal);
+  void sendTypeNumCompY(Data::SeismWavePick::Type, int, int);
 
 private:
   QGraphicsRectItem *rect;
