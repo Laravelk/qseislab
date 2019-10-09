@@ -54,69 +54,6 @@ template <typename tag> struct unop {
   expr oper1;
 };
 
-template <typename param_t, typename It, typename Skipper = qi::space_type>
-struct Parser : qi::grammar<It, expr(), Skipper> {
-public:
-  Parser() : Parser::base_type(expr_) {
-    using namespace qi;
-
-    expr_ = or_.alias();
-
-    or_ = (and_ >> '|' >> or_)[_val = phx::construct<binop<op_or>>(_1, _2)] |
-          and_[_val = _1];
-    and_ = (not_ >> '&' >> and_)[_val = phx::construct<binop<op_and>>(_1, _2)] |
-           not_[_val = _1];
-    not_ = ('!' > simple)[_val = phx::construct<unop<op_not>>(_1)] |
-           simple[_val = _1];
-
-    simple = (('(' > expr_ > ')') | more_);
-    more_ = (('>' >
-              param_)[_val = phx::construct<param_unop<op_more, param_t>>(_1)] |
-             less_[_val = _1]);
-    less_ = (('<' >
-              param_)[_val = phx::construct<param_unop<op_less, param_t>>(_1)] |
-             var_[_val = _1]);
-
-    var_ = qi::lexeme[+(alpha | digit)];
-
-    if constexpr (std::is_same_v<QString, param_t>) {
-      param_ = (as_string[+(alpha | digit)])[_val = phx::bind(
-                                                 &QString::fromStdString, _1)];
-    } else if constexpr (std::is_same_v<QDate, param_t>) {
-      param_ = qi::lexeme[digit >> digit >> lit('.') >> digit >> digit >>
-                          lit('.') >> digit >> digit];
-    } else if constexpr (std::is_same_v<QTime, param_t>) {
-      param_ = qi::lexeme[digit >> digit >> lit(':') >> digit >> digit];
-    } else if constexpr (std::is_same_v<float, param_t>) {
-      param_ = qi::float_;
-    } else if constexpr (std::is_same_v<int, param_t>) {
-      param_ = qi::int_;
-    } else if constexpr (std::is_same_v<std::string, param_t>) {
-      param_ = qi::lexeme[+(alpha | digit)];
-    } else {
-      assert(false);
-    }
-
-    BOOST_SPIRIT_DEBUG_NODE(expr_);
-    BOOST_SPIRIT_DEBUG_NODE(or_);
-    BOOST_SPIRIT_DEBUG_NODE(and_);
-    BOOST_SPIRIT_DEBUG_NODE(not_);
-    BOOST_SPIRIT_DEBUG_NODE(simple);
-    BOOST_SPIRIT_DEBUG_NODE(var_);
-
-    BOOST_SPIRIT_DEBUG_NODE(more_);
-    BOOST_SPIRIT_DEBUG_NODE(less_);
-    BOOST_SPIRIT_DEBUG_NODE(param_);
-  }
-
-private:
-  qi::rule<It, var(), Skipper> var_;
-  qi::rule<It, expr(), Skipper> not_, and_, or_, simple, expr_;
-
-  qi::rule<It, expr(), Skipper> more_, less_;
-  qi::rule<It, param_t(), Skipper> param_;
-};
-
 template <typename param_t> struct Evaluator : boost::static_visitor<bool> {
 public:
   Evaluator(const param_t &p) : param(p) {}
@@ -236,56 +173,79 @@ private:
   }
 };
 
+template <typename It, typename Skipper = qi::space_type>
+struct AbstractParser : qi::grammar<It, expr(), Skipper> {};
+
+template <typename param_t, typename It, typename Skipper = qi::space_type>
+struct Parser : AbstractParser<It, Skipper> {
+public:
+  Parser() : Parser::base_type(expr_) {
+    using namespace qi;
+
+    expr_ = or_.alias();
+
+    or_ = (and_ >> '|' >> or_)[_val = phx::construct<binop<op_or>>(_1, _2)] |
+          and_[_val = _1];
+    and_ = (not_ >> '&' >> and_)[_val = phx::construct<binop<op_and>>(_1, _2)] |
+           not_[_val = _1];
+    not_ = ('!' > simple)[_val = phx::construct<unop<op_not>>(_1)] |
+           simple[_val = _1];
+
+    simple = (('(' > expr_ > ')') | more_);
+    more_ = (('>' >
+              param_)[_val = phx::construct<param_unop<op_more, param_t>>(_1)] |
+             less_[_val = _1]);
+    less_ = (('<' >
+              param_)[_val = phx::construct<param_unop<op_less, param_t>>(_1)] |
+             var_[_val = _1]);
+
+    var_ = qi::lexeme[+(alpha | digit)];
+
+    if constexpr (std::is_same_v<QString, param_t>) {
+      param_ = (as_string[+(alpha | digit)])[_val = phx::bind(
+                                                 &QString::fromStdString, _1)];
+    } else if constexpr (std::is_same_v<QDate, param_t>) {
+      //      param_ = (as_string[digit >> digit >> lit('.') >> digit >> digit
+      //      >>
+      //                          lit('.') >> digit >> digit])
+      //          [_val = phx::bind(&QDate::fromString,
+      //                            phx::bind(&QString::fromStdString, _1))];
+    } else if constexpr (std::is_same_v<QTime, param_t>) {
+      //      param_ = (as_string[digit >> digit >> lit(':') >> digit >> digit])
+      //          [_val = phx::bind(&QTime::fromString,
+      //                            phx::bind(&QString::fromStdString, _1))];
+    } else if constexpr (std::is_same_v<float, param_t>) {
+      param_ = qi::float_;
+    } else if constexpr (std::is_same_v<int, param_t>) {
+      param_ = qi::int_;
+    } else if constexpr (std::is_same_v<std::string, param_t>) {
+      param_ = as_string[+(alpha | digit)];
+    } else {
+      assert(false);
+    }
+
+    BOOST_SPIRIT_DEBUG_NODE(expr_);
+    BOOST_SPIRIT_DEBUG_NODE(or_);
+    BOOST_SPIRIT_DEBUG_NODE(and_);
+    BOOST_SPIRIT_DEBUG_NODE(not_);
+    BOOST_SPIRIT_DEBUG_NODE(simple);
+    BOOST_SPIRIT_DEBUG_NODE(var_);
+
+    BOOST_SPIRIT_DEBUG_NODE(more_);
+    BOOST_SPIRIT_DEBUG_NODE(less_);
+    BOOST_SPIRIT_DEBUG_NODE(param_);
+  }
+
+  static bool evaluate(const expr &e, const param_t &p) {
+    return boost::apply_visitor(Evaluator<param_t>(p), e);
+  }
+
+private:
+  qi::rule<It, var(), Skipper> var_;
+  qi::rule<It, expr(), Skipper> not_, and_, or_, simple, expr_;
+
+  qi::rule<It, expr(), Skipper> more_, less_;
+  qi::rule<It, param_t(), Skipper> param_;
+};
+
 } // namespace TableFilterParsing
-
-// int main(int argc, char const *argv[]) {
-//	if (2 > argc) {
-//        std::cerr << "Usage: " << argv[0] << " <test_data>" << std::endl;
-//        return 1;
-//    }
-
-//    std::ifstream file(argv[1]);
-//    if(!file) {
-//        std::cerr << argv[1] << " not opened" << std::endl;
-//        return 2;
-//    }
-
-//    std::vector<std::string> inputs;
-//    while(!file.eof()) {
-//        std::string str;
-//        getline(file, str);
-//        inputs.push_back(str);
-//    }
-//    file.close();
-
-//    for (int i = 0; i < inputs.size(); ++i) {
-//        typedef std::string::const_iterator It;
-//        It phrase_begin(inputs[i].begin());
-//        It phrase_end(inputs[i].end());
-//        TableFilterParsing::Parser<int, It> parser;
-
-//        try {
-//            TableFilterParsing::expr result;
-//            bool ok = qi::phrase_parse(phrase_begin, phrase_end, parser >
-//            ';',qi::space,result);
-
-//            if (!ok){
-//                std::cerr << "invalid input\n";
-//            }
-//            else {
-//                std::cout << "evaluated:\t" <<
-//                TableFilterParsing::Evaluator<int>::evaluate(result, 10) <<
-//                "\n\n";
-//            }
-//        } catch (const qi::expectation_failure<It>& e) {
-//            std::cerr << "expectation_failure at '" << std::string(e.first,
-//            e.last) << "'\n\n";
-//        }
-
-//        if (phrase_end != phrase_begin) {
-//            std::cerr << "unparsed: '" << std::string(phrase_begin,
-//            phrase_end) << "'\n\n";
-//        }
-//    }
-//	return 0;
-//}

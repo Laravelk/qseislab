@@ -143,12 +143,40 @@ void TableAssistant::insertRowInFilterTable(const QString &field) {
   _filterTable->setCellWidget(row, 2, lineEdit);
 }
 
+TableFilterParsing::AbstractParser<std::string::const_iterator> *
+getParser(TableAssistant::Mode mode, int colomn) {}
+
 void TableAssistant::enbledFilter(int enable, const QString &filterName,
                                   const QString &pattern) {
+
   for (int column = 0; column < _objectsTable->columnCount(); ++column) {
-    auto qstr = _objectsTable->horizontalHeaderItem(column)->text();
-    if (filterName == qstr) {
+    if (filterName == _objectsTable->horizontalHeaderItem(column)->text()) {
+      TableFilterParsing::AbstractParser<std::string::const_iterator> *parser =
+          getParser(_mode, column);
+      switch (column) {
+      case 3:
+      case 4:
+        parser =
+            new TableFilterParsing::Parser<int, std::string::const_iterator>();
+        break;
+      case 5:
+      case 6:
+      case 7:
+        parser =
+            new TableFilterParsing::Parser<int, std::string::const_iterator>();
+        break;
+      case 8:
+        parser = new TableFilterParsing::Parser<QDate,
+                                                std::string::const_iterator>();
+        break;
+      case 9:
+        parser = new TableFilterParsing::Parser<QTime,
+                                                std::string::const_iterator>();
+        break;
+      }
+
       for (int row = 0; row < _objectsTable->rowCount(); ++row) {
+
         auto item = _objectsTable->item(row, column);
         if (item) {
           QStringList filterNames =
@@ -178,11 +206,9 @@ bool TableAssistant::applicable(const QString &pattern,
                                 const QString &value) const {
 
   typedef std::string::const_iterator It;
-  std::string std_pattern = pattern.toStdString();
-  //    std::cout << "std_pattern == " << std_pattern << std::endl;
-  It phrase_begin(std_pattern.begin());
-  It phrase_end(std_pattern.end());
-  //  StringParser<std::string, It> p;
+  It phrase_begin(pattern.toStdString().begin());
+  It phrase_end(pattern.toStdString().end());
+
   //  TableFilterParsing::Parser<QDate, It> parser;
   TableFilterParsing::Parser<QString, It> parser;
 
@@ -195,12 +221,7 @@ bool TableAssistant::applicable(const QString &pattern,
       //            std::cerr << "invalid input\n";
       return false;
     } else {
-      std::string std_value = value.toStdString();
-      bool eval =
-          TableFilterParsing::Evaluator<QString>::evaluate(result, value);
-      //      bool eval = TableFilterParsing::Evaluator<QDate>::evaluate(
-      //          result, QDate::fromString(value));
-      //            std::cout << "evaluated:\t" << eval << "\n\n";
+      bool eval = parser.evaluate(result, value);
       return !eval;
     }
   } catch (const qi::expectation_failure<It> &e) {

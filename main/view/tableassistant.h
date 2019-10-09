@@ -31,4 +31,6 @@ private:
 
   QTableWidget *_filterTable;
   QTableWidget *_objectsTable;
+
+  Mode _mode;
 };
