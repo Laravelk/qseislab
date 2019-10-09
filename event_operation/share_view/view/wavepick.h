@@ -20,9 +20,10 @@ namespace EventOperation {
 class WavePick : public QObject, public QGraphicsItem {
   Q_OBJECT
 public:
-  WavePick(QChart *, QPointF, QSize, QBrush, std::variant<WavePick *, qreal>,
-           std::variant<WavePick *, qreal>);
-  WavePick(QChart *, qreal, qreal, int, int, QBrush, WavePick *);
+  WavePick(QGraphicsItem *, QChart *, QPointF, QSize, QBrush,
+           std::variant<WavePick *, qreal>, std::variant<WavePick *, qreal>);
+  WavePick(QGraphicsItem *, QChart *, qreal, qreal, int, int, QBrush,
+           WavePick *);
 
   void setAnchor(const QPointF);
   void updateGeomety();

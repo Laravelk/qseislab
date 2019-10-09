@@ -13,8 +13,11 @@ View::View(QChart *chart, QWidget *parent)
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setRenderHint(QPainter::Antialiasing);
-  chart->setFlag(QGraphicsItem::ItemClipsChildrenToShape);
-  scene()->addItem(chart);
+  rect = scene()->addRect(chart->plotArea());
+  rect->setFlag(QGraphicsItem::ItemClipsChildrenToShape);
+  rect->setZValue(10);
+  //  chart->setFlag(QGraphicsItem::ItemClipsChildrenToShape);
+  scene()->addItem(rect);
 }
 
 void View::addPick(Data::SeismWavePick::Type type, qreal ax, qreal ay,
@@ -31,7 +34,7 @@ void View::addPick(Data::SeismWavePick::Type type, QPointF pos, QSize size,
   } else {
     borderBrush = Qt::darkCyan;
   }
-  WavePick *pick = new WavePick(chart(), pos, size, brush, 2, 4);
+  WavePick *pick = new WavePick(rect, chart(), pos, size, brush, 2, 4);
   qreal leftBorderXOffset = pos.x() - DEFAULT_OFFSET;
   qreal rightBorderXOffset = pos.x() + DEFAULT_OFFSET;
 
@@ -46,10 +49,11 @@ void View::addPick(Data::SeismWavePick::Type type, QPointF pos, QSize size,
           [this](auto type, auto num, auto newPos) {
             emit sendTypeNumCompY(type, num, newPos);
           });
-  WavePick *leftBorder = new WavePick(
-      chart(), QPointF(leftBorderXOffset, pos.y()), size, borderBrush, 0, pick);
+  WavePick *leftBorder =
+      new WavePick(rect, chart(), QPointF(leftBorderXOffset, pos.y()), size,
+                   borderBrush, 0, pick);
   WavePick *rightBorder =
-      new WavePick(chart(), QPointF(rightBorderXOffset, pos.y()), size,
+      new WavePick(rect, chart(), QPointF(rightBorderXOffset, pos.y()), size,
                    borderBrush, pick, rangeX);
   pick->setBorders(leftBorder, rightBorder);
   pick->setZValue(11);
@@ -183,6 +187,9 @@ void View::scrollContentsBy(int dx, int dy) {
 }
 
 void View::resizeEvent(QResizeEvent *event) {
+  QRectF newRect = chart()->plotArea();
+  newRect.setWidth(newRect.width() + 18);
+  rect->setRect(newRect);
   if (scene()) {
     scene()->setSceneRect(QRect(QPoint(0, 0), event->size()));
     _chart->resize(event->size());

@@ -7,10 +7,11 @@
 #include <variant>
 
 namespace EventOperation {
-WavePick::WavePick(QChart *chart, QPointF pos, QSize size, QBrush brush,
+WavePick::WavePick(QGraphicsItem *parent, QChart *chart, QPointF pos,
+                   QSize size, QBrush brush,
                    std::variant<WavePick *, qreal> leftBorder,
                    std::variant<WavePick *, qreal> rightBorder)
-    : QGraphicsItem(chart), _chart(chart), _pos(pos), _size(size),
+    : QGraphicsItem(parent), _chart(chart), _pos(pos), _size(size),
       _brush(brush), _leftBorder(leftBorder), _rightBorder(rightBorder) {
   type = Data::SeismWavePick::PWAVE; // TODO: delete. HARDCODE
   _anchor = pos;
@@ -20,9 +21,9 @@ WavePick::WavePick(QChart *chart, QPointF pos, QSize size, QBrush brush,
   updateGeomety();
 }
 
-WavePick::WavePick(QChart *chart, qreal ax, qreal ay, int width, int height,
-                   QBrush brush, WavePick *pick)
-    : QGraphicsItem(chart), _chart(chart), _pos(QPointF(ax, ay)),
+WavePick::WavePick(QGraphicsItem *parent, QChart *chart, qreal ax, qreal ay,
+                   int width, int height, QBrush brush, WavePick *pick)
+    : QGraphicsItem(parent), _chart(chart), _pos(QPointF(ax, ay)),
       _size(QSize(width, height)), _brush(brush) {
   _anchor = QPointF(ax, ay);
   setPos(_anchor);
