@@ -7,13 +7,13 @@
 #include <variant>
 
 namespace EventOperation {
-WavePick::WavePick(QGraphicsItem *parent, QChart *chart, QPointF pos,
-                   QSize size, QBrush brush,
+WavePick::WavePick(Data::SeismWavePick::Type type, QGraphicsItem *parent,
+                   QChart *chart, QPointF pos, QSize size, QBrush brush,
                    std::variant<WavePick *, qreal> leftBorder,
                    std::variant<WavePick *, qreal> rightBorder)
     : QGraphicsItem(parent), _chart(chart), _pos(pos), _size(size),
       _brush(brush), _leftBorder(leftBorder), _rightBorder(rightBorder) {
-  type = Data::SeismWavePick::PWAVE; // TODO: delete. HARDCODE
+  _type = type;
   _anchor = pos;
   setPos(_anchor);
   updateBorders();
@@ -21,10 +21,12 @@ WavePick::WavePick(QGraphicsItem *parent, QChart *chart, QPointF pos,
   updateGeomety();
 }
 
-WavePick::WavePick(QGraphicsItem *parent, QChart *chart, qreal ax, qreal ay,
-                   int width, int height, QBrush brush, WavePick *pick)
+WavePick::WavePick(Data::SeismWavePick::Type type, QGraphicsItem *parent,
+                   QChart *chart, qreal ax, qreal ay, int width, int height,
+                   QBrush brush, WavePick *pick)
     : QGraphicsItem(parent), _chart(chart), _pos(QPointF(ax, ay)),
       _size(QSize(width, height)), _brush(brush) {
+  _type = type;
   _anchor = QPointF(ax, ay);
   setPos(_anchor);
   _rect = QRectF(0, 0, width, height);
@@ -101,7 +103,7 @@ void WavePick::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
                    .x();
   _anchor = QPointF(newX, _anchor.y());
 
-  emit sendTypeNumCompY(type, _anchor.y(), newX);
+  emit sendTypeNumCompY(_type, _anchor.y(), newX);
 }
 
 void WavePick::updateBorders() {

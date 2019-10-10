@@ -20,10 +20,11 @@ namespace EventOperation {
 class WavePick : public QObject, public QGraphicsItem {
   Q_OBJECT
 public:
-  WavePick(QGraphicsItem *, QChart *, QPointF, QSize, QBrush,
-           std::variant<WavePick *, qreal>, std::variant<WavePick *, qreal>);
-  WavePick(QGraphicsItem *, QChart *, qreal, qreal, int, int, QBrush,
-           WavePick *);
+  WavePick(Data::SeismWavePick::Type, QGraphicsItem *, QChart *, QPointF, QSize,
+           QBrush, std::variant<WavePick *, qreal>,
+           std::variant<WavePick *, qreal>);
+  WavePick(Data::SeismWavePick::Type, QGraphicsItem *, QChart *, qreal, qreal,
+           int, int, QBrush, WavePick *);
 
   void setAnchor(const QPointF);
   void updateGeomety();
@@ -33,7 +34,7 @@ public:
   void setBorders(std::variant<WavePick *, qreal>,
                   std::variant<WavePick *, qreal>);
 
-  Data::SeismWavePick::Type getType() { return type; }
+  Data::SeismWavePick::Type getType() { return _type; }
   int getComponentNumber() { return static_cast<int>(_anchor.y()); }
 
   QRectF boundingRect() const;
@@ -49,7 +50,7 @@ protected:
 
 private:
   const qreal DEFAULT_OFFSET_TO_BORDER = 10000;
-  Data::SeismWavePick::Type type;
+  Data::SeismWavePick::Type _type;
   QChart *_chart;
   QPointF _pos;
   QSize _size;

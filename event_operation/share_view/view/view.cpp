@@ -34,7 +34,7 @@ void View::addPick(Data::SeismWavePick::Type type, QPointF pos, QSize size,
   } else {
     borderBrush = Qt::darkCyan;
   }
-  WavePick *pick = new WavePick(rect, chart(), pos, size, brush, 2, 4);
+  WavePick *pick = new WavePick(type, rect, chart(), pos, size, brush, 2, 4);
   qreal leftBorderXOffset = pos.x() - DEFAULT_OFFSET;
   qreal rightBorderXOffset = pos.x() + DEFAULT_OFFSET;
 
@@ -49,12 +49,12 @@ void View::addPick(Data::SeismWavePick::Type type, QPointF pos, QSize size,
           [this](auto type, auto num, auto newPos) {
             emit sendTypeNumCompY(type, num, newPos);
           });
-  WavePick *leftBorder =
-      new WavePick(rect, chart(), QPointF(leftBorderXOffset, pos.y()), size,
-                   borderBrush, 0, pick);
-  WavePick *rightBorder =
-      new WavePick(rect, chart(), QPointF(rightBorderXOffset, pos.y()), size,
-                   borderBrush, pick, rangeX);
+  WavePick *leftBorder = new WavePick(
+      Data::SeismWavePick::LEFT_BORDER, rect, chart(),
+      QPointF(leftBorderXOffset, pos.y()), size, borderBrush, 0, pick);
+  WavePick *rightBorder = new WavePick(
+      Data::SeismWavePick::RIGHT_BORDER, rect, chart(),
+      QPointF(rightBorderXOffset, pos.y()), size, borderBrush, pick, rangeX);
   pick->setBorders(leftBorder, rightBorder);
   pick->setZValue(11);
   leftBorder->setZValue(11);
