@@ -143,37 +143,40 @@ void TableAssistant::insertRowInFilterTable(const QString &field) {
   _filterTable->setCellWidget(row, 2, lineEdit);
 }
 
-TableFilterParsing::AbstractParser<std::string::const_iterator> *
-getParser(TableAssistant::Mode mode, int colomn) {}
+// TableFilterParsing::AbstractParser<std::string::const_iterator> *
+// getParser(TableAssistant::Mode mode, int colomn) {}
 
 void TableAssistant::enbledFilter(int enable, const QString &filterName,
                                   const QString &pattern) {
 
   for (int column = 0; column < _objectsTable->columnCount(); ++column) {
     if (filterName == _objectsTable->horizontalHeaderItem(column)->text()) {
-      TableFilterParsing::AbstractParser<std::string::const_iterator> *parser =
-          getParser(_mode, column);
-      switch (column) {
-      case 3:
-      case 4:
-        parser =
-            new TableFilterParsing::Parser<int, std::string::const_iterator>();
-        break;
-      case 5:
-      case 6:
-      case 7:
-        parser =
-            new TableFilterParsing::Parser<int, std::string::const_iterator>();
-        break;
-      case 8:
-        parser = new TableFilterParsing::Parser<QDate,
-                                                std::string::const_iterator>();
-        break;
-      case 9:
-        parser = new TableFilterParsing::Parser<QTime,
-                                                std::string::const_iterator>();
-        break;
-      }
+      //      TableFilterParsing::AbstractParser<std::string::const_iterator>
+      //      *parser =
+      //          getParser(_mode, column);
+      //      switch (column) {
+      //      case 3:
+      //      case 4:
+      //        parser =
+      //            new TableFilterParsing::Parser<int,
+      //            std::string::const_iterator>();
+      //        break;
+      //      case 5:
+      //      case 6:
+      //      case 7:
+      //        parser =
+      //            new TableFilterParsing::Parser<int,
+      //            std::string::const_iterator>();
+      //        break;
+      //      case 8:
+      //        parser = new TableFilterParsing::Parser<QDate,
+      //                                                std::string::const_iterator>();
+      //        break;
+      //      case 9:
+      //        parser = new TableFilterParsing::Parser<QTime,
+      //                                                std::string::const_iterator>();
+      //        break;
+      //      }
 
       for (int row = 0; row < _objectsTable->rowCount(); ++row) {
 

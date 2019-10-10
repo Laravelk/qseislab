@@ -57,7 +57,7 @@ Controller::Controller(
             int idx = 0;
             for (auto &component : _event->getComponents()) {
               if (num == idx) {
-                component->addWavePick(type, Data::SeismWavePick(val));
+                component->addWavePick(Data::SeismWavePick(type, val));
               }
               ++idx;
             }

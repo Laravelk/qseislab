@@ -18,12 +18,6 @@ SeismWell::SeismWell(const QJsonObject &json, const QDir &dir)
 
   std::string err_msg;
 
-  //  if (json.contains("uuid")) {
-  //    _uuid = json["uuid"].toString();
-  //  } else {
-  //    err_msg += "::uuid : not founs\n";
-  //  }
-
   if (json.contains("name")) {
     _name = json["name"].toString();
   } else {
@@ -34,6 +28,24 @@ SeismWell::SeismWell(const QJsonObject &json, const QDir &dir)
     _path = json["path"].toString();
   } else {
     err_msg += "::path : not found\n";
+  }
+
+  if (json.contains("Receivers")) {
+    QJsonArray receiversArray(json["Receivers"].toArray());
+    int idx = 0;
+    for (auto objReceiver : receiversArray) {
+      try {
+        auto seismReceiver =
+            std::make_unique<SeismReceiver>(objReceiver.toObject());
+        _receivers.push_back(std::move(seismReceiver));
+      } catch (std::runtime_error &err) {
+        err_msg += "Receivers (idx: " + std::to_string(idx) + ")\n";
+        err_msg += err.what();
+      }
+      ++idx;
+    }
+  } else {
+    err_msg += "::Receivers : not found\n";
   }
 
   QFileInfo fileInfo(dir, _path);
@@ -188,7 +200,6 @@ QJsonObject &SeismWell::writeToJson(QJsonObject &json, const QDir &dir) {
     _path += ".bin";
   }
 
-  //  json["uuid"] = _uuid.toString();
   json["name"] = _name;
   json["path"] = _path;
   json["pointNumber"] = getPointsNumber();

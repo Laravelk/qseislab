@@ -59,30 +59,19 @@ WorkPage::WorkPage(QWidget *parent)
 void WorkPage::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
   _infoProject->update(project);
   _surface->setProject(project);
-  //  clearTable();
-
-  // TODO: setAll to eventsTable - ?
-
-  for (auto &uuid_event : project->getAllMap<SeismEvent>()) {
-    _eventsTable->add<SeismEvent>(uuid_event.second);
-    _surface->addEvent(uuid_event.second);
-  }
-  for (auto &uuid_horizon : project->getAllMap<SeismHorizon>()) {
-    _surface->addHorizon(uuid_horizon.second);
-  }
+  _eventsTable->setAll<SeismEvent>(project->getAllMap<SeismEvent>());
 }
 
 void WorkPage::updateProject(const std::unique_ptr<Data::SeismEvent> &event) {
-
   _infoProject->addEvent();
   _surface->addEvent(event);
 
-  _eventsTable->add<SeismEvent>(event); // TODO: uncomment
+  _eventsTable->add<SeismEvent>(event);
 }
 
 void WorkPage::updateProject(
     const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &events) {
-  _eventsTable->setAll<SeismEvent>(events); // TODO: uncomment
+  _eventsTable->setAll<SeismEvent>(events);
 
   for (auto &itr : events) {
     _surface->showEvent(itr.first);
@@ -109,10 +98,6 @@ void WorkPage::updateProjectRemoveHorizon(const QUuid &uuid) {
 void WorkPage::updateProject(const std::unique_ptr<Data::SeismWell> &well) {
   _infoProject->addWell();
   _surface->addWell(well);
-  for (auto &point : well->getPoints()) {
-    std::cout << std::get<0>(point) << " " << std::get<1>(point) << " "
-              << std::get<2>(point) << std::endl;
-  }
   for (auto &receiver : well->getReceivers()) {
     _surface->addReceiver(receiver);
   }

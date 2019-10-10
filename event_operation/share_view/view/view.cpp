@@ -39,6 +39,7 @@ void View::addPick(QPointF pos, QSize size, QBrush brush, qreal rangeX) {
   WavePick *rightBorder =
       new WavePick(chart(), QPointF(pos.x() + 40000, pos.y()), size,
                    borderBrush, pick, rangeX);
+
   pick->setBorders(leftBorder, rightBorder);
   pick->setZValue(11);
   leftBorder->setZValue(11);

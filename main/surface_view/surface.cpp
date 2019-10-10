@@ -111,7 +111,18 @@ bool Surface::showEvent(std::unique_ptr<Data::SeismEvent> &event) {
 }
 
 void Surface::setProject(const std::unique_ptr<Data::SeismProject> &project) {
-  _project = project.get();
+  for (auto &uuid_event : project->getAllMap<SeismEvent>()) {
+    addEvent(uuid_event.second);
+  }
+  for (auto &uuid_horizon : project->getAllMap<SeismHorizon>()) {
+    addHorizon(uuid_horizon.second);
+  }
+  //  for (auto &uuid_well : project->getAllMap<SeismWell>()) {
+  //    addWell(uuid_well.second);
+  //    for (auto &receiver : uuid_well.second->getReceivers()) {
+  //      addReceiver(receiver);
+  //    }
+  //  }
 }
 
 bool Surface::removeEvent(const std::unique_ptr<Data::SeismEvent> &event) {

@@ -67,16 +67,7 @@ SeismEvent::SeismEvent(const QJsonObject &json,
             break;
           }
 
-          //          if (receivers.end() == receivers_itr) {
-          //            err_msg += "::data : not enough receivers\n";
-          //            break;
-          //          }
-
           try {
-            //            auto seismComponent =
-            //            std::make_unique<SeismComponent>(
-            //                objComponent.toObject(), wells_map,
-            //                reader.nextData());
             auto seismComponent =
                 std::make_unique<SeismComponent>(objComponent.toObject());
             auto &receiverUuid = seismComponent->getReceiverUuid();
@@ -89,38 +80,10 @@ SeismEvent::SeismEvent(const QJsonObject &json,
                     seismComponent->addTrace(reader.nextTrace());
                   }
                   addComponent(std::move(seismComponent));
-                  //                  _components.push_back(std::move(seismComponent));
                   break;
                 }
               }
-              //              auto &receivers_map =
-              //              uuid_well.second->getReceivers(); if
-              //              (receivers_map.end() !=
-              //              receivers_map.find(receiverUuid)) {
-              //                for (int i = 0;
-              //                     i <
-              //                     receivers_map.at(receiverUuid)->getChannelNum();
-              //                     ++i) {
-              //                  seismComponent->addTrace(reader.nextTrace());
-              //                }
-              //                _components.push_back(std::move(seismComponent));
-              //                break;
-              //              }
             }
-            //            for (auto &pair : wells_map) {
-            //              auto &receivers_map = pair.second->getReceivers();
-            //              if (receivers_map.end() !=
-            //              receivers_map.find(receiverUuid)) {
-            //                for (int i = 0;
-            //                     i <
-            //                     receivers_map.at(receiverUuid)->getChannelNum();
-            //                     ++i) {
-            //                  seismComponent->addTrace(reader.nextTrace());
-            //                }
-            //                _components.push_back(std::move(seismComponent));
-            //                break;
-            //              }
-            //            }
             if (!findReceiver) {
               err_msg += "::receiver with uuid == " +
                          receiverUuid.toString().toStdString() + " not found\n";
@@ -136,9 +99,6 @@ SeismEvent::SeismEvent(const QJsonObject &json,
         if (reader.hasNext()) {
           err_msg += "::data : not enough components (in json)\n";
         }
-        //        if (receivers.end() != receivers_itr) {
-        //          err_msg += "::data : not enough components\n";
-        //        }
       } else {
         err_msg += "::Components : not found\n";
       }

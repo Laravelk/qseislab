@@ -63,7 +63,6 @@ public:
 private:
   Q3DSurface *_surface;
   QCustom3DLabel *_label;
-  Data::SeismProject *_project;
   QImage _blackColor;
   QImage _redColor;
   bool _isHandle;

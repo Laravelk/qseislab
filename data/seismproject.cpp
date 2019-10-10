@@ -117,7 +117,7 @@ SeismProject::SeismProject(const QJsonObject &json, const QFileInfo &fileInfo,
       ++idx;
     }
   } else {
-    err_msg += "::Horizons : not found\n";
+    err_msg += "::Events : not found\n";
   }
 
   _isSaved = true;

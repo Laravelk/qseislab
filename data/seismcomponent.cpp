@@ -6,76 +6,32 @@ namespace Data {
 SeismComponent::SeismComponent(const QUuid &receiverUuid)
     : _receiverUuid(receiverUuid) {}
 
-// SeismComponent::SeismComponent(
-//    const QJsonObject &json,
-//    std::vector<std::pair<uint32_t, std::unique_ptr<float[]>>> &data) {
-
-//  std::string err_msg;
-
-//  if (json.contains("pWaveArrival")) {
-//    _pWaveArrival = json["pWaveArrival"].toInt();
-//  } else {
-//    err_msg += "::pWaveArrival : not found\n";
-//  }
-
-//  if (json.contains("sWaveArrival")) {
-//    _sWaveArrival = json["sWaveArrival"].toInt();
-//  } else {
-//    err_msg += "::sWaveArrival : not found\n";
-//  }
-
-//  if (json.contains("Traces")) {
-//    QJsonArray tracesArray(json["Traces"].toArray());
-
-//    if (static_cast<int>(data.size()) == tracesArray.count()) {
-//      unsigned idx = 0;
-//      for (auto objTrace : tracesArray) {
-//        try {
-//          auto seismTrace =
-//              std::make_unique<SeismTrace>(objTrace.toObject(), data[idx]);
-//          _traces.push_back(std::move(seismTrace));
-//        } catch (std::runtime_error &err) {
-//          err_msg += "Trace (idx: " + std::to_string(idx) + ")\n";
-//          err_msg += err.what();
-//        }
-//        ++idx;
-//      }
-//    } else {
-//      err_msg += "::data : traces-size in json-file doesn`t match traces-size
-//      "
-//                 "in bin-file\n";
-//    }
-//  } else {
-//    err_msg += "::Traces : not found\n";
-//  }
-
-//  if (!err_msg.empty()) {
-//    err_msg += "\n";
-//    throw std::runtime_error(err_msg);
-//  }
-
-//  for (unsigned i = 0; i < _traces.size(); ++i) {
-//    float traceMaxValue = (_traces[i])->getMaxValue();
-//    if (traceMaxValue > _maxValue) {
-//      _maxValue = traceMaxValue;
-//    }
-//  }
-//}
-
 SeismComponent::SeismComponent(const QJsonObject &json) {
 
   std::string err_msg;
-
-  //  if (json.contains("wellUuid")) {
-  //    _wellUuid = json["wellUuid"].toString();
-  //  } else {
-  //    err_msg += "::wellUuid : not found\n";
-  //  }
 
   if (json.contains("receiverUuid")) {
     _receiverUuid = json["receiverUuid"].toString();
   } else {
     err_msg += "::receiverUuid : not found\n";
+  }
+
+  if (json.contains("Waves")) {
+    QJsonArray wavesArray(json["Waves"].toArray());
+    int idx = 0;
+    for (auto objWave : wavesArray) {
+      try {
+        auto seismWave = std::make_unique<SeismWavePick>(objWave.toObject());
+        //        auto type = seismWave->getType();
+        //        _wavePicks_map[type] = std::move(seismWave);
+      } catch (std::runtime_error &err) {
+        err_msg += "Waves (idx: " + std::to_string(idx) + ")\n";
+        err_msg += err.what();
+      }
+      ++idx;
+    }
+  } else {
+    err_msg += "::Waves : not found\n";
   }
 
   // TODO: refactor -> wavePicks_map
@@ -110,8 +66,9 @@ SeismComponent::SeismComponent(const QJsonObject &json) {
   //      }
   //    } else {
   //      err_msg += "::data : traces-size in json-file doesn`t match
-  //      traces-size "
-  //                 "in bin-file\n";
+  //                 traces -
+  //                 size "
+  //                      "in bin-file\n";
   //    }
   //  } else {
   //    err_msg += "::Traces : not found\n";
@@ -122,17 +79,16 @@ SeismComponent::SeismComponent(const QJsonObject &json) {
     throw std::runtime_error(err_msg);
   }
 
-  //  for (unsigned i = 0; i < _traces.size(); ++i) {
-  //    float traceMaxValue = (_traces[i])->getMaxValue();
-  //    if (traceMaxValue > _maxValue) {
-  //      _maxValue = traceMaxValue;
-  //    }
-  //  }
+  for (unsigned i = 0; i < _traces.size(); ++i) {
+    float traceMaxValue = (_traces[i])->getMaxValue();
+    if (traceMaxValue > _maxValue) {
+      _maxValue = traceMaxValue;
+    }
+  }
 }
 
 SeismComponent::SeismComponent(const SeismComponent &other)
-    : //    _wellUuid(other._wellUuid),
-      _receiverUuid(other._receiverUuid),
+    : _receiverUuid(other._receiverUuid),
       //    _pWaveArrival(other._pWaveArrival),
       //      _sWaveArrival(other._sWaveArrival),
       _maxValue(other._maxValue) {
@@ -140,8 +96,6 @@ SeismComponent::SeismComponent(const SeismComponent &other)
     _traces.push_back(std::make_unique<SeismTrace>(*trace));
   }
 }
-
-// const QUuid &SeismComponent::getWellUuid() const { return _wellUuid; }
 
 const QUuid &SeismComponent::getReceiverUuid() const { return _receiverUuid; }
 
@@ -151,27 +105,7 @@ void SeismComponent::setSampleInterval(float sampleInterval) {
   _sampleInterval = sampleInterval;
 }
 
-// int SeismComponent::getPWaveArrival() const { return _pWaveArrival; }
-
-// void SeismComponent::setPWaveArrival(int pWaveArrival) {
-//  _pWaveArrival = pWaveArrival;
-//}
-
-// int SeismComponent::getSWaveArrival() const { return _sWaveArrival; }
-
-// void SeismComponent::setSWaveArrival(int sWaveArrival) {
-//  _sWaveArrival = sWaveArrival;
-//}
-
 float SeismComponent::getMaxValue() const { return _maxValue; }
-
-// const std::unique_ptr<SeismReceiver> &SeismComponent::getReceiver() const {
-//  return _receiver;
-//}
-
-// const Point &SeismComponent::getOrientation() const {
-//  //  return _receiver->getOrientation();
-//}
 
 void SeismComponent::addTrace(std::unique_ptr<SeismTrace> trace) {
   if (_maxValue < trace->getMaxValue()) {
@@ -190,9 +124,8 @@ SeismComponent::getTraces() const {
   return _traces;
 }
 
-void SeismComponent::addWavePick(SeismWavePick::Type type,
-                                 const SeismWavePick &wavePick) {
-  _wavePicks_map[type] = wavePick;
+void SeismComponent::addWavePick(const SeismWavePick &wavePick) {
+  _wavePicks_map[wavePick.getType()] = wavePick;
   emit changed();
 }
 
@@ -213,17 +146,14 @@ SeismComponent::getWavePicks() const {
 
 QJsonObject &SeismComponent::writeToJson(QJsonObject &json) const {
   json["receiverUuid"] = _receiverUuid.toString();
-  //  json["wellUuid"] = _wellUuid.toString();
-  //  json["pWaveArrival"] = _pWaveArrival;
-  //  json["sWaveArrival"] = _sWaveArrival;
 
-  QJsonArray tracesArray;
-  QJsonObject traceObj;
-  for (const std::unique_ptr<SeismTrace> &trace : _traces) {
-    tracesArray.append(trace->writeToJson(traceObj));
+  QJsonArray wavesArray;
+  QJsonObject waveObj;
+  for (auto &type_wave : _wavePicks_map) {
+    wavesArray.append(type_wave.second.writeToJson(waveObj));
   }
 
-  json["Traces"] = tracesArray;
+  json["Waves"] = wavesArray;
 
   return json;
 }

@@ -173,11 +173,12 @@ private:
   }
 };
 
-template <typename It, typename Skipper = qi::space_type>
-struct AbstractParser : qi::grammar<It, expr(), Skipper> {};
+// template <typename It, typename Skipper = qi::space_type>
+// struct AbstractParser : qi::grammar<It, expr(), Skipper> {};
 
 template <typename param_t, typename It, typename Skipper = qi::space_type>
-struct Parser : AbstractParser<It, Skipper> {
+// struct Parser : AbstractParser<It, Skipper> {
+struct Parser : qi::grammar<It, expr(), Skipper> {
 public:
   Parser() : Parser::base_type(expr_) {
     using namespace qi;
