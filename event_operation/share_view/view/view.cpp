@@ -50,17 +50,22 @@ void View::addPick(Data::SeismWavePick::Type type, QPointF pos, QSizeF size,
   WavePick *rightBorder = new WavePick(
       Data::SeismWavePick::RIGHT_BORDER, rect, chart(),
       QPointF(rightBorderXOffset, pos.y()), size, borderBrush, pick, rangeX);
-  connect(pick, &WavePick::changed,
-          [this, pick, leftBorder, rightBorder]() {
-            emit sendPicksInfo(pick->getType(), pick->getComponentNumber(), leftBorder->getXPos(), pick->getXPos(), rightBorder->getXPos());
-          });
+  connect(pick, &WavePick::changed, [this, pick, leftBorder, rightBorder]() {
+    emit sendPicksInfo(pick->getType(), pick->getComponentNumber(),
+                       leftBorder->getXPos(), pick->getXPos(),
+                       rightBorder->getXPos());
+  });
   connect(leftBorder, &WavePick::changed,
           [this, pick, leftBorder, rightBorder]() {
-            emit sendPicksInfo(pick->getType(), pick->getComponentNumber(), leftBorder->getXPos(), pick->getXPos(), rightBorder->getXPos());
+            emit sendPicksInfo(pick->getType(), pick->getComponentNumber(),
+                               leftBorder->getXPos(), pick->getXPos(),
+                               rightBorder->getXPos());
           });
   connect(rightBorder, &WavePick::changed,
           [this, pick, leftBorder, rightBorder]() {
-            emit sendPicksInfo(pick->getType(), pick->getComponentNumber(), leftBorder->getXPos(), pick->getXPos(), rightBorder->getXPos());
+            emit sendPicksInfo(pick->getType(), pick->getComponentNumber(),
+                               leftBorder->getXPos(), pick->getXPos(),
+                               rightBorder->getXPos());
           });
 
   pick->setBorders(leftBorder, rightBorder);
@@ -72,14 +77,14 @@ void View::addPick(Data::SeismWavePick::Type type, QPointF pos, QSizeF size,
   _wavePicks.push_back(pick);
 }
 
-void View::setPWaveAddTriggerFlag(bool t) {
-  _isAddPWaveTriggerPressed = t;
-  _isAddSWaveTriggerPressed = false;
-}
-
-void View::setSWaveAddTriggerFlag(bool t) {
-  _isAddSWaveTriggerPressed = t;
-  _isAddPWaveTriggerPressed = false;
+void View::setWaveAddTriggerFlag(Data::SeismWavePick::Type type) {
+  if (type == Data::SeismWavePick::PWAVE) {
+    _isAddPWaveTriggerPressed = true;
+    _isAddSWaveTriggerPressed = false;
+  } else if (type == Data::SeismWavePick::SWAVE) {
+    _isAddSWaveTriggerPressed = true;
+    _isAddPWaveTriggerPressed = false;
+  }
 }
 
 bool View::viewportEvent(QEvent *event) {
@@ -184,8 +189,9 @@ void View::mouseDoubleClickEvent(QMouseEvent *event) {
 }
 
 void View::paintEvent(QPaintEvent *event) {
-    rect->setRect(chart()->plotArea());
-    QChartView::paintEvent(event); }
+  rect->setRect(chart()->plotArea());
+  QChartView::paintEvent(event);
+}
 
 void View::scrollContentsBy(int dx, int dy) {
   if (scene()) {
@@ -201,9 +207,11 @@ void View::resizeEvent(QResizeEvent *event) {
     scene()->setSceneRect(QRect(QPoint(0, 0), event->size()));
     QSizeF scaleCoff;
     if (event->oldSize().width() != -1) {
-        scaleCoff = QSizeF(1.0f * event->size().width() / event->oldSize().width(), 1.0f * event->size().height() / event->oldSize().height());
+      scaleCoff =
+          QSizeF(1.0f * event->size().width() / event->oldSize().width(),
+                 1.0f * event->size().height() / event->oldSize().height());
     } else {
-       scaleCoff = QSizeF(1.0f, 1.0f);
+      scaleCoff = QSizeF(1.0f, 1.0f);
     }
     _chart->resize(event->size());
     for (auto &wave : _wavePicks) {
@@ -216,9 +224,9 @@ void View::resizeEvent(QResizeEvent *event) {
 
 // uncomment for wheelEvent on Windows
 void View::wheelEvent(QWheelEvent *event) {
-    qreal factor = event->angleDelta().y() > 0 ? 0.7 : 1.3;
-    scaleContentsBy(factor);
-    QChartView::wheelEvent(event);
+  qreal factor = event->angleDelta().y() > 0 ? 0.7 : 1.3;
+  scaleContentsBy(factor);
+  QChartView::wheelEvent(event);
 }
 
 void View::scaleContentsBy(qreal factor) {

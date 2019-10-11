@@ -21,8 +21,7 @@ public:
                qreal);
   void addPick(Data::SeismWavePick::Type, QPointF, QSizeF, QBrush, qreal);
 
-  void setPWaveAddTriggerFlag(bool);
-  void setSWaveAddTriggerFlag(bool);
+  void setWaveAddTriggerFlag(Data::SeismWavePick::Type);
   void setWaveRadius(qreal wr) { WAVE_RADIUS = wr; }
   void setRangeX(qreal rangeX) { _rangeX = rangeX; }
 
@@ -62,8 +61,7 @@ private:
   bool checkAvailability(Data::SeismWavePick::Type, int);
 
 signals:
-  void sendPicksInfo(Data::SeismWavePick::Type,
-                     int, int, int, int);
+  void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
 
 private:
   QGraphicsRectItem *rect;

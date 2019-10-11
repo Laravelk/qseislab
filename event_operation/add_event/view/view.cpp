@@ -84,10 +84,12 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
   // Connecting
   connect(_okButton, &QPushButton::clicked, this, &View::accept);
   connect(_cancelButton, &QPushButton::clicked, this, &View::reject);
-  connect(_addPWave, &QAction::triggered,
-          [this]() { _graphicEvent->getView()->setPWaveAddTriggerFlag(true); });
-  connect(_addSWave, &QAction::triggered,
-          [this]() { _graphicEvent->getView()->setSWaveAddTriggerFlag(true); });
+  connect(_addPWave, &QAction::triggered, [this]() {
+    _graphicEvent->getView()->setWaveAddTriggerFlag(Data::SeismWavePick::PWAVE);
+  });
+  connect(_addSWave, &QAction::triggered, [this]() {
+    _graphicEvent->getView()->setWaveAddTriggerFlag(Data::SeismWavePick::SWAVE);
+  });
   // Connecting end
 
   // Layout`s
