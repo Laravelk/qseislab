@@ -22,6 +22,12 @@ SeismEvent::SeismEvent(const QJsonObject &json,
 
   std::string err_msg;
 
+  if (json.contains("type")) {
+    _type = json["type"].toInt();
+  } else {
+    err_msg += "::type : not found\n";
+  }
+
   if (json.contains("date")) {
     _dateTime =
         QDateTime::fromString(json["date"].toString(), "dd.MM.yy hh:mm:ss");
@@ -177,6 +183,7 @@ QJsonObject &SeismEvent::writeToJson(QJsonObject &json, const QDir &dir) {
     _path += ".bin";
   }
 
+  json["type"] = _type;
   json["path"] = _path;
   json["date"] = _dateTime.toString("dd.MM.yy hh:mm:ss");
   json["isProcessed"] = _isProcessed;

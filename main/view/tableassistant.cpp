@@ -248,7 +248,8 @@ void TableAssistant::add<SeismEvent>(const std::unique_ptr<SeismEvent> &event) {
 
   int row = _objectsTable->rowCount() - 1;
 
-  auto &uuid = event->getUuid();
+  auto uuid = event->getUuid();
+  std::cout << "uuid == " << uuid.toString().toStdString() << std::endl;
   _objectsTable->setItem(row, 0, new QTableWidgetItem(uuid.toString()));
 
   _objectsTable->setItem(row, 1, new QTableWidgetItem());

@@ -113,6 +113,7 @@ bool Surface::showEvent(std::unique_ptr<Data::SeismEvent> &event) {
 void Surface::setProject(const std::unique_ptr<Data::SeismProject> &project) {
   for (auto &uuid_event : project->getAllMap<SeismEvent>()) {
     addEvent(uuid_event.second);
+    showEvent(uuid_event.first);
   }
   for (auto &uuid_horizon : project->getAllMap<SeismHorizon>()) {
     addHorizon(uuid_horizon.second);

@@ -22,15 +22,14 @@ Controller::Controller(QWidget *parent)
   _chart->addAxis(_axisX, Qt::AlignBottom);
   _chart->addAxis(_axisY, Qt::AlignLeft);
   _chart->setAcceptHoverEvents(true);
-
-  connect(_view, &View::sendTypeNumCompY,
-          [this](auto type, auto num, auto newPos) {
-            emit sendTypeNumCompY(type, num, newPos);
+  connect(_view, &View::sendPicksInfo,
+          [this](Data::SeismWavePick::Type type, int componentNumber,
+                 int leftBorderPos, int pickPos, int rightBorderPos) {
+            emit Controller::sendPicksInfo(type, componentNumber, leftBorderPos,
+                                           pickPos, rightBorderPos);
           });
   _view->hide();
 }
-
-void Controller::addPick() { _view->setAddPickFlag(true); }
 
 // подумать, как вызывать удаление, сделать полную очистку
 void Controller::update(const std::unique_ptr<SeismEvent> &event) {
@@ -42,8 +41,6 @@ void Controller::update(const std::unique_ptr<SeismEvent> &event) {
   setAxesY(event->getComponentNumber());
   int idx = 0;
   for (auto &component : event->getComponents()) {
-    //    _pWaveArrival = component->getPWaveArrival();
-    //    _sWaveArrival = component->getSWaveArrival();
     _pWaveArrival =
         component->getWavePick(Data::SeismWavePick::Type::PWAVE).getArrival();
     _sWaveArrival =
@@ -62,10 +59,13 @@ void Controller::clear() {
 }
 
 void Controller::addWaveArrival(int index) {
-  _view->addPick(QPointF(_pWaveArrival - 500, WAVE_RADIUS + index),
-                 QSize(5, 40), Qt::darkRed, _rangeAxisX);
-  _view->addPick(QPointF(_sWaveArrival - 500, WAVE_RADIUS + index),
-                 QSize(5, 40), Qt::darkBlue, _rangeAxisX);
+  QSizeF size(2, 40);
+  _view->addPick(Data::SeismWavePick::PWAVE,
+                 QPointF(_pWaveArrival - 500, index), size, Qt::darkRed,
+                 _rangeAxisX);
+  _view->addPick(Data::SeismWavePick::SWAVE,
+                 QPointF(_sWaveArrival - 500, index), size, Qt::darkBlue,
+                 _rangeAxisX);
 }
 
 void Controller::setInterval(const std::unique_ptr<SeismEvent> &event) {

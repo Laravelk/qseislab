@@ -17,31 +17,33 @@ QT_CHARTS_END_NAMESPACE
 QT_CHARTS_USE_NAMESPACE;
 
 namespace EventOperation {
-
-// enum PickType { LEFT_BORDER, RIGHT_BORDER, PWAVE, SWAVE };
-
 class WavePick : public QObject, public QGraphicsItem {
   Q_OBJECT
 public:
-  WavePick(QChart *, QPointF, QSize, QBrush, std::variant<WavePick *, qreal>,
+  WavePick(Data::SeismWavePick::Type, QGraphicsItem *, QChart *, QPointF, QSizeF,
+           QBrush, std::variant<WavePick *, qreal>,
            std::variant<WavePick *, qreal>);
-  WavePick(QChart *, qreal, qreal, int, int, QBrush, WavePick *);
-
-  enum WaveType { LEFT_BOARD, RIGHT_BOARD, PICK };
+  WavePick(Data::SeismWavePick::Type, QGraphicsItem *, QChart *, qreal, qreal,
+           int, int, QBrush, WavePick *);
 
   void setAnchor(const QPointF);
   void updateGeomety();
-  qreal getXPos() { return _anchor.x(); }
+  int getXPos() { return static_cast<int>(_anchor.x()); }
   void setLeftBorder(std::variant<WavePick *, qreal>);
   void setRightBorder(std::variant<WavePick *, qreal>);
   void setBorders(std::variant<WavePick *, qreal>,
                   std::variant<WavePick *, qreal>);
 
+  Data::SeismWavePick::Type getType() { return _type; }
+  int getComponentNumber() { return static_cast<int>(_anchor.y()); }
+
   QRectF boundingRect() const;
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
 
+  void resize(QSizeF );
+
 signals:
-  void sendTypeNumCompY(Data::SeismWavePick::Type, int, int);
+  void changed();
 
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *);
@@ -50,9 +52,10 @@ protected:
 
 private:
   const qreal DEFAULT_OFFSET_TO_BORDER = 10000;
+  Data::SeismWavePick::Type _type;
   QChart *_chart;
   QPointF _pos;
-  QSize _size;
+  QSizeF _size;
   QPointF _anchor;
   std::variant<WavePick *, qreal> _leftBorder;
   std::variant<WavePick *, qreal> _rightBorder;

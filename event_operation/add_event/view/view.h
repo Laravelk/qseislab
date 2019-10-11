@@ -33,7 +33,7 @@ signals:
   void sendWellUuidAndFilePath(const QPair<QUuid, QString> &) const;
   void sendWellUuidForRemove(const QUuid &) const;
 
-  void sendWavePickTypeNumCompY(Data::SeismWavePick::Type, int, int);
+  void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
 
 private:
   InfoEvent *_infoEvent;
@@ -43,6 +43,9 @@ private:
   QPushButton *_okButton;
   QPushButton *_cancelButton;
   QPushButton *_addWaveButton;
+
+  QAction *_addPWave;
+  QAction *_addSWave;
 
   std::map<QUuid, QString> _wellNames_map;
 };

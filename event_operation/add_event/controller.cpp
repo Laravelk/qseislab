@@ -52,12 +52,19 @@ Controller::Controller(
     _view->update(_event, uuid, well->getName());
   });
 
-  connect(_view.get(), &View::sendWavePickTypeNumCompY,
-          [this](const auto type, const auto num, const auto val) {
+  connect(_view.get(), &View::sendPicksInfo,
+          [this](const auto type, const auto num, const auto l_val,
+                 const auto pick_val, const auto r_val) {
             int idx = 0;
-            for (auto &component : _event->getComponents()) {
+            for (auto &component : this->_event->getComponents()) {
               if (num == idx) {
-                component->addWavePick(Data::SeismWavePick(type, val));
+                Data::SeismWavePick wavePick =
+                    Data::SeismWavePick(type, pick_val);
+                wavePick.setPolarizationLeftBorder(l_val);
+                wavePick.setPolarizationRightBorder(r_val);
+
+                component->addWavePick(wavePick);
+                break;
               }
               ++idx;
             }
