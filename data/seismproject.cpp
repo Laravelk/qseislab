@@ -21,6 +21,7 @@ SeismProject::SeismProject(QObject *parent) : QObject(parent) {
   //   NOTE: hard-code insert wells
   std::unique_ptr<SeismWell> well = std::make_unique<SeismWell>();
   well->setName("Mon_TOOLS_233");
+  well->addPoint(Point(0, 0, 0));
   auto uuid = well->getUuid();
   for (int j = 0; j < 8; ++j) {
     auto receiver = std::make_unique<Data::SeismReceiver>();
@@ -33,6 +34,7 @@ SeismProject::SeismProject(QObject *parent) : QObject(parent) {
 
   well = std::make_unique<SeismWell>();
   well->setName("Mon_TOOLS_244");
+  well->addPoint(Point(0, 0, 0));
   uuid = well->getUuid();
   for (int j = 0; j < 8; ++j) {
     auto receiver = std::make_unique<Data::SeismReceiver>();
@@ -316,6 +318,10 @@ SeismProject::getAllMap<SeismHorizon>() const {
 template <>
 void SeismProject::setAllMap<SeismHorizon>(
     std::map<QUuid, std::unique_ptr<SeismHorizon>> &horizons_map) {
+  for (auto &uuid_horizon : _horizons_map) {
+    emit removedHorizon(uuid_horizon.first);
+  }
+
   _horizons_map = std::move(horizons_map);
 
   for (auto &uuid_horizon : _horizons_map) {
@@ -363,6 +369,10 @@ SeismProject::getAllMap<SeismWell>() const {
 template <>
 void SeismProject::setAllMap<SeismWell>(
     std::map<QUuid, std::unique_ptr<SeismWell>> &wells) {
+  for (auto &uuid_well : _wells_map) {
+    emit removedWell(uuid_well.first);
+  }
+
   _wells_map = std::move(wells);
 
   for (auto &uuid_well : _wells_map) {
@@ -370,53 +380,4 @@ void SeismProject::setAllMap<SeismWell>(
   }
 }
 // end of Well template`s
-
-//// Receiver template`s
-// template <>
-// void SeismProject::add<SeismReceiver>(std::unique_ptr<SeismReceiver>
-// receiver) {
-//  _isSaved = false;
-//  auto uuid = generateUuid();
-//  receiver->setUuid(uuid);
-//  _receivers.push_back(std::move(receiver));
-
-//  emit addedReceiver(_receivers.back());
-//}
-
-// template <> bool SeismProject::remove<SeismReceiver>(const QUuid &uuid) {
-//  for (auto itr = _receivers.begin(); itr != _receivers.end(); ++itr) {
-//    if (uuid == (*itr)->getUuid()) {
-//      _receivers.erase(itr);
-//      emit removedReceiver(uuid);
-//      return true;
-//    }
-//  }
-//  return false;
-//}
-
-// template <> int SeismProject::getNumber<SeismReceiver>() const {
-//  return static_cast<int>(_receivers.size());
-//}
-
-// template <>
-// const std::unique_ptr<SeismReceiver> &
-// SeismProject::get<SeismReceiver>(const QUuid &uuid) const {
-//  for (auto &receiver : _receivers) {
-//    if (uuid == receiver->getUuid()) {
-//      return receiver;
-//    }
-//  }
-
-//  // NOTE: it`s OK?
-//  assert(false);
-//  return *(_receivers.begin());
-//}
-
-// template <>
-// std::list<std::unique_ptr<SeismReceiver>> &
-// SeismProject::getAllList<SeismReceiver>() {
-//  return _receivers;
-//}
-//// end of Receiver template`s
-
 } // namespace Data

@@ -3,8 +3,6 @@
 #include "data/seismwell.h"
 #include "model.h"
 
-#include <iostream> // TODO: remove
-
 typedef Data::SeismWell SeismWell;
 
 namespace WellOperation {
@@ -19,7 +17,8 @@ Controller::Controller(QObject *parent)
     _view->settingWellInfo(_tmpWell);
     _view->addWell(_tmpWell);
     _view->changed(true);
-    _wells[_tmpWell->getUuid()] = std::move(_tmpWell);
+    auto uuid = _tmpWell->getUuid();
+    _wells[uuid] = std::move(_tmpWell);
   });
 
   connect(_view.get(), &View::removeWellClicked, [this](auto uuid) {
