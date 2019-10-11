@@ -5,6 +5,8 @@
 #include "data/seismtrace.h"
 #include "view/wavepick.h"
 
+#include <iostream>
+
 typedef Data::SeismComponent SeismComponent;
 typedef Data::SeismEvent SeismEvent;
 typedef Data::SeismTrace SeismTrace;
@@ -45,7 +47,9 @@ void Controller::update(const std::unique_ptr<SeismEvent> &event) {
         component->getWavePick(Data::SeismWavePick::Type::PWAVE).getArrival();
     _sWaveArrival =
         component->getWavePick(Data::SeismWavePick::Type::SWAVE).getArrival();
-    addWaveArrival(idx);
+    addWaveArrival(component->getWavePick(Data::SeismWavePick::Type::PWAVE),
+                   component->getWavePick(Data::SeismWavePick::Type::SWAVE),
+                   idx);
     addTraceSeries(component, idx);
     idx++;
   }
@@ -58,14 +62,17 @@ void Controller::clear() {
   _view->hide();
 }
 
-void Controller::addWaveArrival(int index) {
+void Controller::addWaveArrival(Data::SeismWavePick pWave,
+                                Data::SeismWavePick sWave, int index) {
   QSizeF size(2, 40);
   _view->addPick(Data::SeismWavePick::PWAVE,
                  QPointF(_pWaveArrival - 500, index), size, Qt::darkRed,
-                 _rangeAxisX);
+                 _rangeAxisX, pWave.getPolarizationLeftBorder(),
+                 pWave.getPolarizationRightBorder());
   _view->addPick(Data::SeismWavePick::SWAVE,
                  QPointF(_sWaveArrival - 500, index), size, Qt::darkBlue,
-                 _rangeAxisX);
+                 _rangeAxisX, sWave.getPolarizationLeftBorder(),
+                 sWave.getPolarizationRightBorder());
 }
 
 void Controller::setInterval(const std::unique_ptr<SeismEvent> &event) {
