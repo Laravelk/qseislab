@@ -19,7 +19,7 @@ public:
   void addPick(WavePick *);
   void addPick(Data::SeismWavePick::Type, qreal, qreal, int, int, QBrush,
                qreal);
-  void addPick(Data::SeismWavePick::Type, QPointF, QSize, QBrush, qreal);
+  void addPick(Data::SeismWavePick::Type, QPointF, QSizeF, QBrush, qreal);
 
   void setPWaveAddTriggerFlag(bool);
   void setSWaveAddTriggerFlag(bool);
@@ -62,7 +62,8 @@ private:
   bool checkAvailability(Data::SeismWavePick::Type, int);
 
 signals:
-  void sendTypeNumCompY(Data::SeismWavePick::Type, int, int);
+  void sendPicksInfo(Data::SeismWavePick::Type,
+                     int, int, int, int);
 
 private:
   QGraphicsRectItem *rect;

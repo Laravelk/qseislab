@@ -5,14 +5,16 @@
 #include <QtWidgets/QGraphicsSceneMouseEvent>
 #include <type_traits>
 #include <variant>
+#include <iostream>
 
 namespace EventOperation {
 WavePick::WavePick(Data::SeismWavePick::Type type, QGraphicsItem *parent,
-                   QChart *chart, QPointF pos, QSize size, QBrush brush,
+                   QChart *chart, QPointF pos, QSizeF size, QBrush brush,
                    std::variant<WavePick *, qreal> leftBorder,
                    std::variant<WavePick *, qreal> rightBorder)
     : QGraphicsItem(parent), _chart(chart), _pos(pos), _size(size),
       _brush(brush), _leftBorder(leftBorder), _rightBorder(rightBorder) {
+    setFlag(QGraphicsItem::ItemIgnoresTransformations);
   _type = type;
   _anchor = pos;
   setPos(_anchor);
@@ -30,21 +32,30 @@ WavePick::WavePick(Data::SeismWavePick::Type type, QGraphicsItem *parent,
   _anchor = QPointF(ax, ay);
   setPos(_anchor);
   _rect = QRectF(0, 0, width, height);
+  //_rect.moveCenter(QPointF(_anchor));
   updateGeomety();
 }
 
 void WavePick::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
                      QWidget *) {
   QPainterPath path;
-  path.addRoundedRect(_rect, 5, 5);
+  path.addRect(_rect);
+  painter->setPen(Qt::NoPen);
   painter->setBrush(_brush);
   painter->drawPath(path);
+}
+
+void WavePick::resize(QSizeF scaleC)
+{
+    _size = QSizeF(_size.width() * scaleC.width(), _size.height() * scaleC.height());
+    _rect.setSize(_size);
 }
 
 void WavePick::setAnchor(const QPointF point) { _anchor = point; }
 
 void WavePick::updateGeomety() {
   prepareGeometryChange();
+  _rect.moveCenter(QPointF(0,0));
   setPos(_chart->mapToPosition(_anchor));
 }
 
@@ -103,7 +114,7 @@ void WavePick::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
                    .x();
   _anchor = QPointF(newX, _anchor.y());
 
-  emit sendTypeNumCompY(_type, _anchor.y(), newX);
+  emit changed();
 }
 
 void WavePick::updateBorders() {

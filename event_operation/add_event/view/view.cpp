@@ -82,10 +82,6 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
   // Setting`s end
 
   // Connecting
-  connect(_graphicEvent, &EventOperation::Controller::sendTypeNumCompY,
-          [this](auto type, auto num, auto val) {
-            emit sendWavePickTypeNumCompY(type, num, val);
-          });
   connect(_okButton, &QPushButton::clicked, this, &View::accept);
   connect(_cancelButton, &QPushButton::clicked, this, &View::reject);
   connect(_addPWave, &QAction::triggered,

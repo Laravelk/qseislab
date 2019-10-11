@@ -43,14 +43,14 @@ private:
   void getRangeX(const std::unique_ptr<Data::SeismEvent> &);
 
 signals:
-  void sendTypeNumCompY(Data::SeismWavePick::Type, int, int);
+  void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
 
 private:
   const qreal AMPLITUDE_SCALAR = 0.5;
   const qreal TRACE_OFFSET = 0.25;
   const qreal WAVE_RADIUS = 0.4;
   const qreal BORDER_RADIUS = 0.35;
-  const float NORMED = 1.8f;
+  const float NORMED = 2.1f;
   const int GRAPH_WIDHT = 750;
   const int GRAPH_HEIGHT = 470;
   const int WAVE_PEN_WIDTH = 4;

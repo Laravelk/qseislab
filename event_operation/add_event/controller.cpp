@@ -52,17 +52,6 @@ Controller::Controller(
     _view->update(_event, uuid, well->getName());
   });
 
-  connect(_view.get(), &View::sendWavePickTypeNumCompY,
-          [this](const auto type, const auto num, const auto val) {
-            int idx = 0;
-            for (auto &component : _event->getComponents()) {
-              if (num == idx) {
-                component->addWavePick(type, Data::SeismWavePick(val));
-              }
-              ++idx;
-            }
-          });
-
   connect(_view.get(), &View::finished, this, &Controller::finish);
 }
 

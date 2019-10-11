@@ -20,7 +20,7 @@ namespace EventOperation {
 class WavePick : public QObject, public QGraphicsItem {
   Q_OBJECT
 public:
-  WavePick(Data::SeismWavePick::Type, QGraphicsItem *, QChart *, QPointF, QSize,
+  WavePick(Data::SeismWavePick::Type, QGraphicsItem *, QChart *, QPointF, QSizeF,
            QBrush, std::variant<WavePick *, qreal>,
            std::variant<WavePick *, qreal>);
   WavePick(Data::SeismWavePick::Type, QGraphicsItem *, QChart *, qreal, qreal,
@@ -28,7 +28,7 @@ public:
 
   void setAnchor(const QPointF);
   void updateGeomety();
-  qreal getXPos() { return _anchor.x(); }
+  int getXPos() { return static_cast<int>(_anchor.x()); }
   void setLeftBorder(std::variant<WavePick *, qreal>);
   void setRightBorder(std::variant<WavePick *, qreal>);
   void setBorders(std::variant<WavePick *, qreal>,
@@ -40,8 +40,10 @@ public:
   QRectF boundingRect() const;
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
 
+  void resize(QSizeF );
+
 signals:
-  void sendTypeNumCompY(Data::SeismWavePick::Type, int, int);
+  void changed();
 
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *);
@@ -53,7 +55,7 @@ private:
   Data::SeismWavePick::Type _type;
   QChart *_chart;
   QPointF _pos;
-  QSize _size;
+  QSizeF _size;
   QPointF _anchor;
   std::variant<WavePick *, qreal> _leftBorder;
   std::variant<WavePick *, qreal> _rightBorder;

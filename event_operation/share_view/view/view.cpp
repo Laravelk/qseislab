@@ -16,7 +16,6 @@ View::View(QChart *chart, QWidget *parent)
   rect = scene()->addRect(chart->plotArea());
   rect->setFlag(QGraphicsItem::ItemClipsChildrenToShape);
   rect->setZValue(10);
-  //  chart->setFlag(QGraphicsItem::ItemClipsChildrenToShape);
   scene()->addItem(rect);
 }
 
@@ -25,7 +24,7 @@ void View::addPick(Data::SeismWavePick::Type type, qreal ax, qreal ay,
   addPick(type, QPointF(ax, ay), QSize(width, height), brush, rangeX);
 }
 
-void View::addPick(Data::SeismWavePick::Type type, QPointF pos, QSize size,
+void View::addPick(Data::SeismWavePick::Type type, QPointF pos, QSizeF size,
                    QBrush brush, qreal rangeX) {
   const qreal DEFAULT_OFFSET = 20000;
   QBrush borderBrush;
@@ -45,16 +44,25 @@ void View::addPick(Data::SeismWavePick::Type type, QPointF pos, QSize size,
   if (rightBorderXOffset >= rangeX) {
     rightBorderXOffset = rangeX - 1;
   }
-  connect(pick, &WavePick::sendTypeNumCompY,
-          [this](auto type, auto num, auto newPos) {
-            emit sendTypeNumCompY(type, num, newPos);
-          });
   WavePick *leftBorder = new WavePick(
       Data::SeismWavePick::LEFT_BORDER, rect, chart(),
       QPointF(leftBorderXOffset, pos.y()), size, borderBrush, 0, pick);
   WavePick *rightBorder = new WavePick(
       Data::SeismWavePick::RIGHT_BORDER, rect, chart(),
       QPointF(rightBorderXOffset, pos.y()), size, borderBrush, pick, rangeX);
+  connect(pick, &WavePick::changed,
+          [this, pick, leftBorder, rightBorder]() {
+            emit sendPicksInfo(pick->getType(), pick->getComponentNumber(), leftBorder->getXPos(), pick->getXPos(), rightBorder->getXPos());
+          });
+  connect(leftBorder, &WavePick::changed,
+          [this, pick, leftBorder, rightBorder]() {
+            emit sendPicksInfo(pick->getType(), pick->getComponentNumber(), leftBorder->getXPos(), pick->getXPos(), rightBorder->getXPos());
+          });
+  connect(rightBorder, &WavePick::changed,
+          [this, pick, leftBorder, rightBorder]() {
+            emit sendPicksInfo(pick->getType(), pick->getComponentNumber(), leftBorder->getXPos(), pick->getXPos(), rightBorder->getXPos());
+          });
+
   pick->setBorders(leftBorder, rightBorder);
   pick->setZValue(11);
   leftBorder->setZValue(11);
@@ -96,7 +104,7 @@ void View::mousePressEvent(QMouseEvent *event) {
     QPointF pos = calculatePickPosition(chart()->mapToValue(event->pos()));
     if (checkAvailability(Data::SeismWavePick::SWAVE,
                           static_cast<int>(pos.y()))) {
-      addPick(Data::SeismWavePick::SWAVE, pos, QSize(5, 40), Qt::darkRed,
+      addPick(Data::SeismWavePick::SWAVE, pos, QSize(5, 4), Qt::darkRed,
               _rangeX);
     }
     _isAddSWaveTriggerPressed = false;
@@ -175,7 +183,9 @@ void View::mouseDoubleClickEvent(QMouseEvent *event) {
   QChartView::mouseDoubleClickEvent(event);
 }
 
-void View::paintEvent(QPaintEvent *event) { QChartView::paintEvent(event); }
+void View::paintEvent(QPaintEvent *event) {
+    rect->setRect(chart()->plotArea());
+    QChartView::paintEvent(event); }
 
 void View::scrollContentsBy(int dx, int dy) {
   if (scene()) {
@@ -187,13 +197,17 @@ void View::scrollContentsBy(int dx, int dy) {
 }
 
 void View::resizeEvent(QResizeEvent *event) {
-  QRectF newRect = chart()->plotArea();
-  newRect.setWidth(newRect.width() + 18);
-  rect->setRect(newRect);
   if (scene()) {
     scene()->setSceneRect(QRect(QPoint(0, 0), event->size()));
+    QSizeF scaleCoff;
+    if (event->oldSize().width() != -1) {
+        scaleCoff = QSizeF(1.0f * event->size().width() / event->oldSize().width(), 1.0f * event->size().height() / event->oldSize().height());
+    } else {
+       scaleCoff = QSizeF(1.0f, 1.0f);
+    }
     _chart->resize(event->size());
     for (auto &wave : _wavePicks) {
+      wave->resize(scaleCoff);
       wave->updateGeomety();
     }
   }
@@ -202,9 +216,9 @@ void View::resizeEvent(QResizeEvent *event) {
 
 // uncomment for wheelEvent on Windows
 void View::wheelEvent(QWheelEvent *event) {
-  //  qreal factor = event->angleDelta().y() > 0 ? 0.7 : 1.3;
-  //  scaleContentsBy(factor);
-  //  QChartView::wheelEvent(event);
+    qreal factor = event->angleDelta().y() > 0 ? 0.7 : 1.3;
+    scaleContentsBy(factor);
+    QChartView::wheelEvent(event);
 }
 
 void View::scaleContentsBy(qreal factor) {
