@@ -11,7 +11,8 @@ SeismProject::SeismProject(QObject *parent) : QObject(parent) {
   for (int i = 0; i < 4; ++i) {
     std::unique_ptr<SeismEvent> event = std::make_unique<SeismEvent>();
 
-    event->setDateTime(QDateTime::currentDateTime());
+    event->setDateTime(
+        QDateTime::currentDateTime().addDays(i).addSecs(120 * i));
     event->setType(i);
 
     _events_map[event->getUuid()] = std::move(event);

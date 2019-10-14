@@ -143,39 +143,37 @@ void TableAssistant::insertRowInFilterTable(const QString &field) {
   _filterTable->setCellWidget(row, 2, lineEdit);
 }
 
-// TableFilterParsing::AbstractParser<std::string::const_iterator> *
-// getParser(TableAssistant::Mode mode, int colomn) {}
-
 void TableAssistant::enbledFilter(int enable, const QString &filterName,
                                   const QString &pattern) {
 
   for (int column = 0; column < _objectsTable->columnCount(); ++column) {
     if (filterName == _objectsTable->horizontalHeaderItem(column)->text()) {
-      //      TableFilterParsing::AbstractParser<std::string::const_iterator>
-      //      *parser =
-      //          getParser(_mode, column);
+      //      TableFilterParsing::Parser parser = getParser(column);
+      //      TableFilterParsing::Parser parser =
+      //          TableFilterParsing::Parser<QString,
+      //          std::string::const_iterator>();
       //      switch (column) {
       //      case 3:
       //      case 4:
-      //        parser =
-      //            new TableFilterParsing::Parser<int,
-      //            std::string::const_iterator>();
-      //        break;
+      //          parser = TableFilterParsing::Parser<int,
+      //          std::string::const_iterator>(); break;
       //      case 5:
       //      case 6:
       //      case 7:
-      //        parser =
-      //            new TableFilterParsing::Parser<int,
-      //            std::string::const_iterator>();
-      //        break;
+      //          parser =
+      //              new TableFilterParsing::Parser<float,
+      //              std::string::const_iterator>();
+      //          break;
       //      case 8:
-      //        parser = new TableFilterParsing::Parser<QDate,
-      //                                                std::string::const_iterator>();
-      //        break;
+      //          parser =
+      //              new TableFilterParsing::Parser<QDate,
+      //              std::string::const_iterator>();
+      //          break;
       //      case 9:
-      //        parser = new TableFilterParsing::Parser<QTime,
-      //                                                std::string::const_iterator>();
-      //        break;
+      //          parser =
+      //              new TableFilterParsing::Parser<QTime,
+      //              std::string::const_iterator>();
+      //          break;
       //      }
 
       for (int row = 0; row < _objectsTable->rowCount(); ++row) {
@@ -205,6 +203,17 @@ void TableAssistant::enbledFilter(int enable, const QString &filterName,
   }
 }
 
+void handle_eptr(std::exception_ptr eptr) // passing by value is ok
+{
+  try {
+    if (eptr) {
+      std::rethrow_exception(eptr);
+    }
+  } catch (const std::exception &e) {
+    std::cout << "Caught exception \"" << e.what() << "\"\n";
+  }
+}
+
 bool TableAssistant::applicable(const QString &pattern,
                                 const QString &value) const {
 
@@ -212,32 +221,36 @@ bool TableAssistant::applicable(const QString &pattern,
   It phrase_begin(pattern.toStdString().begin());
   It phrase_end(pattern.toStdString().end());
 
-  //  TableFilterParsing::Parser<QDate, It> parser;
+  //  TableFilterParsing::Parser<QTime, It> parser;
   TableFilterParsing::Parser<QString, It> parser;
 
   try {
-    TableFilterParsing::expr result;
+    //    TableFilterParsing::expr<QTime> result;
+    TableFilterParsing::expr<QString> result;
     bool ok = qi::phrase_parse(phrase_begin, phrase_end, parser > ';',
                                qi::space, result);
 
+    std::cout << "PARSE" << std::endl;
+
     if (!ok) {
-      //            std::cerr << "invalid input\n";
+      std::cerr << "invalid input\n" << std::endl;
       return false;
     } else {
       bool eval = parser.evaluate(result, value);
+      //      bool eval = parser.evaluate(result, QTime::fromString(value,
+      //      "hh:mm"));
       return !eval;
     }
-  } catch (const qi::expectation_failure<It> &e) {
-    //        std::cout << "expectation_failure at '" << std::string(e.first,
-    //        e.last)
-    //                  << "'\n\n";
-    return false;
-  }
-
-  if (phrase_begin != phrase_end) {
-    //        std::cerr << "unparsed: '" << std::string(phrase_begin,
-    //        phrase_end)
-    //                  << "'\n\n";
+    //  } catch (const qi::expectation_failure<It> &e) {
+    //    std::cout << "expectation_failure at '" << std::string(e.first,
+    //    e.last)
+    //              << "'\n"
+    //              << std::endl;
+    //    return false;
+  } catch (...) {
+    std::exception_ptr p = std::current_exception();
+    std::cerr << (p ? p.__cxa_exception_type()->name() : "null") << std::endl;
+    handle_eptr(p);
     return false;
   }
 }
@@ -260,8 +273,11 @@ void TableAssistant::add<SeismEvent>(const std::unique_ptr<SeismEvent> &event) {
   buttonLayout->addWidget(removeButton);
   buttonLayout->setContentsMargins(0, 0, 0, 0);
   _objectsTable->setCellWidget(row, 2, buttonWidget);
-  connect(removeButton, &QPushButton::clicked,
-          [this, uuid]() { emit removeClicked(uuid); });
+  connect(removeButton, &QPushButton::clicked, [this, uuid]() {
+    std::cout << "from table:: uuid == " << uuid.toString().toStdString()
+              << std::endl;
+    emit removeClicked(uuid);
+  });
 
   _objectsTable->setItem(
       row, 3, new QTableWidgetItem(QString::number(event->getType())));
