@@ -29,6 +29,9 @@ private:
   void enbledFilter(int, const QString &, const QString &);
   bool applicable(const QString &, const QString &) const;
 
+  template <typename param_t>
+  void parse(int, const QString &, const QString &, int);
+
   QTableWidget *_filterTable;
   QTableWidget *_objectsTable;
 

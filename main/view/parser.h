@@ -69,6 +69,8 @@ public:
     } else if (v == "F" || v == "f" || v == "false" || v == "False") {
       return false;
     }
+    std::cerr << "var == " << v << std::endl;
+    std::cerr << "unparse var" << std::endl;
     throw std::exception();
   }
 
@@ -185,8 +187,9 @@ public:
   }
 
   static bool evaluate(const expr<param_t> &e, const param_t &p) {
-    return boost::apply_visitor(Evaluator<param_t>(p), e);
+   return boost::apply_visitor(Evaluator<param_t>(p), e);
   }
+
 
 private:
   qi::rule<It, var(), Skipper> var_;
@@ -194,6 +197,29 @@ private:
 
   qi::rule<It, expr<param_t>(), Skipper> more_, less_, eq_more_, eq_less_;
   qi::rule<It, param_t(), Skipper> param_;
+};
+
+// template <typename param_t>
+// bool evaluate(const expr<param_t> &e, const param_t &p) {
+//   return boost::apply_visitor(Evaluator<param_t>(p), e);
+// }
+
+template <typename param_t, typename It> class Wrapper {
+public:
+  Wrapper() : _parser(Parser<param_t, It>()) {}
+
+  bool phrase_parse(It &phrase_begin, It &phrase_end,
+                    expr<param_t> result) const {
+    return qi::phrase_parse(phrase_begin, phrase_end, _parser > ';', qi::space,
+                            result);
+  }
+
+  bool evaluate(const expr<param_t> &result, const param_t &value) const {
+    return boost::apply_visitor(Evaluator<param_t>(value), result);
+  }
+
+private:
+  Parser<param_t, It> _parser;
 };
 
 } // namespace TableFilterParsing
