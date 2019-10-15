@@ -95,8 +95,8 @@ private:
 
   const float SCALING_OX = 0.006f;
   const float SCALING_OY = 0.006f;
-  const float SCALING_SPHERE = 0.065f;
-  const float SCALING_SMOOTH = 0.045f;
+  const float SCALING_SPHERE = 0.009f;
+  const float SCALING_SMOOTH = 0.009f;
   const float DEFAULT_AXIS_MODULE_RANGE = 300;
   const int FONT_SIZE = 30;
 };

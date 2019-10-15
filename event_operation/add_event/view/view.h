@@ -43,6 +43,7 @@ private:
   QPushButton *_okButton;
   QPushButton *_cancelButton;
   QPushButton *_addWaveButton;
+  QPushButton *_polarizationEventButton;
 
   QAction *_addPWave;
   QAction *_addSWave;

@@ -45,6 +45,14 @@ set(SOURCES
         event_operation/share_view/controller.cpp
         event_operation/share_view/chartgesture.cpp
 
+        event_operation/share_view/3dscene/controller.cpp
+        event_operation/share_view/3dscene/model.cpp
+        event_operation/share_view/3dscene/view/view.cpp
+        event_operation/share_view/3dscene/view/scene.cpp
+
+
+
+
 
         horizon_operation/controller.cpp
         horizon_operation/model.cpp
@@ -123,6 +131,11 @@ set(HEADERS
         event_operation/share_view/chartgesture.h
         event_operation/share_view/view/view.h
         event_operation/share_view/view/wavepick.h
+
+        event_operation/share_view/3dscene/controller.h
+        event_operation/share_view/3dscene/model.h
+        event_operation/share_view/3dscene/view/view.h
+        event_operation/share_view/3dscene/view/scene.h
 
 
         horizon_operation/controller.h

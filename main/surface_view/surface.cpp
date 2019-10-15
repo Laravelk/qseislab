@@ -271,6 +271,8 @@ void Surface::settingGraph() {
   _surface->axisX()->setTitleVisible(true);
   _surface->axisY()->setTitleVisible(true);
   _surface->axisZ()->setTitleVisible(true);
+
+  _surface->axisZ()->setReversed(true);
   // end setting axis
 
   connect(_surface, &QAbstract3DGraph::selectedElementChanged, this,

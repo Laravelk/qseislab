@@ -22,6 +22,7 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
       _okButton(new QPushButton("Ok", this)),
       _cancelButton(new QPushButton("Cancel", this)),
       _addWaveButton(new QPushButton("+", this)),
+      _polarizationEventButton(new QPushButton("Polarization Event", this)),
       _wellNames_map(wellNames_map) {
 
   // Setting`s
@@ -108,6 +109,7 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
   buttonsLayout->addWidget(_okButton);
   buttonsLayout->addWidget(_cancelButton);
   buttonsLayout->addWidget(_addWaveButton);
+  buttonsLayout->addWidget(_polarizationEventButton);
 
   QVBoxLayout *graphicLayout = new QVBoxLayout();
   graphicLayout->addWidget(_graphicEvent->getView(), 10);

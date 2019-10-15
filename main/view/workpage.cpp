@@ -65,7 +65,6 @@ void WorkPage::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
 void WorkPage::updateProject(const std::unique_ptr<Data::SeismEvent> &event) {
   _infoProject->addEvent();
   _surface->addEvent(event);
-
   _eventsTable->add<SeismEvent>(event);
 }
 
