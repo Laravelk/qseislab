@@ -19,6 +19,8 @@ set(_Q_MODULES
 #SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O3")
 find_package(Qt5 COMPONENTS ${_Q_MODULES} REQUIRED)
 
+#include_directories("${PROJECT_SOURCE_DIR}/parser_test")
+#add_subdirectory(parser_test)
 
 # Bad way
 set(Boost_INCLUDE_DIR C:/Users/seismuser/all/boost_1_71_0/boost_1_71_0)
@@ -88,6 +90,7 @@ set(SOURCES
 
         main/controller.cpp
         main/view/view.cpp
+        main/view/parsing.cpp
         main/view/startpage.cpp
         main/view/workpage.cpp
         main/view/infoproject.cpp
@@ -168,6 +171,7 @@ set(HEADERS
 
         main/controller.h
         main/view/view.h
+        main/view/parsing.h #remove
         main/view/startpage.h
         main/view/workpage.h
         main/view/infoproject.h
@@ -191,6 +195,7 @@ set(HEADERS
 )
 
 add_executable(qseislab ${SOURCES} ${HEADERS} resources/resources.qrc)
+
 
 qt5_use_modules(qseislab ${_Q_MODULES})
 

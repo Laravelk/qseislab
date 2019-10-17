@@ -4,7 +4,6 @@
 #include <boost/spirit/include/qi.hpp>
 #include <boost/variant/recursive_wrapper.hpp>
 #include <exception>
-#include <fstream>
 #include <string>
 
 #include <QDateTime>
@@ -40,7 +39,9 @@ using expr =
                    param_unop<op_eq_less, param_t>>;
 
 template <typename tag, typename param_t> struct param_unop {
-  explicit param_unop(const param_t &p) : param1(p) {}
+  explicit param_unop(const param_t &p) : param1(p) {
+    std::cout << "constr param_unop" << std::endl;
+  }
   param_t param1;
 };
 
@@ -148,7 +149,7 @@ public:
       param_ = (as_string[digit >> digit >> ascii::char_('.') >> digit >>
                           digit >> ascii::char_('.') >> digit >> digit])
           [_val = phx::bind(
-               [](const auto &str) -> QDate {
+               [](const std::string &str) -> QDate {
                  return QDate::fromString(QString::fromStdString(str),
                                           "dd.MM.yy");
                },
@@ -157,7 +158,7 @@ public:
       param_ =
           (as_string[digit >> digit >> ascii::char_(':') >> digit >> digit])
               [_val = phx::bind(
-                   [](auto str) -> QTime {
+                   [](const std::string& str) -> QTime {
                      return QTime::fromString(QString::fromStdString(str),
                                               "hh:mm");
                    },
@@ -186,9 +187,9 @@ public:
     BOOST_SPIRIT_DEBUG_NODE(param_);
   }
 
-  static bool evaluate(const expr<param_t> &e, const param_t &p) {
-   return boost::apply_visitor(Evaluator<param_t>(p), e);
-  }
+  // static bool evaluate(const expr<param_t> &e, const param_t &p) {
+  //  return boost::apply_visitor(Evaluator<param_t>(p), e);
+  // }
 
 
 private:
@@ -199,27 +200,10 @@ private:
   qi::rule<It, param_t(), Skipper> param_;
 };
 
-// template <typename param_t>
-// bool evaluate(const expr<param_t> &e, const param_t &p) {
-//   return boost::apply_visitor(Evaluator<param_t>(p), e);
-// }
+template <typename param_t>
+bool evaluate(const expr<param_t> &e, const param_t &p) {
+  return boost::apply_visitor(Evaluator<param_t>(p), e);
+}
 
-template <typename param_t, typename It> class Wrapper {
-public:
-  Wrapper() : _parser(Parser<param_t, It>()) {}
-
-  bool phrase_parse(It &phrase_begin, It &phrase_end,
-                    expr<param_t> result) const {
-    return qi::phrase_parse(phrase_begin, phrase_end, _parser > ';', qi::space,
-                            result);
-  }
-
-  bool evaluate(const expr<param_t> &result, const param_t &value) const {
-    return boost::apply_visitor(Evaluator<param_t>(value), result);
-  }
-
-private:
-  Parser<param_t, It> _parser;
-};
 
 } // namespace TableFilterParsing
