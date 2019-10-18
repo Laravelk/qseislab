@@ -6,6 +6,8 @@
 #include "data/seismreceiver.h"
 #include "infoproject.h"
 
+#include "share_view/tableassistant.h"
+
 #include <iostream> // TODO: delete
 
 #include <QDateTime>

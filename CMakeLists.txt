@@ -90,12 +90,13 @@ set(SOURCES
 
         main/controller.cpp
         main/view/view.cpp
-        main/view/parsing.cpp
         main/view/startpage.cpp
         main/view/workpage.cpp
         main/view/infoproject.cpp
-        main/view/tableassistant.cpp
         main/surface_view/surface.cpp
+
+        share_view/tableassistant.cpp
+        share_view/parsing/evaluateExpr.cpp
 
         project_operation/new_project/controller.cpp
         project_operation/new_project/view.cpp
@@ -171,13 +172,14 @@ set(HEADERS
 
         main/controller.h
         main/view/view.h
-        main/view/parsing.h #remove
         main/view/startpage.h
         main/view/workpage.h
         main/view/infoproject.h
-        main/view/tableassistant.h
-        main/view/parser.h
         main/surface_view/surface.h
+
+        share_view/tableassistant.h
+        share_view/parsing/evaluateExpr.h
+        share_view/parsing/parser.h
 
         project_operation/new_project/controller.h
         project_operation/new_project/view.h

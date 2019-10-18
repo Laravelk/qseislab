@@ -2,7 +2,6 @@
 
 #include "data/seismproject.h"
 
-#include "tableassistant.h" // TODO: definition-class
 #include <QFrame>
 #include <QTableWidget>
 #include <QtDataVisualization>
@@ -10,6 +9,8 @@
 #include <memory>
 
 using namespace QtDataVisualization;
+
+class TableAssistant;
 
 namespace Main {
 class InfoProject;

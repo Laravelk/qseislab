@@ -27,11 +27,13 @@ private:
   void forEvents();
   void insertRowInFilterTable(const QString &);
   void enbledFilter(int, const QString &, const QString &);
-  bool applicable(const QString &, const QString &) const;
 
-  QTableWidget *_filterTable;
+  template <typename mode_t>
+  void applyFilterFor(int, const QString &, const QString &);
+  template <typename param_t>
+  void applyFilter(int, const QString &, const QString &);
+
   Mode _mode;
-
-public:
+  QTableWidget *_filterTable;
   QTableWidget *_objectsTable;
 };
