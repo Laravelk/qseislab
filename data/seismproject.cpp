@@ -8,15 +8,15 @@
 namespace Data {
 SeismProject::SeismProject(QObject *parent) : QObject(parent) {
   // NOTE: hard-code insert events
-  for (int i = 0; i < 4; ++i) {
-    std::unique_ptr<SeismEvent> event = std::make_unique<SeismEvent>();
+  //  for (int i = 0; i < 4; ++i) {
+  //    std::unique_ptr<SeismEvent> event = std::make_unique<SeismEvent>();
 
-    event->setDateTime(
-        QDateTime::currentDateTime().addDays(i).addSecs(120 * i));
-    event->setType(i);
+  //    event->setDateTime(
+  //        QDateTime::currentDateTime().addDays(i).addSecs(120 * i));
+  //    event->setType(i);
 
-    _events_map[event->getUuid()] = std::move(event);
-  }
+  //    _events_map[event->getUuid()] = std::move(event);
+  //  }
   //   end...
 
   //   NOTE: hard-code insert wells
@@ -236,17 +236,13 @@ void SeismProject::processEvents() {
   for (auto &itr : _events_map) {
     (itr.second)->process();
   }
-  emit updateEvents();
+  emit processedEvents();
 }
-
-// const QUuid SeismProject::generateUuid() { return QUuid::createUuid(); }
 
 // Event template`s
 template <>
 void SeismProject::add<SeismEvent>(std::unique_ptr<SeismEvent> event) {
   _isSaved = false;
-  //  auto uuid = generateUuid();
-  //  event->setUuid(uuid);
   auto uuid = event->getUuid();
   _events_map[uuid] = std::move(event);
 
@@ -260,6 +256,15 @@ template <> bool SeismProject::remove<SeismEvent>(const QUuid &uuid) {
     return true;
   }
   return false;
+}
+
+template <>
+void SeismProject::update<SeismEvent>(std::unique_ptr<SeismEvent> event) {
+  _isSaved = false;
+  auto uuid = event->getUuid();
+  _events_map[uuid] = std::move(event);
+
+  emit updatedEvent(_events_map[uuid]);
 }
 
 template <> int SeismProject::getNumber<SeismEvent>() const {

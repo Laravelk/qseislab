@@ -23,34 +23,25 @@ public:
 
   void loadProject(const std::unique_ptr<Data::SeismProject> &);
 
-  void updateProject(const std::unique_ptr<Data::SeismEvent> &);
+  void addEvent(const std::unique_ptr<Data::SeismEvent> &);
   void
-  updateProject(const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &);
-  void updateProjectRemoveEvent(const QUuid &);
+  processedEvents(const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &);
+  void updateEvent(const std::unique_ptr<Data::SeismEvent> &);
+  void removeEvent(const QUuid &);
 
-  void updateProject(const std::unique_ptr<Data::SeismHorizon> &);
-  void updateProjectRemoveHorizon(const QUuid &);
+  void addHorizon(const std::unique_ptr<Data::SeismHorizon> &);
+  void removeHorizon(const QUuid &);
 
-  void updateProject(const std::unique_ptr<Data::SeismWell> &);
-  void updateProjectRemoveWell(const QUuid &);
+  void addWell(const std::unique_ptr<Data::SeismWell> &);
+  void removeWell(const QUuid &);
 
 signals:
   void viewEventClicked(const QUuid) const;
   void removeEventClicked(const QUuid) const;
 
-private slots:
-  //  void handleEventClicked(int, int);
-
 private:
-  //  void clearTable();
-  //  void initEventsTable(QTableWidget *);
-
-  //  void insertEventInTable(const std::unique_ptr<Data::SeismEvent> &);
-  //  void removeEventInTable(const QUuid &);
-
   InfoProject *_infoProject;
   TableAssistant *_eventsTable;
-  //  QTableWidget *_eventsTable;
   Surface *_surface;
   Q3DSurface *_graph;
 };

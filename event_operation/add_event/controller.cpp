@@ -56,7 +56,7 @@ Controller::Controller(
           [this](const auto type, const auto num, const auto l_val,
                  const auto pick_val, const auto r_val) {
             int idx = 0;
-            for (auto &component : this->_event->getComponents()) {
+            for (auto &component : _event->getComponents()) {
               if (num == idx) {
                 Data::SeismWavePick wavePick =
                     Data::SeismWavePick(type, pick_val);

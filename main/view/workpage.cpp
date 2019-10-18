@@ -64,40 +64,46 @@ void WorkPage::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
   _eventsTable->setAll<SeismEvent>(project->getAllMap<SeismEvent>());
 }
 
-void WorkPage::updateProject(const std::unique_ptr<Data::SeismEvent> &event) {
+void WorkPage::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
   _infoProject->addEvent();
-  _surface->addEvent(event);
+  //  _surface->addEvent(event); // TODO: uncoment
 
   _eventsTable->add<SeismEvent>(event);
 }
 
-void WorkPage::updateProject(
+void WorkPage::processedEvents(
     const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &events) {
   _eventsTable->setAll<SeismEvent>(events);
 
   for (auto &itr : events) {
-    _surface->showEvent(itr.first);
+    //    _surface->showEvent(itr.first); // TODO: uncomment
   }
 }
 
-void WorkPage::updateProjectRemoveEvent(const QUuid &uuid) {
+void WorkPage::updateEvent(const std::unique_ptr<Data::SeismEvent> &event) {
+  //    _infoProject->updateEvent(event); // NOTE: нужно ли? (не реализовано)
+  _eventsTable->update<SeismEvent>(event);
+
+  //    _surface->updateEvent(event); // TODO: uncomment and realize!1
+}
+
+void WorkPage::removeEvent(const QUuid &uuid) {
   _infoProject->removeEvent();
-  _surface->removeEvent(uuid);
+  //  _surface->removeEvent(uuid); // TODO: uncomment
   _eventsTable->remove<SeismEvent>(uuid);
 }
 
-void WorkPage::updateProject(
-    const std::unique_ptr<Data::SeismHorizon> &horizon) {
+void WorkPage::addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon) {
   _infoProject->addHorizon();
   _surface->addHorizon(horizon);
 }
 
-void WorkPage::updateProjectRemoveHorizon(const QUuid &uuid) {
+void WorkPage::removeHorizon(const QUuid &uuid) {
   _infoProject->removeHorizon();
   _surface->removeHorizon(uuid);
 }
 
-void WorkPage::updateProject(const std::unique_ptr<Data::SeismWell> &well) {
+void WorkPage::addWell(const std::unique_ptr<Data::SeismWell> &well) {
   _infoProject->addWell();
   _surface->addWell(well);
   for (auto &receiver : well->getReceivers()) {
@@ -105,7 +111,7 @@ void WorkPage::updateProject(const std::unique_ptr<Data::SeismWell> &well) {
   }
 }
 
-void WorkPage::updateProjectRemoveWell(const QUuid &uuid) {
+void WorkPage::removeWell(const QUuid &uuid) {
   _infoProject->removeWell();
   _surface->removeWell(uuid);
 }

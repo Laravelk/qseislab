@@ -122,8 +122,9 @@ SeismEvent::SeismEvent(const QJsonObject &json,
 }
 
 SeismEvent::SeismEvent(const SeismEvent &other)
-    : _uuid(other._uuid), _path(other._path), _dateTime(other._dateTime),
-      _isProcessed(other._isProcessed), _location(other._location) {
+    : _uuid(other._uuid), _type(other._type), _path(other._path),
+      _dateTime(other._dateTime), _isProcessed(other._isProcessed),
+      _location(other._location) {
 
   for (auto &component : other._components) {
     _components.push_back(std::make_unique<SeismComponent>(*component));

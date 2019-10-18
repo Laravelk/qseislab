@@ -13,6 +13,7 @@ public:
   TableAssistant(Mode, QWidget *parent = nullptr);
 
   template <typename T> void add(const std::unique_ptr<T> &);
+  template <typename T> void update(const std::unique_ptr<T> &);
   template <typename T> bool remove(const QUuid &);
 
   template <typename T>

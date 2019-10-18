@@ -222,6 +222,7 @@ void TableAssistant::enbledFilter(int enable, const QString &filterName,
 
 template <>
 void TableAssistant::add<SeismEvent>(const std::unique_ptr<SeismEvent> &event) {
+  _objectsTable->setSortingEnabled(false);
   _objectsTable->insertRow(_objectsTable->rowCount());
 
   int row = _objectsTable->rowCount() - 1;
@@ -270,6 +271,57 @@ void TableAssistant::add<SeismEvent>(const std::unique_ptr<SeismEvent> &event) {
       new QTableWidgetItem(event->getDateTime().time().toString("hh:mm")));
 
   _objectsTable->resizeColumnsToContents();
+  _objectsTable->setSortingEnabled(true);
+}
+
+// NOTE: сохвать ли новые Item`ы или перезаписывать из значения?
+template <>
+void TableAssistant::update<SeismEvent>(
+    const std::unique_ptr<SeismEvent> &event) {
+  _objectsTable->setSortingEnabled(false);
+
+  const auto &uuidEvent = event->getUuid();
+  for (int row = 0; row < _objectsTable->rowCount(); ++row) {
+    if (uuidEvent ==
+        _objectsTable->item(row, 0)->data(Qt::DisplayRole).toUuid()) {
+      _objectsTable->setItem(
+          row, 3, new QTableWidgetItem(QString::number(event->getType())));
+
+      _objectsTable->setItem(
+          row, 4,
+          new QTableWidgetItem(QString::number(event->getComponentNumber())));
+
+      if (event->isProcessed()) {
+        auto &location = event->getLocation();
+        _objectsTable->setItem(
+            row, 5,
+            new QTableWidgetItem(
+                QString::number(static_cast<double>(std::get<0>(location)))));
+        _objectsTable->setItem(
+            row, 6,
+            new QTableWidgetItem(
+                QString::number(static_cast<double>(std::get<1>(location)))));
+        _objectsTable->setItem(
+            row, 7,
+            new QTableWidgetItem(
+                QString::number(static_cast<double>(std::get<2>(location)))));
+      }
+
+      _objectsTable->setItem(
+          row, 8,
+          new QTableWidgetItem(
+              event->getDateTime().date().toString("dd.MM.yy")));
+
+      _objectsTable->setItem(
+          row, 9,
+          new QTableWidgetItem(event->getDateTime().time().toString("hh:mm")));
+
+      break;
+    }
+  }
+
+  _objectsTable->resizeColumnsToContents();
+  _objectsTable->setSortingEnabled(true);
 }
 
 template <> bool TableAssistant::remove<SeismEvent>(const QUuid &uuid) {
