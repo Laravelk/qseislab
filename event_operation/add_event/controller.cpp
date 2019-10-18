@@ -1,5 +1,6 @@
 #include "controller.h"
 
+#include "../share_view/3dscene/polarizationanalysiswindow.h"
 #include "data/seismevent.h"
 #include "data/seismwell.h"
 #include "model.h"
@@ -43,6 +44,10 @@ Controller::Controller(
               _view->update(_event, wellUuid_filePath.first);
             }
           });
+  connect(_view.get(), &View::createPolarizationAnalysisWindow, [this]() {
+    _polarizationWindow = new PolarizationAnalysisWindow(_event);
+    _polarizationWindow->show();
+  });
 
   connect(_view.get(), &View::sendWellUuidForRemove, [this](auto &uuid) {
     auto &well = _wells_map.at(uuid);
@@ -74,7 +79,7 @@ Controller::Controller(
 }
 
 void Controller::start() {
-  _view->setModal(true);
+  _view->setModal(true); // TODO: uncomment
   _view->show();
 }
 

@@ -30,6 +30,7 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
   setMinimumSize(1100, 590);
 
   _infoEvent->setDisabled(true);
+  _polarizationEventButton->setDisabled(true);
 
   QMenu *addWaveButtonMenu = new QMenu(_addWaveButton);
   _addPWave = new QAction("PWAVE", _addWaveButton);
@@ -87,7 +88,9 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
           [this](auto type, auto num, auto l_val, auto pick_val, auto r_val) {
             emit sendPicksInfo(type, num, l_val, pick_val, r_val);
           });
-
+  connect(_polarizationEventButton, &QPushButton::clicked, [this] () {
+    emit createPolarizationAnalysisWindow();
+  });
   connect(_okButton, &QPushButton::clicked, this, &View::accept);
   connect(_cancelButton, &QPushButton::clicked, this, &View::reject);
   connect(_addPWave, &QAction::triggered, [this]() {
@@ -130,6 +133,7 @@ void View::update(const std::unique_ptr<SeismEvent> &event,
   _wellNames_map.erase(removedWellUuid);
 
   _infoEvent->setEnabled(true);
+  _polarizationEventButton->setEnabled(true);
   _infoEvent->update(event);
   //  _addButtonManagers->setEnabled(true);
   _graphicEvent->update(event);
@@ -165,7 +169,12 @@ void View::setNotification(const QString &text) {
 
 void View::settingEventInfo(
     const std::unique_ptr<Data::SeismEvent> &event) const {
-  _infoEvent->settingEventInfo(event);
+    _infoEvent->settingEventInfo(event);
+}
+
+ChartGesture *View::getChartGesture()
+{
+    return _graphicEvent->getModel();
 }
 
 } // namespace AddEvent

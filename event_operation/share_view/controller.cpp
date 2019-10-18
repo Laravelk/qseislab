@@ -40,6 +40,7 @@ void Controller::update(const std::unique_ptr<SeismEvent> &event) {
   setInterval(event);
   setAxesY(event->getComponentNumber());
   int idx = 0;
+  _chart->setReceiverCount(event->getComponentNumber());
   for (auto &component : event->getComponents()) {
     _pWaveArrival =
         component->getWavePick(Data::SeismWavePick::Type::PWAVE).getArrival();

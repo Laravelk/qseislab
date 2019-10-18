@@ -14,6 +14,11 @@ set(_Q_MODULES
     Core
     DataVisualization
     Charts
+    3DCore
+    3DExtras
+    3Drender
+    3DInput
+    3DAnimation
 )
 
 find_package(Qt5 COMPONENTS ${_Q_MODULES} REQUIRED)
@@ -44,15 +49,7 @@ set(SOURCES
         event_operation/share_view/infoevent.cpp
         event_operation/share_view/controller.cpp
         event_operation/share_view/chartgesture.cpp
-
-        event_operation/share_view/3dscene/controller.cpp
-        event_operation/share_view/3dscene/model.cpp
-        event_operation/share_view/3dscene/view/view.cpp
-        event_operation/share_view/3dscene/view/scene.cpp
-
-
-
-
+        event_operation/share_view/3dscene/polarizationanalysiswindow.cpp
 
         horizon_operation/controller.cpp
         horizon_operation/model.cpp
@@ -131,11 +128,8 @@ set(HEADERS
         event_operation/share_view/chartgesture.h
         event_operation/share_view/view/view.h
         event_operation/share_view/view/wavepick.h
+        event_operation/share_view/3dscene/polarizationanalysiswindow.h
 
-        event_operation/share_view/3dscene/controller.h
-        event_operation/share_view/3dscene/model.h
-        event_operation/share_view/3dscene/view/view.h
-        event_operation/share_view/3dscene/view/scene.h
 
 
         horizon_operation/controller.h
