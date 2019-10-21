@@ -14,6 +14,11 @@ set(_Q_MODULES
     Core
     DataVisualization
     Charts
+    3DCore
+    3DExtras
+    3Drender
+    3DInput
+    3DAnimation
 )
 
 #SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O3")
@@ -47,7 +52,7 @@ set(SOURCES
         event_operation/share_view/infoevent.cpp
         event_operation/share_view/controller.cpp
         event_operation/share_view/chartgesture.cpp
-
+        event_operation/share_view/3dscene/polarizationanalysiswindow.cpp
 
         horizon_operation/controller.cpp
         horizon_operation/model.cpp
@@ -128,6 +133,8 @@ set(HEADERS
         event_operation/share_view/chartgesture.h
         event_operation/share_view/view/view.h
         event_operation/share_view/view/wavepick.h
+        event_operation/share_view/3dscene/polarizationanalysiswindow.h
+
 
 
         horizon_operation/controller.h

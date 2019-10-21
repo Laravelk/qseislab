@@ -4,6 +4,7 @@
 
 #include <QFrame>
 #include <QTableWidget>
+#include <QCheckBox>
 #include <QtDataVisualization>
 
 #include <memory>
@@ -44,6 +45,10 @@ private:
   TableAssistant *_eventsTable;
   Surface *_surface;
   Q3DSurface *_graph;
+  QCheckBox *_eventBox;
+  QCheckBox *_receiverBox;
+  QCheckBox *_wellBox;
+  QCheckBox *_horizonBox;
 };
 
 } // namespace Main

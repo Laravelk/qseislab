@@ -7,7 +7,7 @@
 namespace Data {
 class SeismWavePick {
 public:
-  enum Type { PWAVE = 1, SWAVE };
+  enum Type { PWAVE = 1, SWAVE = 2 };
   static const std::string &to_string(Type);
   static Type from_string(const std::string &);
 
