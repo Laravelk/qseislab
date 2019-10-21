@@ -41,9 +41,9 @@ void View::addPick(Data::SeismWavePick::Type type, QPointF pos, QSizeF size,
     leftBorderXOffset = 1;
   }
 
-  if (rightBorderXOffset >= rangeX) {
-    rightBorderXOffset = rangeX - 1;
-  }
+//  if (rightBorderXOffset >= rangeX) {
+//    rightBorderXOffset = rangeX - 1;
+//  }
   WavePick *leftBorder =
       new WavePick(type, rect, chart(), QPointF(leftBorderXOffset, pos.y()),
                    size, borderBrush, 0, pick);

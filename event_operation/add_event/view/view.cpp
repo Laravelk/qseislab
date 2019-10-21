@@ -22,7 +22,7 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
       _okButton(new QPushButton("Ok", this)),
       _cancelButton(new QPushButton("Cancel", this)),
       _addWaveButton(new QPushButton("+", this)),
-      _polarizationEventButton(new QPushButton("Polarization Event", this)),
+      _polarizationEventButton(new QPushButton("Polarization Analysis", this)),
       _wellNames_map(wellNames_map) {
 
   // Setting`s

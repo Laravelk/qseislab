@@ -79,7 +79,7 @@ Controller::Controller(
 }
 
 void Controller::start() {
-  _view->setModal(true); // TODO: uncomment
+//  _view->setModal(true); // TODO: uncomment
   _view->show();
 }
 

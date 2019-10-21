@@ -23,7 +23,10 @@ WorkPage::WorkPage(QWidget *parent)
     : QFrame(parent), _infoProject(new InfoProject(this)),
       //      _eventsTable(new QTableWidget(this)),
       _eventsTable(new TableAssistant(TableAssistant::ForEvents)),
-      _graph(new Q3DSurface) {
+      _graph(new Q3DSurface), _horizonBox(new QCheckBox),
+      _eventBox(new QCheckBox), _wellBox(new QCheckBox),
+      _receiverBox(new QCheckBox) {
+
 
   // Setting`s
   //  initEventsTable(_eventsTable);
@@ -34,6 +37,16 @@ WorkPage::WorkPage(QWidget *parent)
   container->setMinimumSize(QSize(400, 400));
   container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   container->setFocusPolicy(Qt::StrongFocus);
+
+  _horizonBox->setChecked(true);
+  _horizonBox->setText("Horizons");
+  _wellBox->setChecked(true);
+  _wellBox->setText("Wells");
+  _receiverBox->setChecked(true);
+  _receiverBox->setText("Receivers");
+  _eventBox->setChecked(true);
+  _eventBox->setText("Events");
+
   // Setting`s end
 
   // Connecting
@@ -43,10 +56,28 @@ WorkPage::WorkPage(QWidget *parent)
           [this](auto uuid) { emit viewEventClicked(uuid); });
   connect(_eventsTable, &TableAssistant::removeClicked,
           [this](auto uuid) { emit removeEventClicked(uuid); });
+  connect(_horizonBox, &QCheckBox::stateChanged, [this] () {
+      _surface->hideAllHorizon(!_surface->isHorizonsHide());
+  });
+  connect(_receiverBox, &QCheckBox::stateChanged, [this] () {
+      _surface->hideAllReceiver(!_surface->isReceiversHide());
+  });
+  connect(_wellBox, &QCheckBox::stateChanged, [this] () {
+      _surface->hideAllWell(!_surface->isWellsHide());
+  });
+  connect(_eventBox, &QCheckBox::stateChanged, [this] () {
+      _surface->hideAllEvent(!_surface->isEventsHide());
+  });
   // Connecting end
 
   // Layout`s
+  QHBoxLayout *checkLayout = new QHBoxLayout();
+  checkLayout->addWidget(_horizonBox);
+  checkLayout->addWidget(_receiverBox);
+  checkLayout->addWidget(_wellBox);
+  checkLayout->addWidget(_eventBox);
   QVBoxLayout *vLayout = new QVBoxLayout();
+  vLayout->addLayout(checkLayout);
   vLayout->addWidget(_infoProject);
   vLayout->addWidget(container, 1);
   //  vLayout->addStretch(1);

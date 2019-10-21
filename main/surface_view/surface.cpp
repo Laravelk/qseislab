@@ -203,6 +203,70 @@ bool Surface::hideEvent(std::unique_ptr<Data::SeismEvent> &event) {
   return false;
 }
 
+void Surface::hideAllEvent(bool hide)
+{
+    if (hide) {
+        _isEventsHide = true;
+        for (auto &event : _events) {
+            event.second->setVisible(false);
+        }
+    } else {
+        _isEventsHide = false;
+        for (auto &event : _events) {
+            event.second->setVisible(true);
+        }
+    }
+}
+
+void Surface::hideAllWell(bool hide)
+{
+    if (hide) {
+        _isWellsHide = true;
+        for (auto &well : _wells) {
+           for (auto &wellPart : well.second) {
+               wellPart->setVisible(false);
+           }
+        }
+    } else {
+        _isReceiversHide = false;
+        for (auto &well : _wells) {
+            for (auto &wellPart : well.second) {
+                wellPart->setVisible(true);
+            }
+        }
+    }
+}
+
+void Surface::hideAllReceiver(bool hide)
+{
+    if (hide) {
+        _isReceiversHide = true;
+        for (auto &receiver : _receivers) {
+            receiver.second->setVisible(false);
+        }
+    } else {
+        _isReceiversHide = false;
+        for (auto &receiver : _receivers) {
+            receiver.second->setVisible(true);
+        }
+    }
+}
+
+void Surface::hideAllHorizon(bool hide)
+{
+    if (hide) {
+        _isHorizonsHide = true;
+        for (auto &horizon : _horizons) {
+            horizon.second->setVisible(false);
+        }
+    } else {
+        _isHorizonsHide = false;
+        for (auto &horizon : _horizons) {
+            horizon.second->setVisible(true);
+        }
+    }
+}
+
 const std::map<Uuid, QCustom3DItem *> Surface::getEvents() const {
   return _events;
 }
