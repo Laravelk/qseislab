@@ -22,8 +22,7 @@ typedef Data::SeismReceiver SeismReceiver;
 
 namespace Main {
 WorkPage::WorkPage(QWidget *parent)
-    : QFrame(parent), _infoProject(new InfoProject(this)),
-      //      _eventsTable(new QTableWidget(this)),
+    : QFrame(parent),
       _eventsTable(new TableAssistant(TableAssistant::ForEvents)),
       _graph(new Q3DSurface), _eventBox(new QCheckBox),
       _receiverBox(new QCheckBox), _wellBox(new QCheckBox),
@@ -76,7 +75,7 @@ WorkPage::WorkPage(QWidget *parent)
   checkLayout->addWidget(_eventBox);
   QVBoxLayout *vLayout = new QVBoxLayout();
   vLayout->addLayout(checkLayout);
-  vLayout->addWidget(_infoProject);
+  //  vLayout->addWidget(_infoProject);
   vLayout->addWidget(container, 1);
   //  vLayout->addStretch(1);
   vLayout->addWidget(_eventsTable);
@@ -86,13 +85,11 @@ WorkPage::WorkPage(QWidget *parent)
 }
 
 void WorkPage::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
-  _infoProject->update(project);
   _surface->setProject(project);
   _eventsTable->setAll<SeismEvent>(project->getAllMap<SeismEvent>());
 }
 
 void WorkPage::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
-  _infoProject->addEvent();
 
   //  _surface->addEvent(event); // TODO: uncoment
 
@@ -116,32 +113,29 @@ void WorkPage::updateEvent(const std::unique_ptr<Data::SeismEvent> &event) {
 }
 
 void WorkPage::removeEvent(const QUuid &uuid) {
-  _infoProject->removeEvent();
   //  _surface->removeEvent(uuid); // TODO: uncomment
   _eventsTable->remove<SeismEvent>(uuid);
 }
 
 void WorkPage::addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon) {
-  _infoProject->addHorizon();
   _surface->addHorizon(horizon);
 }
 
 void WorkPage::removeHorizon(const QUuid &uuid) {
-  _infoProject->removeHorizon();
   _surface->removeHorizon(uuid);
 }
 
 void WorkPage::addWell(const std::unique_ptr<Data::SeismWell> &well) {
-  _infoProject->addWell();
   _surface->addWell(well);
   for (auto &receiver : well->getReceivers()) {
     _surface->addReceiver(receiver);
   }
 }
 
-void WorkPage::removeWell(const QUuid &uuid) {
-  _infoProject->removeWell();
-  _surface->removeWell(uuid);
+void WorkPage::removeWell(const QUuid &uuid) { _surface->removeWell(uuid); }
+
+void WorkPage::removeReceiver(const QUuid &uuid) {
+  _surface->removeReceiver(uuid);
 }
 
 } // namespace Main

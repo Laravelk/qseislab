@@ -15,6 +15,8 @@ class View : public QMainWindow {
 public:
   explicit View(QWidget *parent = nullptr);
 
+  void viewAboutProject(const std::unique_ptr<Data::SeismProject> &);
+
   void loadProject(const std::unique_ptr<Data::SeismProject> &);
   void addEvent(const std::unique_ptr<Data::SeismEvent> &);
   void
@@ -27,6 +29,7 @@ public:
 
   void addWell(const std::unique_ptr<Data::SeismWell> &);
   void removeWell(const QUuid &);
+  void removeReceiver(const QUuid &);
 
   void closeProject();
 
@@ -46,6 +49,7 @@ signals:
   void openProjectClicked() const;
   void saveProjectClicked() const;
   void closeProjectClicked() const;
+  void aboutProjectClicked() const;
 
   void projectPresence(bool) const; // NOTE: for menu bar
 

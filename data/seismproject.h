@@ -61,6 +61,7 @@ signals:
 
   void addedWell(const std::unique_ptr<Data::SeismWell> &) const;
   void removedWell(const QUuid &) const;
+  void removedReceiver(const QUuid &) const;
 
 private:
   bool _isSaved{false};

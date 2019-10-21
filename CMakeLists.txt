@@ -21,7 +21,7 @@ set(_Q_MODULES
     3DAnimation
 )
 
-#SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O3")
+SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}")
 find_package(Qt5 COMPONENTS ${_Q_MODULES} REQUIRED)
 
 #include_directories("${PROJECT_SOURCE_DIR}/parser_test")

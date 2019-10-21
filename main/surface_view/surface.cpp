@@ -19,6 +19,7 @@ Surface::Surface(Q3DSurface *surface) : _surface(surface), _isHandle(false) {
   _redColor.fill(Qt::red);
   settingGraph();
   surface->setShadowQuality(QAbstract3DGraph::ShadowQualityNone);
+  surface->axisY()->setReversed(true);
 }
 
 void Surface::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
@@ -69,6 +70,7 @@ void Surface::addReceiver(
 }
 
 void Surface::addWell(const std::unique_ptr<Data::SeismWell> &well) {
+  std::cerr << "add well " << _surface->customItems().size() << std::endl;
   float x = 0, y = 0, z = 0;
   float lx = 0, ly = 0, lz = 0;
   std::tie(lx, ly, lz) = well->getPoint(0);
@@ -78,7 +80,7 @@ void Surface::addWell(const std::unique_ptr<Data::SeismWell> &well) {
     QVector3D pipeVector =
         vectorBy2Point(QVector3D(lx, ly, lz), QVector3D(x, y, z));
     float scaling = calculateLenght(QVector3D(x, y, z), QVector3D(lx, ly, lz)) /
-                    _maxAxisValue / 1.4;
+                    _maxAxisValue;
     std::tie(lx, ly, lz) = *point;
     QCustom3DItem *item = new QCustom3DItem(
         ":/cylinderFilledSmooth.obj",
@@ -178,6 +180,7 @@ bool Surface::removeWell(const std::unique_ptr<Data::SeismWell> &well) {
 }
 
 bool Surface::removeWell(const Uuid uid) {
+  std::cerr << "remove well" << std::endl;
   std::vector<QCustom3DItem *> v = _wells[uid];
   if (_wells.erase(uid)) {
     for (auto &it : v) {

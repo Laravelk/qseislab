@@ -5,6 +5,7 @@
 
 #include <QBoxLayout>
 #include <QFileDialog>
+#include <QHeaderView>
 #include <QMessageBox>
 #include <QPushButton>
 
@@ -129,14 +130,18 @@ void View::setNotification(const QString &text) {
 
 void View::initReceiversTable(QTableWidget *table) {
   table->setEditTriggers(QAbstractItemView::NoEditTriggers);
-  table->setColumnCount(5);
+  table->setColumnCount(6);
+
+  table->setSelectionBehavior(QAbstractItemView::SelectRows);
+  table->setSelectionMode(QAbstractItemView::SingleSelection);
 
   // configure column settings
   table->setHorizontalHeaderLabels(QStringList() << "uuid"
                                                  << "Name"
                                                  << "Location"
                                                  << "Channel Number"
-                                                 << "Remove");
+                                                 << ""
+                                                 << "");
   //  table->setHorizontalHeaderItem(0, new QTableWidgetItem("uuid"));
   table->setColumnHidden(0, true);
   //  table->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
@@ -144,6 +149,16 @@ void View::initReceiversTable(QTableWidget *table) {
   //  table->setHorizontalHeaderItem(3, new QTableWidgetItem("Channel Number"));
   //  table->setHorizontalHeaderItem(remove_receiver_col, new
   //  QTableWidgetItem("Remove"));
+
+  table->resizeColumnsToContents();
+
+  auto horizontalHeaderObjectTable = table->horizontalHeader();
+  horizontalHeaderObjectTable->setSectionResizeMode(
+      5, QHeaderView::Fixed); // fixed remove-button section
+  horizontalHeaderObjectTable->setSectionResizeMode(
+      4, QHeaderView::Stretch); // stretching pred-last section
+  horizontalHeaderObjectTable->setDefaultAlignment(Qt::AlignLeft);
+  table->verticalHeader()->setVisible(false);
 }
 
 void View::insertReceiverInTable(
@@ -152,8 +167,8 @@ void View::insertReceiverInTable(
 
   int insertRow = _receiversTable->rowCount() - 1;
 
-  _receiversTable->setItem(
-      insertRow, 0, new QTableWidgetItem(receiver->getUuid().toString()));
+  auto &uuid = receiver->getUuid();
+  _receiversTable->setItem(insertRow, 0, new QTableWidgetItem(uuid.toString()));
 
   _receiversTable->setItem(insertRow, 1,
                            new QTableWidgetItem(receiver->getName()));
@@ -173,10 +188,19 @@ void View::insertReceiverInTable(
       insertRow, 3,
       new QTableWidgetItem(QString::number(receiver->getChannelNum())));
 
-  QTableWidgetItem *removeItem = new QTableWidgetItem("Remove");
-  removeItem->setTextAlignment(Qt::AlignCenter);
-  removeItem->setBackground(Qt::red);
-  _receiversTable->setItem(insertRow, remove_receiver_col, removeItem);
+  QPushButton *removeButton = new QPushButton();
+  QIcon icon(":/remove_button.png");
+  removeButton->setStyleSheet("background-color:white; border-style: outset");
+  removeButton->setIcon(icon);
+  _receiversTable->setCellWidget(insertRow, 5, removeButton);
+  connect(removeButton, &QPushButton::clicked,
+          [this, uuid]() { emit removeReceiverClicked(uuid); });
+
+  //  QTableWidgetItem *removeItem = new QTableWidgetItem("Remove");
+  //  removeItem->setTextAlignment(Qt::AlignCenter);
+  //  removeItem->setBackground(Qt::red);
+  //  _receiversTable->setItem(insertRow, remove_receiver_col, removeItem);
+  _receiversTable->resizeColumnsToContents();
 }
 
 void View::handleFromCsvClicked() {

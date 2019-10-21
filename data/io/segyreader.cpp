@@ -118,10 +118,15 @@ SegyReader::nextComponent(const std::unique_ptr<SeismReceiver> &receiver) {
   }
 
   component->setSampleInterval(_sam_intr);
-  component->addWavePick(
-      Data::SeismWavePick(Data::SeismWavePick::Type::PWAVE, p_wave_arrival));
-  component->addWavePick(
-      Data::SeismWavePick(Data::SeismWavePick::Type::SWAVE, s_wave_arrival));
+  // TODO: ...
+  if (0 != p_wave_arrival) {
+    component->addWavePick(
+        Data::SeismWavePick(Data::SeismWavePick::Type::PWAVE, p_wave_arrival));
+  }
+  if (0 != s_wave_arrival) {
+    component->addWavePick(
+        Data::SeismWavePick(Data::SeismWavePick::Type::SWAVE, s_wave_arrival));
+  }
 
   return component;
 }

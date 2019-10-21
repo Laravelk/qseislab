@@ -2,9 +2,9 @@
 
 #include "data/seismproject.h"
 
+#include <QCheckBox>
 #include <QFrame>
 #include <QTableWidget>
-#include <QCheckBox>
 #include <QtDataVisualization>
 
 #include <memory>
@@ -35,13 +35,13 @@ public:
 
   void addWell(const std::unique_ptr<Data::SeismWell> &);
   void removeWell(const QUuid &);
+  void removeReceiver(const QUuid &);
 
 signals:
   void viewEventClicked(const QUuid) const;
   void removeEventClicked(const QUuid) const;
 
 private:
-  InfoProject *_infoProject;
   TableAssistant *_eventsTable;
   Surface *_surface;
   Q3DSurface *_graph;

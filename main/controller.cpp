@@ -41,6 +41,8 @@ Controller::Controller(QObject *parent)
           &Controller::handleSaveProjectClicked);
   connect(_mainWindow.get(), &View::closeProjectClicked, this,
           &Controller::handleCloseProjectClicked);
+  connect(_mainWindow.get(), &View::aboutProjectClicked,
+          [this]() { _mainWindow->viewAboutProject(_project); });
 
   _mainWindow->show();
 }
@@ -72,6 +74,8 @@ void Controller::recvProject(std::unique_ptr<SeismProject> &project) {
           [this](auto &well) { _mainWindow->addWell(well); });
   connect(_project.get(), &SeismProject::removedWell,
           [this](auto &uuid) { _mainWindow->removeWell(uuid); });
+  connect(_project.get(), &SeismProject::removedReceiver,
+          [this](auto &uuid) { _mainWindow->removeReceiver(uuid); });
 
   _mainWindow->loadProject(_project);
 }

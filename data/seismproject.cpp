@@ -348,8 +348,12 @@ template <> void SeismProject::add<SeismWell>(std::unique_ptr<SeismWell> well) {
 }
 
 template <> bool SeismProject::remove<SeismWell>(const QUuid &uuid) {
-  if (_wells_map.erase(uuid)) {
+  if (_wells_map.end() != _wells_map.find(uuid)) {
     _isSaved = false;
+    for (auto &receiver : _wells_map[uuid]->getReceivers()) {
+      emit removedReceiver(receiver->getUuid());
+    }
+    _wells_map.erase(uuid);
     emit removedWell(uuid);
     return true;
   }
@@ -376,6 +380,9 @@ template <>
 void SeismProject::setAllMap<SeismWell>(
     std::map<QUuid, std::unique_ptr<SeismWell>> &wells) {
   for (auto &uuid_well : _wells_map) {
+    for (auto &receiver : uuid_well.second->getReceivers()) {
+      emit removedReceiver(receiver->getUuid());
+    }
     emit removedWell(uuid_well.first);
   }
 

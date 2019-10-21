@@ -69,7 +69,6 @@ public:
   bool isReceiversHide() const { return _isReceiversHide; }
   bool isHorizonsHide() const { return _isHorizonsHide; }
 
-
 private:
   Q3DSurface *_surface;
   QCustom3DLabel *_label;
@@ -111,7 +110,7 @@ private:
   const float SCALING_OY = 0.006f;
   const float SCALING_SPHERE = 0.009f;
   const float SCALING_SMOOTH = 0.009f;
-  const float DEFAULT_AXIS_MODULE_RANGE = 300;
+  const float DEFAULT_AXIS_MODULE_RANGE = 3000;
   const int FONT_SIZE = 30;
 };
 } // namespace Main

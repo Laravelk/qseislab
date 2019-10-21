@@ -1,5 +1,6 @@
 #include "view.h"
 
+#include "infoproject.h"
 #include "startpage.h"
 #include "workpage.h"
 
@@ -32,6 +33,11 @@ View::View(QWidget *parent) : QMainWindow(parent) {
   act = fileMenu->addAction(
       "Close Project", [this] { emit closeProjectClicked(); },
       QKeySequence::Close);
+  act->setDisabled(true);
+  connect(this, &View::projectPresence, act, &QAction::setEnabled);
+
+  act = fileMenu->addAction("About Project",
+                            [this] { emit aboutProjectClicked(); });
   act->setDisabled(true);
   connect(this, &View::projectPresence, act, &QAction::setEnabled);
 
@@ -73,6 +79,14 @@ View::View(QWidget *parent) : QMainWindow(parent) {
   connect(startPage, &StartPage::openProjectClicked,
           [this] { emit openProjectClicked(); });
   setCentralWidget(startPage);
+}
+
+void View::viewAboutProject(
+    const std::unique_ptr<Data::SeismProject> &project) {
+
+  InfoProject *infoProject = new InfoProject(project, this);
+  infoProject->setModal(true);
+  infoProject->show();
 }
 
 void View::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
@@ -128,6 +142,11 @@ void View::addWell(const std::unique_ptr<Data::SeismWell> &well) {
 void View::removeWell(const QUuid &uuid) {
   assert(nullptr != _workPage);
   _workPage->removeWell(uuid);
+}
+
+void View::removeReceiver(const QUuid &uuid) {
+  assert(nullptr != _workPage);
+  _workPage->removeReceiver(uuid);
 }
 
 void View::closeProject() {
