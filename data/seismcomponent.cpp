@@ -16,14 +16,20 @@ SeismComponent::SeismComponent(const QJsonObject &json) {
     err_msg += "::receiverUuid : not found\n";
   }
 
+  if (json.contains("sampleInterval")) {
+    _sampleInterval = static_cast<float>(json["sampleInterval"].toDouble());
+  } else {
+    err_msg += "::sampleInterval : not found\n";
+  }
+
   if (json.contains("Waves")) {
     QJsonArray wavesArray(json["Waves"].toArray());
     int idx = 0;
     for (auto objWave : wavesArray) {
       try {
-        auto seismWave = std::make_unique<SeismWavePick>(objWave.toObject());
-        //        auto type = seismWave->getType();
-        //        _wavePicks_map[type] = std::move(seismWave);
+        auto seismWave = SeismWavePick(objWave.toObject());
+        auto type = seismWave.getType();
+        _wavePicks_map[type] = seismWave;
       } catch (std::runtime_error &err) {
         err_msg += "Waves (idx: " + std::to_string(idx) + ")\n";
         err_msg += err.what();
@@ -89,9 +95,8 @@ SeismComponent::SeismComponent(const QJsonObject &json) {
 
 SeismComponent::SeismComponent(const SeismComponent &other)
     : _receiverUuid(other._receiverUuid),
-      //    _pWaveArrival(other._pWaveArrival),
-      //      _sWaveArrival(other._sWaveArrival),
-      _maxValue(other._maxValue) {
+      _sampleInterval(other._sampleInterval), _maxValue(other._maxValue),
+      _wavePicks_map(other._wavePicks_map) {
   for (auto &trace : other._traces) {
     _traces.push_back(std::make_unique<SeismTrace>(*trace));
   }
@@ -124,7 +129,7 @@ SeismComponent::getTraces() const {
   return _traces;
 }
 
-void SeismComponent::addWavePick(const SeismWavePick &wavePick) {
+void SeismComponent::addWavePick(SeismWavePick wavePick) {
   _wavePicks_map[wavePick.getType()] = wavePick;
   emit changed();
 }
@@ -146,6 +151,7 @@ SeismComponent::getWavePicks() const {
 
 QJsonObject &SeismComponent::writeToJson(QJsonObject &json) const {
   json["receiverUuid"] = _receiverUuid.toString();
+  json["sampleInterval"] = static_cast<double>(_sampleInterval);
 
   QJsonArray wavesArray;
   QJsonObject waveObj;

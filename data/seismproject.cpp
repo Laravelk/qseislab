@@ -8,14 +8,15 @@
 namespace Data {
 SeismProject::SeismProject(QObject *parent) : QObject(parent) {
   // NOTE: hard-code insert events
-  for (int i = 0; i < 4; ++i) {
-    std::unique_ptr<SeismEvent> event = std::make_unique<SeismEvent>();
+  //  for (int i = 0; i < 4; ++i) {
+  //    std::unique_ptr<SeismEvent> event = std::make_unique<SeismEvent>();
 
-    event->setDateTime(QDateTime::currentDateTime());
-    event->setType(i);
+  //    event->setDateTime(
+  //        QDateTime::currentDateTime().addDays(i).addSecs(120 * i));
+  //    event->setType(i);
 
-    _events_map[event->getUuid()] = std::move(event);
-  }
+  //    _events_map[event->getUuid()] = std::move(event);
+  //  }
   //   end...
 
   //   NOTE: hard-code insert wells
@@ -235,17 +236,37 @@ void SeismProject::processEvents() {
   for (auto &itr : _events_map) {
     (itr.second)->process();
   }
-  emit updateEvents();
+  emit processedEvents();
 }
 
-// const QUuid SeismProject::generateUuid() { return QUuid::createUuid(); }
+// Receivers func`s
+bool SeismProject::addReceiver(const QUuid &wellUuid,
+                               std::unique_ptr<SeismReceiver> &receiver) {
+  for (auto &uuid_well : _wells_map) {
+    if (wellUuid == uuid_well.first) {
+      auto &well = uuid_well.second;
+      emit addedReceiver(receiver);
+      well->addReceiver(std::move(receiver));
+      return true;
+    }
+  }
+  return false;
+}
+
+void SeismProject::removeAllReceivers() {
+  for (auto &uuid_well : _wells_map) {
+    for (auto &receiver : uuid_well.second->getReceivers()) {
+      emit removedReceiver(receiver->getUuid());
+    }
+    uuid_well.second->removeAllReceivers();
+  }
+}
+// end of Receivers func`s
 
 // Event template`s
 template <>
 void SeismProject::add<SeismEvent>(std::unique_ptr<SeismEvent> event) {
   _isSaved = false;
-  //  auto uuid = generateUuid();
-  //  event->setUuid(uuid);
   auto uuid = event->getUuid();
   _events_map[uuid] = std::move(event);
 
@@ -259,6 +280,15 @@ template <> bool SeismProject::remove<SeismEvent>(const QUuid &uuid) {
     return true;
   }
   return false;
+}
+
+template <>
+void SeismProject::update<SeismEvent>(std::unique_ptr<SeismEvent> event) {
+  _isSaved = false;
+  auto uuid = event->getUuid();
+  _events_map[uuid] = std::move(event);
+
+  emit updatedEvent(_events_map[uuid]);
 }
 
 template <> int SeismProject::getNumber<SeismEvent>() const {
@@ -342,8 +372,12 @@ template <> void SeismProject::add<SeismWell>(std::unique_ptr<SeismWell> well) {
 }
 
 template <> bool SeismProject::remove<SeismWell>(const QUuid &uuid) {
-  if (_wells_map.erase(uuid)) {
+  if (_wells_map.end() != _wells_map.find(uuid)) {
     _isSaved = false;
+    for (auto &receiver : _wells_map[uuid]->getReceivers()) {
+      emit removedReceiver(receiver->getUuid());
+    }
+    _wells_map.erase(uuid);
     emit removedWell(uuid);
     return true;
   }
@@ -370,13 +404,25 @@ template <>
 void SeismProject::setAllMap<SeismWell>(
     std::map<QUuid, std::unique_ptr<SeismWell>> &wells) {
   for (auto &uuid_well : _wells_map) {
-    emit removedWell(uuid_well.first);
+    auto &uuid = uuid_well.first;
+    if (wells.end() == wells.find(uuid)) {
+      for (auto &receiver : uuid_well.second->getReceivers()) {
+        emit removedReceiver(receiver->getUuid());
+      }
+      _wells_map.erase(uuid);
+      emit removedWell(uuid);
+    }
   }
 
-  _wells_map = std::move(wells);
-
-  for (auto &uuid_well : _wells_map) {
-    emit addedWell(uuid_well.second);
+  for (auto &uuid_well : wells) {
+    auto &uuid = uuid_well.first;
+    if (_wells_map.end() == _wells_map.find(uuid)) {
+      for (auto &receiver : uuid_well.second->getReceivers()) {
+        emit addedReceiver(receiver);
+      }
+      _wells_map[uuid] = std::move(wells[uuid]);
+      emit addedWell(_wells_map[uuid]);
+    }
   }
 }
 // end of Well template`s

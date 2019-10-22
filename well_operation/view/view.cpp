@@ -3,6 +3,7 @@
 #include "data/seismwell.h"
 
 #include <QBoxLayout>
+#include <QHeaderView>
 #include <QMessageBox>
 #include <QPushButton>
 
@@ -96,14 +97,35 @@ void View::changed(bool b) {
 
 void View::initWellsTable(QTableWidget *table) {
   table->setEditTriggers(QAbstractItemView::NoEditTriggers);
-  table->setColumnCount(4);
+  table->setColumnCount(5);
+
+  table->setSelectionBehavior(QAbstractItemView::SelectRows);
+  table->setSelectionMode(QAbstractItemView::SingleSelection);
 
   // configure column settings
-  table->setHorizontalHeaderItem(0, new QTableWidgetItem("uuid"));
+  //  table->setHorizontalHeaderItem(0, new QTableWidgetItem("uuid"));
+  //  table->setColumnHidden(0, true);
+  //  table->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
+  //  table->setHorizontalHeaderItem(2, new QTableWidgetItem("Point Number"));
+  //  table->setHorizontalHeaderItem(3, new QTableWidgetItem("Remove"));
+
+  table->setHorizontalHeaderLabels(QStringList() << "uuid"
+                                                 << "Name"
+                                                 << "Point Number"
+                                                 << ""
+                                                 << "");
+
   table->setColumnHidden(0, true);
-  table->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
-  table->setHorizontalHeaderItem(2, new QTableWidgetItem("Point Number"));
-  table->setHorizontalHeaderItem(3, new QTableWidgetItem("Remove"));
+
+  table->resizeColumnsToContents();
+
+  auto horizontalHeaderObjectTable = table->horizontalHeader();
+  horizontalHeaderObjectTable->setSectionResizeMode(
+      4, QHeaderView::Fixed); // fixed remove-button section
+  horizontalHeaderObjectTable->setSectionResizeMode(
+      3, QHeaderView::Stretch); // stretching pred-last section
+  horizontalHeaderObjectTable->setDefaultAlignment(Qt::AlignLeft);
+  table->verticalHeader()->setVisible(false);
 }
 
 void View::insertWellInTable(const std::unique_ptr<SeismWell> &well) {
@@ -111,8 +133,8 @@ void View::insertWellInTable(const std::unique_ptr<SeismWell> &well) {
 
   int insertRow = _wellsTable->rowCount() - 1;
 
-  _wellsTable->setItem(insertRow, 0,
-                       new QTableWidgetItem(well->getUuid().toString()));
+  auto &uuid = well->getUuid();
+  _wellsTable->setItem(insertRow, 0, new QTableWidgetItem(uuid.toString()));
 
   _wellsTable->setItem(insertRow, 1, new QTableWidgetItem(well->getName()));
 
@@ -120,10 +142,20 @@ void View::insertWellInTable(const std::unique_ptr<SeismWell> &well) {
       insertRow, 2,
       new QTableWidgetItem(QString::number(well->getPointsNumber())));
 
-  QTableWidgetItem *removeItem = new QTableWidgetItem("Remove");
-  removeItem->setTextAlignment(Qt::AlignCenter);
-  removeItem->setBackground(Qt::red);
-  _wellsTable->setItem(insertRow, 3, removeItem);
+  //  QTableWidgetItem *removeItem = new QTableWidgetItem("Remove");
+  //  removeItem->setTextAlignment(Qt::AlignCenter);
+  //  removeItem->setBackground(Qt::red);
+  //  _wellsTable->setItem(insertRow, 3, removeItem);
+
+  QPushButton *removeButton = new QPushButton();
+  QIcon icon(":/remove_button.png");
+  removeButton->setStyleSheet("background-color:white; border-style: outset");
+  removeButton->setIcon(icon);
+  _wellsTable->setCellWidget(insertRow, 4, removeButton);
+  connect(removeButton, &QPushButton::clicked,
+          [this, uuid]() { emit removeWellClicked(uuid); });
+
+  _wellsTable->resizeColumnsToContents();
 }
 
 void View::handleAddWellClicked() {
@@ -136,7 +168,7 @@ void View::handleAddWellClicked() {
   connect(_addWellManager.get(), &AddWellManager::finished, [this](int res) {
     if (QDialog::Accepted == res) {
       emit addWellClicked();
-    };
+    }
   });
 
   _addWellManager->setModal(true);

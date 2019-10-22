@@ -1,5 +1,7 @@
 #include "controller.h"
 
+//#include <iostream> // TODO: remove
+
 typedef Data::SeismEvent SeismEvent;
 typedef Data::SeismHorizon SeismHorizon;
 typedef Data::SeismReceiver SeismReceiver;
@@ -39,6 +41,8 @@ Controller::Controller(QObject *parent)
           &Controller::handleSaveProjectClicked);
   connect(_mainWindow.get(), &View::closeProjectClicked, this,
           &Controller::handleCloseProjectClicked);
+  connect(_mainWindow.get(), &View::aboutProjectClicked,
+          [this]() { _mainWindow->viewAboutProject(_project); });
 
   _mainWindow->show();
 }
@@ -50,25 +54,32 @@ void Controller::recvProject(std::unique_ptr<SeismProject> &project) {
 
   // Event`s connecting
   connect(_project.get(), &SeismProject::addedEvent,
-          [this](auto &event) { _mainWindow->updateProject(event); });
+          [this](auto &event) { _mainWindow->addEvent(event); });
   connect(_project.get(), &SeismProject::removedEvent,
-          [this](auto &uuid) { _mainWindow->updateProjectRemoveEvent(uuid); });
-  connect(_project.get(), &SeismProject::updateEvents, [this] {
-    _mainWindow->updateProject(_project->getAllMap<SeismEvent>());
+          [this](auto &uuid) { _mainWindow->removeEvent(uuid); });
+  connect(_project.get(), &SeismProject::processedEvents, [this] {
+    _mainWindow->processedEvents(_project->getAllMap<SeismEvent>());
   });
+  connect(_project.get(), &SeismProject::updatedEvent,
+          [this](auto &event) { _mainWindow->updateEvent(event); });
 
   // Horizon`s connecting
   connect(_project.get(), &SeismProject::addedHorizon,
-          [this](auto &horizon) { _mainWindow->updateProject(horizon); });
-  connect(_project.get(), &SeismProject::removedHorizon, [this](auto &uuid) {
-    _mainWindow->updateProjectRemoveHorizon(uuid);
-  });
+          [this](auto &horizon) { _mainWindow->addHorizon(horizon); });
+  connect(_project.get(), &SeismProject::removedHorizon,
+          [this](auto &uuid) { _mainWindow->removeHorizon(uuid); });
 
   // Well`s connecting
   connect(_project.get(), &SeismProject::addedWell,
-          [this](auto &well) { _mainWindow->updateProject(well); });
+          [this](auto &well) { _mainWindow->addWell(well); });
   connect(_project.get(), &SeismProject::removedWell,
-          [this](auto &uuid) { _mainWindow->updateProjectRemoveWell(uuid); });
+          [this](auto &uuid) { _mainWindow->removeWell(uuid); });
+
+  // Receiver`s connecting
+  connect(_project.get(), &SeismProject::addedReceiver,
+          [this](auto &receiver) { _mainWindow->addReceiver(receiver); });
+  connect(_project.get(), &SeismProject::removedReceiver,
+          [this](auto &uuid) { _mainWindow->removeReceiver(uuid); });
 
   _mainWindow->loadProject(_project);
 }
@@ -91,6 +102,11 @@ void Controller::handleAddEventClicked() {
 void Controller::handleViewEventClicked(const QUuid uuid) {
   if (!_viewEventController) {
     _viewEventController = std::make_unique<ViewEvent::Controller>(this);
+
+    connect(_viewEventController.get(), &ViewEvent::Controller::sendEvent,
+            [this](auto &event) {
+              _project->update<SeismEvent>(std::move(event));
+            });
 
     connect(_viewEventController.get(), &ViewEvent::Controller::finished,
             [this] { _viewEventController.reset(); });
@@ -119,9 +135,16 @@ void Controller::handleReceiversClicked() {
   if (!_receiverController) {
     _receiverController = std::make_unique<ReceiverOperation::Controller>(
         _project->getAllMap<SeismWell>(), this);
-    connect(
-        _receiverController.get(), &ReceiverOperation::Controller::sendWells,
-        [this](auto &wells_map) { _project->setAllMap<SeismWell>(wells_map); });
+
+    connect(_receiverController.get(),
+            &ReceiverOperation::Controller::removeAllReceivers,
+            [this]() { _project->removeAllReceivers(); });
+
+    connect(_receiverController.get(),
+            &ReceiverOperation::Controller::sendReciver,
+            [this](auto &wellUuid, auto &receiver) {
+              _project->addReceiver(wellUuid, receiver);
+            });
 
     connect(_receiverController.get(), &ReceiverOperation::Controller::finished,
             [this] { _receiverController.reset(); });

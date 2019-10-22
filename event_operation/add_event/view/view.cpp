@@ -8,7 +8,8 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
-#include <iostream> // TODO: delete
+
+//#include <iostream> // TODO: delete
 
 typedef Data::SeismEvent SeismEvent;
 
@@ -88,9 +89,8 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
           [this](auto type, auto num, auto l_val, auto pick_val, auto r_val) {
             emit sendPicksInfo(type, num, l_val, pick_val, r_val);
           });
-  connect(_polarizationEventButton, &QPushButton::clicked, [this] () {
-    emit createPolarizationAnalysisWindow();
-  });
+  connect(_polarizationEventButton, &QPushButton::clicked,
+          [this]() { emit createPolarizationAnalysisWindow(); });
   connect(_okButton, &QPushButton::clicked, this, &View::accept);
   connect(_cancelButton, &QPushButton::clicked, this, &View::reject);
   connect(_addPWave, &QAction::triggered, [this]() {
@@ -169,13 +169,10 @@ void View::setNotification(const QString &text) {
 
 void View::settingEventInfo(
     const std::unique_ptr<Data::SeismEvent> &event) const {
-    _infoEvent->settingEventInfo(event);
+  _infoEvent->settingEventInfo(event);
 }
 
-ChartGesture *View::getChartGesture()
-{
-    return _graphicEvent->getModel();
-}
+ChartGesture *View::getChartGesture() { return _graphicEvent->getModel(); }
 
 } // namespace AddEvent
 } // namespace EventOperation

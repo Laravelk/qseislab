@@ -18,16 +18,17 @@ class Controller : public QObject {
 public:
   explicit Controller(QObject *parent = nullptr);
 
-  void viewEvent(const std::unique_ptr<Data::SeismEvent> &) const;
+  void viewEvent(const std::unique_ptr<Data::SeismEvent> &);
+  void finish(int);
 
 signals:
+  void sendEvent(std::unique_ptr<Data::SeismEvent> &);
   void finished() const;
-
-private slots:
-  //    void finish(int);
 
 private:
   std::unique_ptr<View> _view;
+
+  std::unique_ptr<Data::SeismEvent> _event;
 };
 
 } // namespace ViewEvent

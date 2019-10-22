@@ -3,6 +3,7 @@
 #include "data/seismhorizon.h"
 
 #include <QBoxLayout>
+#include <QHeaderView>
 #include <QMessageBox>
 #include <QPushButton>
 
@@ -103,18 +104,39 @@ void View::changed(bool b) {
 
 void View::initHorizonsTable(QTableWidget *table) {
   table->setEditTriggers(QAbstractItemView::NoEditTriggers);
-  table->setColumnCount(6);
+  table->setColumnCount(7);
+  table->setColumnHidden(0, true);
+
+  table->setSelectionBehavior(QAbstractItemView::SelectRows);
+  table->setSelectionMode(QAbstractItemView::SingleSelection);
 
   // configure column settings
-  table->setHorizontalHeaderItem(0, new QTableWidgetItem("uuid"));
-  table->setColumnHidden(0, true);
-  table->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
-  table->setHorizontalHeaderItem(2, new QTableWidgetItem("Point Number"));
-  table->setHorizontalHeaderItem(3, new QTableWidgetItem("Nx"));
-  table->setColumnWidth(3, 50);
-  table->setHorizontalHeaderItem(4, new QTableWidgetItem("Ny"));
-  table->setColumnWidth(4, 50);
-  table->setHorizontalHeaderItem(5, new QTableWidgetItem("Remove"));
+  //  table->setHorizontalHeaderItem(0, new QTableWidgetItem("uuid"));
+  //  table->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
+  //  table->setHorizontalHeaderItem(2, new QTableWidgetItem("Point Number"));
+  //  table->setHorizontalHeaderItem(3, new QTableWidgetItem("Nx"));
+  //  table->setColumnWidth(3, 50);
+  //  table->setHorizontalHeaderItem(4, new QTableWidgetItem("Ny"));
+  //  table->setColumnWidth(4, 50);
+  //  table->setHorizontalHeaderItem(5, new QTableWidgetItem("Remove"));
+
+  table->setHorizontalHeaderLabels(QStringList() << "uuid"
+                                                 << "Name"
+                                                 << "Point Number"
+                                                 << "Nx"
+                                                 << "Ny"
+                                                 << ""
+                                                 << "");
+
+  table->resizeColumnsToContents();
+
+  auto horizontalHeaderObjectTable = table->horizontalHeader();
+  horizontalHeaderObjectTable->setSectionResizeMode(
+      6, QHeaderView::Fixed); // fixed remove-button section
+  horizontalHeaderObjectTable->setSectionResizeMode(
+      5, QHeaderView::Stretch); // stretching pred-last section
+  horizontalHeaderObjectTable->setDefaultAlignment(Qt::AlignLeft);
+  table->verticalHeader()->setVisible(false);
 }
 
 void View::insertHorizonInTable(const std::unique_ptr<SeismHorizon> &horizon) {
@@ -122,8 +144,8 @@ void View::insertHorizonInTable(const std::unique_ptr<SeismHorizon> &horizon) {
 
   int insertRow = _horizonsTable->rowCount() - 1;
 
-  _horizonsTable->setItem(insertRow, 0,
-                          new QTableWidgetItem(horizon->getUuid().toString()));
+  auto &uuid = horizon->getUuid();
+  _horizonsTable->setItem(insertRow, 0, new QTableWidgetItem(uuid.toString()));
 
   _horizonsTable->setItem(insertRow, 1,
                           new QTableWidgetItem(horizon->getName()));
@@ -138,10 +160,20 @@ void View::insertHorizonInTable(const std::unique_ptr<SeismHorizon> &horizon) {
   _horizonsTable->setItem(
       insertRow, 4, new QTableWidgetItem(QString::number(horizon->getNy())));
 
-  QTableWidgetItem *removeItem = new QTableWidgetItem("Remove");
-  removeItem->setTextAlignment(Qt::AlignCenter);
-  removeItem->setBackground(Qt::red);
-  _horizonsTable->setItem(insertRow, 5, removeItem);
+  QPushButton *removeButton = new QPushButton();
+  QIcon icon(":/remove_button.png");
+  removeButton->setStyleSheet("background-color:white; border-style: outset");
+  removeButton->setIcon(icon);
+  _horizonsTable->setCellWidget(insertRow, 6, removeButton);
+  connect(removeButton, &QPushButton::clicked,
+          [this, uuid]() { emit removeHorizonClicked(uuid); });
+
+  //  _horizonsTable->resizeColumnsToContents();
+
+  //  QTableWidgetItem *removeItem = new QTableWidgetItem("Remove");
+  //  removeItem->setTextAlignment(Qt::AlignCenter);
+  //  removeItem->setBackground(Qt::red);
+  //  _horizonsTable->setItem(insertRow, 5, removeItem);
 }
 
 void View::handleAddHorizonClicked() {

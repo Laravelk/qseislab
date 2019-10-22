@@ -39,6 +39,7 @@ public:
   const QFileInfo &getFileInfo();
 
   template <typename T> void add(std::unique_ptr<T>);
+  template <typename T> void update(std::unique_ptr<T>);
   template <typename T> bool remove(const QUuid &);
   template <typename T> int getNumber() const;
   template <typename T> const std::unique_ptr<T> &get(const QUuid &) const;
@@ -49,16 +50,24 @@ public:
 
   void processEvents();
 
+  bool addReceiver(const QUuid &, std::unique_ptr<Data::SeismReceiver> &);
+  void removeAllReceivers();
+
 signals:
   void addedEvent(const std::unique_ptr<Data::SeismEvent> &) const;
+  void updatedEvent(const std::unique_ptr<Data::SeismEvent> &) const;
   void removedEvent(const QUuid &) const;
-  void updateEvents() const;
+  void processedEvents() const;
 
   void addedHorizon(const std::unique_ptr<Data::SeismHorizon> &) const;
   void removedHorizon(const QUuid &) const;
 
   void addedWell(const std::unique_ptr<Data::SeismWell> &) const;
   void removedWell(const QUuid &) const;
+
+  void addedReceiver(
+      const std::unique_ptr<Data::SeismReceiver> &) const; // TODO: re-see
+  void removedReceiver(const QUuid &) const;               // TODO: re-see
 
 private:
   bool _isSaved{false};

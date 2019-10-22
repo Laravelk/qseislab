@@ -24,7 +24,6 @@ public:
 
   explicit SeismEvent(const SeismEvent &);
 
-  //  void setUuid(const QUuid &);
   const QUuid &getUuid() const;
 
   void setType(int);   // TODO: remove
@@ -50,7 +49,7 @@ signals:
 private:
   QUuid _uuid;
 
-  int _type; // TODO: remove
+  int _type = 0; // TODO: remove
 
   QString _path;
   QDateTime _dateTime;

@@ -4,7 +4,7 @@
 #include "../../data/seismproject.h"
 #include "../../data/seismwell.h"
 
-#include <iostream> // TODO: delete
+//#include <iostream> // TODO: delete
 
 typedef Data::SeismEvent SeismEvent;
 typedef Data::SeismHorizon SeismHorizon;
@@ -19,6 +19,7 @@ Surface::Surface(Q3DSurface *surface) : _surface(surface), _isHandle(false) {
   _redColor.fill(Qt::red);
   settingGraph();
   surface->setShadowQuality(QAbstract3DGraph::ShadowQualityNone);
+  surface->axisY()->setReversed(true);
 }
 
 void Surface::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
@@ -78,7 +79,7 @@ void Surface::addWell(const std::unique_ptr<Data::SeismWell> &well) {
     QVector3D pipeVector =
         vectorBy2Point(QVector3D(lx, ly, lz), QVector3D(x, y, z));
     float scaling = calculateLenght(QVector3D(x, y, z), QVector3D(lx, ly, lz)) /
-                    _maxAxisValue / 1.4;
+                    _maxAxisValue;
     std::tie(lx, ly, lz) = *point;
     QCustom3DItem *item = new QCustom3DItem(
         ":/cylinderFilledSmooth.obj",
@@ -111,10 +112,10 @@ bool Surface::showEvent(std::unique_ptr<Data::SeismEvent> &event) {
 }
 
 void Surface::setProject(const std::unique_ptr<Data::SeismProject> &project) {
-  for (auto &uuid_event : project->getAllMap<SeismEvent>()) {
-    addEvent(uuid_event.second);
-    showEvent(uuid_event.first);
-  }
+  //  for (auto &uuid_event : project->getAllMap<SeismEvent>()) {
+  //    addEvent(uuid_event.second);
+  //    showEvent(uuid_event.first);
+  //  }
   for (auto &uuid_horizon : project->getAllMap<SeismHorizon>()) {
     addHorizon(uuid_horizon.second);
   }
@@ -131,7 +132,7 @@ bool Surface::removeEvent(const std::unique_ptr<Data::SeismEvent> &event) {
   return removeEvent(uid);
 }
 
-bool Surface::removeEvent(const Uuid uid) {
+bool Surface::removeEvent(const Uuid &uid) {
   QCustom3DItem *item = _events[uid];
   if (item == _isItemHanlde) {
     _isHandle = false;
@@ -150,7 +151,7 @@ bool Surface::removeHorizon(
   return removeHorizon(horizon.get()->getUuid());
 }
 
-bool Surface::removeHorizon(const Uuid uid) {
+bool Surface::removeHorizon(const Uuid &uid) {
   QSurface3DSeries *series = _horizons[uid];
   if (_horizons.erase(uid)) {
     _surface->removeSeries(series);
@@ -164,7 +165,7 @@ bool Surface::removeReceiver(
   return removeReceiver(receiver.get()->getUuid());
 }
 
-bool Surface::removeReceiver(const Uuid uid) {
+bool Surface::removeReceiver(const Uuid &uid) {
   QCustom3DItem *item = _receivers[uid];
   if (_receivers.erase(uid)) {
     _surface->removeCustomItem(item);
@@ -177,7 +178,7 @@ bool Surface::removeWell(const std::unique_ptr<Data::SeismWell> &well) {
   return removeWell(well.get()->getUuid());
 }
 
-bool Surface::removeWell(const Uuid uid) {
+bool Surface::removeWell(const Uuid &uid) {
   std::vector<QCustom3DItem *> v = _wells[uid];
   if (_wells.erase(uid)) {
     for (auto &it : v) {
@@ -203,68 +204,64 @@ bool Surface::hideEvent(std::unique_ptr<Data::SeismEvent> &event) {
   return false;
 }
 
-void Surface::hideAllEvent(bool hide)
-{
-    if (hide) {
-        _isEventsHide = true;
-        for (auto &event : _events) {
-            event.second->setVisible(false);
-        }
-    } else {
-        _isEventsHide = false;
-        for (auto &event : _events) {
-            event.second->setVisible(true);
-        }
+void Surface::hideAllEvent(bool hide) {
+  if (hide) {
+    _isEventsHide = true;
+    for (auto &event : _events) {
+      event.second->setVisible(false);
     }
+  } else {
+    _isEventsHide = false;
+    for (auto &event : _events) {
+      event.second->setVisible(true);
+    }
+  }
 }
 
-void Surface::hideAllWell(bool hide)
-{
-    if (hide) {
-        _isWellsHide = true;
-        for (auto &well : _wells) {
-           for (auto &wellPart : well.second) {
-               wellPart->setVisible(false);
-           }
-        }
-    } else {
-        _isReceiversHide = false;
-        for (auto &well : _wells) {
-            for (auto &wellPart : well.second) {
-                wellPart->setVisible(true);
-            }
-        }
+void Surface::hideAllWell(bool hide) {
+  if (hide) {
+    _isWellsHide = true;
+    for (auto &well : _wells) {
+      for (auto &wellPart : well.second) {
+        wellPart->setVisible(false);
+      }
     }
+  } else {
+    _isWellsHide = false;
+    for (auto &well : _wells) {
+      for (auto &wellPart : well.second) {
+        wellPart->setVisible(true);
+      }
+    }
+  }
 }
 
-void Surface::hideAllReceiver(bool hide)
-{
-    if (hide) {
-        _isReceiversHide = true;
-        for (auto &receiver : _receivers) {
-            receiver.second->setVisible(false);
-        }
-    } else {
-        _isReceiversHide = false;
-        for (auto &receiver : _receivers) {
-            receiver.second->setVisible(true);
-        }
+void Surface::hideAllReceiver(bool hide) {
+  if (hide) {
+    _isReceiversHide = true;
+    for (auto &receiver : _receivers) {
+      receiver.second->setVisible(false);
     }
+  } else {
+    _isReceiversHide = false;
+    for (auto &receiver : _receivers) {
+      receiver.second->setVisible(true);
+    }
+  }
 }
 
-void Surface::hideAllHorizon(bool hide)
-{
-    if (hide) {
-        _isHorizonsHide = true;
-        for (auto &horizon : _horizons) {
-            horizon.second->setVisible(false);
-        }
-    } else {
-        _isHorizonsHide = false;
-        for (auto &horizon : _horizons) {
-            horizon.second->setVisible(true);
-        }
+void Surface::hideAllHorizon(bool hide) {
+  if (hide) {
+    _isHorizonsHide = true;
+    for (auto &horizon : _horizons) {
+      horizon.second->setVisible(false);
     }
+  } else {
+    _isHorizonsHide = false;
+    for (auto &horizon : _horizons) {
+      horizon.second->setVisible(true);
+    }
+  }
 }
 
 const std::map<Uuid, QCustom3DItem *> Surface::getEvents() const {

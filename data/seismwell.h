@@ -19,7 +19,6 @@ public:
 
   explicit SeismWell(const SeismWell &);
 
-  //  void setUuid(const QUuid &);
   const QUuid &getUuid() const;
 
   void setName(const QString &);
@@ -34,16 +33,9 @@ public:
   void addReceiver(std::unique_ptr<Data::SeismReceiver>);
   bool removeReceiver(const QUuid &);
   int getReceiversNumber() const;
-  //  const std::unique_ptr<Data::SeismReceiver> &getReceiver(const QUuid &)
-  //  const;
-  const std::list<std::unique_ptr<Data::SeismReceiver>> &getReceivers() const;
-
-  //  void addReceiver(std::unique_ptr<Data::SeismReceiver>);
-  //  bool removeReceiver(const QUuid &);
-  //  int getReceiversNumber() const;
-  //  const std::unique_ptr<Data::SeismReceiver> &getReceiver(const QUuid &)
-  //  const; const std::map<QUuid, std::unique_ptr<Data::SeismReceiver>> &
-  //  getReceivers() const;
+  std::list<std::unique_ptr<Data::SeismReceiver>> &
+  getReceivers(); // TODO: re-see
+  void removeAllReceivers();
 
   QJsonObject &writeToJson(QJsonObject &, const QDir &) noexcept(false);
 

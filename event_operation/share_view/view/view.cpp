@@ -2,8 +2,10 @@
 #include "wavepick.h"
 
 #include <QtGui/QMouseEvent>
-#include <iostream> // TODO: delete
+
 #include <math.h>
+
+//#include <iostream> // TODO: delete
 
 namespace EventOperation {
 View::View(QChart *chart, QWidget *parent)
@@ -41,9 +43,9 @@ void View::addPick(Data::SeismWavePick::Type type, QPointF pos, QSizeF size,
     leftBorderXOffset = 1;
   }
 
-//  if (rightBorderXOffset >= rangeX) {
-//    rightBorderXOffset = rangeX - 1;
-//  }
+  //  if (rightBorderXOffset >= rangeX) {
+  //    rightBorderXOffset = rangeX - 1;
+  //  }
   WavePick *leftBorder =
       new WavePick(type, rect, chart(), QPointF(leftBorderXOffset, pos.y()),
                    size, borderBrush, 0, pick);

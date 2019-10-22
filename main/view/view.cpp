@@ -1,5 +1,6 @@
 #include "view.h"
 
+#include "infoproject.h"
 #include "startpage.h"
 #include "workpage.h"
 
@@ -32,6 +33,11 @@ View::View(QWidget *parent) : QMainWindow(parent) {
   act = fileMenu->addAction(
       "Close Project", [this] { emit closeProjectClicked(); },
       QKeySequence::Close);
+  act->setDisabled(true);
+  connect(this, &View::projectPresence, act, &QAction::setEnabled);
+
+  act = fileMenu->addAction("About Project",
+                            [this] { emit aboutProjectClicked(); });
   act->setDisabled(true);
   connect(this, &View::projectPresence, act, &QAction::setEnabled);
 
@@ -75,6 +81,14 @@ View::View(QWidget *parent) : QMainWindow(parent) {
   setCentralWidget(startPage);
 }
 
+void View::viewAboutProject(
+    const std::unique_ptr<Data::SeismProject> &project) {
+
+  InfoProject *infoProject = new InfoProject(project, this);
+  infoProject->setModal(true);
+  infoProject->show();
+}
+
 void View::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
   delete centralWidget();
   _workPage = new WorkPage(this);
@@ -89,60 +103,55 @@ void View::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
   emit projectPresence(true);
 }
 
-void View::updateProject(const std::unique_ptr<Data::SeismEvent> &event) {
+void View::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
   assert(nullptr != _workPage);
-
-  _workPage->updateProject(event);
+  _workPage->addEvent(event);
 }
 
-void View::updateProject(
+void View::processedEvents(
     const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &events) {
   assert(nullptr != _workPage);
-
-  _workPage->updateProject(events);
+  _workPage->processedEvents(events);
 }
 
-void View::updateProject(const std::unique_ptr<Data::SeismHorizon> &horizon) {
+void View::updateEvent(const std::unique_ptr<Data::SeismEvent> &event) {
   assert(nullptr != _workPage);
-
-  _workPage->updateProject(horizon);
+  _workPage->updateEvent(event);
 }
 
-void View::updateProjectRemoveEvent(const QUuid &uuid) {
+void View::removeEvent(const QUuid &uuid) {
   assert(nullptr != _workPage);
-
-  _workPage->updateProjectRemoveEvent(uuid);
+  _workPage->removeEvent(uuid);
 }
 
-void View::updateProjectRemoveHorizon(const QUuid &uuid) {
+void View::addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon) {
   assert(nullptr != _workPage);
-
-  _workPage->updateProjectRemoveHorizon(uuid);
+  _workPage->addHorizon(horizon);
 }
 
-// void View::updateProject(const std::unique_ptr<Data::SeismReceiver>
-// &receiver) {
-//  assert(nullptr != _workPage);
-
-//  _workPage->updateProject(receiver);
-//}
-
-// void View::updateProjectRemoveReceiver(const QUuid &uuid) {
-//  assert(nullptr != _workPage);
-
-//  _workPage->updateProjectRemoveReceiver(uuid);
-//}
-
-void View::updateProject(const std::unique_ptr<Data::SeismWell> &well) {
+void View::removeHorizon(const QUuid &uuid) {
   assert(nullptr != _workPage);
-
-  _workPage->updateProject(well);
+  _workPage->removeHorizon(uuid);
 }
 
-void View::updateProjectRemoveWell(const QUuid &uuid) {
+void View::addWell(const std::unique_ptr<Data::SeismWell> &well) {
   assert(nullptr != _workPage);
+  _workPage->addWell(well);
+}
 
-  _workPage->updateProjectRemoveWell(uuid);
+void View::removeWell(const QUuid &uuid) {
+  assert(nullptr != _workPage);
+  _workPage->removeWell(uuid);
+}
+
+void View::addReceiver(const std::unique_ptr<Data::SeismReceiver> &receiver) {
+  assert(nullptr != _workPage);
+  _workPage->addReceiver(receiver);
+}
+
+void View::removeReceiver(const QUuid &uuid) {
+  assert(nullptr != _workPage);
+  _workPage->removeReceiver(uuid);
 }
 
 void View::closeProject() {

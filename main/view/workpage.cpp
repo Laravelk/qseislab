@@ -6,7 +6,9 @@
 #include "data/seismreceiver.h"
 #include "infoproject.h"
 
-#include <iostream> // TODO: delete
+#include "share_view/tableassistant.h"
+
+//#include <iostream> // TODO: delete
 
 #include <QDateTime>
 #include <QHBoxLayout>
@@ -20,13 +22,11 @@ typedef Data::SeismReceiver SeismReceiver;
 
 namespace Main {
 WorkPage::WorkPage(QWidget *parent)
-    : QFrame(parent), _infoProject(new InfoProject(this)),
-      //      _eventsTable(new QTableWidget(this)),
+    : QFrame(parent),
       _eventsTable(new TableAssistant(TableAssistant::ForEvents)),
-      _graph(new Q3DSurface), _horizonBox(new QCheckBox),
-      _eventBox(new QCheckBox), _wellBox(new QCheckBox),
-      _receiverBox(new QCheckBox) {
-
+      _graph(new Q3DSurface), _eventBox(new QCheckBox),
+      _receiverBox(new QCheckBox), _wellBox(new QCheckBox),
+      _horizonBox(new QCheckBox) {
 
   // Setting`s
   //  initEventsTable(_eventsTable);
@@ -56,30 +56,29 @@ WorkPage::WorkPage(QWidget *parent)
           [this](auto uuid) { emit viewEventClicked(uuid); });
   connect(_eventsTable, &TableAssistant::removeClicked,
           [this](auto uuid) { emit removeEventClicked(uuid); });
-  connect(_horizonBox, &QCheckBox::stateChanged, [this] () {
-      _surface->hideAllHorizon(!_surface->isHorizonsHide());
+  connect(_horizonBox, &QCheckBox::stateChanged,
+          [this]() { _surface->hideAllHorizon(!_surface->isHorizonsHide()); });
+  connect(_receiverBox, &QCheckBox::stateChanged, [this]() {
+    _surface->hideAllReceiver(!_surface->isReceiversHide());
   });
-  connect(_receiverBox, &QCheckBox::stateChanged, [this] () {
-      _surface->hideAllReceiver(!_surface->isReceiversHide());
-  });
-  connect(_wellBox, &QCheckBox::stateChanged, [this] () {
-      _surface->hideAllWell(!_surface->isWellsHide());
-  });
-  connect(_eventBox, &QCheckBox::stateChanged, [this] () {
-      _surface->hideAllEvent(!_surface->isEventsHide());
-  });
+  connect(_wellBox, &QCheckBox::stateChanged,
+          [this]() { _surface->hideAllWell(!_surface->isWellsHide()); });
+  connect(_eventBox, &QCheckBox::stateChanged,
+          [this]() { _surface->hideAllEvent(!_surface->isEventsHide()); });
   // Connecting end
 
   // Layout`s
-  QHBoxLayout *checkLayout = new QHBoxLayout();
+  QHBoxLayout *oilFieldSceneLayout = new QHBoxLayout();
+  oilFieldSceneLayout->addWidget(container, 1);
+  QVBoxLayout *checkLayout = new QVBoxLayout();
   checkLayout->addWidget(_horizonBox);
   checkLayout->addWidget(_receiverBox);
   checkLayout->addWidget(_wellBox);
   checkLayout->addWidget(_eventBox);
+  oilFieldSceneLayout->addLayout(checkLayout);
   QVBoxLayout *vLayout = new QVBoxLayout();
-  vLayout->addLayout(checkLayout);
-  vLayout->addWidget(_infoProject);
-  vLayout->addWidget(container, 1);
+  vLayout->addLayout(oilFieldSceneLayout);
+  //  vLayout->addWidget(_infoProject);
   //  vLayout->addStretch(1);
   vLayout->addWidget(_eventsTable);
 
@@ -88,164 +87,62 @@ WorkPage::WorkPage(QWidget *parent)
 }
 
 void WorkPage::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
-  _infoProject->update(project);
   _surface->setProject(project);
   _eventsTable->setAll<SeismEvent>(project->getAllMap<SeismEvent>());
 }
 
-void WorkPage::updateProject(const std::unique_ptr<Data::SeismEvent> &event) {
-  _infoProject->addEvent();
-  _surface->addEvent(event);
+void WorkPage::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
+
+  //  _surface->addEvent(event); // TODO: uncoment
+
   _eventsTable->add<SeismEvent>(event);
 }
 
-void WorkPage::updateProject(
+void WorkPage::processedEvents(
     const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &events) {
   _eventsTable->setAll<SeismEvent>(events);
 
   for (auto &itr : events) {
-    _surface->showEvent(itr.first);
+    //    _surface->showEvent(itr.first); // TODO: uncomment
   }
 }
 
-void WorkPage::updateProjectRemoveEvent(const QUuid &uuid) {
-  _infoProject->removeEvent();
-  _surface->removeEvent(uuid);
+void WorkPage::updateEvent(const std::unique_ptr<Data::SeismEvent> &event) {
+  //    _infoProject->updateEvent(event); // NOTE: нужно ли? (не реализовано)
+  _eventsTable->update<SeismEvent>(event);
+
+  //    _surface->updateEvent(event); // TODO: uncomment and realize!
+}
+
+void WorkPage::removeEvent(const QUuid &uuid) {
+  //  _surface->removeEvent(uuid); // TODO: uncomment
   _eventsTable->remove<SeismEvent>(uuid);
 }
 
-void WorkPage::updateProject(
-    const std::unique_ptr<Data::SeismHorizon> &horizon) {
-  _infoProject->addHorizon();
+void WorkPage::addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon) {
   _surface->addHorizon(horizon);
 }
 
-void WorkPage::updateProjectRemoveHorizon(const QUuid &uuid) {
-  _infoProject->removeHorizon();
+void WorkPage::removeHorizon(const QUuid &uuid) {
   _surface->removeHorizon(uuid);
 }
 
-void WorkPage::updateProject(const std::unique_ptr<Data::SeismWell> &well) {
-  _infoProject->addWell();
+void WorkPage::addWell(const std::unique_ptr<Data::SeismWell> &well) {
   _surface->addWell(well);
   for (auto &receiver : well->getReceivers()) {
     _surface->addReceiver(receiver);
   }
 }
 
-void WorkPage::updateProjectRemoveWell(const QUuid &uuid) {
-  _infoProject->removeWell();
-  _surface->removeWell(uuid);
+void WorkPage::removeWell(const QUuid &uuid) { _surface->removeWell(uuid); }
+
+void WorkPage::addReceiver(
+    const std::unique_ptr<Data::SeismReceiver> &receiver) {
+  _surface->addReceiver(receiver);
 }
 
-// void WorkPage::handleEventClicked(int row, int col) {
-//  QUuid uuid = _eventsTable->item(row, 0)->text();
-
-//  if (6 == col) {
-//    emit removeEventClicked(uuid);
-//    return;
-//  }
-
-//  emit viewEventClicked(uuid);
-//}
-
-// void WorkPage::clearTable() {
-//  int end = _eventsTable->rowCount();
-//  for (int i = 0; i < end; ++i) {
-//    _eventsTable->removeRow(0);
-//  }
-//}
-
-// void WorkPage::initEventsTable(QTableWidget *table) {
-//  table->setEditTriggers(QAbstractItemView::NoEditTriggers);
-//  table->setColumnCount(8);
-
-//  table->setSortingEnabled(true);
-
-//  // configure column settings
-//  //  table->setHorizontalHeaderLabels(
-//  //      QStringList() << "uuid"
-//  //                    << "Component Number"
-//  //                    << "Type"
-//  //                    << "Location"
-//  //                    << "Date"
-//  //                    << "Time"
-//  //                    << "Remove"
-//  //                    <<
-//  "TestTestTestTestTestTestTestTestTestTestTestTest");
-
-//  QTableWidgetItem *item = new QTableWidgetItem("Name");
-//  table->setHorizontalHeaderItem(1, item);
-//  table->setCellWidget(0, 1, new QPushButton("button"));
-
-//  table->setColumnHidden(0, true);
-
-//  table->setSelectionBehavior(QAbstractItemView::SelectRows);
-//  table->setSelectionMode(QAbstractItemView::SingleSelection);
-
-//  table->setContentsMargins(100, 10, 10, 10);
-
-//  _eventsTable->resizeColumnsToContents();
-//}
-
-// void WorkPage::insertEventInTable(
-//    const std::unique_ptr<Data::SeismEvent> &event) {
-
-//  _eventsTable->insertRow(_eventsTable->rowCount());
-
-//  int insertRow = _eventsTable->rowCount() - 1;
-
-//  _eventsTable->setItem(insertRow, 0,
-//                        new QTableWidgetItem(event->getUuid().toString()));
-
-//  _eventsTable->setItem(
-//      insertRow, 1,
-//      new QTableWidgetItem(QString::number(event->getComponentNumber())));
-
-//  _eventsTable->setItem(
-//      insertRow, 2, new QTableWidgetItem(QString::number(event->getType())));
-
-//  if (event->isProcessed()) {
-//    _eventsTable->setItem(
-//        insertRow, 3,
-//        new QTableWidgetItem(
-//            QString("%1 %2 %3")
-//                .arg(static_cast<double>(std::get<0>(event->getLocation())),
-//                0,
-//                     'f', 2)
-//                .arg(static_cast<double>(std::get<1>(event->getLocation())),
-//                0,
-//                     'f', 2)
-//                .arg(static_cast<double>(std::get<2>(event->getLocation())),
-//                0,
-//                     'f', 2)));
-//  }
-
-//  _eventsTable->setItem(
-//      insertRow, 4,
-//      new QTableWidgetItem(event->getDateTime().date().toString("dd.MM.yy")));
-
-//  _eventsTable->setItem(
-//      insertRow, 5,
-//      new QTableWidgetItem(event->getDateTime().time().toString("hh:mm")));
-
-//  QTableWidgetItem *removeItem = new QTableWidgetItem("Remove");
-//  removeItem->setTextAlignment(Qt::AlignCenter);
-//  removeItem->setBackground(Qt::red);
-//  _eventsTable->setItem(insertRow, 6, removeItem);
-
-//  _eventsTable->resizeRowsToContents();
-//  _eventsTable->resizeColumnsToContents();
-//}
-
-// void WorkPage::removeEventInTable(const QUuid &uuid) {
-//  const QString str_uuid = uuid.toString();
-//  for (int row = 0; row < _eventsTable->rowCount(); row++) {
-//    if (str_uuid == _eventsTable->item(row, 0)->text()) {
-//      _eventsTable->removeRow(row);
-//      return;
-//    }
-//  }
-//}
+void WorkPage::removeReceiver(const QUuid &uuid) {
+  _surface->removeReceiver(uuid);
+}
 
 } // namespace Main
