@@ -17,9 +17,10 @@ public:
   View(QChart *, QWidget *parent = nullptr);
   void addModel(ChartGesture *model) { _chart = model; }
   void addPick(WavePick *);
-  void addPick(Data::SeismWavePick::Type, qreal, qreal, int, int, QBrush,
+  void addPick(Data::SeismWavePick::Type, qreal, qreal, int, int, QBrush, qreal,
+               qreal, qreal);
+  void addPick(Data::SeismWavePick::Type, QPointF, QSizeF, QBrush, qreal, qreal,
                qreal);
-  void addPick(Data::SeismWavePick::Type, QPointF, QSizeF, QBrush, qreal);
 
   void setWaveAddTriggerFlag(Data::SeismWavePick::Type);
   void setWaveRadius(qreal wr) { WAVE_RADIUS = wr; }
@@ -50,6 +51,7 @@ protected:
 private:
   qreal WAVE_RADIUS;
   qreal _rangeX;
+  int _countOfComponents = 0;
   bool mouseIsTouching = false;
   bool _isAddPWaveTriggerPressed = false;
   bool _isAddSWaveTriggerPressed = false;

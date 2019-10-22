@@ -28,15 +28,13 @@ public:
 private:
   float _norm;
   float _interval;
-  int _pWaveArrival;
-  int _sWaveArrival;
   float _rangeAxisX;
   View *_view;
   ChartGesture *_chart;
   QValueAxis *_axisX = new QValueAxis;
   QValueAxis *_axisY = new QValueAxis;
 
-  void addWaveArrival(int);
+  void addWaveArrival(Data::SeismWavePick, int);
   void setInterval(const std::unique_ptr<Data::SeismEvent> &);
   void addTraceSeries(const std::unique_ptr<Data::SeismComponent> &, int);
   void setAxesY(int);

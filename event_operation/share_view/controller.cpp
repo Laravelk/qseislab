@@ -39,16 +39,14 @@ void Controller::update(const std::unique_ptr<SeismEvent> &event) {
   _view->setRangeX(_rangeAxisX);
   setInterval(event);
   setAxesY(event->getComponentNumber());
-  int idx = 0;
   _chart->setReceiverCount(event->getComponentNumber());
+  int numberOfComponent = 0;
   for (auto &component : event->getComponents()) {
-    _pWaveArrival =
-        component->getWavePick(Data::SeismWavePick::Type::PWAVE).getArrival();
-    _sWaveArrival =
-        component->getWavePick(Data::SeismWavePick::Type::SWAVE).getArrival();
-    addWaveArrival(idx);
-    addTraceSeries(component, idx);
-    idx++;
+    for (auto &pick : component->getWavePicks()) {
+      addWaveArrival(pick.second, numberOfComponent);
+    }
+    addTraceSeries(component, numberOfComponent);
+    numberOfComponent++;
   }
   _chart->addPicks(_view->getPickcs());
   _view->show();
@@ -59,14 +57,17 @@ void Controller::clear() {
   _view->hide();
 }
 
-void Controller::addWaveArrival(int index) {
+void Controller::addWaveArrival(Data::SeismWavePick pick, int index) {
   QSizeF size(2, 40);
-  _view->addPick(Data::SeismWavePick::PWAVE,
-                 QPointF(_pWaveArrival - 500, index), size, Qt::darkRed,
-                 _rangeAxisX);
-  _view->addPick(Data::SeismWavePick::SWAVE,
-                 QPointF(_sWaveArrival - 500, index), size, Qt::darkBlue,
-                 _rangeAxisX);
+  QColor color;
+  if (pick.getType() == Data::SeismWavePick::PWAVE) {
+    color = Qt::darkRed;
+  } else {
+    color = Qt::darkBlue;
+  }
+  _view->addPick(pick.getType(), QPointF(pick.getArrival() - 500, index), size,
+                 color, _rangeAxisX, pick.getPolarizationLeftBorder(),
+                 pick.getPolarizationRightBorder());
 }
 
 void Controller::setInterval(const std::unique_ptr<SeismEvent> &event) {

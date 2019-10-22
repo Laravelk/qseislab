@@ -22,13 +22,18 @@ View::View(QChart *chart, QWidget *parent)
 }
 
 void View::addPick(Data::SeismWavePick::Type type, qreal ax, qreal ay,
-                   int width, int height, QBrush brush, qreal rangeX) {
-  addPick(type, QPointF(ax, ay), QSize(width, height), brush, rangeX);
+                   int width, int height, QBrush brush, qreal rangeX,
+                   qreal leftBorderOffset, qreal rightBorderOffset) {
+  addPick(type, QPointF(ax, ay), QSize(width, height), brush, rangeX,
+          leftBorderOffset, rightBorderOffset);
 }
 
 void View::addPick(Data::SeismWavePick::Type type, QPointF pos, QSizeF size,
-                   QBrush brush, qreal rangeX) {
-  const qreal DEFAULT_OFFSET = 20000;
+                   QBrush brush, qreal rangeX, qreal leftBorderPos,
+                   qreal rightBorderPos) {
+  if (pos.y() > _countOfComponents) {
+    _countOfComponents = pos.y();
+  }
   QBrush borderBrush;
   if (brush == Qt::darkRed) {
     borderBrush = Qt::darkGreen;
@@ -36,22 +41,19 @@ void View::addPick(Data::SeismWavePick::Type type, QPointF pos, QSizeF size,
     borderBrush = Qt::darkCyan;
   }
   WavePick *pick = new WavePick(type, rect, chart(), pos, size, brush, 2, 4);
-  qreal leftBorderXOffset = pos.x() - DEFAULT_OFFSET;
-  qreal rightBorderXOffset = pos.x() + DEFAULT_OFFSET;
-
-  if (0 >= leftBorderXOffset) {
-    leftBorderXOffset = 1;
+  if (0 >= leftBorderPos) {
+    leftBorderPos = 1;
   }
 
   //  if (rightBorderXOffset >= rangeX) {
   //    rightBorderXOffset = rangeX - 1;
   //  }
   WavePick *leftBorder =
-      new WavePick(type, rect, chart(), QPointF(leftBorderXOffset, pos.y()),
-                   size, borderBrush, 0, pick);
+      new WavePick(type, rect, chart(), QPointF(leftBorderPos, pos.y()), size,
+                   borderBrush, 0, pick);
   WavePick *rightBorder =
-      new WavePick(type, rect, chart(), QPointF(rightBorderXOffset, pos.y()),
-                   size, borderBrush, pick, rangeX);
+      new WavePick(type, rect, chart(), QPointF(rightBorderPos, pos.y()), size,
+                   borderBrush, pick, rangeX);
   connect(pick, &WavePick::changed, [this, pick, leftBorder, rightBorder]() {
     emit sendPicksInfo(pick->getType(), pick->getComponentNumber(),
                        leftBorder->getXPos(), pick->getXPos(),
@@ -101,8 +103,8 @@ void View::mousePressEvent(QMouseEvent *event) {
     QPointF pos = calculatePickPosition(chart()->mapToValue(event->pos()));
     if (checkAvailability(Data::SeismWavePick::PWAVE,
                           static_cast<int>(pos.y()))) {
-      addPick(Data::SeismWavePick::PWAVE, pos, QSize(5, 40), Qt::darkRed,
-              _rangeX);
+      addPick(Data::SeismWavePick::PWAVE, pos, QSize(2, 40), Qt::darkRed,
+              _rangeX, pos.x() - 20000, pos.x() + 20000);
     }
     _isAddPWaveTriggerPressed = false;
   }
@@ -111,8 +113,8 @@ void View::mousePressEvent(QMouseEvent *event) {
     QPointF pos = calculatePickPosition(chart()->mapToValue(event->pos()));
     if (checkAvailability(Data::SeismWavePick::SWAVE,
                           static_cast<int>(pos.y()))) {
-      addPick(Data::SeismWavePick::SWAVE, pos, QSize(5, 4), Qt::darkRed,
-              _rangeX);
+      addPick(Data::SeismWavePick::SWAVE, pos, QSize(2, 40), Qt::darkRed,
+              _rangeX, pos.x() - 20000, pos.x() + 20000);
     }
     _isAddSWaveTriggerPressed = false;
   }
@@ -226,9 +228,9 @@ void View::resizeEvent(QResizeEvent *event) {
 
 // uncomment for wheelEvent on Windows
 void View::wheelEvent(QWheelEvent *event) {
-  qreal factor = event->angleDelta().y() > 0 ? 0.7 : 1.3;
-  scaleContentsBy(factor);
-  QChartView::wheelEvent(event);
+  //  qreal factor = event->angleDelta().y() > 0 ? 0.7 : 1.3;
+  //  scaleContentsBy(factor);
+  //  QChartView::wheelEvent(event);
 }
 
 void View::scaleContentsBy(qreal factor) {
@@ -242,15 +244,15 @@ void View::scaleContentsBy(qreal factor) {
 }
 
 QPointF View::calculatePickPosition(QPointF pointByMouse) {
-  if (pointByMouse.y() > 7) {
-    return QPointF(pointByMouse.x() - 500, 7 + WAVE_RADIUS);
+  if (pointByMouse.y() > _countOfComponents) {
+    return QPointF(pointByMouse.x() - 500, _countOfComponents);
   }
 
   if (pointByMouse.y() < 0) {
-    return QPointF(pointByMouse.x() - 500, 0 + WAVE_RADIUS);
+    return QPointF(pointByMouse.x() - 500, 0);
   }
 
-  return QPointF(pointByMouse.x() - 500, round(pointByMouse.y()) + WAVE_RADIUS);
+  return QPointF(pointByMouse.x() - 500, round(pointByMouse.y()));
 }
 
 bool View::checkAvailability(Data::SeismWavePick::Type type, int index) {
