@@ -11,7 +11,7 @@
 #include <QSplitter>
 #include <QUuid>
 
-#include <iostream> // TODO: remove
+//#include <iostream> // TODO: remove
 
 // NOTE: попробовтаь переделать на QSortFilterProxyModel
 

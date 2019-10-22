@@ -33,7 +33,7 @@
 #include <Qt3DExtras/qfirstpersoncameracontroller.h>
 #include <Qt3DExtras/qt3dwindow.h>
 
-#include <iostream> // TODO: delete
+//#include <iostream> // TODO: delete
 
 #include "data/seismevent.h"
 #include "data/seismtrace.h"
@@ -186,7 +186,7 @@ PolarizationAnalysisWindow::drawLine(const QVector3D &start,
 
   // mesh
   auto *line = new Qt3DRender::QGeometryRenderer(_rootEntity);
-  line->setGeometry(geometry); // TODO: uncomment, but SIG-FAULT
+  line->setGeometry(geometry);
   line->setPrimitiveType(Qt3DRender::QGeometryRenderer::Lines);
   auto *material = new Qt3DExtras::QPhongMaterial(_rootEntity);
   material->setAmbient(color);
@@ -211,7 +211,8 @@ void PolarizationAnalysisWindow::drawCurve(
   QByteArray bufferBytes;
   bufferBytes.resize(
       3 * pointsCount *
-      sizeof(float)); // start.x, start.y, start.end + end.x, end.y, end.z count
+      sizeof(
+          float)); // start.x, start.y, start.end + end.x, end.y, end.z / count
   float *positions = reinterpret_cast<float *>(bufferBytes.data());
 
   const std::unique_ptr<float[]> &bufferX = traceX->getBuffer();
@@ -261,7 +262,7 @@ void PolarizationAnalysisWindow::drawCurve(
 
   // mesh
   auto *line = new Qt3DRender::QGeometryRenderer(_rootEntity);
-  line->setGeometry(geometry); // TODO: uncomment, but SIG-FAULT
+  line->setGeometry(geometry);
   line->setPrimitiveType(Qt3DRender::QGeometryRenderer::LineStrip);
   auto *material = new Qt3DExtras::QPhongMaterial(_rootEntity);
   material->setAmbient(color);
@@ -271,7 +272,7 @@ void PolarizationAnalysisWindow::drawCurve(
   lineEntity->addComponent(line);
   lineEntity->addComponent(material);
   _curves.append(lineEntity);
-} // namespace EventOperation
+}
 
 void PolarizationAnalysisWindow::drawTraces(
     const std::unique_ptr<Data::SeismComponent> &component) {
@@ -322,7 +323,8 @@ void PolarizationAnalysisWindow::update() {
 }
 
 void PolarizationAnalysisWindow::clearScene() {
-  std::cerr << " curve contain a " << _curves.size() << " elem" << std::endl;
+  //  std::cerr << " curve contain a " << _curves.size() << " elem" <<
+  //  std::endl;
   for (auto &curve : _curves) {
     for (auto &component : curve->components()) {
       curve->removeComponent(component);

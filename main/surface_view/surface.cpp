@@ -4,7 +4,7 @@
 #include "../../data/seismproject.h"
 #include "../../data/seismwell.h"
 
-#include <iostream> // TODO: delete
+//#include <iostream> // TODO: delete
 
 typedef Data::SeismEvent SeismEvent;
 typedef Data::SeismHorizon SeismHorizon;
@@ -70,7 +70,6 @@ void Surface::addReceiver(
 }
 
 void Surface::addWell(const std::unique_ptr<Data::SeismWell> &well) {
-  std::cerr << "add well " << _surface->customItems().size() << std::endl;
   float x = 0, y = 0, z = 0;
   float lx = 0, ly = 0, lz = 0;
   std::tie(lx, ly, lz) = well->getPoint(0);
@@ -133,7 +132,7 @@ bool Surface::removeEvent(const std::unique_ptr<Data::SeismEvent> &event) {
   return removeEvent(uid);
 }
 
-bool Surface::removeEvent(const Uuid uid) {
+bool Surface::removeEvent(const Uuid &uid) {
   QCustom3DItem *item = _events[uid];
   if (item == _isItemHanlde) {
     _isHandle = false;
@@ -152,7 +151,7 @@ bool Surface::removeHorizon(
   return removeHorizon(horizon.get()->getUuid());
 }
 
-bool Surface::removeHorizon(const Uuid uid) {
+bool Surface::removeHorizon(const Uuid &uid) {
   QSurface3DSeries *series = _horizons[uid];
   if (_horizons.erase(uid)) {
     _surface->removeSeries(series);
@@ -166,7 +165,7 @@ bool Surface::removeReceiver(
   return removeReceiver(receiver.get()->getUuid());
 }
 
-bool Surface::removeReceiver(const Uuid uid) {
+bool Surface::removeReceiver(const Uuid &uid) {
   QCustom3DItem *item = _receivers[uid];
   if (_receivers.erase(uid)) {
     _surface->removeCustomItem(item);
@@ -179,8 +178,7 @@ bool Surface::removeWell(const std::unique_ptr<Data::SeismWell> &well) {
   return removeWell(well.get()->getUuid());
 }
 
-bool Surface::removeWell(const Uuid uid) {
-  std::cerr << "remove well" << std::endl;
+bool Surface::removeWell(const Uuid &uid) {
   std::vector<QCustom3DItem *> v = _wells[uid];
   if (_wells.erase(uid)) {
     for (auto &it : v) {

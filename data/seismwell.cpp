@@ -153,10 +153,11 @@ int SeismWell::getReceiversNumber() const {
 //  return *(_receivers.begin());
 //}
 
-const std::list<std::unique_ptr<SeismReceiver>> &
-SeismWell::getReceivers() const {
+std::list<std::unique_ptr<SeismReceiver>> &SeismWell::getReceivers() {
   return _receivers;
 }
+
+void SeismWell::removeAllReceivers() { _receivers.clear(); }
 
 // void SeismWell::addReceiver(std::unique_ptr<SeismReceiver> receiver) {
 //  auto uuid = receiver->getUuid();

@@ -2,8 +2,10 @@
 #include "wavepick.h"
 
 #include <QtGui/QMouseEvent>
-#include <iostream> // TODO: delete
+
 #include <math.h>
+
+//#include <iostream> // TODO: delete
 
 namespace EventOperation {
 View::View(QChart *chart, QWidget *parent)

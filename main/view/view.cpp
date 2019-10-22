@@ -144,6 +144,11 @@ void View::removeWell(const QUuid &uuid) {
   _workPage->removeWell(uuid);
 }
 
+void View::addReceiver(const std::unique_ptr<Data::SeismReceiver> &receiver) {
+  assert(nullptr != _workPage);
+  _workPage->addReceiver(receiver);
+}
+
 void View::removeReceiver(const QUuid &uuid) {
   assert(nullptr != _workPage);
   _workPage->removeReceiver(uuid);

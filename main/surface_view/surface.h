@@ -39,13 +39,13 @@ public:
   void setProject(const std::unique_ptr<Data::SeismProject> &);
 
   bool removeEvent(const std::unique_ptr<Data::SeismEvent> &);
-  bool removeEvent(const Uuid);
+  bool removeEvent(const Uuid &);
   bool removeHorizon(const std::unique_ptr<Data::SeismHorizon> &);
-  bool removeHorizon(const Uuid);
+  bool removeHorizon(const Uuid &);
   bool removeReceiver(const std::unique_ptr<Data::SeismReceiver> &);
-  bool removeReceiver(const Uuid);
+  bool removeReceiver(const Uuid &);
   bool removeWell(const std::unique_ptr<Data::SeismWell> &);
-  bool removeWell(const Uuid);
+  bool removeWell(const Uuid &);
 
   bool hideEvent(QUuid);
   bool hideEvent(std::unique_ptr<Data::SeismEvent> &);
@@ -110,7 +110,7 @@ private:
   const float SCALING_OY = 0.006f;
   const float SCALING_SPHERE = 0.009f;
   const float SCALING_SMOOTH = 0.009f;
-  const float DEFAULT_AXIS_MODULE_RANGE = 3000;
+  const float DEFAULT_AXIS_MODULE_RANGE = 1000;
   const int FONT_SIZE = 30;
 };
 } // namespace Main

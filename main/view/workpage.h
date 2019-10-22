@@ -35,7 +35,10 @@ public:
 
   void addWell(const std::unique_ptr<Data::SeismWell> &);
   void removeWell(const QUuid &);
-  void removeReceiver(const QUuid &);
+
+  void
+  addReceiver(const std::unique_ptr<Data::SeismReceiver> &); // TODO: re-see
+  void removeReceiver(const QUuid &);                        // TODO: re-see
 
 signals:
   void viewEventClicked(const QUuid) const;

@@ -85,7 +85,12 @@ void Controller::viewReceivers() {
 
 void Controller::finish(int result) {
   if (QDialog::Accepted == result) {
-    emit sendWells(_wells_map);
+    emit removeAllReceivers();
+    for (auto &uuid_well : _wells_map) {
+      for (auto &receiver : uuid_well.second->getReceivers()) {
+        emit sendReciver(uuid_well.first, receiver);
+      }
+    }
   }
   emit finished();
 }

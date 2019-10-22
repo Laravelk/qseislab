@@ -3,7 +3,8 @@
 #include <QtWidgets/QGesture>
 #include <QtWidgets/QGraphicsScene>
 #include <QtWidgets/QGraphicsView>
-#include <iostream> // TODO: delete
+
+//#include <iostream> // TODO: delete
 
 #include "view/wavepick.h"
 

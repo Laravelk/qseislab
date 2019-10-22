@@ -24,7 +24,8 @@ public:
 
 signals:
   void finished() const;
-  void sendWells(std::map<QUuid, std::unique_ptr<Data::SeismWell>> &);
+  void removeAllReceivers() const;
+  void sendReciver(const QUuid &, std::unique_ptr<Data::SeismReceiver> &);
 
 private:
   Model *_model;

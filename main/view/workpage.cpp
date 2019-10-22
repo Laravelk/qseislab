@@ -8,7 +8,7 @@
 
 #include "share_view/tableassistant.h"
 
-#include <iostream> // TODO: delete
+//#include <iostream> // TODO: delete
 
 #include <QDateTime>
 #include <QHBoxLayout>
@@ -133,6 +133,11 @@ void WorkPage::addWell(const std::unique_ptr<Data::SeismWell> &well) {
 }
 
 void WorkPage::removeWell(const QUuid &uuid) { _surface->removeWell(uuid); }
+
+void WorkPage::addReceiver(
+    const std::unique_ptr<Data::SeismReceiver> &receiver) {
+  _surface->addReceiver(receiver);
+}
 
 void WorkPage::removeReceiver(const QUuid &uuid) {
   _surface->removeReceiver(uuid);

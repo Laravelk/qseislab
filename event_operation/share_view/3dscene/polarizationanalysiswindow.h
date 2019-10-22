@@ -34,15 +34,19 @@ private:
   const Data::SeismEvent *_event;
   int _receiverIndex;
   int _waveTypeIndex;
+
 private:
   void drawArrows();
-  Qt3DCore::QEntity *drawLine(const QVector3D& , const QVector3D& , const QColor& , Qt3DCore::QEntity *);
-  void drawCurve(const std::unique_ptr<Data::SeismTrace> &, const std::unique_ptr<Data::SeismTrace> &,
-                 const std::unique_ptr<Data::SeismTrace> &, const QColor& , Qt3DCore::QEntity *
-                 ,const int, const int , const float);
+  Qt3DCore::QEntity *drawLine(const QVector3D &, const QVector3D &,
+                              const QColor &, Qt3DCore::QEntity *);
+  void drawCurve(const std::unique_ptr<Data::SeismTrace> &,
+                 const std::unique_ptr<Data::SeismTrace> &,
+                 const std::unique_ptr<Data::SeismTrace> &, const QColor &,
+                 Qt3DCore::QEntity *, const int, const int, const float);
   void drawTraces(const std::unique_ptr<Data::SeismComponent> &);
   int lastElementNumber(const std::unique_ptr<Data::SeismComponent> &);
   void update();
+  Qt3DCore::QEntity *createTestScene();
   void clearScene();
   QList<Qt3DCore::QEntity *> _curves;
   QList<Qt3DCore::QEntity *> _arrows;

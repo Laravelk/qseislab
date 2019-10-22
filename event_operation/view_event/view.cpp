@@ -6,7 +6,7 @@
 #include <QBoxLayout>
 #include <QPushButton>
 
-#include <iostream> // TODO: remove
+//#include <iostream> // TODO: remove
 
 namespace EventOperation {
 namespace ViewEvent {

@@ -17,7 +17,6 @@ public:
 
   explicit SeismReceiver(const SeismReceiver &);
 
-  //  void setUuid(const QUuid &);
   const QUuid &getUuid() const;
 
   void setName(const QString &);

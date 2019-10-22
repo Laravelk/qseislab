@@ -50,6 +50,9 @@ public:
 
   void processEvents();
 
+  bool addReceiver(const QUuid &, std::unique_ptr<Data::SeismReceiver> &);
+  void removeAllReceivers();
+
 signals:
   void addedEvent(const std::unique_ptr<Data::SeismEvent> &) const;
   void updatedEvent(const std::unique_ptr<Data::SeismEvent> &) const;
@@ -61,7 +64,10 @@ signals:
 
   void addedWell(const std::unique_ptr<Data::SeismWell> &) const;
   void removedWell(const QUuid &) const;
-  void removedReceiver(const QUuid &) const;
+
+  void addedReceiver(
+      const std::unique_ptr<Data::SeismReceiver> &) const; // TODO: re-see
+  void removedReceiver(const QUuid &) const;               // TODO: re-see
 
 private:
   bool _isSaved{false};
