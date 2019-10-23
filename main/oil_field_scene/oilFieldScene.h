@@ -22,11 +22,11 @@ class SeismWell;
 } // namespace Data
 
 namespace Main {
-class Surface : public QObject {
+class OilFieldScene : public QObject {
   Q_OBJECT
 public:
-  explicit Surface(Q3DSurface *);
-  ~Surface() = default;
+  explicit OilFieldScene(Q3DSurface *);
+  ~OilFieldScene() = default;
 
   void addEvent(const std::unique_ptr<Data::SeismEvent> &);
   void addHorizon(const std::unique_ptr<Data::SeismHorizon> &);

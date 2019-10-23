@@ -19,6 +19,12 @@ View::View(QChart *chart, QWidget *parent)
   rect->setFlag(QGraphicsItem::ItemClipsChildrenToShape);
   rect->setZValue(10);
   scene()->addItem(rect);
+  QGraphicsTextItem *text = new QGraphicsTextItem("HELLO HELLO HELLO", chart);
+  text->setTextWidth(300);
+  text->setRotation(270);
+  text->setDefaultTextColor(Qt::black);
+  text->setPos(10, 300);
+  text->show();
 }
 
 void View::addPick(Data::SeismWavePick::Type type, qreal ax, qreal ay,
