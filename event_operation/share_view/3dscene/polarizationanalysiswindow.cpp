@@ -57,12 +57,12 @@ PolarizationAnalysisWindow::PolarizationAnalysisWindow(
   // camera
   Qt3DRender::QCamera *camera = _view->camera();
   camera->lens()->setPerspectiveProjection(45, 16. / 9., 0.1, 1000.);
-  camera->setPosition(QVector3D(0.1f, 0.1f, 0.1f));
+  camera->setPosition(QVector3D(1.5f, 1.5f, 1.5f));
   camera->setViewCenter(QVector3D(0, 0, 0));
 
   // manipulator
-  Qt3DExtras::QOrbitCameraController *manipulator =
-      new Qt3DExtras::QOrbitCameraController(_scene);
+  Qt3DExtras::QFirstPersonCameraController *manipulator =
+      new Qt3DExtras::QFirstPersonCameraController(_scene);
   manipulator->setLinearSpeed(50);
   manipulator->setLookSpeed(180);
   manipulator->setCamera(camera);
@@ -84,7 +84,7 @@ PolarizationAnalysisWindow::PolarizationAnalysisWindow(
   QList<QString> waveTypeList;
   QList<QString> receiverList;
 
-  _receiverIndex = 0;
+  _receiverIndex = -1;
   _waveTypeIndex = 0;
 
   waveTypeList.append("Type Wave...");
