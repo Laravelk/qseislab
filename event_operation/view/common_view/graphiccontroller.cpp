@@ -1,19 +1,19 @@
-#include "controller.h"
+#include "graphiccontroller.h"
 
 #include "data/seismcomponent.h"
 #include "data/seismevent.h"
 #include "data/seismtrace.h"
-#include "view/wavepick.h"
+#include "graphic_view/wavepick.h"
 
 typedef Data::SeismComponent SeismComponent;
 typedef Data::SeismEvent SeismEvent;
 typedef Data::SeismTrace SeismTrace;
 
 namespace EventOperation {
-Controller::Controller(QWidget *parent)
-    : QFrame(parent), _chart(new ChartGesture()), _axisX(new QValueAxis),
-      _axisY(new QValueAxis), _rangeAxisX(0) {
-  _view = new View(_chart);
+GraphicController::GraphicController(QWidget *parent)
+    : QFrame(parent), _rangeAxisX(0), _chart(new ChartGesture()),
+      _axisX(new QValueAxis), _axisY(new QValueAxis) {
+  _view = new GraphicView(_chart);
   _view->addModel(_chart);
   _view->setWaveRadius(WAVE_RADIUS);
   _chart->setAnimationOptions(QChart::NoAnimation);
@@ -22,17 +22,17 @@ Controller::Controller(QWidget *parent)
   _chart->addAxis(_axisX, Qt::AlignBottom);
   _chart->addAxis(_axisY, Qt::AlignLeft);
   _chart->setAcceptHoverEvents(true);
-  connect(_view, &View::sendPicksInfo,
+  connect(_view, &GraphicView::sendPicksInfo,
           [this](Data::SeismWavePick::Type type, int componentNumber,
                  int leftBorderPos, int pickPos, int rightBorderPos) {
-            emit Controller::sendPicksInfo(type, componentNumber, leftBorderPos,
-                                           pickPos, rightBorderPos);
+            emit sendPicksInfo(type, componentNumber, leftBorderPos, pickPos,
+                               rightBorderPos);
           });
   _view->hide();
 }
 
 // подумать, как вызывать удаление, сделать полную очистку
-void Controller::update(const std::unique_ptr<SeismEvent> &event) {
+void GraphicController::update(const std::unique_ptr<SeismEvent> &event) {
   _view->chart()->removeAllSeries();
   _view->clearPicks();
   getRangeX(event);
@@ -54,12 +54,12 @@ void Controller::update(const std::unique_ptr<SeismEvent> &event) {
   _view->show();
 }
 
-void Controller::clear() {
+void GraphicController::clear() {
   _view->chart()->removeAllSeries();
   _view->hide();
 }
 
-void Controller::addWaveArrival(int index) {
+void GraphicController::addWaveArrival(int index) {
   QSizeF size(2, 40);
   _view->addPick(Data::SeismWavePick::PWAVE,
                  QPointF(_pWaveArrival - 500, index), size, Qt::darkRed,
@@ -69,7 +69,7 @@ void Controller::addWaveArrival(int index) {
                  _rangeAxisX);
 }
 
-void Controller::setInterval(const std::unique_ptr<SeismEvent> &event) {
+void GraphicController::setInterval(const std::unique_ptr<SeismEvent> &event) {
   _interval = 0;
   for (auto &component : event->getComponents()) {
     if (_interval < component->getMaxValue()) {
@@ -78,7 +78,7 @@ void Controller::setInterval(const std::unique_ptr<SeismEvent> &event) {
   }
 }
 
-void EventOperation::Controller::addTraceSeries(
+void GraphicController::addTraceSeries(
     const std::unique_ptr<Data::SeismComponent> &component, int index) {
   const float intervalAxisX = component->getSampleInterval();
   const QColor color[] = {QColor(220, 20, 60), QColor(50, 205, 50),
@@ -104,7 +104,7 @@ void EventOperation::Controller::addTraceSeries(
   }
 }
 
-void Controller::setAxesY(int componentNumber) {
+void GraphicController::setAxesY(int componentNumber) {
   _axisY->setTickCount(componentNumber);
   _axisY->setRange(-1, componentNumber + 0.5);
   _axisY->setTickInterval(1);
@@ -113,7 +113,8 @@ void Controller::setAxesY(int componentNumber) {
   _axisY->setLabelFormat("%d");
 }
 
-void Controller::getRangeX(const std::unique_ptr<Data::SeismEvent> &event) {
+void GraphicController::getRangeX(
+    const std::unique_ptr<Data::SeismEvent> &event) {
   float sampleInterval = 0;
   int maxCountElementInTrace = 0;
   for (auto &component : event->getComponents()) {

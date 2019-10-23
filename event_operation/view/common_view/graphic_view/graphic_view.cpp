@@ -1,4 +1,4 @@
-#include "view.h"
+#include "graphic_view.h"
 #include "wavepick.h"
 
 #include <QtGui/QMouseEvent>
@@ -8,7 +8,7 @@
 //#include <iostream> // TODO: delete
 
 namespace EventOperation {
-View::View(QChart *chart, QWidget *parent)
+GraphicView::GraphicView(QChart *chart, QWidget *parent)
     : QChartView(chart, parent), mouseIsTouching(false) {
   chart->setAnimationOptions(QChart::NoAnimation);
   setDragMode(QGraphicsView::NoDrag);
@@ -21,13 +21,13 @@ View::View(QChart *chart, QWidget *parent)
   scene()->addItem(rect);
 }
 
-void View::addPick(Data::SeismWavePick::Type type, qreal ax, qreal ay,
-                   int width, int height, QBrush brush, qreal rangeX) {
+void GraphicView::addPick(Data::SeismWavePick::Type type, qreal ax, qreal ay,
+                          int width, int height, QBrush brush, qreal rangeX) {
   addPick(type, QPointF(ax, ay), QSize(width, height), brush, rangeX);
 }
 
-void View::addPick(Data::SeismWavePick::Type type, QPointF pos, QSizeF size,
-                   QBrush brush, qreal rangeX) {
+void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
+                          QSizeF size, QBrush brush, qreal rangeX) {
   const qreal DEFAULT_OFFSET = 20000;
   QBrush borderBrush;
   if (brush == Qt::darkRed) {
@@ -79,7 +79,7 @@ void View::addPick(Data::SeismWavePick::Type type, QPointF pos, QSizeF size,
   _wavePicks.push_back(pick);
 }
 
-void View::setWaveAddTriggerFlag(Data::SeismWavePick::Type type) {
+void GraphicView::setWaveAddTriggerFlag(Data::SeismWavePick::Type type) {
   if (type == Data::SeismWavePick::PWAVE) {
     _isAddPWaveTriggerPressed = true;
     _isAddSWaveTriggerPressed = false;
@@ -89,14 +89,14 @@ void View::setWaveAddTriggerFlag(Data::SeismWavePick::Type type) {
   }
 }
 
-bool View::viewportEvent(QEvent *event) {
+bool GraphicView::viewportEvent(QEvent *event) {
   if (event->type() == QEvent::TouchBegin) {
     mouseIsTouching = true;
   }
   return QChartView::viewportEvent(event);
 }
 
-void View::mousePressEvent(QMouseEvent *event) {
+void GraphicView::mousePressEvent(QMouseEvent *event) {
   if (_isAddPWaveTriggerPressed) {
     QPointF pos = calculatePickPosition(chart()->mapToValue(event->pos()));
     if (checkAvailability(Data::SeismWavePick::PWAVE,
@@ -125,13 +125,13 @@ void View::mousePressEvent(QMouseEvent *event) {
   }
 }
 
-void View::mouseMoveEvent(QMouseEvent *event) {
+void GraphicView::mouseMoveEvent(QMouseEvent *event) {
   if (mouseIsTouching)
     return;
   QChartView::mouseMoveEvent(event);
 }
 
-void View::mouseReleaseEvent(QMouseEvent *event) {
+void GraphicView::mouseReleaseEvent(QMouseEvent *event) {
   if (event->button() == Qt::RightButton) {
     if (scene()) {
       scaleContentsBy(0.7);
@@ -144,7 +144,7 @@ void View::mouseReleaseEvent(QMouseEvent *event) {
   QChartView::mouseReleaseEvent(event);
 }
 
-void View::keyPressEvent(QKeyEvent *event) {
+void GraphicView::keyPressEvent(QKeyEvent *event) {
   switch (event->key()) {
   case Qt::Key_Plus:
     scaleContentsBy(2);
@@ -182,20 +182,20 @@ void View::keyPressEvent(QKeyEvent *event) {
   }
 }
 
-void View::keyReleaseEvent(QKeyEvent *event) {
+void GraphicView::keyReleaseEvent(QKeyEvent *event) {
   QChartView::keyReleaseEvent(event);
 }
 
-void View::mouseDoubleClickEvent(QMouseEvent *event) {
+void GraphicView::mouseDoubleClickEvent(QMouseEvent *event) {
   QChartView::mouseDoubleClickEvent(event);
 }
 
-void View::paintEvent(QPaintEvent *event) {
+void GraphicView::paintEvent(QPaintEvent *event) {
   rect->setRect(chart()->plotArea());
   QChartView::paintEvent(event);
 }
 
-void View::scrollContentsBy(int dx, int dy) {
+void GraphicView::scrollContentsBy(int dx, int dy) {
   if (scene()) {
     _chart->scroll(dx, dy);
     for (auto &wave : _wavePicks) {
@@ -204,7 +204,7 @@ void View::scrollContentsBy(int dx, int dy) {
   }
 }
 
-void View::resizeEvent(QResizeEvent *event) {
+void GraphicView::resizeEvent(QResizeEvent *event) {
   if (scene()) {
     scene()->setSceneRect(QRect(QPoint(0, 0), event->size()));
     QSizeF scaleCoff;
@@ -225,13 +225,13 @@ void View::resizeEvent(QResizeEvent *event) {
 }
 
 // uncomment for wheelEvent on Windows
-void View::wheelEvent(QWheelEvent *event) {
+void GraphicView::wheelEvent(QWheelEvent *event) {
   qreal factor = event->angleDelta().y() > 0 ? 0.7 : 1.3;
   scaleContentsBy(factor);
   QChartView::wheelEvent(event);
 }
 
-void View::scaleContentsBy(qreal factor) {
+void GraphicView::scaleContentsBy(qreal factor) {
   if (scene()) {
     _chart->zoom(factor);
     for (auto &wavePick : _wavePicks) {
@@ -241,7 +241,7 @@ void View::scaleContentsBy(qreal factor) {
   }
 }
 
-QPointF View::calculatePickPosition(QPointF pointByMouse) {
+QPointF GraphicView::calculatePickPosition(QPointF pointByMouse) {
   if (pointByMouse.y() > 7) {
     return QPointF(pointByMouse.x() - 500, 7 + WAVE_RADIUS);
   }
@@ -253,7 +253,7 @@ QPointF View::calculatePickPosition(QPointF pointByMouse) {
   return QPointF(pointByMouse.x() - 500, round(pointByMouse.y()) + WAVE_RADIUS);
 }
 
-bool View::checkAvailability(Data::SeismWavePick::Type type, int index) {
+bool GraphicView::checkAvailability(Data::SeismWavePick::Type type, int index) {
   for (auto &wavePick : _wavePicks) {
     if (wavePick->getType() == type &&
         wavePick->getComponentNumber() == index) {
