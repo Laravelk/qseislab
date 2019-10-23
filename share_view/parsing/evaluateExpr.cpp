@@ -38,26 +38,29 @@ template <typename param_t> param_t castToParam(const std::string &value) {
 template <typename param_t>
 bool parseAndEvaluateExpr(const std::string &expr,
                           const std::string &std_param) {
-  typedef std::string::const_iterator It;
-  It phrase_begin(expr.begin());
-  It phrase_end(expr.end());
+  std::cerr << "All parsing in comments" << std::endl;
+  return false;
+  //  typedef std::string::const_iterator It;
+  //  It phrase_begin(expr.begin());
+  //  It phrase_end(expr.end());
 
-  TableFilterParsing::Parser<param_t, It> parser;
-  TableFilterParsing::expr<param_t> filter;
+  //  TableFilterParsing::Parser<param_t, It> parser;
+  //  TableFilterParsing::expr<param_t> filter;
 
-  bool ok = true;
-  try {
-    ok = qi::phrase_parse(phrase_begin, phrase_end, parser, qi::space, filter);
-  } catch (...) {
-    return false;
-  }
+  //  bool ok = true;
+  //  try {
+  //    ok = qi::phrase_parse(phrase_begin, phrase_end, parser, qi::space,
+  //    filter);
+  //  } catch (...) {
+  //    return false;
+  //  }
 
-  try {
-    param_t param = castToParam<param_t>(std_param);
-    return TableFilterParsing::evaluate(filter, param);
-  } catch (...) {
-    return false;
-  }
+  //  try {
+  //    param_t param = castToParam<param_t>(std_param);
+  //    return TableFilterParsing::evaluate(filter, param);
+  //  } catch (...) {
+  //    return false;
+  //  }
 }
 
 } // namespace TableFilterParsing

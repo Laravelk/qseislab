@@ -11,10 +11,11 @@ QT_CHARTS_END_NAMESPACE
 QT_CHARTS_USE_NAMESPACE
 
 namespace EventOperation {
-class View : public QChartView {
+class GraphicView : public QChartView {
   Q_OBJECT
 public:
-  View(QChart *, QWidget *parent = nullptr);
+  GraphicView(QChart *, QWidget *parent = nullptr);
+
   void addModel(ChartGesture *model) { _chart = model; }
   void addPick(WavePick *);
   void addPick(Data::SeismWavePick::Type, qreal, qreal, int, int, QBrush, qreal,

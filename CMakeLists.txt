@@ -39,21 +39,19 @@ find_package(segyio REQUIRED)
 
 
 set(SOURCES
-        event_operation/add_event/controller.cpp
-        event_operation/add_event/model.cpp
-        event_operation/add_event/view/filemanager.cpp
-        event_operation/add_event/view/wellmanager.cpp
-        event_operation/add_event/view/view.cpp
+        event_operation/controller.cpp
+        event_operation/model.cpp
+        event_operation/view/filemanager.cpp
+        event_operation/view/wellmanager.cpp
+        event_operation/view/view.cpp
 
-        event_operation/view_event/controller.cpp
-        event_operation/view_event/view.cpp
+        event_operation/view/common_view/graphic_view/graphic_view.cpp
+        event_operation/view/common_view/graphic_view/wavepick.cpp
+        event_operation/view/common_view/infoevent.cpp
+        event_operation/view/common_view/graphiccontroller.cpp
+        event_operation/view/common_view/chartgesture.cpp
+        event_operation/view/common_view/3dscene/polarizationanalysiswindow.cpp
 
-        event_operation/share_view/view/view.cpp
-        event_operation/share_view/view/wavepick.cpp
-        event_operation/share_view/infoevent.cpp
-        event_operation/share_view/controller.cpp
-        event_operation/share_view/chartgesture.cpp
-        event_operation/share_view/3dscene/polarizationanalysiswindow.cpp
 
         horizon_operation/controller.cpp
         horizon_operation/model.cpp
@@ -99,6 +97,8 @@ set(SOURCES
         main/view/startpage.cpp
         main/view/workpage.cpp
         main/view/infoproject.cpp
+
+#        main/surface_view/surface.cpp
         main/oil_field_scene/oilfieldscene.cpp
 
         share_view/tableassistant.cpp
@@ -120,22 +120,18 @@ set(SOURCES
 )
 
 set(HEADERS
-        event_operation/add_event/controller.h
-        event_operation/add_event/model.h
-        event_operation/add_event/view/filemanager.h
-        event_operation/add_event/view/wellmanager.h
-        event_operation/add_event/view/view.h
+        event_operation/controller.h
+        event_operation/model.h
+        event_operation/view/filemanager.h
+        event_operation/view/wellmanager.h
+        event_operation/view/view.h
 
-        event_operation/view_event/controller.h
-        event_operation/view_event/view.h
-
-        event_operation/share_view/infoevent.h
-        event_operation/share_view/controller.h
-        event_operation/share_view/chartgesture.h
-        event_operation/share_view/view/view.h
-        event_operation/share_view/view/wavepick.h
-        event_operation/share_view/3dscene/polarizationanalysiswindow.h
-
+        event_operation/view/common_view/graphic_view/graphic_view.h
+        event_operation/view/common_view/graphic_view/wavepick.h
+        event_operation/view/common_view/infoevent.h
+        event_operation/view/common_view/graphiccontroller.h
+        event_operation/view/common_view/chartgesture.h
+        event_operation/view/common_view/3dscene/polarizationanalysiswindow.h
 
 
         horizon_operation/controller.h
@@ -183,6 +179,9 @@ set(HEADERS
         main/view/startpage.h
         main/view/workpage.h
         main/view/infoproject.h
+
+#        main/surface_view/surface.h
+
         main/oil_field_scene/oilfieldscene.h
 
         share_view/tableassistant.h

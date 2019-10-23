@@ -46,7 +46,10 @@ signals:
 
 private:
   TableAssistant *_eventsTable;
+
+  //  Surface *_surface;
   OilFieldScene *_oilFieldScene;
+
   Q3DSurface *_graph;
   QCheckBox *_eventBox;
   QCheckBox *_receiverBox;

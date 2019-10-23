@@ -1,9 +1,9 @@
 #include "controller.h"
 
-#include "../share_view/3dscene/polarizationanalysiswindow.h"
 #include "data/seismevent.h"
 #include "data/seismwell.h"
 #include "model.h"
+#include "view/common_view/3dscene/polarizationanalysiswindow.h"
 
 #include "data/io/segyreader.h"
 
@@ -12,12 +12,11 @@
 typedef Data::IO::SegyReader SegyReader;
 
 namespace EventOperation {
-namespace AddEvent {
+namespace Generic {
 Controller::Controller(
     const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &wells_map,
     QObject *parent)
-    : QObject(parent), _wells_map(wells_map),
-      _model(new Model(new SegyReader(), this)),
+    : QObject(parent), _model(new Model(new SegyReader(), this)),
       _event(std::make_unique<Data::SeismEvent>()) {
 
   std::map<QUuid, QString> wellNames_map;
@@ -33,9 +32,9 @@ Controller::Controller(
           [this](auto &msg) { _view->setNotification(msg); });
 
   connect(_view.get(), &View::sendWellUuidAndFilePath,
-          [this](auto wellUuid_filePath) {
+          [this, &wells_map](auto wellUuid_filePath) {
             auto components = _model->getSeismComponents(
-                _wells_map.at(wellUuid_filePath.first),
+                wells_map.at(wellUuid_filePath.first),
                 wellUuid_filePath.second);
             if (!components.empty()) {
               for (auto &component : components) {
@@ -49,12 +48,49 @@ Controller::Controller(
     _polarizationWindow->show();
   });
 
-  connect(_view.get(), &View::sendWellUuidForRemove, [this](auto &uuid) {
-    auto &well = _wells_map.at(uuid);
-    for (auto &reciever : well->getReceivers()) {
-      _event->removeComponentByReceiverUuid(reciever->getUuid());
-    }
-    _view->update(_event, uuid, well->getName());
+  connect(_view.get(), &View::sendWellUuidForRemove,
+          [this, &wells_map](auto &uuid) {
+            auto &well = wells_map.at(uuid);
+            for (auto &reciever : well->getReceivers()) {
+              _event->removeComponentByReceiverUuid(reciever->getUuid());
+            }
+            _view->update(_event, uuid, well->getName());
+          });
+
+  connect(_view.get(), &View::sendPicksInfo,
+          [this](const auto type, const auto num, const auto l_val,
+                 const auto pick_val, const auto r_val) {
+            int idx = 0;
+            for (auto &component : this->_event->getComponents()) {
+              if (num == idx) {
+                Data::SeismWavePick wavePick =
+                    Data::SeismWavePick(type, pick_val);
+                wavePick.setPolarizationLeftBorder(l_val);
+                wavePick.setPolarizationRightBorder(r_val);
+
+                component->addWavePick(wavePick);
+                break;
+              }
+              ++idx;
+            }
+          });
+
+  connect(_view.get(), &View::finished, this, &Controller::finish);
+}
+
+Controller::Controller(const std::unique_ptr<Data::SeismEvent> &event,
+                       QObject *parent)
+    : QObject(parent), _model(nullptr),
+      _event(std::make_unique<Data::SeismEvent>(*event)) {
+
+  _view = std::make_unique<View>(_event);
+
+  connect(_event.get(), &Data::SeismEvent::changed,
+          []() { std::cout << "event changed" << std::endl; });
+
+  connect(_view.get(), &View::createPolarizationAnalysisWindow, [this]() {
+    _polarizationWindow = new PolarizationAnalysisWindow(_event);
+    _polarizationWindow->show();
   });
 
   connect(_view.get(), &View::sendPicksInfo,
@@ -92,5 +128,5 @@ void Controller::finish(int result) {
   emit finished();
 }
 
-} // namespace AddEvent
+} // namespace Generic
 } // namespace EventOperation

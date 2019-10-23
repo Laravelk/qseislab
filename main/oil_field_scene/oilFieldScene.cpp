@@ -1,8 +1,8 @@
 #include "oilFieldScene.h"
-#include "../../data/seismevent.h"
-#include "../../data/seismhorizon.h"
-#include "../../data/seismproject.h"
-#include "../../data/seismwell.h"
+#include "data/seismevent.h"
+#include "data/seismhorizon.h"
+#include "data/seismproject.h"
+#include "data/seismwell.h"
 
 //#include <iostream> // TODO: delete
 

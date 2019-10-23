@@ -1,7 +1,7 @@
 #pragma once
 
 #include "chartgesture.h"
-#include "view/view.h"
+#include "graphic_view/graphic_view.h"
 
 #include <QtCharts>
 
@@ -12,15 +12,15 @@ class SeismTrace;
 } // namespace Data
 
 namespace EventOperation {
-class Controller : public QFrame {
+class GraphicController : public QFrame {
   Q_OBJECT
 public:
-  explicit Controller(QWidget *parent = nullptr);
+  explicit GraphicController(QWidget *parent = nullptr);
 
-  View *getView() const { return _view; }
+  GraphicView *getView() const { return _view; }
   ChartGesture *getModel() const { return _chart; }
   void setChart(ChartGesture *chart) { _chart = chart; }
-  void setView(View *view) { _view = view; }
+  void setView(GraphicView *view) { _view = view; }
 
   void update(const std::unique_ptr<Data::SeismEvent> &);
   void clear();
@@ -28,8 +28,10 @@ public:
 private:
   float _norm;
   float _interval;
+  int _pWaveArrival;
+  int _sWaveArrival;
   float _rangeAxisX;
-  View *_view;
+  GraphicView *_view;
   ChartGesture *_chart;
   QValueAxis *_axisX = new QValueAxis;
   QValueAxis *_axisY = new QValueAxis;
