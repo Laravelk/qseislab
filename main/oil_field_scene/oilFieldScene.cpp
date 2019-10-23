@@ -1,8 +1,8 @@
-#include "surface.h"
-#include "../../data/seismevent.h"
-#include "../../data/seismhorizon.h"
-#include "../../data/seismproject.h"
-#include "../../data/seismwell.h"
+#include "oilFieldScene.h"
+#include "data/seismevent.h"
+#include "data/seismhorizon.h"
+#include "data/seismproject.h"
+#include "data/seismwell.h"
 
 //#include <iostream> // TODO: delete
 
@@ -12,7 +12,8 @@ typedef Data::SeismProject SeismProject;
 typedef Data::SeismWell SeismWell;
 
 namespace Main {
-Surface::Surface(Q3DSurface *surface) : _surface(surface), _isHandle(false) {
+OilFieldScene::OilFieldScene(Q3DSurface *surface)
+    : _surface(surface), _isHandle(false) {
   _blackColor = QImage(2, 2, QImage::Format_RGB32);
   _redColor = QImage(2, 2, QImage::Format_RGB32);
   _blackColor.fill(Qt::black);
@@ -22,7 +23,7 @@ Surface::Surface(Q3DSurface *surface) : _surface(surface), _isHandle(false) {
   surface->axisY()->setReversed(true);
 }
 
-void Surface::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
+void OilFieldScene::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
   float x, y, z;
   std::tie(x, y, z) = event->getLocation();
   QVector3D position(x, z, y);
@@ -37,7 +38,8 @@ void Surface::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
   _events.insert(std::pair<Uuid, QCustom3DItem *>(event->getUuid(), item));
 }
 
-void Surface::addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon) {
+void OilFieldScene::addHorizon(
+    const std::unique_ptr<Data::SeismHorizon> &horizon) {
   _points = horizon->getPoints();
   unsigned long countElementInLine =
       static_cast<unsigned long>(horizon->getNx());
@@ -52,7 +54,7 @@ void Surface::addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon) {
   _rows.clear();
 }
 
-void Surface::addReceiver(
+void OilFieldScene::addReceiver(
     const std::unique_ptr<Data::SeismReceiver> &receiver) {
   float x, y, z;
   std::tie(x, y, z) = receiver->getLocation();
@@ -69,7 +71,7 @@ void Surface::addReceiver(
       std::pair<Uuid, QCustom3DItem *>(receiver->getUuid(), item));
 }
 
-void Surface::addWell(const std::unique_ptr<Data::SeismWell> &well) {
+void OilFieldScene::addWell(const std::unique_ptr<Data::SeismWell> &well) {
   float x = 0, y = 0, z = 0;
   float lx = 0, ly = 0, lz = 0;
   std::tie(lx, ly, lz) = well->getPoint(0);
@@ -95,7 +97,7 @@ void Surface::addWell(const std::unique_ptr<Data::SeismWell> &well) {
   }
 }
 
-bool Surface::showEvent(QUuid uid) {
+bool OilFieldScene::showEvent(QUuid uid) {
   if (_events.at(uid)) {
     _events.at(uid)->setVisible(true);
     return true;
@@ -103,7 +105,7 @@ bool Surface::showEvent(QUuid uid) {
   return false;
 }
 
-bool Surface::showEvent(std::unique_ptr<Data::SeismEvent> &event) {
+bool OilFieldScene::showEvent(std::unique_ptr<Data::SeismEvent> &event) {
   if (_events.at(event->getUuid())) {
     _events.at(event->getUuid())->setVisible(true);
     return true;
@@ -111,7 +113,8 @@ bool Surface::showEvent(std::unique_ptr<Data::SeismEvent> &event) {
   return false;
 }
 
-void Surface::setProject(const std::unique_ptr<Data::SeismProject> &project) {
+void OilFieldScene::setProject(
+    const std::unique_ptr<Data::SeismProject> &project) {
   //  for (auto &uuid_event : project->getAllMap<SeismEvent>()) {
   //    addEvent(uuid_event.second);
   //    showEvent(uuid_event.first);
@@ -127,12 +130,13 @@ void Surface::setProject(const std::unique_ptr<Data::SeismProject> &project) {
   }
 }
 
-bool Surface::removeEvent(const std::unique_ptr<Data::SeismEvent> &event) {
+bool OilFieldScene::removeEvent(
+    const std::unique_ptr<Data::SeismEvent> &event) {
   Uuid uid = event.get()->getUuid();
   return removeEvent(uid);
 }
 
-bool Surface::removeEvent(const Uuid &uid) {
+bool OilFieldScene::removeEvent(const Uuid &uid) {
   QCustom3DItem *item = _events[uid];
   if (item == _isItemHanlde) {
     _isHandle = false;
@@ -146,12 +150,12 @@ bool Surface::removeEvent(const Uuid &uid) {
   return false;
 }
 
-bool Surface::removeHorizon(
+bool OilFieldScene::removeHorizon(
     const std::unique_ptr<Data::SeismHorizon> &horizon) {
   return removeHorizon(horizon.get()->getUuid());
 }
 
-bool Surface::removeHorizon(const Uuid &uid) {
+bool OilFieldScene::removeHorizon(const Uuid &uid) {
   QSurface3DSeries *series = _horizons[uid];
   if (_horizons.erase(uid)) {
     _surface->removeSeries(series);
@@ -160,12 +164,12 @@ bool Surface::removeHorizon(const Uuid &uid) {
   return false;
 }
 
-bool Surface::removeReceiver(
+bool OilFieldScene::removeReceiver(
     const std::unique_ptr<Data::SeismReceiver> &receiver) {
   return removeReceiver(receiver.get()->getUuid());
 }
 
-bool Surface::removeReceiver(const Uuid &uid) {
+bool OilFieldScene::removeReceiver(const Uuid &uid) {
   QCustom3DItem *item = _receivers[uid];
   if (_receivers.erase(uid)) {
     _surface->removeCustomItem(item);
@@ -174,11 +178,11 @@ bool Surface::removeReceiver(const Uuid &uid) {
   return false;
 }
 
-bool Surface::removeWell(const std::unique_ptr<Data::SeismWell> &well) {
+bool OilFieldScene::removeWell(const std::unique_ptr<Data::SeismWell> &well) {
   return removeWell(well.get()->getUuid());
 }
 
-bool Surface::removeWell(const Uuid &uid) {
+bool OilFieldScene::removeWell(const Uuid &uid) {
   std::vector<QCustom3DItem *> v = _wells[uid];
   if (_wells.erase(uid)) {
     for (auto &it : v) {
@@ -189,14 +193,14 @@ bool Surface::removeWell(const Uuid &uid) {
   return false;
 }
 
-bool Surface::hideEvent(QUuid uid) {
+bool OilFieldScene::hideEvent(QUuid uid) {
   if (_events.at(uid)) {
     _events.at(uid)->setVisible(true);
   }
   return false;
 }
 
-bool Surface::hideEvent(std::unique_ptr<Data::SeismEvent> &event) {
+bool OilFieldScene::hideEvent(std::unique_ptr<Data::SeismEvent> &event) {
   if (_events.at(event->getUuid())) {
     _events.at(event->getUuid())->setVisible(true);
     return true;
@@ -204,7 +208,7 @@ bool Surface::hideEvent(std::unique_ptr<Data::SeismEvent> &event) {
   return false;
 }
 
-void Surface::hideAllEvent(bool hide) {
+void OilFieldScene::hideAllEvent(bool hide) {
   if (hide) {
     _isEventsHide = true;
     for (auto &event : _events) {
@@ -218,7 +222,7 @@ void Surface::hideAllEvent(bool hide) {
   }
 }
 
-void Surface::hideAllWell(bool hide) {
+void OilFieldScene::hideAllWell(bool hide) {
   if (hide) {
     _isWellsHide = true;
     for (auto &well : _wells) {
@@ -236,7 +240,7 @@ void Surface::hideAllWell(bool hide) {
   }
 }
 
-void Surface::hideAllReceiver(bool hide) {
+void OilFieldScene::hideAllReceiver(bool hide) {
   if (hide) {
     _isReceiversHide = true;
     for (auto &receiver : _receivers) {
@@ -250,7 +254,7 @@ void Surface::hideAllReceiver(bool hide) {
   }
 }
 
-void Surface::hideAllHorizon(bool hide) {
+void OilFieldScene::hideAllHorizon(bool hide) {
   if (hide) {
     _isHorizonsHide = true;
     for (auto &horizon : _horizons) {
@@ -264,15 +268,15 @@ void Surface::hideAllHorizon(bool hide) {
   }
 }
 
-const std::map<Uuid, QCustom3DItem *> Surface::getEvents() const {
+const std::map<Uuid, QCustom3DItem *> OilFieldScene::getEvents() const {
   return _events;
 }
 
-const std::map<Uuid, QSurface3DSeries *> Surface::getHorizons() const {
+const std::map<Uuid, QSurface3DSeries *> OilFieldScene::getHorizons() const {
   return _horizons;
 }
 
-void Surface::handleElementSelected(QAbstract3DGraph::ElementType type) {
+void OilFieldScene::handleElementSelected(QAbstract3DGraph::ElementType type) {
   if (type == QAbstract3DGraph::ElementCustomItem) {
     QCustom3DItem *item = _surface->selectedCustomItem();
     _isItemHanlde = item;
@@ -304,7 +308,7 @@ void Surface::handleElementSelected(QAbstract3DGraph::ElementType type) {
   _surface->clearSelection();
 }
 
-void Surface::settingGraph() {
+void OilFieldScene::settingGraph() {
 
   _surface->scene()->activeCamera()->setCameraPreset(
       Q3DCamera::CameraPresetIsometricLeftHigh);
@@ -337,10 +341,10 @@ void Surface::settingGraph() {
   // end setting axis
 
   connect(_surface, &QAbstract3DGraph::selectedElementChanged, this,
-          &Surface::handleElementSelected);
+          &OilFieldScene::handleElementSelected);
 }
 
-void Surface::checkAxisRange(QCustom3DItem &newItem) {
+void OilFieldScene::checkAxisRange(QCustom3DItem &newItem) {
   QVector3D position = newItem.position();
   //  std::cerr << position.x() << " " << position.y() << " " << position.z()
   //            << std::endl;
@@ -363,9 +367,9 @@ void Surface::checkAxisRange(QCustom3DItem &newItem) {
   _surface->axisZ()->setRange(_minAxisValue, _maxAxisValue);
 }
 
-void Surface::fillSurfaceDataRow(QSurfaceDataArray *dataRow,
-                                 ulong countElementInLine,
-                                 ulong countElementInColumn) {
+void OilFieldScene::fillSurfaceDataRow(QSurfaceDataArray *dataRow,
+                                       ulong countElementInLine,
+                                       ulong countElementInColumn) {
   for (unsigned long i = 0; i < countElementInLine; i++) {
     _rows.push_back(new QSurfaceDataRow);
   }
@@ -381,7 +385,8 @@ void Surface::fillSurfaceDataRow(QSurfaceDataArray *dataRow,
   }
 }
 
-QSurface3DSeries *Surface::createHorizonSeries(QSurfaceDataArray *dataArray) {
+QSurface3DSeries *
+OilFieldScene::createHorizonSeries(QSurfaceDataArray *dataArray) {
   QSurface3DSeries *series = new QSurface3DSeries;
   series->dataProxy()->resetArray(dataArray);
   series->setDrawMode(QSurface3DSeries::DrawSurface);
@@ -389,13 +394,13 @@ QSurface3DSeries *Surface::createHorizonSeries(QSurfaceDataArray *dataArray) {
   return series;
 }
 
-QVector3D Surface::vectorBy2Point(QVector3D from, QVector3D to) {
+QVector3D OilFieldScene::vectorBy2Point(QVector3D from, QVector3D to) {
   float x1 = from.x(), y1 = from.y(), z1 = from.z();
   float x2 = to.x(), y2 = to.y(), z2 = to.z();
   return QVector3D(x2 - x1, y2 - y1, z2 - z1);
 }
 
-float Surface::calculateLenght(QVector3D from, QVector3D to) {
+float OilFieldScene::calculateLenght(QVector3D from, QVector3D to) {
   return static_cast<float>(sqrt((from.x() - to.x()) * (from.x() - to.x()) +
                                  (from.y() - to.y()) * (from.y() - to.y()) +
                                  (from.z() - to.z()) * (from.z() - to.z())));

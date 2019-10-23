@@ -145,7 +145,7 @@ void View::update(const std::unique_ptr<SeismEvent> &event,
 
 void View::update(const std::unique_ptr<SeismEvent> &event, const QUuid &uuid,
                   const QString &wellName) {
-  assert(nullptr != _wellManagerLauoyt);
+  assert(nullptr != _wellManagersLayout);
 
   _wellNames_map[uuid] = wellName;
   WellManager *manager = qobject_cast<WellManager *>(

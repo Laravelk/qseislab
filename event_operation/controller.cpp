@@ -16,9 +16,7 @@ namespace Generic {
 Controller::Controller(
     const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &wells_map,
     QObject *parent)
-    : QObject(parent),
-      //    _wells_map(wells_map),
-      _model(new Model(new SegyReader(), this)),
+    : QObject(parent), _model(new Model(new SegyReader(), this)),
       _event(std::make_unique<Data::SeismEvent>()) {
 
   std::map<QUuid, QString> wellNames_map;

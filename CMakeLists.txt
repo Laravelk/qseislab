@@ -97,7 +97,9 @@ set(SOURCES
         main/view/startpage.cpp
         main/view/workpage.cpp
         main/view/infoproject.cpp
-        main/surface_view/surface.cpp
+
+#        main/surface_view/surface.cpp
+        main/oil_field_scene/oilfieldscene.cpp
 
         share_view/tableassistant.cpp
         share_view/parsing/evaluateExpr.cpp
@@ -177,7 +179,10 @@ set(HEADERS
         main/view/startpage.h
         main/view/workpage.h
         main/view/infoproject.h
-        main/surface_view/surface.h
+
+#        main/surface_view/surface.h
+
+        main/oil_field_scene/oilfieldscene.h
 
         share_view/tableassistant.h
         share_view/parsing/evaluateExpr.h
