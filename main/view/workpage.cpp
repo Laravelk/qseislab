@@ -92,13 +92,12 @@ WorkPage::WorkPage(QWidget *parent)
 }
 
 void WorkPage::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
-  //  _surface->setProject(project);
   _oilFieldScene->setProject(project);
   _eventsTable->setAll<SeismEvent>(project->getAllMap<SeismEvent>());
 }
 
 void WorkPage::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
-  //  _oilFieldScene->addEvent(event); // TODO: uncoment
+  _oilFieldScene->addEvent(event); // TODO: uncoment
   _eventsTable->add<SeismEvent>(event);
 }
 
@@ -107,18 +106,18 @@ void WorkPage::processedEvents(
   _eventsTable->setAll<SeismEvent>(events);
 
   for (auto &itr : events) {
-    //    _oilFieldScene->showEvent(itr.first); // TODO: uncomment
+    _oilFieldScene->showEvent(itr.first); // TODO: uncomment
   }
 }
 
 void WorkPage::updateEvent(const std::unique_ptr<Data::SeismEvent> &event) {
   _eventsTable->update<SeismEvent>(event);
 
-  //    _oilFieldScene->updateEvent(event); // TODO: uncomment and realize!
+  //  _oilFieldScene->updateEvent(event); // TODO: uncomment and realize!
 }
 
 void WorkPage::removeEvent(const QUuid &uuid) {
-  //  _oilFieldScene->removeEvent(uuid); // TODO: uncomment
+  _oilFieldScene->removeEvent(uuid); // TODO: uncomment
   _eventsTable->remove(uuid);
 }
 

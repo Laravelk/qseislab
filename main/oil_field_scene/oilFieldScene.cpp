@@ -24,6 +24,7 @@ OilFieldScene::OilFieldScene(Q3DSurface *surface)
 }
 
 void OilFieldScene::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
+  //  if (event->isProcessed()) {
   float x, y, z;
   std::tie(x, y, z) = event->getLocation();
   QVector3D position(x, z, y);
@@ -36,6 +37,7 @@ void OilFieldScene::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
   _surface->addCustomItem(item);
   checkAxisRange(*item);
   _events.insert(std::pair<Uuid, QCustom3DItem *>(event->getUuid(), item));
+  //  }
 }
 
 void OilFieldScene::addHorizon(
@@ -97,28 +99,23 @@ void OilFieldScene::addWell(const std::unique_ptr<Data::SeismWell> &well) {
   }
 }
 
-bool OilFieldScene::showEvent(QUuid uid) {
-  if (_events.at(uid)) {
+bool OilFieldScene::showEvent(const QUuid &uid) {
+  if (_events.end() != _events.find(uid)) {
     _events.at(uid)->setVisible(true);
     return true;
   }
   return false;
 }
 
-bool OilFieldScene::showEvent(std::unique_ptr<Data::SeismEvent> &event) {
-  if (_events.at(event->getUuid())) {
-    _events.at(event->getUuid())->setVisible(true);
-    return true;
-  }
-  return false;
+bool OilFieldScene::showEvent(const std::unique_ptr<Data::SeismEvent> &event) {
+  showEvent(event->getUuid());
 }
 
 void OilFieldScene::setProject(
     const std::unique_ptr<Data::SeismProject> &project) {
-  //  for (auto &uuid_event : project->getAllMap<SeismEvent>()) {
-  //    addEvent(uuid_event.second);
-  //    showEvent(uuid_event.first);
-  //  }
+  for (auto &uuid_event : project->getAllMap<SeismEvent>()) {
+    addEvent(uuid_event.second);
+  }
   for (auto &uuid_horizon : project->getAllMap<SeismHorizon>()) {
     addHorizon(uuid_horizon.second);
   }
@@ -132,19 +129,16 @@ void OilFieldScene::setProject(
 
 bool OilFieldScene::removeEvent(
     const std::unique_ptr<Data::SeismEvent> &event) {
-  Uuid uid = event.get()->getUuid();
-  return removeEvent(uid);
+  return removeEvent(event->getUuid());
 }
 
 bool OilFieldScene::removeEvent(const Uuid &uid) {
-  QCustom3DItem *item = _events[uid];
-  if (item == _isItemHanlde) {
-    _isHandle = false;
-    _surface->removeCustomItemAt(_label->position());
-  }
-  QVector3D position = item->position();
-  if (_events.erase(uid)) {
-    _surface->removeCustomItemAt(position);
+  if (_events.end() != _events.find(uid)) {
+    QCustom3DItem *item = _events[uid];
+    if (item == _isItemHanlde) {
+      _surface->removeCustomItemAt(_label->position());
+    }
+    _surface->removeCustomItem(item);
     return true;
   }
   return false;
@@ -152,7 +146,7 @@ bool OilFieldScene::removeEvent(const Uuid &uid) {
 
 bool OilFieldScene::removeHorizon(
     const std::unique_ptr<Data::SeismHorizon> &horizon) {
-  return removeHorizon(horizon.get()->getUuid());
+  return removeHorizon(horizon->getUuid());
 }
 
 bool OilFieldScene::removeHorizon(const Uuid &uid) {
@@ -166,12 +160,15 @@ bool OilFieldScene::removeHorizon(const Uuid &uid) {
 
 bool OilFieldScene::removeReceiver(
     const std::unique_ptr<Data::SeismReceiver> &receiver) {
-  return removeReceiver(receiver.get()->getUuid());
+  return removeReceiver(receiver->getUuid());
 }
 
 bool OilFieldScene::removeReceiver(const Uuid &uid) {
-  QCustom3DItem *item = _receivers[uid];
-  if (_receivers.erase(uid)) {
+  if (_receivers.end() != _receivers.find(uid)) {
+    QCustom3DItem *item = _receivers[uid];
+    if (item == _isItemHanlde) {
+      _surface->removeCustomItemAt(_label->position());
+    }
     _surface->removeCustomItem(item);
     return true;
   }
@@ -179,7 +176,7 @@ bool OilFieldScene::removeReceiver(const Uuid &uid) {
 }
 
 bool OilFieldScene::removeWell(const std::unique_ptr<Data::SeismWell> &well) {
-  return removeWell(well.get()->getUuid());
+  return removeWell(well->getUuid());
 }
 
 bool OilFieldScene::removeWell(const Uuid &uid) {
@@ -193,14 +190,15 @@ bool OilFieldScene::removeWell(const Uuid &uid) {
   return false;
 }
 
-bool OilFieldScene::hideEvent(QUuid uid) {
-  if (_events.at(uid)) {
-    _events.at(uid)->setVisible(true);
+bool OilFieldScene::hideEvent(const QUuid &uid) {
+  if (_events.end() != _events.find(uid)) {
+    _events.at(uid)->setVisible(false);
+    return true;
   }
   return false;
 }
 
-bool OilFieldScene::hideEvent(std::unique_ptr<Data::SeismEvent> &event) {
+bool OilFieldScene::hideEvent(const std::unique_ptr<Data::SeismEvent> &event) {
   if (_events.at(event->getUuid())) {
     _events.at(event->getUuid())->setVisible(true);
     return true;
@@ -209,62 +207,32 @@ bool OilFieldScene::hideEvent(std::unique_ptr<Data::SeismEvent> &event) {
 }
 
 void OilFieldScene::hideAllEvent(bool hide) {
-  if (hide) {
-    _isEventsHide = true;
-    for (auto &event : _events) {
-      event.second->setVisible(false);
-    }
-  } else {
-    _isEventsHide = false;
-    for (auto &event : _events) {
-      event.second->setVisible(true);
-    }
+  _isEventsHide = hide;
+  for (auto &event : _events) {
+    event.second->setVisible(!hide);
   }
 }
 
 void OilFieldScene::hideAllWell(bool hide) {
-  if (hide) {
-    _isWellsHide = true;
-    for (auto &well : _wells) {
-      for (auto &wellPart : well.second) {
-        wellPart->setVisible(false);
-      }
-    }
-  } else {
-    _isWellsHide = false;
-    for (auto &well : _wells) {
-      for (auto &wellPart : well.second) {
-        wellPart->setVisible(true);
-      }
+  _isWellsHide = hide;
+  for (auto &well : _wells) {
+    for (auto &wellPart : well.second) {
+      wellPart->setVisible(!hide);
     }
   }
 }
 
 void OilFieldScene::hideAllReceiver(bool hide) {
-  if (hide) {
-    _isReceiversHide = true;
-    for (auto &receiver : _receivers) {
-      receiver.second->setVisible(false);
-    }
-  } else {
-    _isReceiversHide = false;
-    for (auto &receiver : _receivers) {
-      receiver.second->setVisible(true);
-    }
+  _isReceiversHide = hide;
+  for (auto &receiver : _receivers) {
+    receiver.second->setVisible(!hide);
   }
 }
 
 void OilFieldScene::hideAllHorizon(bool hide) {
-  if (hide) {
-    _isHorizonsHide = true;
-    for (auto &horizon : _horizons) {
-      horizon.second->setVisible(false);
-    }
-  } else {
-    _isHorizonsHide = false;
-    for (auto &horizon : _horizons) {
-      horizon.second->setVisible(true);
-    }
+  _isHorizonsHide = hide;
+  for (auto &horizon : _horizons) {
+    horizon.second->setVisible(!hide);
   }
 }
 

@@ -33,8 +33,8 @@ public:
   void addReceiver(const std::unique_ptr<Data::SeismReceiver> &);
   void addWell(const std::unique_ptr<Data::SeismWell> &);
 
-  bool showEvent(QUuid);
-  bool showEvent(std::unique_ptr<Data::SeismEvent> &);
+  bool showEvent(const QUuid &);
+  bool showEvent(const std::unique_ptr<Data::SeismEvent> &);
 
   void setProject(const std::unique_ptr<Data::SeismProject> &);
 
@@ -47,8 +47,8 @@ public:
   bool removeWell(const std::unique_ptr<Data::SeismWell> &);
   bool removeWell(const Uuid &);
 
-  bool hideEvent(QUuid);
-  bool hideEvent(std::unique_ptr<Data::SeismEvent> &);
+  bool hideEvent(const QUuid &);
+  bool hideEvent(const std::unique_ptr<Data::SeismEvent> &);
   void hideAllEvent(bool);
   void hideAllWell(bool);
   void hideAllReceiver(bool);
