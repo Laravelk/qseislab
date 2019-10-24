@@ -37,6 +37,7 @@ private:
 
 private:
   void drawArrows();
+  void drawTextAxes();
   Qt3DCore::QEntity *drawLine(const QVector3D &, const QVector3D &,
                               const QColor &, Qt3DCore::QEntity *);
   void drawCurve(const std::unique_ptr<Data::SeismTrace> &,

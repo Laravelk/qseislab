@@ -38,9 +38,6 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, qreal ax, qreal ay,
 void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
                           QSizeF size, QBrush brush, qreal rangeX,
                           qreal leftBorderPos, qreal rightBorderPos) {
-  if (pos.y() > _countOfComponents) {
-    _countOfComponents = pos.y();
-  }
   QBrush borderBrush;
   if (brush == Qt::darkRed) {
     borderBrush = Qt::darkGreen;

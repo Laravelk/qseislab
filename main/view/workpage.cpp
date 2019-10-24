@@ -6,7 +6,7 @@
 #include "data/seismreceiver.h"
 #include "infoproject.h"
 
-#include "share_view/tableassistant.h"
+#include "share_view/filteringtableassistant.h"
 
 //#include <iostream> // TODO: delete
 
@@ -22,14 +22,13 @@ typedef Data::SeismReceiver SeismReceiver;
 
 namespace Main {
 WorkPage::WorkPage(QWidget *parent)
-    : QFrame(parent),
-      _eventsTable(new TableAssistant(TableAssistant::ForEvents)),
+    : QFrame(parent), _eventsTable(new FilteringTableAssistant(
+                          FilteringTableAssistant::ForEvents)),
       _graph(new Q3DSurface), _eventBox(new QCheckBox),
       _receiverBox(new QCheckBox), _wellBox(new QCheckBox),
       _horizonBox(new QCheckBox) {
 
   // Setting`s
-  //  initEventsTable(_eventsTable);
   _graph->setMinimumWidth(400);
   _graph->setMinimumHeight(700);
   _oilFieldScene = new OilFieldScene(_graph);
@@ -50,18 +49,11 @@ WorkPage::WorkPage(QWidget *parent)
   // Setting`s end
 
   // Connecting
-  //  connect(_eventsTable, &QTableWidget::cellDoubleClicked, this,
-  //          &WorkPage::handleEventClicked);
-  connect(_eventsTable, &TableAssistant::viewClicked,
-          [this](auto uuid) { emit viewEventClicked(uuid); });
-  connect(_eventsTable, &TableAssistant::removeClicked,
-          [this](auto uuid) { emit removeEventClicked(uuid); });
+  connect(_eventsTable, &FilteringTableAssistant::viewClicked,
+          [this](auto &uuid) { emit viewEventClicked(uuid); });
+  connect(_eventsTable, &FilteringTableAssistant::removeClicked,
+          [this](auto &uuid) { emit removeEventClicked(uuid); });
 
-  //  connect(_horizonBox, &QCheckBox::stateChanged,
-  //          [this]() { _surface->hideAllHorizon(!_surface->isHorizonsHide());
-  //          });
-  //  connect(_receiverBox, &QCheckBox::stateChanged, [this]() {
-  //    _surface->hideAllReceiver(!_surface->isReceiversHide());
   connect(_horizonBox, &QCheckBox::stateChanged, [this]() {
     _oilFieldScene->hideAllHorizon(!_oilFieldScene->isHorizonsHide());
   });
@@ -74,20 +66,18 @@ WorkPage::WorkPage(QWidget *parent)
   connect(_eventBox, &QCheckBox::stateChanged, [this]() {
     _oilFieldScene->hideAllEvent(!_oilFieldScene->isEventsHide());
   });
-  //  connect(_wellBox, &QCheckBox::stateChanged,
-  //          [this]() { _surface->hideAllWell(!_surface->isWellsHide()); });
-  //  connect(_eventBox, &QCheckBox::stateChanged,
-  //          [this]() { _surface->hideAllEvent(!_surface->isEventsHide()); });
   // Connecting end
 
   // Layout`s
   QHBoxLayout *oilFieldSceneLayout = new QHBoxLayout();
   oilFieldSceneLayout->addWidget(container, 1);
   QVBoxLayout *checkLayout = new QVBoxLayout();
+  checkLayout->addStretch(1);
   checkLayout->addWidget(_horizonBox);
   checkLayout->addWidget(_receiverBox);
   checkLayout->addWidget(_wellBox);
   checkLayout->addWidget(_eventBox);
+  checkLayout->addStretch(1);
   oilFieldSceneLayout->addLayout(checkLayout);
   QVBoxLayout *vLayout = new QVBoxLayout();
 
@@ -108,9 +98,7 @@ void WorkPage::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
 }
 
 void WorkPage::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
-
-  //  _surface->addEvent(event); // TODO: uncoment
-
+  //  _oilFieldScene->addEvent(event); // TODO: uncoment
   _eventsTable->add<SeismEvent>(event);
 }
 
@@ -119,34 +107,30 @@ void WorkPage::processedEvents(
   _eventsTable->setAll<SeismEvent>(events);
 
   for (auto &itr : events) {
-    //    _surface->showEvent(itr.first); // TODO: uncomment
+    //    _oilFieldScene->showEvent(itr.first); // TODO: uncomment
   }
 }
 
 void WorkPage::updateEvent(const std::unique_ptr<Data::SeismEvent> &event) {
-  //    _infoProject->updateEvent(event); // NOTE: нужно ли? (не реализовано)
   _eventsTable->update<SeismEvent>(event);
 
-  //    _surface->updateEvent(event); // TODO: uncomment and realize!
+  //    _oilFieldScene->updateEvent(event); // TODO: uncomment and realize!
 }
 
 void WorkPage::removeEvent(const QUuid &uuid) {
-  //  _surface->removeEvent(uuid); // TODO: uncomment
-  _eventsTable->remove<SeismEvent>(uuid);
+  //  _oilFieldScene->removeEvent(uuid); // TODO: uncomment
+  _eventsTable->remove(uuid);
 }
 
 void WorkPage::addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon) {
-  //  _surface->addHorizon(horizon);
   _oilFieldScene->addHorizon(horizon);
 }
 
 void WorkPage::removeHorizon(const QUuid &uuid) {
-  //  _surface->removeHorizon(uuid);
   _oilFieldScene->removeHorizon(uuid);
 }
 
 void WorkPage::addWell(const std::unique_ptr<Data::SeismWell> &well) {
-  //  _surface->addWell(well);
   _oilFieldScene->addWell(well);
   for (auto &receiver : well->getReceivers()) {
     _oilFieldScene->addReceiver(receiver);
@@ -154,18 +138,15 @@ void WorkPage::addWell(const std::unique_ptr<Data::SeismWell> &well) {
 }
 
 void WorkPage::removeWell(const QUuid &uuid) {
-  //    _surface->removeWell(uuid);
   _oilFieldScene->removeWell(uuid);
 }
 
 void WorkPage::addReceiver(
     const std::unique_ptr<Data::SeismReceiver> &receiver) {
-  //  _surface->addReceiver(receiver);
   _oilFieldScene->addReceiver(receiver);
 }
 
 void WorkPage::removeReceiver(const QUuid &uuid) {
-  //  _surface->removeReceiver(uuid);
   _oilFieldScene->removeReceiver(uuid);
 }
 

@@ -1,11 +1,9 @@
 #include "controller.h"
 
 #include "data/seismhorizon.h"
-//#include "data/seismproject.h"
 #include "model.h"
 
 typedef Data::SeismHorizon SeismHorizon;
-// typedef Data::SeismProject SeismProject;
 
 namespace HorizonOperation {
 
@@ -13,9 +11,8 @@ Controller::Controller(QObject *parent)
     : QObject(parent), _model(new Model(this)),
       _view(std::make_unique<View>()) {
 
-  connect(_model, &Model::notify, [this](auto &msg) {
-    _view->setNotification(msg);
-  });
+  connect(_model, &Model::notify,
+          [this](auto &msg) { _view->setNotification(msg); });
 
   connect(_view.get(), &View::addHorizonClicked, [this] {
     _view->settingHorizonInfo(_tmpHorizon);
@@ -25,7 +22,7 @@ Controller::Controller(QObject *parent)
     //    _newHorizons.push_back(std::move(_tmpHorizon));
   });
 
-  connect(_view.get(), &View::removeHorizonClicked, [this](auto uuid) {
+  connect(_view.get(), &View::removeHorizonClicked, [this](auto &uuid) {
     _view->removeHorizon(uuid);
     _view->changed(true);
     //    _removedHorizons.push_back(uuid);

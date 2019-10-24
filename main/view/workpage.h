@@ -11,7 +11,7 @@
 
 using namespace QtDataVisualization;
 
-class TableAssistant;
+class FilteringTableAssistant;
 
 namespace Main {
 class InfoProject;
@@ -45,7 +45,7 @@ signals:
   void removeEventClicked(const QUuid) const;
 
 private:
-  TableAssistant *_eventsTable;
+  FilteringTableAssistant *_eventsTable;
 
   //  Surface *_surface;
   OilFieldScene *_oilFieldScene;

@@ -1,356 +1,324 @@
 #include "tableassistant.h"
 
-#include "data/seismevent.h"
-#include "parsing/evaluateExpr.h"
+#include "data/seismhorizon.h"
+#include "data/seismreceiver.h"
+#include "data/seismwell.h"
 
 #include <QBoxLayout>
-#include <QCheckBox>
 #include <QHeaderView>
-#include <QLineEdit>
 #include <QPushButton>
-#include <QSplitter>
-#include <QUuid>
 
-//#include <iostream> // TODO: remove
-
-// NOTE: попробовтаь переделать на QSortFilterProxyModel
-
-typedef Data::SeismEvent SeismEvent;
+typedef Data::SeismHorizon SeismHorizon;
+typedef Data::SeismWell SeismWell;
+typedef Data::SeismReceiver SeismReceiver;
 
 TableAssistant::TableAssistant(Mode mode, QWidget *parent)
-    : QFrame(parent), _filterTable(new QTableWidget()),
-      _objectsTable(new QTableWidget()) {
+    : QFrame(parent), _mode(mode), _table(new QTableWidget()) {
   // Settings
-  switch (mode) {
-  case ForEvents:
-    forEvents();
+  _table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+  _table->setSortingEnabled(true);
+  _table->setSelectionBehavior(QAbstractItemView::SelectRows);
+  _table->setSelectionMode(QAbstractItemView::SingleSelection);
+  _table->verticalHeader()->setVisible(false);
+
+  switch (_mode) {
+  case ForHorizons:
+    forHorizons();
     break;
+  case ForWells:
+    forWells();
+    break;
+  case ForReceivers:
+    forReceivers();
+    break;
+  default:
+    assert(false && "Unsupported TableAssistant`s mode");
   }
-
-  _objectsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
-  _objectsTable->setSortingEnabled(true);
-  _objectsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-  _objectsTable->setSelectionMode(QAbstractItemView::SingleSelection);
-
-  // Double-clicking on object
-  connect(_objectsTable, &QTableWidget::cellDoubleClicked,
-          [this](int row, int) {
-            emit viewClicked(
-                _objectsTable->item(row, 0)->data(Qt::DisplayRole).toUuid());
-          });
-
-  _filterTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
-  _filterTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-  _filterTable->setSelectionMode(QAbstractItemView::SingleSelection);
-
-  _filterTable->setColumnCount(3);
-  _filterTable->setHorizontalHeaderLabels(QStringList() << ""
-                                                        << "Column"
-                                                        << "Pattern");
-  auto horizontalHeaderFilterTable = _filterTable->horizontalHeader();
-  horizontalHeaderFilterTable->setSectionResizeMode(1, QHeaderView::Fixed);
-  horizontalHeaderFilterTable->setStretchLastSection(true);
-  horizontalHeaderFilterTable->setDefaultAlignment(Qt::AlignLeft);
-  _filterTable->verticalHeader()->setVisible(false);
-
-  for (int i = 3; i < _objectsTable->columnCount(); ++i) {
-    insertRowInFilterTable(_objectsTable->horizontalHeaderItem(i)->text());
-  }
-  _filterTable->resizeColumnsToContents();
-  _filterTable->setHidden(true);
-
-  QPushButton *hideButton = new QPushButton("filters");
-  // Settings end
 
   // Conections
-  connect(hideButton, &QPushButton::clicked, [this]() {
-    this->_filterTable->setVisible(!this->_filterTable->isVisible());
+  connect(_table, &QTableWidget::cellDoubleClicked, [this](int row, int) {
+    emit viewClicked(_table->item(row, 0)->data(Qt::DisplayRole).toUuid());
   });
   // Conections end
 
   // Layouts
-  QSplitter *splitter = new QSplitter(Qt::Vertical);
-  splitter->setChildrenCollapsible(false);
-  splitter->addWidget(_filterTable);
-  splitter->addWidget(_objectsTable);
-  QHBoxLayout *buttonsLayout = new QHBoxLayout();
-  buttonsLayout->addWidget(hideButton);
-  buttonsLayout->addStretch(1);
   QVBoxLayout *mainLayout = new QVBoxLayout();
-  mainLayout->addLayout(buttonsLayout);
-  mainLayout->addWidget(splitter);
+  mainLayout->addWidget(_table);
+  mainLayout->addStretch(1);
 
   setLayout(mainLayout);
   // Layouts end
 }
 
-void TableAssistant::clearObjectTable() {
-  const int end = _objectsTable->rowCount();
-  for (int i = 0; i < end; ++i) {
-    _objectsTable->removeRow(0);
-  }
-}
-
-void TableAssistant::forEvents() {
-  _objectsTable->setColumnCount(11);
-  _objectsTable->setColumnHidden(0, true);
-  _objectsTable->setColumnHidden(1, true);
-
-  // Configure column settings
-  _objectsTable->setHorizontalHeaderLabels(QStringList() << "uuid"
-                                                         << "filter_names"
-                                                         << "Type"
-                                                         << "Component Number"
-                                                         << "x"
-                                                         << "y"
-                                                         << "z"
-                                                         << "Date"
-                                                         << "Time"
-                                                         << ""
-                                                         << "");
-
-  _objectsTable->resizeColumnsToContents();
-
-  auto horizontalHeaderObjectTable = _objectsTable->horizontalHeader();
-  horizontalHeaderObjectTable->setSectionResizeMode(
-      10, QHeaderView::Fixed); // fixed remove-button section
-  horizontalHeaderObjectTable->setSectionResizeMode(
-      9, QHeaderView::Stretch); // stretching pred-last section
-  horizontalHeaderObjectTable->setDefaultAlignment(Qt::AlignLeft);
-  _objectsTable->verticalHeader()->setVisible(false);
-}
-
-void TableAssistant::insertRowInFilterTable(const QString &field) {
-  _filterTable->insertRow(_filterTable->rowCount());
-  int row = _filterTable->rowCount() - 1;
-
-  QCheckBox *checkBox = new QCheckBox();
-  QLineEdit *lineEdit = new QLineEdit();
-  lineEdit->setFrame(false);
-
-  // CheckBox setting
-  QWidget *buttonWidget = new QWidget();
-  QHBoxLayout *buttonLayout = new QHBoxLayout(buttonWidget);
-  buttonLayout->setAlignment(Qt::AlignCenter);
-  buttonLayout->addWidget(checkBox);
-  buttonLayout->setContentsMargins(0, 0, 0, 0);
-  _filterTable->setCellWidget(row, 0, buttonWidget);
-  connect(checkBox, &QCheckBox::stateChanged,
-          [this, lineEdit, field](int state) {
-            enbledFilter(state, field, lineEdit->text());
-          });
-
-  // Text setting
-  _filterTable->setItem(row, 1, new QTableWidgetItem(field));
-
-  // LineEdit setting
-  connect(lineEdit, &QLineEdit::textChanged, [checkBox](auto &) {
-    if (Qt::Unchecked != checkBox->checkState()) {
-      checkBox->setCheckState(Qt::CheckState::Unchecked);
-    }
-  });
-  connect(lineEdit, &QLineEdit::returnPressed, [checkBox, lineEdit]() {
-    if (!lineEdit->text().isEmpty()) {
-      checkBox->setCheckState(Qt::CheckState::Checked);
-    }
-  });
-
-  _filterTable->setCellWidget(row, 2, lineEdit);
-}
-
-template <typename param_t>
-void TableAssistant::applyFilter(int column, const QString &pattern,
-                                 const QString &filterName) {
-  for (int row = 0; row < _objectsTable->rowCount(); ++row) {
-    auto item = _objectsTable->item(row, column);
-    if (item) {
-      QStringList filterNames = _objectsTable->item(row, 1)->text().split(';');
-      bool eval = TableFilterParsing::parseAndEvaluateExpr<param_t>(
-          pattern.toStdString(), item->text().toStdString());
-      if (!eval) {
-        if (1 == filterNames.count()) {
-          _objectsTable->setRowHidden(row, true);
-        }
-        filterNames.append(filterName);
-      }
-      _objectsTable->item(row, 1)->setText(filterNames.join(';'));
-    }
-  }
-}
-
-template <typename mode_t>
-void TableAssistant::applyFilterFor(int column, const QString &pattern,
-                                    const QString &filterName) {
-  if constexpr (std::is_same_v<SeismEvent, mode_t>) {
-    switch (column) {
-    case 2:
-    case 3:
-      applyFilter<int>(column, pattern, filterName);
-      break;
-    case 4:
-    case 5:
-    case 6:
-      applyFilter<float>(column, pattern, filterName);
-      break;
-    case 7:
-      applyFilter<QDate>(column, pattern, filterName);
-      break;
-    case 8:
-      applyFilter<QTime>(column, pattern, filterName);
-      break;
-    }
-  }
-}
-
-void TableAssistant::enbledFilter(int enable, const QString &filterName,
-                                  const QString &pattern) {
-  for (int column = 0; column < _objectsTable->columnCount(); ++column) {
-    if (filterName == _objectsTable->horizontalHeaderItem(column)->text()) {
-      if (Qt::Unchecked == enable) {
-        for (int row = 0; row < _objectsTable->rowCount(); ++row) {
-          auto item = _objectsTable->item(row, column);
-          if (item) {
-            QStringList filterNames =
-                _objectsTable->item(row, 1)->text().split(';');
-
-            filterNames.removeAll(filterName);
-            if (1 == filterNames.count()) {
-              _objectsTable->setRowHidden(row, false);
-            }
-            _objectsTable->item(row, 1)->setText(filterNames.join(';'));
-          }
-        }
-      } else if (Qt::Checked == enable) {
-        switch (_mode) {
-        case ForEvents:
-          applyFilterFor<SeismEvent>(column, pattern, filterName);
-        }
-      }
-
-      return;
-    }
-  }
-}
-
-template <>
-void TableAssistant::add<SeismEvent>(const std::unique_ptr<SeismEvent> &event) {
-  _objectsTable->setSortingEnabled(false);
-  _objectsTable->insertRow(_objectsTable->rowCount());
-
-  int row = _objectsTable->rowCount() - 1;
-
-  auto uuid = event->getUuid();
-  _objectsTable->setItem(row, 0, new QTableWidgetItem(uuid.toString()));
-
-  _objectsTable->setItem(row, 1, new QTableWidgetItem());
-
-  _objectsTable->setItem(
-      row, 2, new QTableWidgetItem(QString::number(event->getType())));
-
-  _objectsTable->setItem(
-      row, 3,
-      new QTableWidgetItem(QString::number(event->getComponentNumber())));
-
-  if (event->isProcessed()) {
-    auto &location = event->getLocation();
-    _objectsTable->setItem(row, 4,
-                           new QTableWidgetItem(QString::number(
-                               static_cast<double>(std::get<0>(location)))));
-    _objectsTable->setItem(row, 5,
-                           new QTableWidgetItem(QString::number(
-                               static_cast<double>(std::get<1>(location)))));
-    _objectsTable->setItem(row, 6,
-                           new QTableWidgetItem(QString::number(
-                               static_cast<double>(std::get<2>(location)))));
-  }
-
-  _objectsTable->setItem(
-      row, 7,
-      new QTableWidgetItem(event->getDateTime().date().toString("dd.MM.yy")));
-
-  _objectsTable->setItem(
-      row, 8,
-      new QTableWidgetItem(event->getDateTime().time().toString("hh:mm")));
-
-  QPushButton *removeButton = new QPushButton();
-  QIcon icon(":/remove_button.png");
-  removeButton->setStyleSheet("background-color:white; border-style: outset");
-  removeButton->setIcon(icon);
-  _objectsTable->setCellWidget(row, 10, removeButton);
-  connect(removeButton, &QPushButton::clicked,
-          [this, uuid]() { emit removeClicked(uuid); });
-
-  _objectsTable->resizeColumnsToContents();
-  _objectsTable->setSortingEnabled(true);
-}
-
-// NOTE: созвать ли новые Item`ы или перезаписывать из значения?
-template <>
-void TableAssistant::update<SeismEvent>(
-    const std::unique_ptr<SeismEvent> &event) {
-  _objectsTable->setSortingEnabled(false);
-
-  const auto &uuidEvent = event->getUuid();
-  for (int row = 0; row < _objectsTable->rowCount(); ++row) {
-    if (uuidEvent ==
-        _objectsTable->item(row, 0)->data(Qt::DisplayRole).toUuid()) {
-      _objectsTable->setItem(
-          row, 2, new QTableWidgetItem(QString::number(event->getType())));
-
-      _objectsTable->setItem(
-          row, 3,
-          new QTableWidgetItem(QString::number(event->getComponentNumber())));
-
-      if (event->isProcessed()) {
-        auto &location = event->getLocation();
-        _objectsTable->setItem(
-            row, 4,
-            new QTableWidgetItem(
-                QString::number(static_cast<double>(std::get<0>(location)))));
-        _objectsTable->setItem(
-            row, 5,
-            new QTableWidgetItem(
-                QString::number(static_cast<double>(std::get<1>(location)))));
-        _objectsTable->setItem(
-            row, 6,
-            new QTableWidgetItem(
-                QString::number(static_cast<double>(std::get<2>(location)))));
-      }
-
-      _objectsTable->setItem(
-          row, 7,
-          new QTableWidgetItem(
-              event->getDateTime().date().toString("dd.MM.yy")));
-
-      _objectsTable->setItem(
-          row, 8,
-          new QTableWidgetItem(event->getDateTime().time().toString("hh:mm")));
-
-      break;
-    }
-  }
-
-  _objectsTable->resizeColumnsToContents();
-  _objectsTable->setSortingEnabled(true);
-}
-
-template <> bool TableAssistant::remove<SeismEvent>(const QUuid &uuid) {
-  const QString str_uuid = uuid.toString();
-  for (int row = 0; row < _objectsTable->rowCount(); ++row) {
-    if (str_uuid == _objectsTable->item(row, 0)->text()) {
-      _objectsTable->removeRow(row);
+bool TableAssistant::remove(const QUuid &uuid) {
+  for (int row = 0; row < _table->rowCount(); ++row) {
+    if (uuid == _table->item(row, 0)->data(Qt::DisplayRole).toUuid()) {
+      _table->removeRow(row);
       return true;
     }
   }
   return false;
 }
 
-template <>
-void TableAssistant::setAll<SeismEvent>(
-    const std::map<QUuid, std::unique_ptr<SeismEvent>> &event_map) {
-  clearObjectTable();
+void TableAssistant::requestRemoveAll() {
+  QList<QUuid> list;
+  for (int row = 0; row < _table->rowCount(); ++row) {
+    list.append(_table->item(row, 0)->data(Qt::DisplayRole).toUuid());
+  }
 
-  for (auto &uuid_event : event_map) {
-    add<SeismEvent>(uuid_event.second);
+  for (auto &uuid : list) {
+    emit removeClicked(uuid);
   }
 }
+
+template <typename T>
+void TableAssistant::setAll(const std::map<QUuid, std::unique_ptr<T>> &map) {
+  clearTable();
+
+  for (auto &uuid_obj : map) {
+    add<T>(uuid_obj.second);
+  }
+}
+
+void TableAssistant::clearTable() {
+  const int end = _table->rowCount();
+  for (int i = 0; i < end; ++i) {
+    _table->removeRow(0);
+  }
+}
+
+// Horizons
+void TableAssistant::forHorizons() {
+  assert(ForHorizons == _mode);
+  _table->setColumnCount(7);
+  _table->setColumnHidden(0, true);
+
+  _table->setHorizontalHeaderLabels(QStringList() << "uuid"
+                                                  << "Name"
+                                                  << "Point Number"
+                                                  << "Nx"
+                                                  << "Ny"
+                                                  << ""
+                                                  << "");
+
+  _table->resizeColumnsToContents();
+
+  auto horizontalHeaderObjectTable = _table->horizontalHeader();
+  horizontalHeaderObjectTable->setSectionResizeMode(
+      6, QHeaderView::Fixed); // fixed remove-button section
+  horizontalHeaderObjectTable->setSectionResizeMode(
+      5, QHeaderView::Stretch); // stretching pred-last section
+  horizontalHeaderObjectTable->setDefaultAlignment(Qt::AlignLeft);
+}
+
+template <>
+void TableAssistant::add<SeismHorizon>(
+    const std::unique_ptr<SeismHorizon> &horizon) {
+  assert(ForHorizons == _mode);
+  _table->setSortingEnabled(false);
+
+  _table->insertRow(_table->rowCount());
+  int row = _table->rowCount() - 1;
+
+  auto uuid = horizon->getUuid();
+  _table->setItem(row, 0, new QTableWidgetItem(uuid.toString()));
+
+  _table->setItem(row, 1, new QTableWidgetItem(horizon->getName()));
+
+  _table->setItem(
+      row, 2,
+      new QTableWidgetItem(QString::number(horizon->getPointsNumber())));
+
+  _table->setItem(row, 3,
+                  new QTableWidgetItem(QString::number(horizon->getNx())));
+
+  _table->setItem(row, 4,
+                  new QTableWidgetItem(QString::number(horizon->getNy())));
+
+  QPushButton *removeButton = new QPushButton();
+  QIcon icon(":/remove_button.png");
+  removeButton->setStyleSheet("background-color:white; border-style: outset");
+  removeButton->setIcon(icon);
+  _table->setCellWidget(row, 6, removeButton);
+  connect(removeButton, &QPushButton::clicked,
+          [this, uuid]() { emit removeClicked(uuid); });
+
+  _table->resizeColumnsToContents();
+  _table->setSortingEnabled(true);
+}
+
+template <>
+void TableAssistant::update<SeismHorizon>(
+    const std::unique_ptr<SeismHorizon> &horizon) {
+  assert(ForHorizons == _mode);
+  _table->setSortingEnabled(false);
+
+  const auto &uuid = horizon->getUuid();
+  for (int row = 0; row < _table->rowCount(); ++row) {
+    if (uuid == _table->item(row, 0)->data(Qt::DisplayRole).toUuid()) {
+      _table->item(row, 1)->setData(Qt::DisplayRole, horizon->getName());
+      _table->item(row, 2)->setData(Qt::DisplayRole,
+                                    horizon->getPointsNumber());
+      _table->item(row, 3)->setData(Qt::DisplayRole, horizon->getNx());
+      _table->item(row, 4)->setData(Qt::DisplayRole, horizon->getNy());
+      break;
+    }
+  }
+
+  _table->resizeColumnsToContents();
+  _table->setSortingEnabled(true);
+}
+// Horizons end
+
+// Wells
+void TableAssistant::forWells() {
+  assert(ForWells == _mode);
+  _table->setColumnCount(5);
+  _table->setColumnHidden(0, true);
+
+  _table->setHorizontalHeaderLabels(QStringList() << "uuid"
+                                                  << "Name"
+                                                  << "Point Number"
+                                                  << ""
+                                                  << "");
+
+  _table->resizeColumnsToContents();
+
+  auto horizontalHeaderObjectTable = _table->horizontalHeader();
+  horizontalHeaderObjectTable->setSectionResizeMode(
+      4, QHeaderView::Fixed); // fixed remove-button section
+  horizontalHeaderObjectTable->setSectionResizeMode(
+      3, QHeaderView::Stretch); // stretching pred-last section
+  horizontalHeaderObjectTable->setDefaultAlignment(Qt::AlignLeft);
+}
+
+template <>
+void TableAssistant::add<SeismWell>(const std::unique_ptr<SeismWell> &well) {
+  assert(ForWells == _mode);
+  _table->setSortingEnabled(false);
+
+  _table->insertRow(_table->rowCount());
+  int row = _table->rowCount() - 1;
+
+  auto uuid = well->getUuid();
+  _table->setItem(row, 0, new QTableWidgetItem(uuid.toString()));
+
+  _table->setItem(row, 1, new QTableWidgetItem(well->getName()));
+
+  _table->setItem(
+      row, 2, new QTableWidgetItem(QString::number(well->getPointsNumber())));
+
+  QPushButton *removeButton = new QPushButton();
+  QIcon icon(":/remove_button.png");
+  removeButton->setStyleSheet("background-color:white; border-style: outset");
+  removeButton->setIcon(icon);
+  _table->setCellWidget(row, 4, removeButton);
+  connect(removeButton, &QPushButton::clicked,
+          [this, uuid]() { emit removeClicked(uuid); });
+
+  _table->resizeColumnsToContents();
+  _table->setSortingEnabled(true);
+}
+
+template <>
+void TableAssistant::update<SeismWell>(const std::unique_ptr<SeismWell> &well) {
+  assert(ForWells == _mode);
+  _table->setSortingEnabled(false);
+
+  const auto &uuid = well->getUuid();
+  for (int row = 0; row < _table->rowCount(); ++row) {
+    if (uuid == _table->item(row, 0)->data(Qt::DisplayRole).toUuid()) {
+      _table->item(row, 1)->setData(Qt::DisplayRole, well->getName());
+      _table->item(row, 2)->setData(Qt::DisplayRole, well->getPointsNumber());
+      break;
+    }
+  }
+
+  _table->resizeColumnsToContents();
+  _table->setSortingEnabled(true);
+}
+// Wells end
+
+// Receivers
+void TableAssistant::forReceivers() {
+  assert(ForReceivers == _mode);
+  _table->setColumnCount(7);
+  _table->setColumnHidden(0, true);
+
+  _table->setHorizontalHeaderLabels(QStringList() << "uuid"
+                                                  << "Name"
+                                                  << "x"
+                                                  << "y"
+                                                  << "z"
+                                                  << ""
+                                                  << "");
+
+  _table->resizeColumnsToContents();
+
+  auto horizontalHeaderObjectTable = _table->horizontalHeader();
+  horizontalHeaderObjectTable->setSectionResizeMode(
+      6, QHeaderView::Fixed); // fixed remove-button section
+  horizontalHeaderObjectTable->setSectionResizeMode(
+      5, QHeaderView::Stretch); // stretching pred-last section
+  horizontalHeaderObjectTable->setDefaultAlignment(Qt::AlignLeft);
+}
+
+template <>
+void TableAssistant::add<SeismReceiver>(
+    const std::unique_ptr<SeismReceiver> &receiver) {
+  assert(ForReceivers == _mode);
+  _table->setSortingEnabled(false);
+
+  _table->insertRow(_table->rowCount());
+  int row = _table->rowCount() - 1;
+
+  auto uuid = receiver->getUuid();
+  _table->setItem(row, 0, new QTableWidgetItem(uuid.toString()));
+
+  _table->setItem(row, 1, new QTableWidgetItem(receiver->getName()));
+
+  auto &location = receiver->getLocation();
+  _table->setItem(
+      row, 2, new QTableWidgetItem(static_cast<double>(std::get<0>(location))));
+  _table->setItem(
+      row, 3, new QTableWidgetItem(static_cast<double>(std::get<1>(location))));
+  _table->setItem(
+      row, 4, new QTableWidgetItem(static_cast<double>(std::get<2>(location))));
+
+  QPushButton *removeButton = new QPushButton();
+  QIcon icon(":/remove_button.png");
+  removeButton->setStyleSheet("background-color:white; border-style: outset");
+  removeButton->setIcon(icon);
+  _table->setCellWidget(row, 6, removeButton);
+  connect(removeButton, &QPushButton::clicked,
+          [this, uuid]() { emit removeClicked(uuid); });
+
+  _table->resizeColumnsToContents();
+  _table->setSortingEnabled(true);
+}
+
+template <>
+void TableAssistant::update<SeismReceiver>(
+    const std::unique_ptr<SeismReceiver> &receiver) {
+  assert(ForReceivers == _mode);
+  _table->setSortingEnabled(false);
+
+  const auto &uuid = receiver->getUuid();
+  for (int row = 0; row < _table->rowCount(); ++row) {
+    if (uuid == _table->item(row, 0)->data(Qt::DisplayRole).toUuid()) {
+      _table->item(row, 1)->setData(Qt::DisplayRole, receiver->getName());
+      auto &location = receiver->getLocation();
+      _table->item(row, 2)->setData(Qt::DisplayRole,
+                                    static_cast<double>(std::get<0>(location)));
+      _table->item(row, 3)->setData(Qt::DisplayRole,
+                                    static_cast<double>(std::get<1>(location)));
+      _table->item(row, 4)->setData(Qt::DisplayRole,
+                                    static_cast<double>(std::get<2>(location)));
+      break;
+    }
+  }
+
+  _table->resizeColumnsToContents();
+  _table->setSortingEnabled(true);
+}
+// Receivers end

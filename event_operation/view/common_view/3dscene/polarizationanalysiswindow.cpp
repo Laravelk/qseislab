@@ -57,14 +57,14 @@ PolarizationAnalysisWindow::PolarizationAnalysisWindow(
   // camera
   Qt3DRender::QCamera *camera = _view->camera();
   camera->lens()->setPerspectiveProjection(45, 16. / 9., 0.1, 1000.);
-  camera->setPosition(QVector3D(0.1f, 0.1f, 0.1f));
+  camera->setPosition(QVector3D(1.5f, 1.5f, 1.5f));
   camera->setViewCenter(QVector3D(0, 0, 0));
 
   // manipulator
-  Qt3DExtras::QOrbitCameraController *manipulator =
-      new Qt3DExtras::QOrbitCameraController(_scene);
-  manipulator->setLinearSpeed(50);
-  manipulator->setLookSpeed(180);
+  Qt3DExtras::QFirstPersonCameraController *manipulator =
+      new Qt3DExtras::QFirstPersonCameraController(_scene);
+  manipulator->setLinearSpeed(1);
+  manipulator->setLookSpeed(120);
   manipulator->setCamera(camera);
 
   _view->setRootEntity(_scene);
@@ -84,7 +84,7 @@ PolarizationAnalysisWindow::PolarizationAnalysisWindow(
   QList<QString> waveTypeList;
   QList<QString> receiverList;
 
-  _receiverIndex = 0;
+  _receiverIndex = -1;
   _waveTypeIndex = 0;
 
   waveTypeList.append("Type Wave...");
@@ -115,6 +115,7 @@ PolarizationAnalysisWindow::PolarizationAnalysisWindow(
           });
 
   drawArrows();
+  drawTextAxes();
 }
 
 void PolarizationAnalysisWindow::drawArrows() {
@@ -130,6 +131,50 @@ void PolarizationAnalysisWindow::drawArrows() {
 
   _arrows.append(drawLine({0, 0, 1}, {-0.01, 0.01, 0.98}, Qt::blue, _scene));
   _arrows.append(drawLine({0, 0, 1}, {0.01, -0.01, 0.98}, Qt::blue, _scene));
+}
+
+void PolarizationAnalysisWindow::drawTextAxes() {
+  auto *X = new Qt3DCore::QEntity(_scene);
+  auto *Y = new Qt3DCore::QEntity(_scene);
+  auto *Z = new Qt3DCore::QEntity(_scene);
+  auto *textMaterial = new Qt3DExtras::QPhongMaterial(_scene);
+  auto *textMeshX = new Qt3DExtras::QExtrudedTextMesh();
+  auto *textMeshY = new Qt3DExtras::QExtrudedTextMesh();
+  auto *textMeshZ = new Qt3DExtras::QExtrudedTextMesh();
+  auto *textTransformX = new Qt3DCore::QTransform();
+  auto *textTransformY = new Qt3DCore::QTransform();
+  auto *textTransformZ = new Qt3DCore::QTransform();
+  QFont fontX("Times", 1, QFont::Bold);
+  QFont fontY("Times", 1, QFont::Bold); // Y
+  QFont fontZ("Times", 1, QFont::Bold); // Z
+  textTransformX->setTranslation(QVector3D(1.0f, 0.1f, 0.0f));
+  textTransformX->setScale(.08f);
+  textTransformX->setRotationY(45);
+  textTransformY->setTranslation(QVector3D(0.1f, 1.0f, 0.0f));
+  textTransformY->setScale(.08f);
+  textTransformY->setRotationY(45);
+  textTransformZ->setTranslation(QVector3D(0.0f, 0.1f, 1.0f));
+  textTransformZ->setScale(.08f);
+  textTransformZ->setRotationY(45);
+  textMeshX->setDepth(0);
+  textMeshX->setFont(fontX);
+  textMeshX->setText("X");
+  textMeshY->setDepth(0);
+  textMeshY->setFont(fontY);
+  textMeshY->setText("Z"); // Y
+  textMeshZ->setDepth(0);
+  textMeshZ->setFont(fontZ);
+  textMeshZ->setText("Y"); // Z
+  textMaterial->setDiffuse(QColor(111, 150, 255));
+  X->addComponent(textMaterial);
+  X->addComponent(textMeshX);
+  X->addComponent(textTransformX);
+  Y->addComponent(textMaterial);
+  Y->addComponent(textMeshY);
+  Y->addComponent(textTransformY);
+  Z->addComponent(textMaterial);
+  Z->addComponent(textMeshZ);
+  Z->addComponent(textTransformZ);
 }
 
 Qt3DCore::QEntity *

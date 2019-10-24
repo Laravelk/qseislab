@@ -36,6 +36,7 @@ void GraphicController::update(const std::unique_ptr<SeismEvent> &event) {
   _view->chart()->removeAllSeries();
   _view->clearPicks();
   getRangeX(event);
+  _view->setCountOfComponents(event->getComponentNumber());
   _view->setRangeX(_rangeAxisX);
   setInterval(event);
   setAxesY(event->getComponentNumber());

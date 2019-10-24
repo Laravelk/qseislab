@@ -2,6 +2,8 @@
 
 #include "parser.h"
 
+#include <iostream>
+
 namespace TableFilterParsing {
 
 template bool parseAndEvaluateExpr<int>(const std::string &,
@@ -48,9 +50,13 @@ bool parseAndEvaluateExpr(const std::string &expr,
   bool ok = true;
   try {
     ok = qi::phrase_parse(phrase_begin, phrase_end, parser, qi::space, filter);
+
   } catch (...) {
+    std::cerr << "catch exc from phrase_parse" << std::endl;
     return false;
   }
+
+  std::cerr << "ok == " << ok << std::endl;
 
   try {
     param_t param = castToParam<param_t>(std_param);
