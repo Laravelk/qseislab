@@ -107,9 +107,10 @@ bool OilFieldScene::showEvent(const QUuid &uid) {
   return false;
 }
 
-bool OilFieldScene::showEvent(const std::unique_ptr<Data::SeismEvent> &event) {
-  showEvent(event->getUuid());
-}
+// bool OilFieldScene::showEvent(const std::unique_ptr<Data::SeismEvent> &event)
+// {
+//  showEvent(event->getUuid());
+//}
 
 void OilFieldScene::setProject(
     const std::unique_ptr<Data::SeismProject> &project) {
@@ -127,10 +128,10 @@ void OilFieldScene::setProject(
   }
 }
 
-bool OilFieldScene::removeEvent(
-    const std::unique_ptr<Data::SeismEvent> &event) {
-  return removeEvent(event->getUuid());
-}
+// bool OilFieldScene::removeEvent(
+//    const std::unique_ptr<Data::SeismEvent> &event) {
+//  return removeEvent(event->getUuid());
+//}
 
 bool OilFieldScene::removeEvent(const Uuid &uid) {
   if (_events.end() != _events.find(uid)) {
@@ -144,10 +145,10 @@ bool OilFieldScene::removeEvent(const Uuid &uid) {
   return false;
 }
 
-bool OilFieldScene::removeHorizon(
-    const std::unique_ptr<Data::SeismHorizon> &horizon) {
-  return removeHorizon(horizon->getUuid());
-}
+// bool OilFieldScene::removeHorizon(
+//    const std::unique_ptr<Data::SeismHorizon> &horizon) {
+//  return removeHorizon(horizon->getUuid());
+//}
 
 bool OilFieldScene::removeHorizon(const Uuid &uid) {
   QSurface3DSeries *series = _horizons[uid];
@@ -158,10 +159,10 @@ bool OilFieldScene::removeHorizon(const Uuid &uid) {
   return false;
 }
 
-bool OilFieldScene::removeReceiver(
-    const std::unique_ptr<Data::SeismReceiver> &receiver) {
-  return removeReceiver(receiver->getUuid());
-}
+// bool OilFieldScene::removeReceiver(
+//    const std::unique_ptr<Data::SeismReceiver> &receiver) {
+//  return removeReceiver(receiver->getUuid());
+//}
 
 bool OilFieldScene::removeReceiver(const Uuid &uid) {
   if (_receivers.end() != _receivers.find(uid)) {
@@ -175,9 +176,10 @@ bool OilFieldScene::removeReceiver(const Uuid &uid) {
   return false;
 }
 
-bool OilFieldScene::removeWell(const std::unique_ptr<Data::SeismWell> &well) {
-  return removeWell(well->getUuid());
-}
+// bool OilFieldScene::removeWell(const std::unique_ptr<Data::SeismWell> &well)
+// {
+//  return removeWell(well->getUuid());
+//}
 
 bool OilFieldScene::removeWell(const Uuid &uid) {
   std::vector<QCustom3DItem *> v = _wells[uid];
@@ -198,13 +200,14 @@ bool OilFieldScene::hideEvent(const QUuid &uid) {
   return false;
 }
 
-bool OilFieldScene::hideEvent(const std::unique_ptr<Data::SeismEvent> &event) {
-  if (_events.at(event->getUuid())) {
-    _events.at(event->getUuid())->setVisible(true);
-    return true;
-  }
-  return false;
-}
+// bool OilFieldScene::hideEvent(const std::unique_ptr<Data::SeismEvent> &event)
+// {
+//  if (_events.at(event->getUuid())) {
+//    _events.at(event->getUuid())->setVisible(true);
+//    return true;
+//  }
+//  return false;
+//}
 
 void OilFieldScene::hideAllEvent(bool hide) {
   _isEventsHide = hide;

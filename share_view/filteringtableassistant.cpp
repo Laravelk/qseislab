@@ -198,6 +198,9 @@ void FilteringTableAssistant::applyFilter(int column, const QString &pattern,
       if (!eval) {
         if (1 == filterNames.count()) {
           _objectsTable->setRowHidden(row, true);
+          auto uuid =
+              _objectsTable->item(row, 0)->data(Qt::DisplayRole).toUuid();
+          emit hide(uuid);
         }
         filterNames.append(filterName);
       }
@@ -246,6 +249,9 @@ void FilteringTableAssistant::enbledFilter(int enable,
             filterNames.removeAll(filterName);
             if (1 == filterNames.count()) {
               _objectsTable->setRowHidden(row, false);
+              auto uuid =
+                  _objectsTable->item(row, 0)->data(Qt::DisplayRole).toUuid();
+              emit show(uuid);
             }
             _objectsTable->item(row, 1)->setText(filterNames.join(';'));
           }

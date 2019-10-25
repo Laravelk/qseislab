@@ -21,6 +21,8 @@ public:
 
 signals:
   void viewClicked(const QUuid &);
+  void hide(const QUuid &);
+  void show(const QUuid &);
   void removeClicked(const QUuid &);
 
 private:

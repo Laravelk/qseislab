@@ -56,7 +56,7 @@ bool parseAndEvaluateExpr(const std::string &expr,
     return false;
   }
 
-  std::cerr << "ok == " << ok << std::endl;
+  //  std::cerr << "ok == " << ok << std::endl;
 
   try {
     param_t param = castToParam<param_t>(std_param);

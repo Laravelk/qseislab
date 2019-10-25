@@ -54,6 +54,13 @@ WorkPage::WorkPage(QWidget *parent)
   connect(_eventsTable, &FilteringTableAssistant::removeClicked,
           [this](auto &uuid) { emit removeEventClicked(uuid); });
 
+  // NOTE: link filter with graph
+  connect(_eventsTable, &FilteringTableAssistant::hide, _oilFieldScene,
+          &Main::OilFieldScene::hideEvent);
+  connect(_eventsTable, &FilteringTableAssistant::show, _oilFieldScene,
+          &Main::OilFieldScene::showEvent);
+  // end link
+
   connect(_horizonBox, &QCheckBox::stateChanged, [this]() {
     _oilFieldScene->hideAllHorizon(!_oilFieldScene->isHorizonsHide());
   });
