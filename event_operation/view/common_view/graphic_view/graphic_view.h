@@ -26,6 +26,7 @@ public:
   void setWaveAddTriggerFlag(Data::SeismWavePick::Type);
   void setWaveRadius(qreal wr) { WAVE_RADIUS = wr; }
   void setRangeX(qreal rangeX) { _rangeX = rangeX; }
+  void setCountOfComponents(int count) { _countOfComponents = count; }
 
   QList<WavePick *> *getPickcs() { return &_wavePicks; }
   void clearPicks() {

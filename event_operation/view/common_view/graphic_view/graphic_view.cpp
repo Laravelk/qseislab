@@ -1,4 +1,5 @@
 #include "graphic_view.h"
+#include "pipes2dname.h"
 #include "wavepick.h"
 
 #include <QtGui/QMouseEvent>
@@ -20,12 +21,18 @@ GraphicView::GraphicView(QChart *chart, QWidget *parent)
   rect->setZValue(10);
   scene()->addItem(rect);
 
-  QGraphicsTextItem *text = new QGraphicsTextItem("HELLO HELLO HELLO", chart);
-  text->setTextWidth(300);
-  text->setRotation(270);
-  text->setDefaultTextColor(Qt::black);
-  text->setPos(10, 300);
-  text->show();
+  Pipes2DName *pipe = new Pipes2DName(chart);
+  pipe->setText("HELLOOOOOOOOOO");
+  pipe->setAnchor(QPointF(0, 0));
+  pipe->setPos(0, 0);
+  pipe->setZValue(11);
+  pipe->updateGeometry();
+  pipe->show();
+  //  QGraphicsTextItem *text = new QGraphicsTextItem("HELLO HELLO HELLO",
+  //  chart); text->setTextWidth(300); text->setRotation(270);
+  //  text->setDefaultTextColor(Qt::black);
+  //  text->setPos(10, 300);
+  //  text->show();
 }
 
 void GraphicView::addPick(Data::SeismWavePick::Type type, qreal ax, qreal ay,
@@ -129,7 +136,7 @@ void GraphicView::mousePressEvent(QMouseEvent *event) {
   QChartView::mousePressEvent(event);
   if (event->button() == Qt::RightButton) {
     for (auto &wave : _wavePicks) {
-      wave->updateGeomety();
+      wave->updateGeometry();
     }
   }
 }
@@ -208,7 +215,7 @@ void GraphicView::scrollContentsBy(int dx, int dy) {
   if (scene()) {
     _chart->scroll(dx, dy);
     for (auto &wave : _wavePicks) {
-      wave->updateGeomety();
+      wave->updateGeometry();
     }
   }
 }
@@ -227,7 +234,7 @@ void GraphicView::resizeEvent(QResizeEvent *event) {
     _chart->resize(event->size());
     for (auto &wave : _wavePicks) {
       wave->resize(scaleCoff);
-      wave->updateGeomety();
+      wave->updateGeometry();
     }
   }
   QGraphicsView::resizeEvent(event);
@@ -235,9 +242,9 @@ void GraphicView::resizeEvent(QResizeEvent *event) {
 
 // uncomment for wheelEvent on Windows
 void GraphicView::wheelEvent(QWheelEvent *event) {
-  qreal factor = event->angleDelta().y() > 0 ? 0.7 : 1.3;
-  scaleContentsBy(factor);
-  QChartView::wheelEvent(event);
+  //  qreal factor = event->angleDelta().y() > 0 ? 0.7 : 1.3;
+  //  scaleContentsBy(factor);
+  //  QChartView::wheelEvent(event);
 }
 
 void GraphicView::scaleContentsBy(qreal factor) {
@@ -245,7 +252,7 @@ void GraphicView::scaleContentsBy(qreal factor) {
     _chart->zoom(factor);
     for (auto &wavePick : _wavePicks) {
       wavePick->setScale(wavePick->scale() * factor);
-      wavePick->updateGeomety();
+      wavePick->updateGeometry();
     }
   }
 }

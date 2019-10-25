@@ -50,7 +50,8 @@ set(SOURCES
         event_operation/view/common_view/infoevent.cpp
         event_operation/view/common_view/graphiccontroller.cpp
         event_operation/view/common_view/chartgesture.cpp
-        event_operation/view/common_view/3dscene/polarizationanalysiswindow.cpp
+    event_operation/view/common_view/graphic_view/pipes2dname.cpp
+    event_operation/view/common_view/3dscene/polarizationanalysiswindow.cpp
 
 
         horizon_operation/controller.cpp
@@ -131,6 +132,7 @@ set(HEADERS
         event_operation/view/common_view/infoevent.h
         event_operation/view/common_view/graphiccontroller.h
         event_operation/view/common_view/chartgesture.h
+        event_operation/view/common_view/graphic_view/pipes2dname.h
         event_operation/view/common_view/3dscene/polarizationanalysiswindow.h
 
 

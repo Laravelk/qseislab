@@ -27,7 +27,7 @@ bool ChartGesture::gestureEvent(QGestureEvent *event) {
     QPanGesture *pan = static_cast<QPanGesture *>(gesture);
     QChart::scroll(-(pan->delta().x()), pan->delta().y());
     for (auto &it : *_wavePicks) {
-      it->updateGeomety();
+      it->updateGeometry();
     }
   }
 
@@ -37,7 +37,7 @@ bool ChartGesture::gestureEvent(QGestureEvent *event) {
       QChart::zoom(pinch->scaleFactor());
       for (auto &it : *_wavePicks) {
         it->setScale(it->scale() * pinch->scaleFactor());
-        it->updateGeomety();
+        it->updateGeometry();
       }
     }
   }

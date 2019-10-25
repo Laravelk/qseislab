@@ -5,6 +5,7 @@
 #include <QBrush>
 #include <QtCharts/QChartGlobal>
 #include <QtWidgets/QGraphicsItem>
+#include <variant>
 
 QT_BEGIN_NAMESPACE
 class QGraphicsSceneEvent;
@@ -28,7 +29,7 @@ public:
            int, int, QBrush, WavePick *);
 
   void setAnchor(const QPointF);
-  void updateGeomety();
+  void updateGeometry();
   int getXPos() { return static_cast<int>(_anchor.x()); }
   void setLeftBorder(std::variant<WavePick *, qreal>);
   void setRightBorder(std::variant<WavePick *, qreal>);

@@ -4,7 +4,6 @@
 #include <QtGui/QPainter>
 #include <QtWidgets/QGraphicsSceneMouseEvent>
 #include <type_traits>
-#include <variant>
 
 //#include <iostream> // TODO: remove
 
@@ -21,7 +20,7 @@ WavePick::WavePick(Data::SeismWavePick::Type type, QGraphicsItem *parent,
   setPos(_anchor);
   updateBorders();
   _rect = QRectF(0, 0, size.width(), size.height());
-  updateGeomety();
+  updateGeometry();
 }
 
 WavePick::WavePick(Data::SeismWavePick::Type type, QGraphicsItem *parent,
@@ -34,7 +33,7 @@ WavePick::WavePick(Data::SeismWavePick::Type type, QGraphicsItem *parent,
   setPos(_anchor);
   _rect = QRectF(0, 0, width, height);
   //_rect.moveCenter(QPointF(_anchor));
-  updateGeomety();
+  updateGeometry();
 }
 
 void WavePick::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
@@ -54,7 +53,7 @@ void WavePick::resize(QSizeF scaleC) {
 
 void WavePick::setAnchor(const QPointF point) { _anchor = point; }
 
-void WavePick::updateGeomety() {
+void WavePick::updateGeometry() {
   prepareGeometryChange();
   _rect.moveCenter(QPointF(0, 0));
   setPos(_chart->mapToPosition(_anchor));
