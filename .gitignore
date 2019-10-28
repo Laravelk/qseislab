@@ -1,3 +1,4 @@
 # git ignore file
 **/.DS_Store
-**/*.user
+**/*.user*
+
