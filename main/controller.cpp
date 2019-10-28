@@ -86,13 +86,13 @@ void Controller::recvProject(std::unique_ptr<SeismProject> &project) {
 
 void Controller::handleAddEventClicked() {
   if (!_eventController) {
-    _eventController = std::make_unique<Generic::Controller>(
+    _eventController = std::make_unique<AddEvent::Controller>(
         _project->getAllMap<SeismWell>(), this);
 
     connect(
-        _eventController.get(), &Generic::Controller::sendEvent,
+        _eventController.get(), &AddEvent::Controller::sendEvent,
         [this](auto &event) { _project->add<SeismEvent>(std::move(event)); });
-    connect(_eventController.get(), &Generic::Controller::finished,
+    connect(_eventController.get(), &AddEvent::Controller::finished,
             [this] { _eventController.reset(); });
 
     _eventController->start();
@@ -101,15 +101,15 @@ void Controller::handleAddEventClicked() {
 
 void Controller::handleViewEventClicked(const QUuid uuid) {
   if (!_eventController) {
-    _eventController = std::make_unique<Generic::Controller>(
+    _eventController = std::make_unique<AddEvent::Controller>(
         _project->get<SeismEvent>(uuid), this);
 
-    connect(_eventController.get(), &Generic::Controller::sendEvent,
+    connect(_eventController.get(), &AddEvent::Controller::sendEvent,
             [this](auto &event) {
               _project->update<SeismEvent>(std::move(event));
             });
 
-    connect(_eventController.get(), &Generic::Controller::finished,
+    connect(_eventController.get(), &AddEvent::Controller::finished,
             [this] { _eventController.reset(); });
 
     _eventController->start();

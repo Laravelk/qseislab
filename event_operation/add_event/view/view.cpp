@@ -1,7 +1,7 @@
 #include "view.h"
 
-#include "common_view/graphiccontroller.h"
-#include "common_view/infoevent.h"
+#include "event_operation/share_view/graphiccontroller.h"
+#include "event_operation/share_view/infoevent.h"
 #include "filemanager.h"
 #include "wellmanager.h"
 
@@ -15,7 +15,7 @@
 typedef Data::SeismEvent SeismEvent;
 
 namespace EventOperation {
-namespace Generic {
+namespace AddEvent {
 View::View(const std::unique_ptr<Data::SeismEvent> &event, QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint){
 

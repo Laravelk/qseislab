@@ -4,7 +4,7 @@
 #include "data/seismproject.h"
 #include "view/view.h"
 
-#include "event_operation/controller.h"
+#include "event_operation/add_event/controller.h"
 
 #include "horizon_operation/controller.h"
 
@@ -55,7 +55,7 @@ private:
 
   std::unique_ptr<View> _mainWindow;
 
-  std::unique_ptr<EventOperation::Generic::Controller>
+  std::unique_ptr<EventOperation::AddEvent::Controller>
       _eventController; // TODO: remove extra
   //  std::unique_ptr<EventOperation::AddEvent::Controller> _addEventController;
   //  std::unique_ptr<EventOperation::ViewEvent::Controller>

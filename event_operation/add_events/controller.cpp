@@ -3,7 +3,7 @@
 #include "data/seismevent.h"
 #include "data/seismwell.h"
 #include "model.h"
-#include "view/common_view/3dscene/polarizationanalysiswindow.h"
+#include "event_operation/share_view/3dscene/polarizationanalysiswindow.h"
 
 #include "data/io/segyreader.h"
 

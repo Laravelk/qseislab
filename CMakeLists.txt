@@ -29,7 +29,7 @@ find_package(Qt5 COMPONENTS ${_Q_MODULES} REQUIRED)
 #add_subdirectory(parser_test)
 
 # Bad way
-set(Boost_INCLUDE_DIR "C:/Users/seismuser/all/boost_1_71_0/boost_1_71_0")
+#set(Boost_INCLUDE_DIR "C:/Users/seismuser/all/boost_1_71_0/boost_1_71_0")
 find_package(Boost REQUIRED)
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
@@ -39,19 +39,25 @@ find_package(segyio REQUIRED)
 
 
 set(SOURCES
-        event_operation/controller.cpp
-        event_operation/model.cpp
-        event_operation/view/filemanager.cpp
-        event_operation/view/wellmanager.cpp
-        event_operation/view/view.cpp
+        event_operation/add_event/controller.cpp
+        event_operation/add_event/model.cpp
+        event_operation/add_event/view/filemanager.cpp
+        event_operation/add_event/view/wellmanager.cpp
+        event_operation/add_event/view/view.cpp
 
-        event_operation/view/common_view/graphic_view/graphic_view.cpp
-        event_operation/view/common_view/graphic_view/wavepick.cpp
-        event_operation/view/common_view/infoevent.cpp
-        event_operation/view/common_view/graphiccontroller.cpp
-        event_operation/view/common_view/chartgesture.cpp
-        event_operation/view/common_view/graphic_view/pipes2dname.cpp
-        event_operation/view/common_view/3dscene/polarizationanalysiswindow.cpp
+        event_operation/add_events/controller.cpp
+        event_operation/add_events/model.cpp
+        event_operation/add_events/view/filemanager.cpp
+        event_operation/add_events/view/wellmanager.cpp
+        event_operation/add_events/view/view.cpp
+
+        event_operation/share_view/graphic_view/graphic_view.cpp
+        event_operation/share_view/graphic_view/wavepick.cpp
+        event_operation/share_view/infoevent.cpp
+        event_operation/share_view/graphiccontroller.cpp
+        event_operation/share_view/chartgesture.cpp
+        event_operation/share_view/graphic_view/pipes2dname.cpp
+        event_operation/share_view/3dscene/polarizationanalysiswindow.cpp
 
 
         horizon_operation/controller.cpp
@@ -123,19 +129,25 @@ set(SOURCES
 )
 
 set(HEADERS
-        event_operation/controller.h
-        event_operation/model.h
-        event_operation/view/filemanager.h
-        event_operation/view/wellmanager.h
-        event_operation/view/view.h
+        event_operation/add_event/controller.h
+        event_operation/add_event/model.h
+        event_operation/add_event/view/filemanager.h
+        event_operation/add_event/view/wellmanager.h
+        event_operation/add_event/view/view.h
 
-        event_operation/view/common_view/graphic_view/graphic_view.h
-        event_operation/view/common_view/graphic_view/wavepick.h
-        event_operation/view/common_view/infoevent.h
-        event_operation/view/common_view/graphiccontroller.h
-        event_operation/view/common_view/chartgesture.h
-        event_operation/view/common_view/graphic_view/pipes2dname.h
-        event_operation/view/common_view/3dscene/polarizationanalysiswindow.h
+        event_operation/add_events/controller.h
+        event_operation/add_events/model.h
+        event_operation/add_events/view/filemanager.h
+        event_operation/add_events/view/wellmanager.h
+        event_operation/add_events/view/view.h
+
+        event_operation/share_view/graphic_view/graphic_view.h
+        event_operation/share_view/graphic_view/wavepick.h
+        event_operation/share_view/infoevent.h
+        event_operation/share_view/graphiccontroller.h
+        event_operation/share_view/chartgesture.h
+        event_operation/share_view/graphic_view/pipes2dname.h
+        event_operation/share_view/3dscene/polarizationanalysiswindow.h
 
 
         horizon_operation/controller.h
