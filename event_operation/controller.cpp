@@ -32,14 +32,16 @@ Controller::Controller(
           [this](auto &msg) { _view->setNotification(msg); });
 
   connect(_view.get(), &View::sendWellUuidAndFilePath,
-          [this, &wells_map](auto wellUuid_filePath) {
-            auto components = _model->getSeismComponents(
-                wells_map.at(wellUuid_filePath.first),
-                wellUuid_filePath.second);
+          [this, &wells_map](auto &wellUuid_filePath) {
+            auto &uuid = wellUuid_filePath.first;
+            auto &filePath = wellUuid_filePath.second;
+            auto components =
+                _model->getSeismComponents(wells_map.at(uuid), filePath);
             if (!components.empty()) {
               for (auto &component : components) {
                 _event->addComponent(std::move(component));
               }
+              _eventNameContainer[uuid] = filePath;
               _view->update(_event, wellUuid_filePath.first);
             }
           });

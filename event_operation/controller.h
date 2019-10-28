@@ -38,6 +38,7 @@ private:
   std::unique_ptr<View> _view;
 
   std::unique_ptr<Data::SeismEvent> _event;
+  std::map<QUuid, QString> _eventNameContainer;
 
   PolarizationAnalysisWindow *_polarizationWindow;
 };

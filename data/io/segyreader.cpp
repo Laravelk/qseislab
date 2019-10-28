@@ -3,7 +3,12 @@
 #include "data/seismcomponent.h"
 #include "data/seismreceiver.h"
 
+#include <QDateTime>
+
 #include <memory>
+
+#include <QString>
+#include <iostream> // TODO: remove
 
 namespace Data {
 namespace IO {
@@ -64,6 +69,21 @@ SegyReader::nextComponent(const std::unique_ptr<SeismReceiver> &receiver) {
   int p_wave_arrival = 0;
   int s_wave_arrival = 0;
 
+  //  QDate date_stamp;
+  //  QTime time_stamp;
+
+  //  QDate date_stamp(2016, 0, 0);
+  //  std::cout << "date_stamp == " << date_stamp.dayOfYear() << std::endl;
+
+  // TODO: перделать на QDateTime
+  int year = 0;
+  int day = 0;
+  int hour = 0;
+  int minute = 0;
+  int second = 0;
+  int microsec = 0;
+  QDateTime date_time_stamp;
+
   for (int i = 0; i < receiver->getChannelNum(); ++i) {
     if (_trace_num == _alreadyRead) {
       throw std::runtime_error("No more traces in the segy-file");
@@ -86,6 +106,49 @@ SegyReader::nextComponent(const std::unique_ptr<SeismReceiver> &receiver) {
       throw std::runtime_error(
           "Fields do not match in the component (p_wave_arrivel)");
     }
+
+    // date-time-stamp reading
+    int year_trace;
+    int day_trace;
+    int hour_trace;
+    int minute_trace;
+    int second_trace;
+    int microsec_trace;
+    err = segy_get_field(traceh, SEGY_TR_YEAR_DATA_REC, &year_trace);
+    if (SEGY_OK != err) {
+      throw std::runtime_error("segy_get_field(SEGY_TR_YEAR_DATA_REC)");
+    }
+    err = segy_get_field(traceh, SEGY_TR_DAY_OF_YEAR, &day_trace);
+    if (SEGY_OK != err) {
+      throw std::runtime_error("segy_get_field(SEGY_TR_DAY_OF_YEAR)");
+    }
+    err = segy_get_field(traceh, SEGY_TR_HOUR_OF_DAY, &hour_trace);
+    if (SEGY_OK != err) {
+      throw std::runtime_error("segy_get_field(SEGY_TR_HOUR_OF_DAY)");
+    }
+    err = segy_get_field(traceh, SEGY_TR_MIN_OF_HOUR, &minute_trace);
+    if (SEGY_OK != err) {
+      throw std::runtime_error("segy_get_field(SEGY_TR_MIN_OF_HOUR)");
+    }
+    err = segy_get_field(traceh, SEGY_TR_SEC_OF_MIN, &second_trace);
+    if (SEGY_OK != err) {
+      throw std::runtime_error("segy_get_field(SEGY_TR_SEC_OF_MIN)");
+    }
+    err = segy_get_field(traceh, SEGY_TR_LAG_A, &microsec_trace);
+    if (SEGY_OK != err) {
+      throw std::runtime_error("segy_get_field(SEGY_TR_LAG_A)");
+    }
+    QDateTime date_time_stamp_trace = QDateTime(
+        QDate(year_trace, 1, 1).addDays(day_trace - 1),
+        QTime(hour_trace, minute_trace, second_trace, microsec_trace));
+    if (0 == i) {
+      date_time_stamp = date_time_stamp_trace;
+    }
+    if (date_time_stamp != date_time_stamp_trace) {
+      throw std::runtime_error(
+          "Fields do not match in the component (date-time-stamp)");
+    }
+    // end date-time-stamp reading
 
     int s_wave_arrival_trace;
     err = segy_get_field(traceh, SEGY_TR_CDP_Y, &s_wave_arrival_trace);
@@ -117,6 +180,12 @@ SegyReader::nextComponent(const std::unique_ptr<SeismReceiver> &receiver) {
     ++_alreadyRead;
   }
 
+  // TODO: remove
+  std::cout << "q-date-time == "
+            << date_time_stamp.toString("dd.MM.yyyy hh:mm:ss:zzz").toStdString()
+            << std::endl;
+  ////
+  component->setStampTime(date_time_stamp);
   component->setSampleInterval(_sam_intr);
   // TODO: ...
   if (0 != p_wave_arrival) {

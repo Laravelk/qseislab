@@ -4,6 +4,7 @@
 #include "seismtrace.h"
 #include "seismwavepick.h"
 
+#include <QDateTime>
 #include <QJsonObject>
 #include <QObject>
 #include <QUuid>
@@ -23,6 +24,9 @@ public:
   explicit SeismComponent(const SeismComponent &);
 
   const QUuid &getReceiverUuid() const;
+
+  const QDateTime &getStampTime() const;
+  void setStampTime(const QDateTime &);
 
   float getSampleInterval() const;
   void setSampleInterval(float);
@@ -46,6 +50,7 @@ signals:
 
 private:
   QUuid _receiverUuid;
+  QDateTime _stampTime;
   float _sampleInterval{0.0};
   float _maxValue{-1.0};
   std::vector<std::unique_ptr<SeismTrace>> _traces;

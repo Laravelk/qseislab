@@ -33,6 +33,7 @@ public:
   ChartGesture *getChartGesture();
 
 signals:
+  // TODO: why qpair???
   void sendWellUuidAndFilePath(const QPair<QUuid, QString> &) const;
   void sendWellUuidForRemove(const QUuid &) const;
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);

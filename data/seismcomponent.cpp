@@ -16,6 +16,13 @@ SeismComponent::SeismComponent(const QJsonObject &json) {
     err_msg += "::receiverUuid : not found\n";
   }
 
+  if (json.contains("stampTime")) {
+    _stampTime = QDateTime::fromString(json["stampTime"].toString(),
+                                       "dd.MM.yyyy hh:mm:ss:zzz");
+  } else {
+    err_msg += "::stampTime : not found\n";
+  }
+
   if (json.contains("sampleInterval")) {
     _sampleInterval = static_cast<float>(json["sampleInterval"].toDouble());
   } else {
@@ -104,6 +111,12 @@ SeismComponent::SeismComponent(const SeismComponent &other)
 
 const QUuid &SeismComponent::getReceiverUuid() const { return _receiverUuid; }
 
+const QDateTime &SeismComponent::getStampTime() const { return _stampTime; }
+
+void SeismComponent::setStampTime(const QDateTime &stampTime) {
+  _stampTime = stampTime;
+}
+
 float SeismComponent::getSampleInterval() const { return _sampleInterval; }
 
 void SeismComponent::setSampleInterval(float sampleInterval) {
@@ -151,6 +164,7 @@ SeismComponent::getWavePicks() const {
 
 QJsonObject &SeismComponent::writeToJson(QJsonObject &json) const {
   json["receiverUuid"] = _receiverUuid.toString();
+  json["stampTime"] = _stampTime.toString("dd.MM.yyyy hh:mm:ss:zzz");
   json["sampleInterval"] = static_cast<double>(_sampleInterval);
 
   QJsonArray wavesArray;

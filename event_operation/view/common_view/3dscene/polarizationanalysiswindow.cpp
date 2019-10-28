@@ -61,10 +61,10 @@ PolarizationAnalysisWindow::PolarizationAnalysisWindow(
   camera->setViewCenter(QVector3D(0, 0, 0));
 
   // manipulator
-  Qt3DExtras::QFirstPersonCameraController *manipulator =
-      new Qt3DExtras::QFirstPersonCameraController(_scene);
-  manipulator->setLinearSpeed(1);
-  manipulator->setLookSpeed(120);
+  Qt3DExtras::QOrbitCameraController *manipulator =
+      new Qt3DExtras::QOrbitCameraController(_scene);
+  manipulator->setLinearSpeed(-10);
+  manipulator->setLookSpeed(-120);
   manipulator->setCamera(camera);
 
   _view->setRootEntity(_scene);

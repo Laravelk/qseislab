@@ -26,6 +26,9 @@ public:
 
   const QUuid &getUuid() const;
 
+  void setName(const QString &);
+  const QString &getName() const;
+
   void setType(int);   // TODO: remove
   int getType() const; // TODO: remove
 
@@ -48,6 +51,8 @@ signals:
 
 private:
   QUuid _uuid;
+
+  QString _name;
 
   int _type = 0; // TODO: remove
 
