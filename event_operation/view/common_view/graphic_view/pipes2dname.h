@@ -27,7 +27,7 @@ public:
   QRectF boundingRect() const override;
 
 private:
-  QPointF _anchor;
+  QPointF _anchor = {10,310};
   QString _text = "HELLO";
   QRectF _textRect;
   QFont _font;

@@ -5,6 +5,8 @@
 #include "data/seismtrace.h"
 #include "graphic_view/wavepick.h"
 
+#include <iostream>
+
 typedef Data::SeismComponent SeismComponent;
 typedef Data::SeismEvent SeismEvent;
 typedef Data::SeismTrace SeismTrace;
@@ -35,6 +37,8 @@ GraphicController::GraphicController(QWidget *parent)
 void GraphicController::update(const std::unique_ptr<SeismEvent> &event) {
   _view->chart()->removeAllSeries();
   _view->clearPicks();
+  _view->setDefaultScale();
+  _rangeAxisX = 0;
   getRangeX(event);
   _view->setCountOfComponents(event->getComponentNumber());
   _view->setRangeX(_rangeAxisX);

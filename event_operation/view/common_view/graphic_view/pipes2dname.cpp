@@ -31,6 +31,6 @@ void Pipes2DName::setAnchor(QPointF point) { _anchor = point; }
 
 void Pipes2DName::updateGeometry() {
   prepareGeometryChange();
-  setPos(_chart->mapToPosition(_anchor) + QPoint(-10 * scale(), 50 * scale()));
+  setPos(_chart->mapToScene(_anchor));
 }
 } // namespace EventOperation

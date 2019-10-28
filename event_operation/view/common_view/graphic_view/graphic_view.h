@@ -2,6 +2,7 @@
 
 #include "../chartgesture.h"
 #include "wavepick.h"
+#include "pipes2dname.h"
 #include <QtCharts/QChartView>
 #include <QtWidgets/QRubberBand>
 
@@ -24,9 +25,11 @@ public:
                qreal);
 
   void setWaveAddTriggerFlag(Data::SeismWavePick::Type);
-  void setWaveRadius(qreal wr) { WAVE_RADIUS = wr; }
-  void setRangeX(qreal rangeX) { _rangeX = rangeX; }
+  void setWaveRadius(const qreal wr) { WAVE_RADIUS = wr; }
+  void setRangeX(const qreal rangeX) { _rangeX = rangeX; }
   void setCountOfComponents(int count) { _countOfComponents = count; }
+  void setScale(const qreal scale) { _currentlyWavesScale = scale; }
+  void setDefaultScale() {_currentlyWavesScale = 1.0;}
 
   QList<WavePick *> *getPickcs() { return &_wavePicks; }
   void clearPicks() {
@@ -60,9 +63,11 @@ private:
   qreal _mFactor = 1.0;
   ChartGesture *_chart;
   QList<WavePick *> _wavePicks;
-
+  QList<Pipes2DName *> _pipesName;
+  qreal _currentlyWavesScale = 1.0;
   QPointF calculatePickPosition(QPointF);
   bool checkAvailability(Data::SeismWavePick::Type, int);
+  QGraphicsTextItem *text;
 
 signals:
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);

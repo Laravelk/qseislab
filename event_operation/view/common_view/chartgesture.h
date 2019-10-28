@@ -19,7 +19,7 @@ public:
   void addPicks(QList<WavePick *> *wavePicks) { _wavePicks = wavePicks; }
   void setReceiverCount(int count) { receiverCount = count; }
   int  getReceiverCount() { return receiverCount; }
-
+  QList<WavePick *> *getWavePicks() {return  _wavePicks;}
 protected:
   bool sceneEvent(QEvent *) override;
 private:
