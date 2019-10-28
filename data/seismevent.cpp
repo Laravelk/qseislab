@@ -128,7 +128,7 @@ SeismEvent::SeismEvent(const QJsonObject &json,
 }
 
 SeismEvent::SeismEvent(const SeismEvent &other)
-    : _uuid(other._uuid), _type(other._type), _path(other._path),
+    : _uuid(other._uuid), _name(other._name), _type(other._type), _path(other._path),
       _dateTime(other._dateTime), _isProcessed(other._isProcessed),
       _location(other._location) {
 

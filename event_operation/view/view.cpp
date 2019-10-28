@@ -9,14 +9,15 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-// #include <iostream> // TODO: delete
+#include "data/seismevent.h" // TODO: delete
+ #include <iostream> // TODO: delete
 
 typedef Data::SeismEvent SeismEvent;
 
 namespace EventOperation {
 namespace Generic {
 View::View(const std::unique_ptr<Data::SeismEvent> &event, QWidget *parent)
-    : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint) {
+    : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint){
 
   commonSetting();
   _infoEvent->setEnabled(true);
@@ -65,9 +66,9 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
     _addButtonManagers->setDisabled(true);
     auto wellManager = new WellManager(_wellNames_map);
     connect(wellManager, &WellManager::sendWellUuidAndFilePath,
-            [this](auto &uuid_path) {
+            [this](auto &uuid, auto& path) {
               _addButtonManagers->setEnabled(true);
-              emit sendWellUuidAndFilePath(uuid_path);
+              emit sendWellUuidAndFilePath(uuid, path);
             });
     connect(wellManager, &WellManager::removeClicked,
             [this](QWidget *sender, auto uuid) {
@@ -132,6 +133,8 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
 
 void View::update(const std::unique_ptr<SeismEvent> &event,
                   const QUuid &removedWellUuid) {
+    std::cout << "update event-name: " << event->getName().toStdString() << std::endl; // TODO: remove
+
   _wellNames_map.erase(removedWellUuid);
 
   _infoEvent->setEnabled(true);
@@ -146,6 +149,8 @@ void View::update(const std::unique_ptr<SeismEvent> &event,
 void View::update(const std::unique_ptr<SeismEvent> &event, const QUuid &uuid,
                   const QString &wellName) {
   assert(nullptr != _wellManagersLayout);
+
+  std::cout << "update event-name: " << event->getName().toStdString() << std::endl; // TODO: remove
 
   _wellNames_map[uuid] = wellName;
   WellManager *manager = qobject_cast<WellManager *>(

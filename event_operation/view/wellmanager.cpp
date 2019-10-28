@@ -36,7 +36,7 @@ WellManager::WellManager(const std::map<QUuid, QString> &wellNames_map,
           });
   connect(_fileManager, &FileManager::sendFilePath, [this](auto &path) {
     _comboBox->setDisabled(true);
-    emit sendWellUuidAndFilePath({_wellUuid, path});
+    emit sendWellUuidAndFilePath(_wellUuid, path);
   });
 
   connect(removeButton, &QPushButton::clicked,

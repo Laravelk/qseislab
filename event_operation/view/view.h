@@ -3,8 +3,8 @@
 #include "data/seismwavepick.h"
 
 #include <QDialog>
-
 #include <QBoxLayout>
+
 #include <memory>
 
 namespace Data {
@@ -33,14 +33,13 @@ public:
   ChartGesture *getChartGesture();
 
 signals:
-  // TODO: why qpair???
-  void sendWellUuidAndFilePath(const QPair<QUuid, QString> &) const;
+  void sendWellUuidAndFilePath(const QUuid& , const QString&) const;
   void sendWellUuidForRemove(const QUuid &) const;
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
   void createPolarizationAnalysisWindow();
 
 private:
-  void commonSetting();
+    void commonSetting();
 
   InfoEvent *_infoEvent;
   QVBoxLayout *_wellManagersLayout;

@@ -33,6 +33,7 @@ signals:
   void finished() const;
 
 private:
+    QString generateEventName() const;
   Model *_model;
 
   std::unique_ptr<View> _view;

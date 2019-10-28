@@ -32,17 +32,16 @@ Controller::Controller(
           [this](auto &msg) { _view->setNotification(msg); });
 
   connect(_view.get(), &View::sendWellUuidAndFilePath,
-          [this, &wells_map](auto &wellUuid_filePath) {
-            auto &uuid = wellUuid_filePath.first;
-            auto &filePath = wellUuid_filePath.second;
+          [this, &wells_map](auto &wellUuid, auto& filePath) {
             auto components =
-                _model->getSeismComponents(wells_map.at(uuid), filePath);
+                _model->getSeismComponents(wells_map.at(wellUuid), filePath);
             if (!components.empty()) {
               for (auto &component : components) {
                 _event->addComponent(std::move(component));
               }
-              _eventNameContainer[uuid] = filePath;
-              _view->update(_event, wellUuid_filePath.first);
+              _eventNameContainer[wellUuid] = QFileInfo(filePath).baseName();
+              _event->setName(generateEventName());
+              _view->update(_event, wellUuid);
             }
           });
   connect(_view.get(), &View::createPolarizationAnalysisWindow, [this]() {
@@ -56,6 +55,8 @@ Controller::Controller(
             for (auto &reciever : well->getReceivers()) {
               _event->removeComponentByReceiverUuid(reciever->getUuid());
             }
+            _eventNameContainer.erase(uuid);
+            _event->setName(generateEventName());
             _view->update(_event, uuid, well->getName());
           });
 
@@ -83,7 +84,9 @@ Controller::Controller(
 Controller::Controller(const std::unique_ptr<Data::SeismEvent> &event,
                        QObject *parent)
     : QObject(parent), _model(nullptr),
-      _event(std::make_unique<Data::SeismEvent>(*event)) {
+      _event(std::make_unique<Data::SeismEvent>(*event)){
+
+//    _eventNameContainer[QUuid()] = _event->getName(); // TODO: it`s OK?
 
   _view = std::make_unique<View>(_event);
 
@@ -128,6 +131,19 @@ void Controller::finish(int result) {
   }
 
   emit finished();
+}
+
+QString Controller::generateEventName() const {
+    QString name;
+    int idx = 0;
+    for(auto& uuid_word : _eventNameContainer) {
+        if (0 != idx) {
+            name += " --- ";
+        }
+        name += uuid_word.second;
+        ++idx;
+    }
+    return name;
 }
 
 } // namespace Generic

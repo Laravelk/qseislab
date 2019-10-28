@@ -32,7 +32,7 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
                           QSizeF size, QBrush brush, qreal rangeX,
                           qreal leftBorderPos, qreal rightBorderPos) {
   QBrush borderBrush;
-  std::cerr << chart()->mapToPosition(QPointF(100000, 4)).y() << " ";
+  // std::cerr << chart()->mapToPosition(QPointF(100000, 4)).y() << " ";
   if (Data::SeismWavePick::SWAVE == type) {
     borderBrush = Qt::darkGreen;
   } else {

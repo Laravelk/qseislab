@@ -21,8 +21,8 @@ public:
   void clear();
 
 signals:
-  void sendWellUuidAndFilePath(const QPair<QUuid, QString> &);
-  void removeClicked(QWidget *sender, const QUuid &);
+    void sendWellUuidAndFilePath(const QUuid&, const QString &) const;
+  void removeClicked(QWidget *sender, const QUuid &) const;
 
 private:
   QComboBox *_comboBox;

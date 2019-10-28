@@ -7,9 +7,6 @@
 
 #include <memory>
 
-#include <QString>
-#include <iostream> // TODO: remove
-
 namespace Data {
 namespace IO {
 void SegyReader::setFilePath(const char *path) {
@@ -69,13 +66,6 @@ SegyReader::nextComponent(const std::unique_ptr<SeismReceiver> &receiver) {
   int p_wave_arrival = 0;
   int s_wave_arrival = 0;
 
-  //  QDate date_stamp;
-  //  QTime time_stamp;
-
-  //  QDate date_stamp(2016, 0, 0);
-  //  std::cout << "date_stamp == " << date_stamp.dayOfYear() << std::endl;
-
-  // TODO: перделать на QDateTime
   int year = 0;
   int day = 0;
   int hour = 0;
@@ -180,11 +170,6 @@ SegyReader::nextComponent(const std::unique_ptr<SeismReceiver> &receiver) {
     ++_alreadyRead;
   }
 
-  // TODO: remove
-  std::cout << "q-date-time == "
-            << date_time_stamp.toString("dd.MM.yyyy hh:mm:ss:zzz").toStdString()
-            << std::endl;
-  ////
   component->setStampTime(date_time_stamp);
   component->setSampleInterval(_sam_intr);
   // TODO: ...
