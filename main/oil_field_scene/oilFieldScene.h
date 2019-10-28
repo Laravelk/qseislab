@@ -89,6 +89,7 @@ private:
   bool _isHorizonsHide = false;
 
 private:
+  void removeItemHandle();
   void handleElementSelected(QAbstract3DGraph::ElementType);
   void handleElementDoubleClicked(QAbstract3DGraph::ElementType);
   void settingGraph();

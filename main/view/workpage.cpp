@@ -86,13 +86,18 @@ WorkPage::WorkPage(QWidget *parent)
   checkLayout->addWidget(_eventBox);
   checkLayout->addStretch(1);
   oilFieldSceneLayout->addLayout(checkLayout);
-  QVBoxLayout *vLayout = new QVBoxLayout();
+  QWidget *oilFieldSceneWidget = new QWidget();
+  oilFieldSceneWidget->setLayout(oilFieldSceneLayout);
 
-  //  vLayout->addLayout(checkLayout);
-  //  vLayout->addWidget(container, 1);
-  vLayout->addLayout(oilFieldSceneLayout);
-  //  vLayout->addStretch(1);
-  vLayout->addWidget(_eventsTable);
+  QSplitter *splitter = new QSplitter(Qt::Vertical);
+  splitter->setChildrenCollapsible(false);
+  splitter->addWidget(oilFieldSceneWidget);
+  splitter->addWidget(_eventsTable);
+
+  QVBoxLayout *vLayout = new QVBoxLayout();
+  //  vLayout->addLayout(oilFieldSceneLayout);
+  //  vLayout->addWidget(_eventsTable);
+  vLayout->addWidget(splitter);
 
   setLayout(vLayout);
   // Layout`s end

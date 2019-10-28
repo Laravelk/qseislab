@@ -137,9 +137,10 @@ bool OilFieldScene::removeEvent(const Uuid &uid) {
   if (_events.end() != _events.find(uid)) {
     QCustom3DItem *item = _events[uid];
     if (item == _isItemHanlde) {
-      _surface->removeCustomItemAt(_label->position());
+      removeItemHandle();
     }
     _surface->removeCustomItem(item);
+    _events.erase(uid);
     return true;
   }
   return false;
@@ -151,12 +152,19 @@ bool OilFieldScene::removeEvent(const Uuid &uid) {
 //}
 
 bool OilFieldScene::removeHorizon(const Uuid &uid) {
-  QSurface3DSeries *series = _horizons[uid];
-  if (_horizons.erase(uid)) {
-    _surface->removeSeries(series);
+  if (_horizons.end() != _horizons.find(uid)) {
+    _surface->removeSeries(_horizons.at(uid));
+    _horizons.erase(uid);
     return true;
   }
   return false;
+
+  //  QSurface3DSeries *series = ;
+  //  if (_horizons.erase(uid)) {
+  //    _horizons.erase(uid);
+  //    return true;
+  //  }
+  //  return false;
 }
 
 // bool OilFieldScene::removeReceiver(
@@ -168,9 +176,10 @@ bool OilFieldScene::removeReceiver(const Uuid &uid) {
   if (_receivers.end() != _receivers.find(uid)) {
     QCustom3DItem *item = _receivers[uid];
     if (item == _isItemHanlde) {
-      _surface->removeCustomItemAt(_label->position());
+      removeItemHandle();
     }
     _surface->removeCustomItem(item);
+    _receivers.erase(uid);
     return true;
   }
   return false;
@@ -182,11 +191,14 @@ bool OilFieldScene::removeReceiver(const Uuid &uid) {
 //}
 
 bool OilFieldScene::removeWell(const Uuid &uid) {
-  std::vector<QCustom3DItem *> v = _wells[uid];
-  if (_wells.erase(uid)) {
-    for (auto &it : v) {
-      _surface->removeCustomItem(it);
+  if (_wells.end() != _wells.find(uid)) {
+    for (auto &item : _wells[uid]) {
+      if (item == _isItemHanlde) {
+        removeItemHandle();
+      }
+      _surface->removeCustomItem(item);
     }
+    _wells.erase(uid);
     return true;
   }
   return false;
@@ -194,7 +206,11 @@ bool OilFieldScene::removeWell(const Uuid &uid) {
 
 bool OilFieldScene::hideEvent(const QUuid &uid) {
   if (_events.end() != _events.find(uid)) {
-    _events.at(uid)->setVisible(false);
+    auto event = _events.at(uid);
+    if (event == _isItemHanlde) {
+      removeItemHandle();
+    }
+    event->setVisible(false);
     return true;
   }
   return false;
@@ -211,8 +227,12 @@ bool OilFieldScene::hideEvent(const QUuid &uid) {
 
 void OilFieldScene::hideAllEvent(bool hide) {
   _isEventsHide = hide;
-  for (auto &event : _events) {
-    event.second->setVisible(!hide);
+  for (auto &uid_event : _events) {
+    auto event = uid_event.second;
+    if (event == _isItemHanlde) {
+      removeItemHandle();
+    }
+    event->setVisible(!hide);
   }
 }
 
@@ -220,6 +240,9 @@ void OilFieldScene::hideAllWell(bool hide) {
   _isWellsHide = hide;
   for (auto &well : _wells) {
     for (auto &wellPart : well.second) {
+      if (wellPart == _isItemHanlde) {
+        removeItemHandle();
+      }
       wellPart->setVisible(!hide);
     }
   }
@@ -227,8 +250,13 @@ void OilFieldScene::hideAllWell(bool hide) {
 
 void OilFieldScene::hideAllReceiver(bool hide) {
   _isReceiversHide = hide;
-  for (auto &receiver : _receivers) {
-    receiver.second->setVisible(!hide);
+  for (auto &uid_receiver : _receivers) {
+    auto receiver = uid_receiver.second;
+    if (receiver == _isItemHanlde) {
+      removeItemHandle();
+      //      _surface->removeCustomItemAt(_label->position());
+    }
+    receiver->setVisible(!hide);
   }
 }
 
@@ -247,13 +275,21 @@ const std::map<Uuid, QSurface3DSeries *> OilFieldScene::getHorizons() const {
   return _horizons;
 }
 
+void OilFieldScene::removeItemHandle() {
+  assert(nullptr != _isItemHanlde && nullptr != _label);
+  _surface->removeCustomItemAt(_label->position());
+  _isItemHanlde = nullptr;
+  _label = nullptr;
+  _isHandle = false;
+}
+
 void OilFieldScene::handleElementSelected(QAbstract3DGraph::ElementType type) {
   if (type == QAbstract3DGraph::ElementCustomItem) {
     QCustom3DItem *item = _surface->selectedCustomItem();
-    _isItemHanlde = item;
     if (_isHandle) {
-      _surface->removeCustomItemAt(_label->position());
+      removeItemHandle();
     }
+    _isItemHanlde = item;
     QVector3D sizeOfLabel(1.0f, 1.0f, 0.0f);
     QVector3D positionOfLabel;
     positionOfLabel.setX(
