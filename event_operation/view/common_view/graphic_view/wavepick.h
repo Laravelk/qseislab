@@ -6,6 +6,8 @@
 #include <QtCharts/QChartGlobal>
 #include <QtWidgets/QGraphicsItem>
 
+#include <variant>
+
 QT_BEGIN_NAMESPACE
 class QGraphicsSceneEvent;
 QT_END_NAMESPACE
@@ -19,15 +21,18 @@ QT_CHARTS_USE_NAMESPACE;
 namespace EventOperation {
 class WavePick : public QObject, public QGraphicsItem {
   Q_OBJECT
+  Q_INTERFACES(QGraphicsItem)
 public:
-  WavePick(Data::SeismWavePick::Type, QGraphicsItem *, QChart *, QPointF, QSizeF,
-           QBrush, std::variant<WavePick *, qreal>,
+  WavePick(Data::SeismWavePick::Type, QGraphicsItem *, QChart *, QPointF,
+           QSizeF, QBrush, std::variant<WavePick *, qreal>,
            std::variant<WavePick *, qreal>);
   WavePick(Data::SeismWavePick::Type, QGraphicsItem *, QChart *, qreal, qreal,
            int, int, QBrush, WavePick *);
 
   void setAnchor(const QPointF);
-  void updateGeomety();
+
+  void updateGeometry();
+
   int getXPos() { return static_cast<int>(_anchor.x()); }
   void setLeftBorder(std::variant<WavePick *, qreal>);
   void setRightBorder(std::variant<WavePick *, qreal>);
@@ -40,7 +45,7 @@ public:
   QRectF boundingRect() const;
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
 
-  void resize(QSizeF );
+  void resize(QSizeF);
 
 signals:
   void changed();

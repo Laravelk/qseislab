@@ -9,7 +9,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-//#include <iostream> // TODO: delete
+// #include <iostream> // TODO: delete
 
 typedef Data::SeismEvent SeismEvent;
 

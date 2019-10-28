@@ -1,7 +1,7 @@
 #include "graphic_view.h"
-#include "wavepick.h"
 
 #include <QtGui/QMouseEvent>
+#include <iostream>
 
 #include <math.h>
 
@@ -19,13 +19,6 @@ GraphicView::GraphicView(QChart *chart, QWidget *parent)
   rect->setFlag(QGraphicsItem::ItemClipsChildrenToShape);
   rect->setZValue(10);
   scene()->addItem(rect);
-
-  QGraphicsTextItem *text = new QGraphicsTextItem("HELLO HELLO HELLO", chart);
-  text->setTextWidth(300);
-  text->setRotation(270);
-  text->setDefaultTextColor(Qt::black);
-  text->setPos(10, 300);
-  text->show();
 }
 
 void GraphicView::addPick(Data::SeismWavePick::Type type, qreal ax, qreal ay,
@@ -39,7 +32,8 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
                           QSizeF size, QBrush brush, qreal rangeX,
                           qreal leftBorderPos, qreal rightBorderPos) {
   QBrush borderBrush;
-  if (brush == Qt::darkRed) {
+  std::cerr << chart()->mapToPosition(QPointF(100000, 4)).y() << " ";
+  if (Data::SeismWavePick::SWAVE == type) {
     borderBrush = Qt::darkGreen;
   } else {
     borderBrush = Qt::darkCyan;
@@ -78,6 +72,9 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
 
   pick->setBorders(leftBorder, rightBorder);
   pick->setZValue(11);
+  pick->setScale(_currentlyWavesScale);
+  leftBorder->setScale(_currentlyWavesScale);
+  rightBorder->setScale(_currentlyWavesScale);
   leftBorder->setZValue(11);
   rightBorder->setZValue(11);
   _wavePicks.push_back(leftBorder);
@@ -87,12 +84,16 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
 
 void GraphicView::setWaveAddTriggerFlag(Data::SeismWavePick::Type type) {
   if (type == Data::SeismWavePick::PWAVE) {
+    //      std::cerr << "SET PWAVE FLAG\n";
     _isAddPWaveTriggerPressed = true;
     _isAddSWaveTriggerPressed = false;
   } else if (type == Data::SeismWavePick::SWAVE) {
+    //      std::cerr << "SET SWAVE FLAG\n";
     _isAddSWaveTriggerPressed = true;
     _isAddPWaveTriggerPressed = false;
   }
+  this->setFocus();
+  _chart->setActive(true);
 }
 
 bool GraphicView::viewportEvent(QEvent *event) {
@@ -104,6 +105,7 @@ bool GraphicView::viewportEvent(QEvent *event) {
 
 void GraphicView::mousePressEvent(QMouseEvent *event) {
   if (_isAddPWaveTriggerPressed) {
+    //      std::cerr << "CREATE P WAVE\n";
     QPointF pos = calculatePickPosition(chart()->mapToValue(event->pos()));
     if (checkAvailability(Data::SeismWavePick::PWAVE,
                           static_cast<int>(pos.y()))) {
@@ -114,6 +116,7 @@ void GraphicView::mousePressEvent(QMouseEvent *event) {
   }
 
   if (_isAddSWaveTriggerPressed) {
+    //      std::cerr << "CREATE S WAVE\n";
     QPointF pos = calculatePickPosition(chart()->mapToValue(event->pos()));
     if (checkAvailability(Data::SeismWavePick::SWAVE,
                           static_cast<int>(pos.y()))) {
@@ -126,7 +129,7 @@ void GraphicView::mousePressEvent(QMouseEvent *event) {
   QChartView::mousePressEvent(event);
   if (event->button() == Qt::RightButton) {
     for (auto &wave : _wavePicks) {
-      wave->updateGeomety();
+      wave->updateGeometry();
     }
   }
 }
@@ -205,7 +208,7 @@ void GraphicView::scrollContentsBy(int dx, int dy) {
   if (scene()) {
     _chart->scroll(dx, dy);
     for (auto &wave : _wavePicks) {
-      wave->updateGeomety();
+      wave->updateGeometry();
     }
   }
 }
@@ -224,13 +227,13 @@ void GraphicView::resizeEvent(QResizeEvent *event) {
     _chart->resize(event->size());
     for (auto &wave : _wavePicks) {
       wave->resize(scaleCoff);
-      wave->updateGeomety();
+      wave->updateGeometry();
     }
   }
   QGraphicsView::resizeEvent(event);
 }
 
-// uncomment for wheelEvent on Windows
+// TODO: uncomment for wheelEvent on Windows
 void GraphicView::wheelEvent(QWheelEvent *event) {
   qreal factor = event->angleDelta().y() > 0 ? 0.7 : 1.3;
   scaleContentsBy(factor);
@@ -240,16 +243,17 @@ void GraphicView::wheelEvent(QWheelEvent *event) {
 void GraphicView::scaleContentsBy(qreal factor) {
   if (scene()) {
     _chart->zoom(factor);
+    _currentlyWavesScale *= factor;
     for (auto &wavePick : _wavePicks) {
-      wavePick->setScale(wavePick->scale() * factor);
-      wavePick->updateGeomety();
+      wavePick->setScale(_currentlyWavesScale);
+      wavePick->updateGeometry();
     }
   }
 }
 
 QPointF GraphicView::calculatePickPosition(QPointF pointByMouse) {
-  if (pointByMouse.y() > _countOfComponents) {
-    return QPointF(pointByMouse.x() - 500, _countOfComponents);
+  if (pointByMouse.y() > _countOfComponents - 1) {
+    return QPointF(pointByMouse.x() - 500, _countOfComponents - 1);
   }
 
   if (pointByMouse.y() < 0) {

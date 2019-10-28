@@ -47,7 +47,6 @@ signals:
 private:
   FilteringTableAssistant *_eventsTable;
 
-  //  Surface *_surface;
   OilFieldScene *_oilFieldScene;
 
   Q3DSurface *_graph;

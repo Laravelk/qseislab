@@ -29,7 +29,7 @@ find_package(Qt5 COMPONENTS ${_Q_MODULES} REQUIRED)
 #add_subdirectory(parser_test)
 
 # Bad way
-set(Boost_INCLUDE_DIR C:/Users/seismuser/all/boost_1_71_0/boost_1_71_0)
+set(Boost_INCLUDE_DIR "C:/Users/seismuser/all/boost_1_71_0/boost_1_71_0")
 find_package(Boost REQUIRED)
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
@@ -50,6 +50,7 @@ set(SOURCES
         event_operation/view/common_view/infoevent.cpp
         event_operation/view/common_view/graphiccontroller.cpp
         event_operation/view/common_view/chartgesture.cpp
+        event_operation/view/common_view/graphic_view/pipes2dname.cpp
         event_operation/view/common_view/3dscene/polarizationanalysiswindow.cpp
 
 
@@ -98,6 +99,8 @@ set(SOURCES
         main/view/startpage.cpp
         main/view/workpage.cpp
         main/view/infoproject.cpp
+
+#        main/surface_view/surface.cpp
         main/oil_field_scene/oilfieldscene.cpp
 
         share_view/tableassistant.cpp
@@ -131,6 +134,7 @@ set(HEADERS
         event_operation/view/common_view/infoevent.h
         event_operation/view/common_view/graphiccontroller.h
         event_operation/view/common_view/chartgesture.h
+        event_operation/view/common_view/graphic_view/pipes2dname.h
         event_operation/view/common_view/3dscene/polarizationanalysiswindow.h
 
 
@@ -180,6 +184,9 @@ set(HEADERS
         main/view/startpage.h
         main/view/workpage.h
         main/view/infoproject.h
+
+#        main/surface_view/surface.h
+
         main/oil_field_scene/oilfieldscene.h
 
         share_view/tableassistant.h
