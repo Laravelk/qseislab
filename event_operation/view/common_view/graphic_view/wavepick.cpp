@@ -5,7 +5,7 @@
 #include <QtWidgets/QGraphicsSceneMouseEvent>
 #include <type_traits>
 
-#include <iostream> // TODO: remove
+// #include <iostream> // TODO: remove
 
 namespace EventOperation {
 WavePick::WavePick(Data::SeismWavePick::Type type, QGraphicsItem *parent,
@@ -20,6 +20,7 @@ WavePick::WavePick(Data::SeismWavePick::Type type, QGraphicsItem *parent,
   setPos(_anchor);
   updateBorders();
   _rect = QRectF(0, 0, size.width(), size.height());
+
   updateGeometry();
 }
 

@@ -6,6 +6,8 @@
 
 #include <QBoxLayout>
 #include <memory>
+#include <QSlider>
+#include <QLabel>
 
 namespace Data {
 class SeismEvent;
@@ -40,6 +42,8 @@ signals:
 
 private:
   void commonSetting();
+  void settingGraphicMenu();
+  void showGraphicMenu();
 
   InfoEvent *_infoEvent;
   QVBoxLayout *_wellManagersLayout;
@@ -49,6 +53,10 @@ private:
   QPushButton *_cancelButton;
   QPushButton *_addWaveButton;
   QPushButton *_polarizationEventButton;
+  QSlider * _clippingSlider;
+  QSlider * _gainSlider;
+  QLabel *_clippintSliderLabel;
+  QLabel * _gainSliderLabel;
 
   QAction *_addPWave;
   QAction *_addSWave;

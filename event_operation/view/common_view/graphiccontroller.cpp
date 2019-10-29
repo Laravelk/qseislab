@@ -5,7 +5,7 @@
 #include "data/seismtrace.h"
 #include "graphic_view/wavepick.h"
 
-#include <iostream>
+#include <iostream> // TODO: need to DELETE
 
 typedef Data::SeismComponent SeismComponent;
 typedef Data::SeismEvent SeismEvent;
@@ -17,7 +17,6 @@ GraphicController::GraphicController(QWidget *parent)
       _axisX(new QValueAxis), _axisY(new QValueAxis) {
   _view = new GraphicView(_chart);
   _view->addModel(_chart);
-  _view->setWaveRadius(WAVE_RADIUS);
   _chart->setAnimationOptions(QChart::NoAnimation);
   _chart->legend()->hide();
   _chart->setMinimumSize(GRAPH_WIDHT, GRAPH_HEIGHT);
@@ -33,8 +32,8 @@ GraphicController::GraphicController(QWidget *parent)
   _view->hide();
 }
 
-// подумать, как вызывать удаление, сделать полную очистку
 void GraphicController::update(const std::unique_ptr<SeismEvent> &event) {
+   _event = event.get();
   _view->chart()->removeAllSeries();
   _view->clearPicks();
   _view->setDefaultScale();
@@ -56,6 +55,19 @@ void GraphicController::update(const std::unique_ptr<SeismEvent> &event) {
   _chart->addPicks(_view->getPickcs());
   _view->show();
 }
+
+void GraphicController::setGainCoefficient(const float gainCoefficient)
+{
+        _gain = gainCoefficient;
+        updateSeriesByGain(gainCoefficient);
+}
+
+void GraphicController::setClippingValue(const float clippingValue)
+{
+    _clipping = clippingValue;
+    updateSeriesByClipping(clippingValue);
+}
+
 
 void GraphicController::clear() {
   _view->chart()->removeAllSeries();
@@ -104,9 +116,13 @@ void GraphicController::addTraceSeries(
       tmp += intervalAxisX;
     }
     _chart->addSeries(series);
+    connect(series, &QLineSeries::clicked, [this](const QPointF &pos) {
+       _view->mouseEvent(pos);
+    });
     series->setColor(color[j]);
     series->attachAxis(_axisX);
     series->attachAxis(_axisY);
+    _allSeries.push_back(series);
   }
 }
 
@@ -132,6 +148,65 @@ void GraphicController::getRangeX(
     }
   }
   _rangeAxisX = sampleInterval * maxCountElementInTrace;
+}
+
+void GraphicController::updateSeriesByGain(const float gainCoefficient)
+{
+    QList<QLineSeries*>::iterator seriesIterator = _allSeries.begin();
+    int componentNumber = 0;
+    for (auto &component : _event->getComponents()) {
+        int index = -1;
+        for (auto &trace : component->getTraces()) {
+            QList<QPointF> points;
+            QList<QPointF> oldPoints = seriesIterator.i->t()->points();
+            for (int k = 0; k < trace->getBufferSize(); k++) {
+                float newYValue = trace->getBuffer()[k] * gainCoefficient / _norm;
+                if (abs(newYValue) > _clipping) {
+                    if (newYValue > 0)
+                        newYValue = _clipping;
+                    else
+                        newYValue = -_clipping;
+                }
+                points.append(QPointF(oldPoints.at(k).x(),
+                               TRACE_OFFSET * (index) +
+                                   AMPLITUDE_SCALAR * newYValue + componentNumber));
+            }
+            seriesIterator.i->t()->replace(points);
+            seriesIterator++;
+            index++;
+        }
+        componentNumber++;
+    }
+    _gain = gainCoefficient;
+}
+
+void GraphicController::updateSeriesByClipping(const float clippingValue)
+{
+    QList<QLineSeries*>::iterator seriesIterator = _allSeries.begin();
+    int componentNumber = 0;
+    for (auto &component : _event->getComponents()) {
+        int index = -1;
+        for (auto &trace : component->getTraces()) {
+            QList<QPointF> points;
+            QList<QPointF> oldPoints = seriesIterator.i->t()->points();
+            for (int k = 0; k < trace->getBufferSize(); k++) {
+                float newYValue = trace->getBuffer()[k] * _gain / _norm;
+                if (abs(newYValue) > _clipping) {
+                    if (newYValue > 0)
+                        newYValue = _clipping;
+                    else
+                        newYValue = -_clipping;
+                }
+                points.append(QPointF(oldPoints.at(k).x(),
+                               TRACE_OFFSET * (index) +
+                                   AMPLITUDE_SCALAR * newYValue + componentNumber));
+            }
+            seriesIterator.i->t()->replace(points);
+            seriesIterator++;
+            index++;
+        }
+        componentNumber++;
+    }
 }
 
 } // namespace EventOperation

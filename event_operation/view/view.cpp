@@ -9,7 +9,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-#include <iostream> // TODO: delete
+// #include <iostream> // TODO: delete
 
 typedef Data::SeismEvent SeismEvent;
 
@@ -96,6 +96,14 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
     _wellManagersLayout->insertWidget(_wellManagersLayout->count() - 1,
                                       wellManager);
   });
+  QVBoxLayout *sliderLayout = new QVBoxLayout();
+  sliderLayout->addStretch(1);
+  sliderLayout->addWidget(_clippingSlider);
+  sliderLayout->addWidget(_clippintSliderLabel);
+  sliderLayout->addWidget(_gainSlider);
+  sliderLayout->addWidget(_gainSliderLabel);
+
+  sliderLayout->addStretch(1);
   QHBoxLayout *buttonLayoutManagers = new QHBoxLayout();
   buttonLayoutManagers->addStretch(1);
   buttonLayoutManagers->addWidget(_addButtonManagers);
@@ -125,6 +133,7 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
   mainLayout->addLayout(leftLayout);
   //    mainLayout->addStretch(1);
   mainLayout->addLayout(graphicLayout, 10);
+  mainLayout->addLayout(sliderLayout);
 
   setLayout(mainLayout);
   // Layout`s end
@@ -139,6 +148,7 @@ void View::update(const std::unique_ptr<SeismEvent> &event,
   _infoEvent->update(event);
   //  _addButtonManagers->setEnabled(true);
   _graphicEvent->update(event);
+  showGraphicMenu();
   _okButton->setEnabled(true);
   _okButton->setFocus();
 }
@@ -186,7 +196,7 @@ void View::commonSetting() {
   _cancelButton = new QPushButton("Cancel", this);
   _addWaveButton = new QPushButton("+", this);
   _polarizationEventButton = new QPushButton("Polarization Analysis", this);
-
+  settingGraphicMenu();
   setWindowTitle("SeismWindow");
   setMinimumSize(1100, 590);
 
@@ -213,13 +223,41 @@ void View::commonSetting() {
   connect(_okButton, &QPushButton::clicked, this, &View::accept);
   connect(_cancelButton, &QPushButton::clicked, this, &View::reject);
   connect(_addPWave, &QAction::triggered, [this]() {
-      std::cerr << "BUTTON PRESS ";
     _graphicEvent->getView()->setWaveAddTriggerFlag(Data::SeismWavePick::PWAVE);
   });
   connect(_addSWave, &QAction::triggered, [this]() {
     _graphicEvent->getView()->setWaveAddTriggerFlag(Data::SeismWavePick::SWAVE);
   });
+  connect(_clippingSlider, &QSlider::valueChanged, [this](int value) {
+        _clippintSliderLabel->setText(QString("Clipping: %1").arg(static_cast<qreal>(value)/1000));
+        _graphicEvent->setClippingValue(static_cast<qreal>(value)/100);
+  });
+  connect(_gainSlider, &QSlider::valueChanged, [this](int value) {
+        _gainSliderLabel->setText(QString("Gain: %1").arg(static_cast<qreal>(value)/10));
+        _graphicEvent->setGainCoefficient(static_cast<qreal>(value) / 10);
+  });
   // Connecting end
+}
+
+void View::settingGraphicMenu()
+{
+    _clippintSliderLabel = new QLabel("Clipping: 1");
+    _gainSliderLabel = new QLabel("Gain: 1");
+    _clippingSlider = new QSlider(Qt::Horizontal, this);
+    _gainSlider = new QSlider(Qt::Horizontal, this);
+    _clippingSlider->setMinimumWidth(100);
+    _clippingSlider->hide();
+    _gainSlider->hide();
+    _clippintSliderLabel->hide();
+    _gainSliderLabel->hide();
+}
+
+void View::showGraphicMenu()
+{
+    _gainSlider->show();
+    _clippingSlider->show();
+    _gainSliderLabel->show();
+    _clippintSliderLabel->show();
 }
 
 } // namespace Generic

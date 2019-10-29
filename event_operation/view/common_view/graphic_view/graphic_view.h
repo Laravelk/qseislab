@@ -1,10 +1,12 @@
 #pragma once
 
 #include "../chartgesture.h"
-#include "wavepick.h"
 #include "pipes2dname.h"
+#include "wavepick.h"
 #include <QtCharts/QChartView>
 #include <QtWidgets/QRubberBand>
+
+#include <iostream> // TODO: delete
 
 QT_CHARTS_BEGIN_NAMESPACE
 class QChart;
@@ -29,7 +31,7 @@ public:
   void setRangeX(const qreal rangeX) { _rangeX = rangeX; }
   void setCountOfComponents(int count) { _countOfComponents = count; }
   void setScale(const qreal scale) { _currentlyWavesScale = scale; }
-  void setDefaultScale() {_currentlyWavesScale = 1.0;}
+  void setDefaultScale() { _currentlyWavesScale = 1.0; }
 
   QList<WavePick *> *getPickcs() { return &_wavePicks; }
   void clearPicks() {
@@ -37,6 +39,12 @@ public:
       scene()->removeItem(pick);
     }
     _wavePicks.clear();
+  }
+
+  void mouseEvent(const QPointF &pos) {
+      QPointF localPos = QPointF(_chart->mapToPosition(pos));
+      this->mousePressEvent(new QMouseEvent(QEvent::MouseButtonPress, localPos, Qt::LeftButton, Qt::LeftButton,
+                                                  Qt::NoModifier));
   }
 
 protected:
