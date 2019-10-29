@@ -23,9 +23,9 @@ GraphicController::GraphicController(QWidget *parent)
   _chart->addAxis(_axisY, Qt::AlignLeft);
   _chart->setAcceptHoverEvents(true);
   connect(_view, &GraphicView::sendPicksInfo,
-          [this](Data::SeismWavePick::Type type, int componentNumber,
+          [this](Data::SeismWavePick::Type type, int componentAmount,
                  int leftBorderPos, int pickPos, int rightBorderPos) {
-            emit sendPicksInfo(type, componentNumber, leftBorderPos, pickPos,
+            emit sendPicksInfo(type, componentAmount, leftBorderPos, pickPos,
                                rightBorderPos);
           });
   _view->hide();
@@ -38,18 +38,18 @@ void GraphicController::update(const std::unique_ptr<SeismEvent> &event) {
   _view->setDefaultScale();
   _rangeAxisX = 0;
   getRangeX(event);
-  _view->setCountOfComponents(event->getComponentNumber());
+  _view->setCountOfComponents(event->getComponentAmount());
   _view->setRangeX(_rangeAxisX);
   setInterval(event);
-  setAxesY(event->getComponentNumber());
-  _chart->setReceiverCount(event->getComponentNumber());
-  int numberOfComponent = 0;
+  setAxesY(event->getComponentAmount());
+  _chart->setReceiverCount(event->getComponentAmount());
+  int componentAmount = 0;
   for (auto &component : event->getComponents()) {
     for (auto &pick : component->getWavePicks()) {
-      addWaveArrival(pick.second, numberOfComponent);
+      addWaveArrival(pick.second, componentAmount);
     }
-    addTraceSeries(component, numberOfComponent);
-    numberOfComponent++;
+    addTraceSeries(component, componentAmount);
+    componentAmount++;
   }
   _chart->addPicks(_view->getPickcs());
   _view->show();
@@ -108,9 +108,9 @@ void GraphicController::addTraceSeries(
   }
 }
 
-void GraphicController::setAxesY(int componentNumber) {
-  _axisY->setTickCount(componentNumber);
-  _axisY->setRange(-1, componentNumber + 0.5);
+void GraphicController::setAxesY(int componentAmount) {
+  _axisY->setTickCount(componentAmount);
+  _axisY->setRange(-1, componentAmount + 0.5);
   _axisY->setTickInterval(1);
   _axisY->setTickAnchor(0);
   _axisY->setTickType(QValueAxis::TicksDynamic);

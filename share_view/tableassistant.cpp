@@ -44,7 +44,7 @@ TableAssistant::TableAssistant(Mode mode, QWidget *parent)
   // Layouts
   QVBoxLayout *mainLayout = new QVBoxLayout();
   mainLayout->addWidget(_table);
-  mainLayout->addStretch(1);
+  //  mainLayout->addStretch(1);
 
   setLayout(mainLayout);
   // Layouts end
@@ -95,7 +95,7 @@ void TableAssistant::forHorizons() {
 
   _table->setHorizontalHeaderLabels(QStringList() << "uuid"
                                                   << "Name"
-                                                  << "Point Number"
+                                                  << "Point Amount"
                                                   << "Nx"
                                                   << "Ny"
                                                   << ""
@@ -127,7 +127,7 @@ void TableAssistant::add<SeismHorizon>(
 
   _table->setItem(
       row, 2,
-      new QTableWidgetItem(QString::number(horizon->getPointsNumber())));
+      new QTableWidgetItem(QString::number(horizon->getPointsAmount())));
 
   _table->setItem(row, 3,
                   new QTableWidgetItem(QString::number(horizon->getNx())));
@@ -158,7 +158,7 @@ void TableAssistant::update<SeismHorizon>(
     if (uuid == _table->item(row, 0)->data(Qt::DisplayRole).toUuid()) {
       _table->item(row, 1)->setData(Qt::DisplayRole, horizon->getName());
       _table->item(row, 2)->setData(Qt::DisplayRole,
-                                    horizon->getPointsNumber());
+                                    horizon->getPointsAmount());
       _table->item(row, 3)->setData(Qt::DisplayRole, horizon->getNx());
       _table->item(row, 4)->setData(Qt::DisplayRole, horizon->getNy());
       break;
@@ -178,7 +178,7 @@ void TableAssistant::forWells() {
 
   _table->setHorizontalHeaderLabels(QStringList() << "uuid"
                                                   << "Name"
-                                                  << "Point Number"
+                                                  << "Point Amount"
                                                   << ""
                                                   << "");
 
@@ -206,7 +206,7 @@ void TableAssistant::add<SeismWell>(const std::unique_ptr<SeismWell> &well) {
   _table->setItem(row, 1, new QTableWidgetItem(well->getName()));
 
   _table->setItem(
-      row, 2, new QTableWidgetItem(QString::number(well->getPointsNumber())));
+      row, 2, new QTableWidgetItem(QString::number(well->getPointsAmount())));
 
   QPushButton *removeButton = new QPushButton();
   QIcon icon(":/remove_button.png");
@@ -229,7 +229,7 @@ void TableAssistant::update<SeismWell>(const std::unique_ptr<SeismWell> &well) {
   for (int row = 0; row < _table->rowCount(); ++row) {
     if (uuid == _table->item(row, 0)->data(Qt::DisplayRole).toUuid()) {
       _table->item(row, 1)->setData(Qt::DisplayRole, well->getName());
-      _table->item(row, 2)->setData(Qt::DisplayRole, well->getPointsNumber());
+      _table->item(row, 2)->setData(Qt::DisplayRole, well->getPointsAmount());
       break;
     }
   }
@@ -278,12 +278,15 @@ void TableAssistant::add<SeismReceiver>(
   _table->setItem(row, 1, new QTableWidgetItem(receiver->getName()));
 
   auto &location = receiver->getLocation();
-  _table->setItem(
-      row, 2, new QTableWidgetItem(static_cast<double>(std::get<0>(location))));
-  _table->setItem(
-      row, 3, new QTableWidgetItem(static_cast<double>(std::get<1>(location))));
-  _table->setItem(
-      row, 4, new QTableWidgetItem(static_cast<double>(std::get<2>(location))));
+  _table->setItem(row, 2,
+                  new QTableWidgetItem(QString::number(
+                      static_cast<double>(std::get<0>(location)))));
+  _table->setItem(row, 3,
+                  new QTableWidgetItem(QString::number(
+                      static_cast<double>(std::get<1>(location)))));
+  _table->setItem(row, 4,
+                  new QTableWidgetItem(QString::number(
+                      static_cast<double>(std::get<2>(location)))));
 
   QPushButton *removeButton = new QPushButton();
   QIcon icon(":/remove_button.png");

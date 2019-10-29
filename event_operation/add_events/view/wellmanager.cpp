@@ -15,7 +15,7 @@ WellManager::WellManager(const std::map<QUuid, QString> &wellNames_map,
   setFrameStyle(1);
   _fileManager->setDisabled(true);
 
-  _comboBox->addItem("Select a well name...");
+  _comboBox->addItem("Select Owner_Array...");
   for (auto &uuid_name : wellNames_map) {
     _comboBox->addItem(uuid_name.second, uuid_name.first);
   }

@@ -2,8 +2,8 @@
 
 #include "data/seismevent.h"
 #include "data/seismwell.h"
-#include "model.h"
 #include "event_operation/share_view/3dscene/polarizationanalysiswindow.h"
+#include "model.h"
 
 #include "data/io/segyreader.h"
 
@@ -32,7 +32,7 @@ Controller::Controller(
           [this](auto &msg) { _view->setNotification(msg); });
 
   connect(_view.get(), &View::sendWellUuidAndFilePath,
-          [this, &wells_map](auto &wellUuid, auto& filePath) {
+          [this, &wells_map](auto &wellUuid, auto &filePath) {
             auto components =
                 _model->getSeismComponents(wells_map.at(wellUuid), filePath);
             if (!components.empty()) {
@@ -84,9 +84,9 @@ Controller::Controller(
 Controller::Controller(const std::unique_ptr<Data::SeismEvent> &event,
                        QObject *parent)
     : QObject(parent), _model(nullptr),
-      _event(std::make_unique<Data::SeismEvent>(*event)){
+      _event(std::make_unique<Data::SeismEvent>(*event)) {
 
-//    _eventNameContainer[QUuid()] = _event->getName(); // TODO: it`s OK?
+  //    _eventNameContainer[QUuid()] = _event->getName(); // TODO: it`s OK?
 
   _view = std::make_unique<View>(_event);
 
@@ -134,17 +134,17 @@ void Controller::finish(int result) {
 }
 
 QString Controller::generateEventName() const {
-    QString name;
-    int idx = 0;
-    for(auto& uuid_word : _eventNameContainer) {
-        if (0 != idx) {
-            name += " --- ";
-        }
-        name += uuid_word.second;
-        ++idx;
+  QString name;
+  int idx = 0;
+  for (auto &uuid_word : _eventNameContainer) {
+    if (0 != idx) {
+      name += " --- ";
     }
-    return name;
+    name += uuid_word.second;
+    ++idx;
+  }
+  return name;
 }
 
-} // namespace Generic
+} // namespace AddEvent
 } // namespace EventOperation

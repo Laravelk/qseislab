@@ -88,7 +88,7 @@ SeismEvent::SeismEvent(const QJsonObject &json,
               for (auto &receiver : uuid_well.second->getReceivers()) {
                 if (receiver->getUuid() == receiverUuid) {
                   findReceiver = true;
-                  for (int i = 0; i < receiver->getChannelNum(); ++i) {
+                  for (int i = 0; i < receiver->getChannelAmount(); ++i) {
                     seismComponent->addTrace(reader.nextTrace());
                   }
                   addComponent(std::move(seismComponent));
@@ -128,9 +128,9 @@ SeismEvent::SeismEvent(const QJsonObject &json,
 }
 
 SeismEvent::SeismEvent(const SeismEvent &other)
-    : _uuid(other._uuid), _name(other._name), _type(other._type), _path(other._path),
-      _dateTime(other._dateTime), _isProcessed(other._isProcessed),
-      _location(other._location) {
+    : _uuid(other._uuid), _name(other._name), _type(other._type),
+      _path(other._path), _dateTime(other._dateTime),
+      _isProcessed(other._isProcessed), _location(other._location) {
 
   for (auto &component : other._components) {
     _components.push_back(std::make_unique<SeismComponent>(*component));
@@ -147,7 +147,15 @@ void SeismEvent::setType(int type) { _type = type; }
 
 int SeismEvent::getType() const { return _type; }
 
-int SeismEvent::getComponentNumber() const {
+int SeismEvent::getPickAmountByType(const SeismWavePick::Type type) const {
+  int amount = 0;
+  for (auto &component : _components) {
+    amount += component->containsWavePickBy(type) ? 1 : 0;
+  }
+  return amount;
+}
+
+int SeismEvent::getComponentAmount() const {
   return static_cast<int>(_components.size());
 }
 

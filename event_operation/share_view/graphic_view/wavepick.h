@@ -40,7 +40,7 @@ public:
                   std::variant<WavePick *, qreal>);
 
   Data::SeismWavePick::Type getType() { return _type; }
-  int getComponentNumber() { return static_cast<int>(_anchor.y()); }
+  int getComponentAmount() { return static_cast<int>(_anchor.y()); }
 
   QRectF boundingRect() const;
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);

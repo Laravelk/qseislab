@@ -53,19 +53,19 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
       new WavePick(type, rect, chart(), QPointF(rightBorderPos, pos.y()), size,
                    borderBrush, pick, rangeX);
   connect(pick, &WavePick::changed, [this, pick, leftBorder, rightBorder]() {
-    emit sendPicksInfo(pick->getType(), pick->getComponentNumber(),
+    emit sendPicksInfo(pick->getType(), pick->getComponentAmount(),
                        leftBorder->getXPos(), pick->getXPos(),
                        rightBorder->getXPos());
   });
   connect(leftBorder, &WavePick::changed,
           [this, pick, leftBorder, rightBorder]() {
-            emit sendPicksInfo(pick->getType(), pick->getComponentNumber(),
+            emit sendPicksInfo(pick->getType(), pick->getComponentAmount(),
                                leftBorder->getXPos(), pick->getXPos(),
                                rightBorder->getXPos());
           });
   connect(rightBorder, &WavePick::changed,
           [this, pick, leftBorder, rightBorder]() {
-            emit sendPicksInfo(pick->getType(), pick->getComponentNumber(),
+            emit sendPicksInfo(pick->getType(), pick->getComponentAmount(),
                                leftBorder->getXPos(), pick->getXPos(),
                                rightBorder->getXPos());
           });
@@ -266,7 +266,7 @@ QPointF GraphicView::calculatePickPosition(QPointF pointByMouse) {
 bool GraphicView::checkAvailability(Data::SeismWavePick::Type type, int index) {
   for (auto &wavePick : _wavePicks) {
     if (wavePick->getType() == type &&
-        wavePick->getComponentNumber() == index) {
+        wavePick->getComponentAmount() == index) {
       return false;
     }
   }

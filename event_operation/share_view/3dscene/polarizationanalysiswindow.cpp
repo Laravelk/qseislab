@@ -93,7 +93,7 @@ PolarizationAnalysisWindow::PolarizationAnalysisWindow(
   _waveTypeBox->addItems(waveTypeList);
 
   receiverList.append("Receiver...");
-  for (int i = 0; i < event->getComponentNumber(); ++i) {
+  for (int i = 0; i < event->getComponentAmount(); ++i) {
     receiverList.append(QString::number(i));
   }
   _receiverBox->addItems(receiverList);

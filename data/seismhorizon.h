@@ -23,7 +23,7 @@ public:
   void setName(const QString &);
   const QString &getName() const;
 
-  int getPointsNumber() const;
+  int getPointsAmount() const;
 
   void addPoint(Point);
   const Point &getPoint(int);

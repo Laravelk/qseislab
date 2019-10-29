@@ -24,7 +24,7 @@ public:
   void setName(const QString &);
   const QString &getName() const;
 
-  int getPointsNumber() const;
+  int getPointsAmount() const;
 
   void addPoint(Point);
   const Point &getPoint(int);
@@ -32,7 +32,7 @@ public:
 
   void addReceiver(std::unique_ptr<Data::SeismReceiver>);
   bool removeReceiver(const QUuid &);
-  int getReceiversNumber() const;
+  int getReceiversAmount() const;
   std::list<std::unique_ptr<Data::SeismReceiver>> &
   getReceivers(); // TODO: re-see
   void removeAllReceivers();

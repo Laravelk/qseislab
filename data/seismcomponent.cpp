@@ -133,7 +133,7 @@ void SeismComponent::addTrace(std::unique_ptr<SeismTrace> trace) {
   _traces.push_back(std::move(trace));
 }
 
-unsigned SeismComponent::getTracesNumber() const {
+unsigned SeismComponent::getTracesAmount() const {
   return static_cast<unsigned>(_traces.size());
 }
 
@@ -142,14 +142,18 @@ SeismComponent::getTraces() const {
   return _traces;
 }
 
-void SeismComponent::addWavePick(SeismWavePick wavePick) {
+void SeismComponent::addWavePick(const SeismWavePick wavePick) {
   _wavePicks_map[wavePick.getType()] = wavePick;
   emit changed();
 }
 
-void SeismComponent::removeWavePick(SeismWavePick::Type type) {
+void SeismComponent::removeWavePick(const SeismWavePick::Type type) {
   _wavePicks_map.erase(type);
   emit changed();
+}
+
+bool SeismComponent::containsWavePickBy(const SeismWavePick::Type type) const {
+  return _wavePicks_map.end() != _wavePicks_map.find(type);
 }
 
 const SeismWavePick &

@@ -52,7 +52,7 @@ public:
   void setWellReceiverNum(int);
   int getWellReceiverNum() const;
 
-  int getChannelNum() const;
+  int getChannelAmount() const;
   void addChannel(std::unique_ptr<Data::SeismChannelReceiver>);
   const std::vector<std::unique_ptr<Data::SeismChannelReceiver>> &
   getChannels() const;

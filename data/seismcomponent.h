@@ -35,11 +35,12 @@ public:
 
   void addTrace(std::unique_ptr<SeismTrace>);
 
-  unsigned getTracesNumber() const;
+  unsigned getTracesAmount() const;
   const std::vector<std::unique_ptr<SeismTrace>> &getTraces() const;
 
   void addWavePick(SeismWavePick);
-  void removeWavePick(SeismWavePick::Type);
+  void removeWavePick(const SeismWavePick::Type);
+  bool containsWavePickBy(const SeismWavePick::Type) const;
   const SeismWavePick &getWavePick(SeismWavePick::Type) const;
   const std::map<SeismWavePick::Type, SeismWavePick> &getWavePicks() const;
 

@@ -66,15 +66,9 @@ SegyReader::nextComponent(const std::unique_ptr<SeismReceiver> &receiver) {
   int p_wave_arrival = 0;
   int s_wave_arrival = 0;
 
-  int year = 0;
-  int day = 0;
-  int hour = 0;
-  int minute = 0;
-  int second = 0;
-  int microsec = 0;
   QDateTime date_time_stamp;
 
-  for (int i = 0; i < receiver->getChannelNum(); ++i) {
+  for (int i = 0; i < receiver->getChannelAmount(); ++i) {
     if (_trace_num == _alreadyRead) {
       throw std::runtime_error("No more traces in the segy-file");
     }

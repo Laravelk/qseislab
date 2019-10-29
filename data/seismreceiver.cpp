@@ -175,7 +175,7 @@ void SeismReceiver::setWellReceiverNum(int wellReceiverNum) {
 
 int SeismReceiver::getWellReceiverNum() const { return _wellReceiverNum; }
 
-int SeismReceiver::getChannelNum() const {
+int SeismReceiver::getChannelAmount() const {
   return static_cast<int>(_channels.size());
 }
 

@@ -102,16 +102,18 @@ void FilteringTableAssistant::clearObjectTable() {
 }
 
 void FilteringTableAssistant::forEvents() {
-  _objectsTable->setColumnCount(12);
+  _objectsTable->setColumnCount(14);
   _objectsTable->setColumnHidden(0, true);
   _objectsTable->setColumnHidden(1, true);
 
   // Configure column settings
   _objectsTable->setHorizontalHeaderLabels(QStringList() << "uuid"
                                                          << "filter_names"
-                                           << "Name"
+                                                         << "Name"
                                                          << "Type"
-                                                         << "Component Number"
+                                                         << "Receiver Amount"
+                                                         << "P-Pick Amount"
+                                                         << "S-Pick Amount"
                                                          << "x"
                                                          << "y"
                                                          << "z"
@@ -124,9 +126,9 @@ void FilteringTableAssistant::forEvents() {
 
   auto horizontalHeaderObjectTable = _objectsTable->horizontalHeader();
   horizontalHeaderObjectTable->setSectionResizeMode(
-      11, QHeaderView::Fixed); // fixed remove-button section
+      13, QHeaderView::Fixed); // fixed remove-button section
   horizontalHeaderObjectTable->setSectionResizeMode(
-      10, QHeaderView::Stretch); // stretching pred-last section
+      12, QHeaderView::Stretch); // stretching pred-last section
   horizontalHeaderObjectTable->setDefaultAlignment(Qt::AlignLeft);
   _objectsTable->verticalHeader()->setVisible(false);
 }
@@ -216,21 +218,23 @@ void FilteringTableAssistant::applyFilterFor(int column, const QString &pattern,
   if constexpr (std::is_same_v<SeismEvent, mode_t>) {
     switch (column) {
     case 2:
-        applyFilter<QString>(column, pattern, filterName);
-        break;
+      applyFilter<QString>(column, pattern, filterName);
+      break;
     case 3:
     case 4:
-      applyFilter<int>(column, pattern, filterName);
-      break;
     case 5:
     case 6:
+      applyFilter<int>(column, pattern, filterName);
+      break;
     case 7:
+    case 8:
+    case 9:
       applyFilter<float>(column, pattern, filterName);
       break;
-    case 8:
+    case 10:
       applyFilter<QDate>(column, pattern, filterName);
       break;
-    case 9:
+    case 11:
       applyFilter<QTime>(column, pattern, filterName);
       break;
     }
@@ -291,34 +295,43 @@ void FilteringTableAssistant::add<SeismEvent>(
 
   _objectsTable->setItem(
       row, 4,
-      new QTableWidgetItem(QString::number(event->getComponentNumber())));
+      new QTableWidgetItem(QString::number(event->getComponentAmount())));
+
+  _objectsTable->setItem(
+      row, 5,
+      new QTableWidgetItem(QString::number(
+          event->getPickAmountByType(Data::SeismWavePick::Type::PWAVE))));
+  _objectsTable->setItem(
+      row, 6,
+      new QTableWidgetItem(QString::number(
+          event->getPickAmountByType(Data::SeismWavePick::Type::SWAVE))));
 
   if (event->isProcessed()) {
     auto &location = event->getLocation();
-    _objectsTable->setItem(row, 5,
+    _objectsTable->setItem(row, 7,
                            new QTableWidgetItem(QString::number(
                                static_cast<double>(std::get<0>(location)))));
-    _objectsTable->setItem(row, 6,
+    _objectsTable->setItem(row, 8,
                            new QTableWidgetItem(QString::number(
                                static_cast<double>(std::get<1>(location)))));
-    _objectsTable->setItem(row, 7,
+    _objectsTable->setItem(row, 9,
                            new QTableWidgetItem(QString::number(
                                static_cast<double>(std::get<2>(location)))));
   }
 
   _objectsTable->setItem(
-      row, 8,
+      row, 10,
       new QTableWidgetItem(event->getDateTime().date().toString("dd.MM.yy")));
 
   _objectsTable->setItem(
-      row, 9,
+      row, 11,
       new QTableWidgetItem(event->getDateTime().time().toString("hh:mm")));
 
   QPushButton *removeButton = new QPushButton();
   QIcon icon(":/remove_button.png");
   removeButton->setStyleSheet("background-color:white; border-style: outset");
   removeButton->setIcon(icon);
-  _objectsTable->setCellWidget(row, 11, removeButton);
+  _objectsTable->setCellWidget(row, 13, removeButton);
   connect(removeButton, &QPushButton::clicked,
           [this, uuid]() { emit removeClicked(uuid); });
 
@@ -334,23 +347,29 @@ void FilteringTableAssistant::update<SeismEvent>(
   const auto &uuid = event->getUuid();
   for (int row = 0; row < _objectsTable->rowCount(); ++row) {
     if (uuid == _objectsTable->item(row, 0)->data(Qt::DisplayRole).toUuid()) {
-        _objectsTable->item(row, 2)->setData(Qt::DisplayRole, event->getName());
+      _objectsTable->item(row, 2)->setData(Qt::DisplayRole, event->getName());
       _objectsTable->item(row, 3)->setData(Qt::DisplayRole, event->getType());
       _objectsTable->item(row, 4)->setData(Qt::DisplayRole,
-                                           event->getComponentNumber());
+                                           event->getComponentAmount());
+      _objectsTable->item(row, 5)->setData(
+          Qt::DisplayRole,
+          event->getPickAmountByType(Data::SeismWavePick::Type::PWAVE));
+      _objectsTable->item(row, 6)->setData(
+          Qt::DisplayRole,
+          event->getPickAmountByType(Data::SeismWavePick::Type::SWAVE));
       if (event->isProcessed()) {
         auto &location = event->getLocation();
-        _objectsTable->item(row, 5)->setData(
-            Qt::DisplayRole, static_cast<double>(std::get<0>(location)));
-        _objectsTable->item(row, 6)->setData(
-            Qt::DisplayRole, static_cast<double>(std::get<1>(location)));
         _objectsTable->item(row, 7)->setData(
+            Qt::DisplayRole, static_cast<double>(std::get<0>(location)));
+        _objectsTable->item(row, 8)->setData(
+            Qt::DisplayRole, static_cast<double>(std::get<1>(location)));
+        _objectsTable->item(row, 9)->setData(
             Qt::DisplayRole, static_cast<double>(std::get<2>(location)));
       }
-      _objectsTable->item(row, 8)->setData(Qt::DisplayRole,
-                                           event->getDateTime().date());
-      _objectsTable->item(row, 9)->setData(Qt::DisplayRole,
-                                           event->getDateTime().time());
+      _objectsTable->item(row, 10)->setData(Qt::DisplayRole,
+                                            event->getDateTime().date());
+      _objectsTable->item(row, 11)->setData(Qt::DisplayRole,
+                                            event->getDateTime().time());
       break;
     }
   }

@@ -11,7 +11,7 @@ AddHorizonManager::AddHorizonManager(QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
       _fileManager(new FileManager()), _nameLineEdit(new QLineEdit()),
       _NxLineEdit(new QLineEdit()), _NyLineEdit(new QLineEdit()),
-      _pointNumberLabel(new QLabel()), _addButton(new QPushButton("Add")) {
+      _pointAmountLabel(new QLabel()), _addButton(new QPushButton("Add")) {
 
   // Setting`s
   setWindowTitle("Add Horizon");
@@ -30,10 +30,10 @@ AddHorizonManager::AddHorizonManager(QWidget *parent)
           [this](auto &path) { emit sendFilePath(path); });
 
   connect(_addButton, &QPushButton::clicked, [this] {
-    const int pointNumber = _pointNumberLabel->text().toInt();
+    const int pointAmount = _pointAmountLabel->text().toInt();
     const int Nx = _NxLineEdit->text().toInt();
     const int Ny = _NyLineEdit->text().toInt();
-    if (pointNumber != Nx * Ny) {
+    if (pointAmount != Nx * Ny) {
       emit notify("Custom Nx * Ny != real size of horizon");
     } else {
       accept();
@@ -49,7 +49,7 @@ AddHorizonManager::AddHorizonManager(QWidget *parent)
   infoHorizonLayout->addRow("Name: ", _nameLineEdit);
   infoHorizonLayout->addRow("Nx: ", _NxLineEdit);
   infoHorizonLayout->addRow("Ny: ", _NyLineEdit);
-  infoHorizonLayout->addRow("Point Number: ", _pointNumberLabel);
+  infoHorizonLayout->addRow("Point Amount: ", _pointAmountLabel);
 
   QHBoxLayout *buttonLayout = new QHBoxLayout();
   buttonLayout->addStretch(1);
@@ -73,7 +73,7 @@ void AddHorizonManager::update(
     _nameLineEdit->clear();
     _NxLineEdit->clear();
     _NyLineEdit->clear();
-    _pointNumberLabel->clear();
+    _pointAmountLabel->clear();
     _addButton->setDisabled(true);
     _nameLineEdit->setDisabled(true);
     _NxLineEdit->setDisabled(true);
@@ -83,7 +83,7 @@ void AddHorizonManager::update(
   _nameLineEdit->setText(horizon->getName());
   _NxLineEdit->setText(QString::number(horizon->getNx()));
   _NyLineEdit->setText(QString::number(horizon->getNy()));
-  _pointNumberLabel->setNum(horizon->getPointsNumber());
+  _pointAmountLabel->setNum(horizon->getPointsAmount());
   _addButton->setDisabled(false);
   _nameLineEdit->setDisabled(false);
   _NxLineEdit->setDisabled(false);

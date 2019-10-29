@@ -18,7 +18,7 @@ AddReceiverManager::AddReceiverManager(
   // Setting`s
   setWindowTitle("Add Receiver");
 
-  _comboBox->addItem("Select a well name...");
+  _comboBox->addItem("Select Owner_Array...");
   for (auto &uuid_name : wellNames_map) {
     _comboBox->addItem(uuid_name.second, uuid_name.first);
   }

@@ -29,7 +29,7 @@ public:
 private:
   QDateEdit *_dateEdit;
   QTimeEdit *_timeEdit;
-  QLabel *_traceNumberLabel;
+  QLabel *_traceAmountLabel;
   QLabel *_lengthLabel;
   QLabel *_groupeCoordinate;
 };

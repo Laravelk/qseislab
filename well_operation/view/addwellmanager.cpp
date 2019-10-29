@@ -10,7 +10,7 @@ namespace WellOperation {
 AddWellManager::AddWellManager(QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
       _fileManager(new FileManager()), _nameLineEdit(new QLineEdit()),
-      _pointNumberLabel(new QLabel()), _addButton(new QPushButton("Add")) {
+      _pointAmountLabel(new QLabel()), _addButton(new QPushButton("Add")) {
 
   // Setting`s
   setWindowTitle("Add Well");
@@ -34,7 +34,7 @@ AddWellManager::AddWellManager(QWidget *parent)
   // Layout`s
   QFormLayout *infoWellLayout = new QFormLayout();
   infoWellLayout->addRow("Name: ", _nameLineEdit);
-  infoWellLayout->addRow("Point Number: ", _pointNumberLabel);
+  infoWellLayout->addRow("Point Amount: ", _pointAmountLabel);
 
   QHBoxLayout *buttonLayout = new QHBoxLayout();
   buttonLayout->addStretch(1);
@@ -55,13 +55,13 @@ void AddWellManager::update(const std::unique_ptr<Data::SeismWell> &well) {
   if (!well) {
     _fileManager->clear();
     _nameLineEdit->clear();
-    _pointNumberLabel->clear();
+    _pointAmountLabel->clear();
     _addButton->setDisabled(true);
     _nameLineEdit->setDisabled(true);
     return;
   }
   _nameLineEdit->setText(well->getName());
-  _pointNumberLabel->setNum(well->getPointsNumber());
+  _pointAmountLabel->setNum(well->getPointsAmount());
   _addButton->setDisabled(false);
   _nameLineEdit->setDisabled(false);
 }

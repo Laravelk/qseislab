@@ -32,7 +32,10 @@ public:
   void setType(int);   // TODO: remove
   int getType() const; // TODO: remove
 
-  int getComponentNumber() const;
+  int getPickAmountByType(const SeismWavePick::Type) const;
+  int getReceiverAmount() const;
+
+  int getComponentAmount() const;
   void addComponent(std::unique_ptr<SeismComponent>);
   bool removeComponentByReceiverUuid(const QUuid &);
   const std::list<std::unique_ptr<SeismComponent>> &getComponents() const;
