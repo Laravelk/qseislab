@@ -2,8 +2,8 @@
 
 #include "data/seismwavepick.h"
 
-#include <QDialog>
 #include <QBoxLayout>
+#include <QDialog>
 
 #include <memory>
 
@@ -16,7 +16,7 @@ namespace EventOperation {
 class InfoEvent;
 class GraphicController;
 class ChartGesture;
-namespace Generic {
+namespace OneEvent {
 class View : public QDialog {
   Q_OBJECT
 
@@ -33,13 +33,13 @@ public:
   ChartGesture *getChartGesture();
 
 signals:
-  void sendWellUuidAndFilePath(const QUuid& , const QString&) const;
+  void sendWellUuidAndFilePath(const QUuid &, const QString &) const;
   void sendWellUuidForRemove(const QUuid &) const;
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
   void createPolarizationAnalysisWindow();
 
 private:
-    void commonSetting();
+  void commonSetting();
 
   InfoEvent *_infoEvent;
   QVBoxLayout *_wellManagersLayout;
@@ -56,5 +56,5 @@ private:
   std::map<QUuid, QString> _wellNames_map;
 };
 
-} // namespace Generic
+} // namespace OneEvent
 } // namespace EventOperation

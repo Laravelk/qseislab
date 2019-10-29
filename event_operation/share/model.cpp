@@ -13,7 +13,6 @@ typedef Data::SeismWell SeismWell;
 typedef Data::SeismTrace SeismTrace;
 
 namespace EventOperation {
-namespace AddEvent {
 Model::Model(AbstractSegyReader *reader, QObject *parent)
     : QObject(parent), _reader(reader) {}
 
@@ -52,5 +51,4 @@ Model::getSeismComponents(const std::unique_ptr<SeismWell> &well,
 
 Model::~Model() { delete _reader; }
 
-} // namespace Generic
 } // namespace EventOperation

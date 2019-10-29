@@ -3,7 +3,7 @@
 #include <QHBoxLayout>
 
 namespace EventOperation {
-namespace Generic {
+namespace OneEvent {
 FileManager::FileManager(QWidget *parent)
     : QFrame(parent), _label(new QLabel("Segy file: ", this)),
       _fileName(new QLabel("<test.segy>", this)),
@@ -42,5 +42,5 @@ void FileManager::recvFilePath(const QString &path) {
   emit sendFilePath(path);
 }
 
-} // namespace Generic
+} // namespace OneEvent
 } // namespace EventOperation

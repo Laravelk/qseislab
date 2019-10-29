@@ -37,6 +37,7 @@ public:
   void closeProject();
 
 signals:
+  void addEventsClicked() const;
   void addEventClicked() const;
   void viewEventClicked(const QUuid) const;
   void removeEventClicked(const QUuid) const;

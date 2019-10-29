@@ -5,7 +5,7 @@
 #include <QBoxLayout>
 
 namespace EventOperation {
-namespace Generic {
+namespace MoreEvents {
 WellManager::WellManager(const std::map<QUuid, QString> &wellNames_map,
                          QWidget *parent)
     : QFrame(parent), _comboBox(new QComboBox(this)),
@@ -70,5 +70,5 @@ void WellManager::updateWellNames(
 
 void WellManager::clear() { _fileManager->clear(); }
 
-} // namespace Generic
+} // namespace MoreEvents
 } // namespace EventOperation

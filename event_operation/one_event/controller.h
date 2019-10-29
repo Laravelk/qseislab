@@ -12,9 +12,9 @@ class SeismWell;
 } // namespace Data
 
 namespace EventOperation {
-class PolarizationAnalysisWindow;
-namespace AddEvent {
 class Model;
+class PolarizationAnalysisWindow;
+namespace OneEvent {
 class Controller : public QObject {
   Q_OBJECT
 
@@ -33,7 +33,7 @@ signals:
   void finished() const;
 
 private:
-    QString generateEventName() const;
+  QString generateEventName() const;
   Model *_model;
 
   std::unique_ptr<View> _view;
@@ -44,5 +44,5 @@ private:
   PolarizationAnalysisWindow *_polarizationWindow;
 };
 
-} // namespace Generic
+} // namespace OneEvent
 } // namespace EventOperation

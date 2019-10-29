@@ -7,7 +7,7 @@
 #include <memory>
 
 namespace EventOperation {
-namespace AddEvent {
+namespace MoreEvents {
 class FileManager;
 class WellManager : public QFrame {
   Q_OBJECT
@@ -21,7 +21,7 @@ public:
   void clear();
 
 signals:
-    void sendWellUuidAndFilePath(const QUuid&, const QString &) const;
+  void sendWellUuidAndFilePath(const QUuid &, const QString &) const;
   void removeClicked(QWidget *sender, const QUuid &) const;
 
 private:
@@ -31,5 +31,5 @@ private:
   QUuid _wellUuid;
 };
 
-} // namespace Generic
+} // namespace MoreEvents
 } // namespace EventOperation

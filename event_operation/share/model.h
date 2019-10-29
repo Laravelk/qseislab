@@ -13,7 +13,6 @@ class AbstractSegyReader;
 } // namespace Data
 
 namespace EventOperation {
-namespace AddEvent {
 class Model : public QObject {
   Q_OBJECT
 
@@ -32,5 +31,4 @@ private:
   Data::IO::AbstractSegyReader *_reader;
 };
 
-} // namespace Generic
 } // namespace EventOperation

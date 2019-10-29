@@ -39,25 +39,24 @@ find_package(segyio REQUIRED)
 
 
 set(SOURCES
-        event_operation/add_event/controller.cpp
-        event_operation/add_event/model.cpp
-        event_operation/add_event/view/filemanager.cpp
-        event_operation/add_event/view/wellmanager.cpp
-        event_operation/add_event/view/view.cpp
+        event_operation/one_event/controller.cpp
+        event_operation/one_event/view/filemanager.cpp
+        event_operation/one_event/view/wellmanager.cpp
+        event_operation/one_event/view/view.cpp
 
-        event_operation/add_events/controller.cpp
-        event_operation/add_events/model.cpp
-        event_operation/add_events/view/filemanager.cpp
-        event_operation/add_events/view/wellmanager.cpp
-        event_operation/add_events/view/view.cpp
+        event_operation/more_events/controller.cpp
+        event_operation/more_events/view/filemanager.cpp
+        event_operation/more_events/view/wellmanager.cpp
+        event_operation/more_events/view/view.cpp
 
-        event_operation/share_view/graphic_view/graphic_view.cpp
-        event_operation/share_view/graphic_view/wavepick.cpp
-        event_operation/share_view/infoevent.cpp
-        event_operation/share_view/graphiccontroller.cpp
-        event_operation/share_view/chartgesture.cpp
-        event_operation/share_view/graphic_view/pipes2dname.cpp
-        event_operation/share_view/3dscene/polarizationanalysiswindow.cpp
+        event_operation/share/model.cpp
+        event_operation/share/view/graphic_view/graphic_view.cpp
+        event_operation/share/view/graphic_view/wavepick.cpp
+        event_operation/share/view/infoevent.cpp
+        event_operation/share/view/graphiccontroller.cpp
+        event_operation/share/view/chartgesture.cpp
+        event_operation/share/view/graphic_view/pipes2dname.cpp
+        event_operation/share/view/3dscene/polarizationanalysiswindow.cpp
 
 
         horizon_operation/controller.cpp
@@ -129,25 +128,24 @@ set(SOURCES
 )
 
 set(HEADERS
-        event_operation/add_event/controller.h
-        event_operation/add_event/model.h
-        event_operation/add_event/view/filemanager.h
-        event_operation/add_event/view/wellmanager.h
-        event_operation/add_event/view/view.h
+        event_operation/one_event/controller.h
+        event_operation/one_event/view/filemanager.h
+        event_operation/one_event/view/wellmanager.h
+        event_operation/one_event/view/view.h
 
-        event_operation/add_events/controller.h
-        event_operation/add_events/model.h
-        event_operation/add_events/view/filemanager.h
-        event_operation/add_events/view/wellmanager.h
-        event_operation/add_events/view/view.h
+        event_operation/more_events/controller.h
+        event_operation/more_events/view/filemanager.h
+        event_operation/more_events/view/wellmanager.h
+        event_operation/more_events/view/view.h
 
-        event_operation/share_view/graphic_view/graphic_view.h
-        event_operation/share_view/graphic_view/wavepick.h
-        event_operation/share_view/infoevent.h
-        event_operation/share_view/graphiccontroller.h
-        event_operation/share_view/chartgesture.h
-        event_operation/share_view/graphic_view/pipes2dname.h
-        event_operation/share_view/3dscene/polarizationanalysiswindow.h
+        event_operation/share/model.h
+        event_operation/share/view/graphic_view/graphic_view.h
+        event_operation/share/view/graphic_view/wavepick.h
+        event_operation/share/view/infoevent.h
+        event_operation/share/view/graphiccontroller.h
+        event_operation/share/view/chartgesture.h
+        event_operation/share/view/graphic_view/pipes2dname.h
+        event_operation/share/view/3dscene/polarizationanalysiswindow.h
 
 
         horizon_operation/controller.h

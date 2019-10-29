@@ -6,7 +6,7 @@
 #include <QPushButton>
 
 namespace EventOperation {
-namespace AddEvent {
+namespace OneEvent {
 class FileManager : public QFrame {
   Q_OBJECT
 public:
@@ -28,5 +28,5 @@ private:
   QFileDialog *_fileDialog;
 };
 
-} // namespace Generic
+} // namespace OneEvent
 } // namespace EventOperation
