@@ -164,7 +164,7 @@ SegyReader::nextComponent(const std::unique_ptr<SeismReceiver> &receiver) {
     ++_alreadyRead;
   }
 
-  component->setStampTime(date_time_stamp);
+  component->setStampDateTime(date_time_stamp);
   component->setSampleInterval(_sam_intr);
   // TODO: ...
   if (0 != p_wave_arrival) {

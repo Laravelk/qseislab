@@ -117,8 +117,8 @@ void FilteringTableAssistant::forEvents() {
                                                          << "x"
                                                          << "y"
                                                          << "z"
-                                                         << "Date"
-                                                         << "Time"
+                                                         << "Stamp Date"
+                                                         << "Stamp Time"
                                                          << ""
                                                          << "");
 
@@ -179,7 +179,7 @@ template <typename param_t> param_t castToParam(const std::string &value) {
   } else if constexpr (std::is_same_v<QDate, param_t>) {
     return QDate::fromString(QString::fromStdString(value), "dd.MM.yy");
   } else if constexpr (std::is_same_v<QTime, param_t>) {
-    return QTime::fromString(QString::fromStdString(value), "hh::mm");
+    return QTime::fromString(QString::fromStdString(value), "hh:mm:zzz");
   } else if constexpr (std::is_same_v<int, param_t>) {
     return std::stoi(value);
   } else if constexpr (std::is_same_v<float, param_t>) {
@@ -321,11 +321,13 @@ void FilteringTableAssistant::add<SeismEvent>(
 
   _objectsTable->setItem(
       row, 10,
-      new QTableWidgetItem(event->getDateTime().date().toString("dd.MM.yy")));
+      new QTableWidgetItem(
+          event->getStampDateTime().date().toString("dd.MM.yy")));
 
   _objectsTable->setItem(
       row, 11,
-      new QTableWidgetItem(event->getDateTime().time().toString("hh:mm")));
+      new QTableWidgetItem(
+          event->getStampDateTime().time().toString("hh:mm:zzz")));
 
   QPushButton *removeButton = new QPushButton();
   QIcon icon(":/remove_button.png");
@@ -366,10 +368,12 @@ void FilteringTableAssistant::update<SeismEvent>(
         _objectsTable->item(row, 9)->setData(
             Qt::DisplayRole, static_cast<double>(std::get<2>(location)));
       }
-      _objectsTable->item(row, 10)->setData(Qt::DisplayRole,
-                                            event->getDateTime().date());
-      _objectsTable->item(row, 11)->setData(Qt::DisplayRole,
-                                            event->getDateTime().time());
+      _objectsTable->item(row, 10)->setData(
+          Qt::DisplayRole,
+          event->getStampDateTime().date().toString("dd.MM.yyyy"));
+      _objectsTable->item(row, 11)->setData(
+          Qt::DisplayRole,
+          event->getStampDateTime().time().toString("hh:mm:zzz"));
       break;
     }
   }

@@ -25,8 +25,8 @@ public:
 
   const QUuid &getReceiverUuid() const;
 
-  const QDateTime &getStampTime() const;
-  void setStampTime(const QDateTime &);
+  const QDateTime &getStampDateTime() const;
+  void setStampDateTime(const QDateTime &);
 
   float getSampleInterval() const;
   void setSampleInterval(float);
@@ -51,7 +51,7 @@ signals:
 
 private:
   QUuid _receiverUuid;
-  QDateTime _stampTime;
+  QDateTime _stampDateTime;
   float _sampleInterval{0.0};
   float _maxValue{-1.0};
   std::vector<std::unique_ptr<SeismTrace>> _traces;

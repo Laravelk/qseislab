@@ -26,12 +26,20 @@ public:
 
   void settingEventInfo(const std::unique_ptr<Data::SeismEvent> &) const;
 
+signals:
+  void nameChanged(const QString &);
+
 private:
-  QDateEdit *_dateEdit;
-  QTimeEdit *_timeEdit;
-  QLabel *_traceAmountLabel;
-  QLabel *_lengthLabel;
-  QLabel *_groupeCoordinate;
+  QLineEdit *_nameEdit;
+  QDateEdit *_stampDateEdit;
+  QTimeEdit *_stampTimeEdit;
+
+  QLabel *_receiverAmountLabel;
+  QLabel *_pWavePickAmountLabel;
+  QLabel *_sWavePickAmountLabel;
+
+  QLabel *_addedDateLabel;
+  QLabel *_addedTimeLabel;
 };
 
 } // namespace EventOperation

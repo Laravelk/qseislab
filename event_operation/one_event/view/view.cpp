@@ -27,6 +27,8 @@ View::View(const std::unique_ptr<Data::SeismEvent> &event, QWidget *parent)
   _okButton->setEnabled(true);
   _okButton->setFocus();
 
+  _infoEvent->update(event);
+
   // Layout`s
   QVBoxLayout *leftLayout = new QVBoxLayout();
   leftLayout->addWidget(_infoEvent);

@@ -45,8 +45,8 @@ set(SOURCES
         event_operation/one_event/view/view.cpp
 
         event_operation/more_events/controller.cpp
-        event_operation/more_events/view/filemanager.cpp
-        event_operation/more_events/view/wellmanager.cpp
+#        event_operation/more_events/view/filemanager.cpp
+#        event_operation/more_events/view/wellmanager.cpp
         event_operation/more_events/view/view.cpp
 
         event_operation/share/model.cpp
@@ -134,8 +134,8 @@ set(HEADERS
         event_operation/one_event/view/view.h
 
         event_operation/more_events/controller.h
-        event_operation/more_events/view/filemanager.h
-        event_operation/more_events/view/wellmanager.h
+#        event_operation/more_events/view/filemanager.h
+#        event_operation/more_events/view/wellmanager.h
         event_operation/more_events/view/view.h
 
         event_operation/share/model.h

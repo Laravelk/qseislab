@@ -31,6 +31,7 @@ public:
   //  void update(const std::unique_ptr<Data::SeismEvent> &, const QUuid &,
   //              const QString &);
   void loadEvent(const std::unique_ptr<Data::SeismEvent> &);
+  void unloadEvent();
 
   void update(const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &);
 
@@ -39,7 +40,10 @@ public:
   ChartGesture *getChartGesture();
 
 signals:
+  void hideCurrentEvent();
   void changeCurrentEvent(const QUuid &);
+  void removeEvent(const QUuid &);
+
   void sendWellUuidAndFilePaths(const QUuid &, const QStringList &) const;
   //  void sendWellUuidForRemove(const QUuid &) const;
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
