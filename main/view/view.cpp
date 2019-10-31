@@ -7,6 +7,8 @@
 #include "data/seismevent.h"
 #include "data/seismproject.h"
 
+#include <assert.h>
+
 typedef Data::SeismEvent SeismEvent;
 typedef Data::SeismProject SeismProject;
 

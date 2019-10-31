@@ -6,6 +6,7 @@
 #include <QDialog>
 
 #include <memory>
+#include <set>
 
 namespace Data {
 class SeismEvent;
@@ -21,9 +22,11 @@ class View : public QDialog {
   Q_OBJECT
 
 public:
-  explicit View(const std::unique_ptr<Data::SeismEvent> &,
+  explicit View(const std::set<QString> &,
+                const std::unique_ptr<Data::SeismEvent> &,
                 QWidget *parent = nullptr);
-  explicit View(const std::map<QUuid, QString> &, QWidget *parent = nullptr);
+  explicit View(const std::set<QString> &, const std::map<QUuid, QString> &,
+                QWidget *parent = nullptr);
 
   void update(const std::unique_ptr<Data::SeismEvent> &, const QUuid &);
   void update(const std::unique_ptr<Data::SeismEvent> &, const QUuid &,
@@ -40,6 +43,7 @@ signals:
 
 private:
   void commonSetting();
+  void updateRepetition(const QString &);
 
   InfoEvent *_infoEvent;
   QVBoxLayout *_wellManagersLayout;
@@ -54,6 +58,8 @@ private:
   QAction *_addSWave;
 
   std::map<QUuid, QString> _wellNames_map;
+  std::set<QString> _eventNames;
+  bool _isValid;
 };
 
 } // namespace OneEvent

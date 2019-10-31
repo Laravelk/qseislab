@@ -18,6 +18,8 @@ class InfoEvent : public QFrame {
 public:
   explicit InfoEvent(QWidget *parent = nullptr);
 
+  void setBrush(const QBrush &);
+
   void setDisabled(bool);
   void setEnabled(bool);
 

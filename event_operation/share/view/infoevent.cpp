@@ -24,8 +24,11 @@ InfoEvent::InfoEvent(QWidget *parent)
 
   _stampTimeEdit->setDisplayFormat("hh:mm:zzz");
 
-  connect(_nameEdit, &QLineEdit::textChanged,
-          [this](auto &text) { emit nameChanged(text); });
+  connect(_nameEdit, &QLineEdit::textChanged, [this](auto &text) {
+    if (0 != text.count()) {
+      emit nameChanged(text);
+    }
+  });
 
   QFormLayout *formLayout = new QFormLayout;
   formLayout->addRow("Name:", _nameEdit);
@@ -41,6 +44,12 @@ InfoEvent::InfoEvent(QWidget *parent)
   layout->addLayout(formLayout);
 
   setLayout(layout);
+}
+
+void InfoEvent::setBrush(const QBrush &brush) {
+  QPalette palette;
+  palette.setBrush(QPalette::Base, brush);
+  _nameEdit->setPalette(palette);
 }
 
 void InfoEvent::setDisabled(bool b) {

@@ -5,6 +5,7 @@
 
 #include <QDateTime>
 
+#include <assert.h>
 #include <memory>
 
 namespace Data {

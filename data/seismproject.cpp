@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QJsonArray>
 
+#include <assert.h>
 #include <iostream> // TODO: remove
 
 namespace Data {

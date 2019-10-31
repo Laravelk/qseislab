@@ -14,16 +14,23 @@ typedef Data::IO::SegyReader SegyReader;
 namespace EventOperation {
 namespace OneEvent {
 Controller::Controller(
+    const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &all_events,
     const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &wells_map,
     QObject *parent)
     : QObject(parent), _model(new Model(new SegyReader(), this)),
       _event(std::make_unique<Data::SeismEvent>()) {
 
+  // prepare data for view
   std::map<QUuid, QString> wellNames_map;
   for (auto &uuid_well : wells_map) {
     wellNames_map[uuid_well.first] = uuid_well.second->getName();
   }
-  _view = std::make_unique<View>(wellNames_map);
+  std::set<QString> eventNames;
+  for (auto &uuid_event : all_events) {
+    eventNames.insert(uuid_event.second->getName());
+  }
+  _view = std::make_unique<View>(eventNames, wellNames_map);
+  // ...
 
   connect(_event.get(), &Data::SeismEvent::changed,
           []() { std::cout << "event changed" << std::endl; });
@@ -81,14 +88,21 @@ Controller::Controller(
   connect(_view.get(), &View::finished, this, &Controller::finish);
 }
 
-Controller::Controller(const std::unique_ptr<Data::SeismEvent> &event,
-                       QObject *parent)
+Controller::Controller(
+    const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &all_events,
+    const std::unique_ptr<Data::SeismEvent> &event, QObject *parent)
     : QObject(parent), _model(nullptr),
       _event(std::make_unique<Data::SeismEvent>(*event)) {
 
   //    _eventNameContainer[QUuid()] = _event->getName(); // TODO: it`s OK?
 
-  _view = std::make_unique<View>(_event);
+  // prepare data for view
+  std::set<QString> eventNames;
+  for (auto &uuid_event : all_events) {
+    eventNames.insert(uuid_event.second->getName());
+  }
+  _view = std::make_unique<View>(eventNames, _event);
+  // ...
 
   connect(_event.get(), &Data::SeismEvent::changed,
           []() { std::cout << "event changed" << std::endl; });

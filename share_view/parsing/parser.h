@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>

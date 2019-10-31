@@ -3,6 +3,8 @@
 #include <QFileDialog>
 #include <QJsonDocument>
 
+#include <assert.h>
+
 typedef Data::SeismProject SeismProject;
 
 namespace ProjectOperation {

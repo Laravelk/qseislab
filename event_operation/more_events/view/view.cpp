@@ -9,14 +9,15 @@
 
 #include <set>
 
-#include "data/seismevent.h" // TODO: delete
-#include <iostream>          // TODO: delete
+#include "data/seismevent.h"
+//#include <iostream>          // TODO: delete
 
 typedef Data::SeismEvent SeismEvent;
 
 namespace EventOperation {
 namespace MoreEvents {
-View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
+View::View(const std::set<QString> &globalEventNames,
+           const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
       _infoEvent(new InfoEvent()), _wellNames(new QComboBox()),
       _fileDialog(new QFileDialog(this)), _eventList(new QListWidget()),
@@ -24,7 +25,9 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
       _okButton(new QPushButton("Ok")),
       _cancelButton(new QPushButton("Cancel")),
       _addWaveButton(new QPushButton("+")),
-      _polarizationEventButton(new QPushButton("Polarization Analysis")) {
+      _polarizationEventButton(new QPushButton("Polarization Analysis")),
+      _globalEventNames(globalEventNames) {
+
   // Setting`s
   setWindowTitle("SeismWindow");
   setMinimumSize(1100, 590);
@@ -38,6 +41,9 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
     _wellNames->addItem(uuid_name.second, uuid_name.first);
   }
 
+  _eventList->setDragEnabled(false);
+  _eventList->setAcceptDrops(false);
+  _eventList->setSortingEnabled(false);
   _eventList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
   QMenu *addWaveButtonMenu = new QMenu(_addWaveButton);
@@ -70,6 +76,9 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
     }
 
     for (auto item : selectedEvents) {
+      auto name = item->text();
+      removeLocal(name);
+      updateRepetition(name);
       _eventList->takeItem(_eventList->row(item)); // NOTE: bad :(
       emit removeEvent(item->data(Qt::DecorationRole).toUuid());
     }
@@ -103,8 +112,16 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
     }
   });
 
-  connect(_infoEvent, &InfoEvent::nameChanged,
-          [this](auto &name) { _eventList->currentItem()->setText(name); });
+  connect(_infoEvent, &InfoEvent::nameChanged, [this](auto &name) {
+    auto item = _eventList->currentItem();
+    auto oldName = item->text();
+    removeLocal(oldName);
+    updateRepetition(oldName);
+
+    addLocal(name);
+    item->setText(name);
+    _infoEvent->setBrush(updateRepetition(name));
+  });
 
   connect(_graphicEvent, &EventOperation::GraphicController::sendPicksInfo,
           [this](auto type, auto num, auto l_val, auto pick_val, auto r_val) {
@@ -113,7 +130,13 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
 
   connect(_polarizationEventButton, &QPushButton::clicked,
           [this]() { emit createPolarizationAnalysisWindow(); });
-  connect(_okButton, &QPushButton::clicked, this, &View::accept);
+  connect(_okButton, &QPushButton::clicked, [this]() {
+    if (allValid()) {
+      accept();
+    } else {
+      setNotification("There are invalid events-info");
+    }
+  });
   connect(_cancelButton, &QPushButton::clicked, this, &View::reject);
   connect(_addPWave, &QAction::triggered, [this]() {
     _graphicEvent->getView()->setWaveAddTriggerFlag(Data::SeismWavePick::PWAVE);
@@ -178,9 +201,13 @@ void View::update(
   for (auto &uuid_event : events_map) {
     auto &uuid = uuid_event.first;
     if (existingUuid.end() == existingUuid.find(uuid)) {
-      QListWidgetItem *item = new QListWidgetItem(uuid_event.second->getName());
+      auto &name = uuid_event.second->getName();
+      QListWidgetItem *item = new QListWidgetItem(name);
       item->setData(Qt::DecorationRole, uuid);
       _eventList->addItem(item);
+
+      addLocal(name);
+      updateRepetition(name);
     }
   }
 }
@@ -200,6 +227,58 @@ ChartGesture *View::getChartGesture() { return _graphicEvent->getModel(); }
 
 void View::recvFilesPath(const QStringList &paths) {
   emit sendWellUuidAndFilePaths(_wellUuid, paths);
+}
+
+void View::addLocal(const QString &name) {
+  if (_localEventNames.end() == _localEventNames.find(name)) {
+    _localEventNames[name] = 1;
+  } else {
+    _localEventNames[name] += 1;
+  }
+}
+
+void View::removeLocal(const QString &name) { _localEventNames[name] -= 1; }
+
+QBrush View::updateRepetition(const QString &name) {
+  QBrush brush(Qt::white);
+  if (_globalEventNames.end() != _globalEventNames.find(name)) {
+    brush.setColor(Qt::red);
+    for (int i = 0; i < _eventList->count(); ++i) {
+      auto item = _eventList->item(i);
+      if (name == item->text()) {
+        item->setBackground(brush);
+      }
+    }
+  } else {
+    if (1 != _localEventNames.at(name)) {
+      brush.setColor(Qt::yellow);
+      for (int i = 0; i < _eventList->count(); ++i) {
+        auto item = _eventList->item(i);
+        if (name == item->text()) {
+          item->setBackground(brush);
+        }
+      }
+    } else {
+      for (int i = 0; i < _eventList->count(); ++i) {
+        auto item = _eventList->item(i);
+        if (name == item->text()) {
+          item->setBackground(brush);
+        }
+      }
+    }
+  }
+  return brush;
+}
+
+bool View::allValid() const {
+  QBrush validBrush(Qt::white);
+  for (int i = 0; i < _eventList->count(); ++i) {
+    auto item = _eventList->item(i);
+    if (validBrush != item->background()) {
+      return false;
+    }
+  }
+  return true;
 }
 
 } // namespace MoreEvents

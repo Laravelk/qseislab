@@ -4,6 +4,8 @@
 #include "data/seismproject.h"
 #include "data/seismwell.h"
 
+#include <assert.h>
+
 //#include <iostream> // TODO: delete
 
 typedef Data::SeismEvent SeismEvent;

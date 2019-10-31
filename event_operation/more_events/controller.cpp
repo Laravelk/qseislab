@@ -15,15 +15,22 @@ typedef Data::SeismEvent SeismEvent;
 namespace EventOperation {
 namespace MoreEvents {
 Controller::Controller(
+    const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &all_events,
     const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &wells_map,
     QObject *parent)
     : QObject(parent), _model(new Model(new SegyReader(), this)) {
 
+  // prepare data for view
   std::map<QUuid, QString> wellNames_map;
   for (auto &uuid_well : wells_map) {
     wellNames_map[uuid_well.first] = uuid_well.second->getName();
   }
-  _view = std::make_unique<View>(wellNames_map);
+  std::set<QString> eventNames;
+  for (auto &uuid_event : all_events) {
+    eventNames.insert(uuid_event.second->getName());
+  }
+  _view = std::make_unique<View>(eventNames, wellNames_map);
+  // ...
 
   connect(_model, &Model::notify,
           [this](auto &msg) { _view->setNotification(msg); });

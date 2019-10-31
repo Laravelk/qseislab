@@ -1,5 +1,7 @@
 #include "controller.h"
 
+#include <assert.h>
+
 //#include <iostream> // TODO: remove
 
 typedef Data::SeismEvent SeismEvent;
@@ -89,7 +91,8 @@ void Controller::recvProject(std::unique_ptr<SeismProject> &project) {
 void Controller::handleAddEventsClicked() {
   if (!_moreEventsController) {
     _moreEventsController = std::make_unique<MoreEvents::Controller>(
-        _project->getAllMap<SeismWell>(), this);
+        _project->getAllMap<SeismEvent>(), _project->getAllMap<SeismWell>(),
+        this);
 
     connect(_moreEventsController.get(), &MoreEvents::Controller::sendEvents,
             [this](auto &events_map) {
@@ -107,7 +110,8 @@ void Controller::handleAddEventsClicked() {
 void Controller::handleAddEventClicked() {
   if (!_oneEventController) {
     _oneEventController = std::make_unique<OneEvent::Controller>(
-        _project->getAllMap<SeismWell>(), this);
+        _project->getAllMap<SeismEvent>(), _project->getAllMap<SeismWell>(),
+        this);
 
     connect(
         _oneEventController.get(), &OneEvent::Controller::sendEvent,
@@ -122,7 +126,8 @@ void Controller::handleAddEventClicked() {
 void Controller::handleViewEventClicked(const QUuid uuid) {
   if (!_oneEventController) {
     _oneEventController = std::make_unique<OneEvent::Controller>(
-        _project->get<SeismEvent>(uuid), this);
+        _project->getAllMap<SeismEvent>(), _project->get<SeismEvent>(uuid),
+        this);
 
     connect(_oneEventController.get(), &OneEvent::Controller::sendEvent,
             [this](auto &event) {

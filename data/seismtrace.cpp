@@ -1,5 +1,7 @@
 #include "seismtrace.h"
 
+#include <assert.h>
+
 namespace Data {
 SeismTrace::SeismTrace() {}
 

@@ -3,6 +3,8 @@
 #include "data/io/pointreader.h"
 #include "data/io/pointwriter.h"
 
+#include <assert.h>
+
 typedef Data::IO::PointReader PointReader;
 typedef Data::IO::PointWriter PointWriter;
 

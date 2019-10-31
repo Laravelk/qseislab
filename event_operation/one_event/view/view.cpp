@@ -9,6 +9,8 @@
 #include <QMessageBox>
 #include <QPushButton>
 
+#include <assert.h>
+
 //#include "data/seismevent.h" // TODO: delete
 // #include <iostream> // TODO: delete
 
@@ -16,8 +18,10 @@ typedef Data::SeismEvent SeismEvent;
 
 namespace EventOperation {
 namespace OneEvent {
-View::View(const std::unique_ptr<Data::SeismEvent> &event, QWidget *parent)
-    : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint) {
+View::View(const std::set<QString> &eventNames,
+           const std::unique_ptr<Data::SeismEvent> &event, QWidget *parent)
+    : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
+      _eventNames(eventNames) {
 
   commonSetting();
   _infoEvent->setEnabled(true);
@@ -55,11 +59,12 @@ View::View(const std::unique_ptr<Data::SeismEvent> &event, QWidget *parent)
   // Layout`s end
 }
 
-View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
+View::View(const std::set<QString> &eventNames,
+           const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
       _wellManagersLayout(new QVBoxLayout()),
-      _addButtonManagers(new QPushButton("Add")),
-      _wellNames_map(wellNames_map) {
+      _addButtonManagers(new QPushButton("Add")), _wellNames_map(wellNames_map),
+      _eventNames(eventNames) {
 
   commonSetting();
 
@@ -213,13 +218,22 @@ void View::commonSetting() {
   // Setting`s end
 
   // Connecting
+  connect(_infoEvent, &InfoEvent::nameChanged,
+          [this](auto &name) { updateRepetition(name); });
   connect(_graphicEvent, &EventOperation::GraphicController::sendPicksInfo,
           [this](auto type, auto num, auto l_val, auto pick_val, auto r_val) {
             emit sendPicksInfo(type, num, l_val, pick_val, r_val);
           });
   connect(_polarizationEventButton, &QPushButton::clicked,
           [this]() { emit createPolarizationAnalysisWindow(); });
-  connect(_okButton, &QPushButton::clicked, this, &View::accept);
+  //  connect(_okButton, &QPushButton::clicked, this, &View::accept);
+  connect(_okButton, &QPushButton::clicked, [this]() {
+    if (_isValid) {
+      accept();
+    } else {
+      setNotification("There is invalid event-info");
+    }
+  });
   connect(_cancelButton, &QPushButton::clicked, this, &View::reject);
   connect(_addPWave, &QAction::triggered, [this]() {
     _graphicEvent->getView()->setWaveAddTriggerFlag(Data::SeismWavePick::PWAVE);
@@ -228,6 +242,18 @@ void View::commonSetting() {
     _graphicEvent->getView()->setWaveAddTriggerFlag(Data::SeismWavePick::SWAVE);
   });
   // Connecting end
+}
+
+void View::updateRepetition(const QString &name) {
+  for (auto &globalName : _eventNames) {
+    if (name == globalName) {
+      _isValid = false;
+      _infoEvent->setBrush(Qt::red);
+      return;
+    }
+  }
+  _isValid = true;
+  _infoEvent->setBrush(Qt::white);
 }
 
 } // namespace OneEvent

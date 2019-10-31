@@ -19,11 +19,14 @@ class Controller : public QObject {
   Q_OBJECT
 
 public:
-  explicit Controller(const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &,
-                      QObject *parent = nullptr);
+  explicit Controller(
+      const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &,
+      const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &,
+      QObject *parent = nullptr);
 
-  explicit Controller(const std::unique_ptr<Data::SeismEvent> &,
-                      QObject *parent = nullptr);
+  explicit Controller(
+      const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &,
+      const std::unique_ptr<Data::SeismEvent> &, QObject *parent = nullptr);
 
   void start();
   void finish(int);

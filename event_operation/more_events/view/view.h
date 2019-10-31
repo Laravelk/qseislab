@@ -10,6 +10,7 @@
 #include <QUuid>
 
 #include <memory>
+#include <set>
 
 namespace Data {
 class SeismEvent;
@@ -25,11 +26,9 @@ class View : public QDialog {
   Q_OBJECT
 
 public:
-  explicit View(const std::map<QUuid, QString> &, QWidget *parent = nullptr);
+  explicit View(const std::set<QString> &, const std::map<QUuid, QString> &,
+                QWidget *parent = nullptr);
 
-  //  void update(const std::unique_ptr<Data::SeismEvent> &, const QUuid &);
-  //  void update(const std::unique_ptr<Data::SeismEvent> &, const QUuid &,
-  //              const QString &);
   void loadEvent(const std::unique_ptr<Data::SeismEvent> &);
   void unloadEvent();
 
@@ -45,7 +44,7 @@ signals:
   void removeEvent(const QUuid &);
 
   void sendWellUuidAndFilePaths(const QUuid &, const QStringList &) const;
-  //  void sendWellUuidForRemove(const QUuid &) const;
+
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
   void createPolarizationAnalysisWindow();
 
@@ -53,6 +52,11 @@ private slots:
   void recvFilesPath(const QStringList &);
 
 private:
+  void addLocal(const QString &);
+  void removeLocal(const QString &);
+  QBrush updateRepetition(const QString &);
+  bool allValid() const;
+
   InfoEvent *_infoEvent;
   QComboBox *_wellNames;
   QUuid _wellUuid;
@@ -60,8 +64,6 @@ private:
 
   QListWidget *_eventList;
 
-  //  QVBoxLayout *_wellManagersLayout;
-  //  QPushButton *_addButtonManagers;
   GraphicController *_graphicEvent;
   QPushButton *_okButton;
   QPushButton *_cancelButton;
@@ -71,7 +73,8 @@ private:
   QAction *_addPWave;
   QAction *_addSWave;
 
-  //  std::map<QUuid, QString> _wellNames_map;
+  std::set<QString> _globalEventNames;
+  std::map<QString, int> _localEventNames;
 };
 
 } // namespace MoreEvents

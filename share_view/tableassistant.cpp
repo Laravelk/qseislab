@@ -8,6 +8,8 @@
 #include <QHeaderView>
 #include <QPushButton>
 
+#include <assert.h>
+
 typedef Data::SeismHorizon SeismHorizon;
 typedef Data::SeismWell SeismWell;
 typedef Data::SeismReceiver SeismReceiver;

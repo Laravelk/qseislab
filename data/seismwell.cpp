@@ -5,6 +5,8 @@
 
 #include <QJsonArray>
 
+#include <assert.h>
+
 typedef Data::IO::PointReader PointReader;
 typedef Data::IO::PointWriter PointWriter;
 
