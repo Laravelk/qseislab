@@ -63,15 +63,20 @@ Controller::Controller(
 
   connect(_view.get(), &View::changeCurrentEvent, [this](auto &uuid) {
     if (!_currentEventUuid.isNull()) {
-      _view->settingEventInfo(_events_map[_currentEventUuid]);
+      //      _view->settingEventInfo(_events_map[_currentEventUuid]);
+    } else {
+      std::cout << "uuid is null" << std::endl;
     }
+    std::cout << "uuid == " << uuid.toString().toStdString() << std::endl;
     _currentEventUuid = uuid;
-    _view->loadEvent(_events_map[uuid]);
+    _view->loadEvent(_events_map[_currentEventUuid]);
   });
 
   connect(_view.get(), &View::hideCurrentEvent, [this]() {
     if (!_currentEventUuid.isNull()) {
-      _view->settingEventInfo(_events_map[_currentEventUuid]);
+      //      _view->settingEventInfo(_events_map[_currentEventUuid]);
+    } else {
+      std::cout << "uuid is null" << std::endl;
     }
     _currentEventUuid = QUuid();
     _view->unloadEvent();
@@ -109,6 +114,9 @@ void Controller::start() {
 
 void Controller::finish(int result) {
   if (QDialog::Accepted == result) {
+    if (!_currentEventUuid.isNull()) {
+      _view->settingEventInfo(_events_map[_currentEventUuid]);
+    }
     emit sendEvents(_events_map);
   }
 

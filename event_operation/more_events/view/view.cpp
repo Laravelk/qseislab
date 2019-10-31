@@ -10,7 +10,7 @@
 #include <set>
 
 #include "data/seismevent.h"
-//#include <iostream>          // TODO: delete
+#include <iostream> // TODO: delete
 
 typedef Data::SeismEvent SeismEvent;
 
@@ -75,13 +75,27 @@ View::View(const std::set<QString> &globalEventNames,
       _okButton->setDisabled(true);
     }
 
+    int nextFocusRow = 0;
+    int selectedCount = selectedEvents.size();
+    int allCount = _eventList->count();
+    if (1 != selectedCount) {
+      nextFocusRow = allCount - selectedCount - 1;
+    }
+
     for (auto item : selectedEvents) {
       auto name = item->text();
       removeLocal(name);
       updateRepetition(name);
-      _eventList->takeItem(_eventList->row(item)); // NOTE: bad :(
+
+      int row = _eventList->row(item);
+      if (1 == selectedCount) {
+        nextFocusRow = (allCount - 1 == row) ? row - 1 : row;
+      }
+
+      _eventList->takeItem(row);
       emit removeEvent(item->data(Qt::DecorationRole).toUuid());
     }
+    _eventList->setCurrentRow(nextFocusRow);
   });
 
   connect(_wellNames, QOverload<int>::of(&QComboBox::activated),
@@ -98,12 +112,14 @@ View::View(const std::set<QString> &globalEventNames,
 
   connect(_eventList, &QListWidget::itemSelectionChanged, [this]() {
     auto selectedEvents = _eventList->selectedItems();
+    std::cout << "selected count == " << selectedEvents.size() << std::endl;
     if (1 == selectedEvents.size()) {
       _infoEvent->setEnabled(true);
       _addWaveButton->setEnabled(true);
       _polarizationEventButton->setEnabled(true);
-      emit changeCurrentEvent(
-          selectedEvents[0]->data(Qt::DecorationRole).toUuid());
+      auto item = selectedEvents[0];
+      std::cerr << _eventList->row(item) << std::endl;
+      emit changeCurrentEvent(item->data(Qt::DecorationRole).toUuid());
     } else {
       _infoEvent->setDisabled(true);
       _addWaveButton->setDisabled(true);
@@ -112,6 +128,7 @@ View::View(const std::set<QString> &globalEventNames,
     }
   });
 
+  // BUG: here!
   connect(_infoEvent, &InfoEvent::nameChanged, [this](auto &name) {
     auto item = _eventList->currentItem();
     auto oldName = item->text();

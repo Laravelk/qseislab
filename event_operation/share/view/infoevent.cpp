@@ -83,6 +83,10 @@ void InfoEvent::update(const std::unique_ptr<Data::SeismEvent> &event) {
 
 void InfoEvent::clear() {
   _nameEdit->clear();
+  QPalette palette;
+  palette.setBrush(QPalette::Base, Qt::white);
+  _nameEdit->setPalette(palette);
+
   _receiverAmountLabel->clear();
   _pWavePickAmountLabel->clear();
   _sWavePickAmountLabel->clear();

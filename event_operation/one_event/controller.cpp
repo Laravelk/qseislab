@@ -99,7 +99,10 @@ Controller::Controller(
   // prepare data for view
   std::set<QString> eventNames;
   for (auto &uuid_event : all_events) {
-    eventNames.insert(uuid_event.second->getName());
+    const auto &name = uuid_event.second->getName();
+    if (name != _event->getName()) {
+      eventNames.insert(uuid_event.second->getName());
+    }
   }
   _view = std::make_unique<View>(eventNames, _event);
   // ...
