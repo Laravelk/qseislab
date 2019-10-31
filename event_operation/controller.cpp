@@ -103,7 +103,6 @@ Controller::Controller(const std::unique_ptr<Data::SeismEvent> &event,
                     Data::SeismWavePick(type, pick_val);
                 wavePick.setPolarizationLeftBorder(l_val);
                 wavePick.setPolarizationRightBorder(r_val);
-
                 component->addWavePick(wavePick);
                 break;
               }

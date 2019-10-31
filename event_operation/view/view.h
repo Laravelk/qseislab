@@ -7,6 +7,8 @@
 #include <QBoxLayout>
 #include <memory>
 #include <QSlider>
+#include <QTableWidget>
+#include <QRadioButton>
 #include <QLabel>
 
 namespace Data {
@@ -44,6 +46,8 @@ private:
   void commonSetting();
   void settingGraphicMenu();
   void showGraphicMenu();
+  void settingWiggleButton();
+  void insertRowInComponentsHideTable(const QString &, int);
 
   InfoEvent *_infoEvent;
   QVBoxLayout *_wellManagersLayout;
@@ -57,9 +61,14 @@ private:
   QSlider * _gainSlider;
   QLabel *_clippintSliderLabel;
   QLabel * _gainSliderLabel;
+  QTableWidget *_hideComponentsTable;
 
   QAction *_addPWave;
   QAction *_addSWave;
+
+  QRadioButton *_noneWiggle;
+  QRadioButton *_positiveWiggle;
+  QRadioButton *_negativeWiggle;
 
   std::map<QUuid, QString> _wellNames_map;
 };

@@ -26,7 +26,12 @@ public:
   void update(const std::unique_ptr<Data::SeismEvent> &);
   void setGainCoefficient(const float gainCoefficient);
   void setClippingValue(const float clippingValue);
+  void setWiggle(const int status);
   void clear();
+
+  void hideAxisX(bool);
+  void hideAxisY(bool);
+  void hideAxisZ(bool);
 
 private:
   Data::SeismEvent *_event;
@@ -35,23 +40,30 @@ private:
   int _pWaveArrival;
   int _sWaveArrival;
   float _rangeAxisX;
-  float _clipping = 1000000.0f;
+  float _clipping = 10.0f;
   float _gain = 1.0f;
+  bool _hideAxisX = false;
+  bool _hideAxisY = false;
+  bool _hideAxisZ = false;
   GraphicView *_view;
   ChartGesture *_chart;
   QValueAxis *_axisX = new QValueAxis;
   QValueAxis *_axisY = new QValueAxis;
+  QList<QAreaSeries*>_positiveWiggleSeries;
+  QList<QAreaSeries*>_negativeWiggleSeries;
 
   QList<QLineSeries *> _allSeries;
 
   void addWaveArrival(Data::SeismWavePick, int);
   void setInterval(const std::unique_ptr<Data::SeismEvent> &);
   void addTraceSeries(const std::unique_ptr<Data::SeismComponent> &, int);
+  void addWiggle(bool t); // true is positive, false is negative
+  void settingAreaSeries(QAreaSeries *series);
   void setAxesY(int);
   void getRangeX(const std::unique_ptr<Data::SeismEvent> &);
-  void updateSeriesByGain(const float gainCoefficient);
-  void updateSeriesByClipping(const float clippingValue);
   void updateSeries();
+  float findPointAroundZero(float zero, QPointF &, QPointF&);
+  void deleteAllWiggle();
 
 signals:
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
