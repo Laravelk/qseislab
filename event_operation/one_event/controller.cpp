@@ -125,7 +125,6 @@ Controller::Controller(
                     Data::SeismWavePick(type, pick_val);
                 wavePick.setPolarizationLeftBorder(l_val);
                 wavePick.setPolarizationRightBorder(r_val);
-
                 component->addWavePick(wavePick);
                 break;
               }

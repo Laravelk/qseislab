@@ -1,6 +1,7 @@
 #pragma once
 
 #include "chartgesture.h"
+#include "data/seismevent.h"
 #include "graphic_view/graphic_view.h"
 
 #include <QtCharts>
@@ -23,24 +24,48 @@ public:
   void setView(GraphicView *view) { _view = view; }
 
   void update(const std::unique_ptr<Data::SeismEvent> &);
+  void setGainCoefficient(const float gainCoefficient);
+  void setClippingValue(const float clippingValue);
+  void setWiggle(const int status);
   void clear();
 
+  void hideAxisX(bool);
+  void hideAxisY(bool);
+  void hideAxisZ(bool);
+
 private:
+  Data::SeismEvent *_event;
   float _norm;
   float _interval;
   int _pWaveArrival;
   int _sWaveArrival;
   float _rangeAxisX;
+  float _clipping = 10.0f;
+  float _gain = 1.0f;
+  bool _hideAxisX = false;
+  bool _hideAxisY = false;
+  bool _hideAxisZ = false;
+  bool _isPositiveWiggleSet = false;
+  bool _isNegativeWiggleSet = false;
   GraphicView *_view;
   ChartGesture *_chart;
   QValueAxis *_axisX = new QValueAxis;
   QValueAxis *_axisY = new QValueAxis;
+  QList<QAreaSeries *> _positiveWiggleSeries;
+  QList<QAreaSeries *> _negativeWiggleSeries;
+
+  QList<QLineSeries *> _allSeries;
 
   void addWaveArrival(Data::SeismWavePick, int);
   void setInterval(const std::unique_ptr<Data::SeismEvent> &);
   void addTraceSeries(const std::unique_ptr<Data::SeismComponent> &, int);
+  void addWiggle(bool t); // true is positive, false is negative
+  void settingAreaSeries(QAreaSeries *series);
   void setAxesY(int);
   void getRangeX(const std::unique_ptr<Data::SeismEvent> &);
+  void updateSeries();
+  double findPointAroundZero(int, int, QPointF &, QPointF &);
+  void deleteAllWiggle();
 
 signals:
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
@@ -48,13 +73,11 @@ signals:
 private:
   const qreal AMPLITUDE_SCALAR = 0.5;
   const qreal TRACE_OFFSET = 0.25;
-  const qreal WAVE_RADIUS = 0.4;
-  const qreal BORDER_RADIUS = 0.35;
   const float NORMED = 2.1f;
   const int GRAPH_WIDHT = 750;
   const int GRAPH_HEIGHT = 470;
-  const int WAVE_PEN_WIDTH = 4;
-  const int BORDER_PEN_WIDTH = 2;
+  const int MICROSECONDS_IN_SECOND = 1000000;
+  const int MICROSECONDS_IN_MILISECOND = 1000;
 };
 
 } // namespace EventOperation

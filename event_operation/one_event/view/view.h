@@ -8,6 +8,11 @@
 #include <memory>
 #include <set>
 
+#include <QLabel>
+#include <QRadioButton>
+#include <QSlider>
+#include <QTableWidget>
+
 namespace Data {
 class SeismEvent;
 class SeismWell;
@@ -45,6 +50,11 @@ private:
   void commonSetting();
   void updateRepetition(const QString &);
 
+  void settingGraphicMenu();
+  void showGraphicMenu();
+  void settingWiggleButton();
+  void insertRowInComponentsHideTable(const QString &, int);
+
   InfoEvent *_infoEvent;
   QVBoxLayout *_wellManagersLayout;
   QPushButton *_addButtonManagers;
@@ -53,9 +63,18 @@ private:
   QPushButton *_cancelButton;
   QPushButton *_addWaveButton;
   QPushButton *_polarizationEventButton;
+  QSlider *_clippingSlider;
+  QSlider *_gainSlider;
+  QLabel *_clippintSliderLabel;
+  QLabel *_gainSliderLabel;
+  QTableWidget *_hideComponentsTable;
 
   QAction *_addPWave;
   QAction *_addSWave;
+
+  QRadioButton *_noneWiggle;
+  QRadioButton *_positiveWiggle;
+  QRadioButton *_negativeWiggle;
 
   std::map<QUuid, QString> _wellNames_map;
   std::set<QString> _eventNames;

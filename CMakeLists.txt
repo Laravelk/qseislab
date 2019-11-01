@@ -58,6 +58,21 @@ set(SOURCES
         event_operation/share/view/graphic_view/pipes2dname.cpp
         event_operation/share/view/3dscene/polarizationanalysiswindow.cpp
 
+#        event_operation/controller.cpp
+#        event_operation/model.cpp
+#        event_operation/view/filemanager.cpp
+#        event_operation/view/wellmanager.cpp
+#        event_operation/view/view.cpp
+
+#        event_operation/view/common_view/graphic_view/graphic_view.cpp
+#        event_operation/view/common_view/graphic_view/wavepick.cpp
+#        event_operation/view/common_view/infoevent.cpp
+#        event_operation/view/common_view/graphiccontroller.cpp
+#        event_operation/view/common_view/chartgesture.cpp
+#        event_operation/view/common_view/graphic_view/pipes2dname.cpp
+#        event_operation/view/common_view/3dscene/polarizationanalysiswindow.cpp
+
+
 
         horizon_operation/controller.cpp
         horizon_operation/model.cpp

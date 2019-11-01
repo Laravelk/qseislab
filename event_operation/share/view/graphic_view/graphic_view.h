@@ -6,6 +6,8 @@
 #include <QtCharts/QChartView>
 #include <QtWidgets/QRubberBand>
 
+#include <iostream> // TODO: delete
+
 QT_CHARTS_BEGIN_NAMESPACE
 class QChart;
 QT_CHARTS_END_NAMESPACE
@@ -39,6 +41,12 @@ public:
     _wavePicks.clear();
   }
 
+  void mouseEvent(const QPointF &pos) {
+      QPointF localPos = QPointF(_chart->mapToPosition(pos));
+      this->mousePressEvent(new QMouseEvent(QEvent::MouseButtonPress, localPos, Qt::LeftButton, Qt::LeftButton,
+                                                  Qt::NoModifier));
+  }
+
 protected:
   bool viewportEvent(QEvent *) override;
   void mousePressEvent(QMouseEvent *) override;
@@ -68,6 +76,9 @@ private:
   QPointF calculatePickPosition(QPointF);
   bool checkAvailability(Data::SeismWavePick::Type, int);
   QGraphicsTextItem *text;
+
+  const int MICROSECONDS_IN_SECOND = 1000000;
+  const int MICROSECONDS_IN_MILISECOND = 1000;
 
 signals:
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);

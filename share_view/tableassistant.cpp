@@ -47,7 +47,6 @@ TableAssistant::TableAssistant(Mode mode, QWidget *parent)
   QVBoxLayout *mainLayout = new QVBoxLayout();
   mainLayout->addWidget(_table);
   //  mainLayout->addStretch(1);
-
   setLayout(mainLayout);
   // Layouts end
 }
