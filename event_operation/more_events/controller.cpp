@@ -43,8 +43,10 @@ Controller::Controller(
               if (!components.empty()) {
                 std::unique_ptr<SeismEvent> event =
                     std::make_unique<SeismEvent>();
-                connect(event.get(), &Data::SeismEvent::changed,
-                        []() { std::cout << "event changed" << std::endl; });
+                connect(event.get(), &Data::SeismEvent::changed, []() {
+                  //                            std::cout << "event changed" <<
+                  //                            std::endl;
+                });
                 event->setName(QFileInfo(path).baseName());
                 for (auto &component : components) {
                   event->addComponent(std::move(component));

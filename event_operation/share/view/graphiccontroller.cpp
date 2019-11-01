@@ -30,11 +30,76 @@ GraphicController::GraphicController(QWidget *parent)
                                rightBorderPos);
           });
   _view->hide();
+
+  // _allView setting`s
+  _allView = new QWidget();
+  _allView->setMinimumWidth(900);
+
+  settingGraphicMenu();
+  settingWiggleButton();
+
+  _polarizationEventButton = new QPushButton("Polarization Analysis", this);
+  _polarizationEventButton->hide();
+
+  _addWaveButton = new QPushButton("+", this);
+  QMenu *addWaveButtonMenu = new QMenu(_addWaveButton);
+  _addPWave = new QAction("PWAVE", _addWaveButton);
+  _addSWave = new QAction("SWAVE", _addWaveButton);
+  addWaveButtonMenu->addAction(_addPWave);
+  addWaveButtonMenu->addAction(_addSWave);
+  _addWaveButton->setMenu(addWaveButtonMenu);
+  _addWaveButton->hide();
+
+  // conect`s
+  connect(_polarizationEventButton, &QPushButton::clicked,
+          [this]() { emit createPolarizationAnalysisWindowClicked(); });
+  connect(_addPWave, &QAction::triggered, [this]() {
+    _view->setWaveAddTriggerFlag(Data::SeismWavePick::PWAVE);
+  });
+  connect(_addSWave, &QAction::triggered, [this]() {
+    _view->setWaveAddTriggerFlag(Data::SeismWavePick::SWAVE);
+  });
+  connect(_clippingSlider, &QSlider::valueChanged, [this](int value) {
+    _clippintSliderLabel->setText(
+        QString("Clipping: %1").arg(static_cast<qreal>(value + 1) / 10));
+    setClippingValue(static_cast<qreal>(value + 1) / 10);
+  });
+  connect(_gainSlider, &QSlider::valueChanged, [this](int value) {
+    _gainSliderLabel->setText(
+        QString("Gain: %1").arg(static_cast<qreal>(value + 1) / 10));
+    setGainCoefficient(static_cast<qreal>(value + 1) / 10);
+  });
+
+  // layout`s
+  QVBoxLayout *editGraphicMenuLayout = new QVBoxLayout();
+  //  editGraphicMenuLayout->addStretch(1);
+  editGraphicMenuLayout->addWidget(_noneWiggle);
+  editGraphicMenuLayout->addWidget(_positiveWiggle);
+  editGraphicMenuLayout->addWidget(_negativeWiggle);
+  editGraphicMenuLayout->addWidget(_hideComponentsTable);
+  editGraphicMenuLayout->addWidget(_clippingSlider);
+  editGraphicMenuLayout->addWidget(_clippintSliderLabel);
+  editGraphicMenuLayout->addWidget(_gainSlider);
+  editGraphicMenuLayout->addWidget(_gainSliderLabel);
+  editGraphicMenuLayout->addWidget(_addWaveButton);
+  editGraphicMenuLayout->addWidget(_polarizationEventButton);
+  editGraphicMenuLayout->addStretch(1);
+
+  QHBoxLayout *mainLayout = new QHBoxLayout();
+  mainLayout->addWidget(_view, 1);
+  mainLayout->addLayout(editGraphicMenuLayout);
+  _allView->setLayout(mainLayout);
 }
 
 void GraphicController::update(const std::unique_ptr<SeismEvent> &event) {
   _event = event.get();
+
+  // setting event-name on title
+  auto chart = _view->chart();
+  chart->setTitle(event->getName());
+
   _view->chart()->removeAllSeries();
+  _allSeries.clear();
   _view->clearPicks();
   _view->setDefaultScale();
   _rangeAxisX = 0;
@@ -54,6 +119,11 @@ void GraphicController::update(const std::unique_ptr<SeismEvent> &event) {
   }
   _chart->addPicks(_view->getPickcs());
   _view->show();
+  updateSeries();
+  // show event-tools
+  showGraphicMenu();
+  _polarizationEventButton->show();
+  _addWaveButton->show();
 }
 
 void GraphicController::setGainCoefficient(const float gainCoefficient) {
@@ -104,9 +174,15 @@ void GraphicController::clear() {
   _hideAxisX = false;
   _hideAxisY = false;
   _hideAxisZ = false;
-  _gain = 1.0f;
-  _clipping = 10.0f;
+  //  _gain = 1.0f;
+  //  _clipping = 10.0f;
   _view->hide();
+
+  // hide event-tools
+  hideGraphicMenu();
+  _polarizationEventButton->hide();
+  _addWaveButton->hide();
+  _event = nullptr;
 }
 
 void GraphicController::hideAxisX(bool hide) {
@@ -132,7 +208,7 @@ void GraphicController::addWaveArrival(Data::SeismWavePick pick, int index) {
   } else {
     color = Qt::darkBlue;
   }
-  std::cerr << _rangeAxisX << std::endl;
+  //  std::cerr << _rangeAxisX << std::endl;
 
   _view->addPick(
       pick.getType(),
@@ -161,7 +237,7 @@ void GraphicController::addTraceSeries(
                           QColor(65, 105, 225)};
   int idx = -1;
   for (unsigned j = 0; j < component->getTraces().size(); ++j, ++idx) {
-    _norm = component->getMaxValue() * NORMED;
+    _norm = component->getMaxValue() /* NORMED*/;
     QLineSeries *series = new QLineSeries;
     series->setUseOpenGL(true); // NOTE: COMMENT FOR RELEASE
     SeismTrace *trace = component->getTraces().at(j).get();
@@ -263,7 +339,7 @@ void GraphicController::addWiggle(bool flag) {
       idx = -1;
     }
   }
-} // namespace EventOperation
+}
 
 void GraphicController::settingAreaSeries(QAreaSeries *series) {
   QPen pen(0x059605);
@@ -302,11 +378,11 @@ void GraphicController::updateSeries() {
   QList<QLineSeries *>::iterator seriesIterator = _allSeries.begin();
   int componentNumber = 0;
   float currentGain = _gain;
-  if (_clipping < _gain) {
-    currentGain = _clipping;
-  }
+  /* if (_clipping < _gain) {
+     currentGain = _clipping;
+   }*/
   for (auto &component : _event->getComponents()) {
-    _norm = component->getMaxValue() / currentGain * NORMED;
+    _norm = component->getMaxValue() /* currentGain NORMED*/;
     int index = -1;
     for (auto &trace : component->getTraces()) {
       QList<QPointF> points;
@@ -315,6 +391,9 @@ void GraphicController::updateSeries() {
           (index == 1 && !_hideAxisZ)) {
         for (int k = 0; k < trace->getBufferSize(); k++) {
           float newYValue = trace->getBuffer()[k] * currentGain / _norm;
+          if (_clipping < abs(newYValue)) {
+            newYValue = _clipping * newYValue / abs(newYValue);
+          }
           points.append(
               QPointF(oldPoints.at(k).x(), TRACE_OFFSET * (index) +
                                                AMPLITUDE_SCALAR * newYValue +
@@ -339,6 +418,110 @@ void GraphicController::updateSeries() {
     deleteAllWiggle();
     setWiggle(2);
   }
+}
+
+void GraphicController::settingGraphicMenu() {
+  int AXIS_COUNT = 3;
+  _hideComponentsTable = new QTableWidget(this);
+  _hideComponentsTable->setColumnCount(1);
+  _hideComponentsTable->setRowCount(AXIS_COUNT);
+  _hideComponentsTable->setHorizontalHeaderLabels(QStringList() << "Component");
+  _hideComponentsTable->setMaximumWidth(AXIS_COUNT * 40);
+  _hideComponentsTable->setMaximumHeight(AXIS_COUNT * 38 + 1);
+  insertRowInComponentsHideTable("X", 0);
+  insertRowInComponentsHideTable("Y", 1);
+  insertRowInComponentsHideTable("Z", 2);
+  _clippintSliderLabel = new QLabel("Clipping: 1");
+  _gainSliderLabel = new QLabel("Gain: 1");
+  _clippingSlider = new QSlider(Qt::Horizontal, this);
+  _gainSlider = new QSlider(Qt::Horizontal, this);
+  _gainSlider->setTickInterval(1);
+  _gainSlider->setMaximum(100);
+  _gainSlider->setMinimum(0);
+  _gainSlider->setValue(9); // 10. from 0 to 99
+  _clippingSlider->setMinimumWidth(100);
+  _clippingSlider->setTickInterval(1);
+  _clippingSlider->setMaximum(100);
+  _clippingSlider->setMinimum(0);
+  _clippingSlider->setValue(9);
+  _clippingSlider->hide();
+  _gainSlider->hide();
+  _clippintSliderLabel->hide();
+  _gainSliderLabel->hide();
+  _hideComponentsTable->hide();
+}
+
+void GraphicController::showGraphicMenu() {
+  _gainSlider->show();
+  _clippingSlider->show();
+  _gainSliderLabel->show();
+  _clippintSliderLabel->show();
+  _hideComponentsTable->show();
+  _noneWiggle->show();
+  _positiveWiggle->show();
+  _negativeWiggle->show();
+}
+
+void GraphicController::hideGraphicMenu() {
+  _gainSlider->hide();
+  _clippingSlider->hide();
+  _gainSliderLabel->hide();
+  _clippintSliderLabel->hide();
+  _hideComponentsTable->hide();
+  _noneWiggle->hide();
+  _positiveWiggle->hide();
+  _negativeWiggle->hide();
+}
+
+void GraphicController::settingWiggleButton() {
+  _noneWiggle = new QRadioButton("None Wiggle");
+  _positiveWiggle = new QRadioButton("Positive Wiggle");
+  _negativeWiggle = new QRadioButton("Negative Wiggle");
+  _noneWiggle->setChecked(true);
+
+  connect(_noneWiggle, &QRadioButton::clicked, [this]() { setWiggle(0); });
+  connect(_positiveWiggle, &QRadioButton::clicked, [this]() { setWiggle(1); });
+  connect(_negativeWiggle, &QRadioButton::clicked, [this]() { setWiggle(2); });
+  _noneWiggle->hide();
+  _positiveWiggle->hide();
+  _negativeWiggle->hide();
+}
+
+void GraphicController::insertRowInComponentsHideTable(const QString &axis,
+                                                       int index) {
+  int row = index;
+  QCheckBox *checkBox = new QCheckBox();
+  checkBox->setText(axis);
+  QWidget *buttonWidget = new QWidget();
+  QHBoxLayout *buttonLayout = new QHBoxLayout(buttonWidget);
+  buttonLayout->setAlignment(Qt::AlignLeft);
+  buttonLayout->addWidget(checkBox);
+  buttonLayout->setContentsMargins(0, 0, 0, 0);
+  _hideComponentsTable->setCellWidget(row, 0, buttonWidget);
+  checkBox->setChecked(true);
+  connect(checkBox, &QCheckBox::stateChanged, [this, index](int state) {
+    if (index == 0) {
+      if (Qt::Unchecked == state) {
+        hideAxisX(true);
+      } else if (Qt::Checked == state) {
+        hideAxisX(false);
+      }
+    }
+    if (index == 1) {
+      if (Qt::Unchecked == state) {
+        hideAxisY(true);
+      } else {
+        hideAxisY(false);
+      }
+    }
+    if (index == 2) {
+      if (Qt::Unchecked == state) {
+        hideAxisZ(true);
+      } else {
+        hideAxisZ(false);
+      }
+    }
+  });
 }
 
 } // namespace EventOperation

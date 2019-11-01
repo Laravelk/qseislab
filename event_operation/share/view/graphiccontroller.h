@@ -18,7 +18,7 @@ class GraphicController : public QFrame {
 public:
   explicit GraphicController(QWidget *parent = nullptr);
 
-  GraphicView *getView() const { return _view; }
+  QWidget *getView() const { return _allView; }
   ChartGesture *getModel() const { return _chart; }
   void setChart(ChartGesture *chart) { _chart = chart; }
   void setView(GraphicView *view) { _view = view; }
@@ -34,6 +34,8 @@ public:
   void hideAxisZ(bool);
 
 private:
+  QWidget *_allView;
+
   Data::SeismEvent *_event;
   float _norm;
   float _interval;
@@ -69,15 +71,39 @@ private:
 
 signals:
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
+  void createPolarizationAnalysisWindowClicked();
 
 private:
-  const qreal AMPLITUDE_SCALAR = 0.5;
+  const qreal AMPLITUDE_SCALAR = 0.1;
   const qreal TRACE_OFFSET = 0.25;
   const float NORMED = 2.1f;
   const int GRAPH_WIDHT = 750;
   const int GRAPH_HEIGHT = 470;
   const int MICROSECONDS_IN_SECOND = 1000000;
   const int MICROSECONDS_IN_MILISECOND = 1000;
+
+private:
+  void settingGraphicMenu();
+  void showGraphicMenu();
+  void hideGraphicMenu();
+  void settingWiggleButton();
+  void insertRowInComponentsHideTable(const QString &, int);
+
+  QSlider *_clippingSlider;
+  QSlider *_gainSlider;
+  QLabel *_clippintSliderLabel;
+  QLabel *_gainSliderLabel;
+  QTableWidget *_hideComponentsTable;
+
+  QPushButton *_addWaveButton;
+  QAction *_addPWave;
+  QAction *_addSWave;
+
+  QPushButton *_polarizationEventButton;
+
+  QRadioButton *_noneWiggle;
+  QRadioButton *_positiveWiggle;
+  QRadioButton *_negativeWiggle;
 };
 
 } // namespace EventOperation

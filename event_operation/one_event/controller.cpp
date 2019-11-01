@@ -32,8 +32,9 @@ Controller::Controller(
   _view = std::make_unique<View>(eventNames, wellNames_map);
   // ...
 
-  connect(_event.get(), &Data::SeismEvent::changed,
-          []() { std::cout << "event changed" << std::endl; });
+  connect(_event.get(), &Data::SeismEvent::changed, []() {
+    //              std::cout << "event changed" << std::endl;
+  });
 
   connect(_model, &Model::notify,
           [this](auto &msg) { _view->setNotification(msg); });
@@ -107,8 +108,9 @@ Controller::Controller(
   _view = std::make_unique<View>(eventNames, _event);
   // ...
 
-  connect(_event.get(), &Data::SeismEvent::changed,
-          []() { std::cout << "event changed" << std::endl; });
+  connect(_event.get(), &Data::SeismEvent::changed, []() {
+    //              std::cout << "event changed" << std::endl;
+  });
 
   connect(_view.get(), &View::createPolarizationAnalysisWindow, [this]() {
     _polarizationWindow = new PolarizationAnalysisWindow(_event);

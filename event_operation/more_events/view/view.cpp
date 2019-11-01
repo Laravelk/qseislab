@@ -24,8 +24,9 @@ View::View(const std::set<QString> &globalEventNames,
       _graphicEvent(new GraphicController(this)),
       _okButton(new QPushButton("Ok")),
       _cancelButton(new QPushButton("Cancel")),
-      _addWaveButton(new QPushButton("+")),
-      _polarizationEventButton(new QPushButton("Polarization Analysis")),
+      //      _addWaveButton(new QPushButton("+")),
+      //      _polarizationEventButton(new QPushButton("Polarization
+      //      Analysis")),
       _globalEventNames(globalEventNames) {
 
   // Setting`s
@@ -46,16 +47,16 @@ View::View(const std::set<QString> &globalEventNames,
   _eventList->setSortingEnabled(false);
   _eventList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-  QMenu *addWaveButtonMenu = new QMenu(_addWaveButton);
-  _addPWave = new QAction("PWAVE", _addWaveButton);
-  _addSWave = new QAction("SWAVE", _addWaveButton);
-  addWaveButtonMenu->addAction(_addPWave);
-  addWaveButtonMenu->addAction(_addSWave);
-  _addWaveButton->setMenu(addWaveButtonMenu);
+  //  QMenu *addWaveButtonMenu = new QMenu(_addWaveButton);
+  //  _addPWave = new QAction("PWAVE", _addWaveButton);
+  //  _addSWave = new QAction("SWAVE", _addWaveButton);
+  //  addWaveButtonMenu->addAction(_addPWave);
+  //  addWaveButtonMenu->addAction(_addSWave);
+  //  _addWaveButton->setMenu(addWaveButtonMenu);
 
   _infoEvent->setDisabled(true);
-  _addWaveButton->setDisabled(true);
-  _polarizationEventButton->setDisabled(true);
+  //  _addWaveButton->setDisabled(true);
+  //  _polarizationEventButton->setDisabled(true);
   _okButton->setDisabled(true);
 
   QPushButton *addEventsButton = new QPushButton("+");
@@ -136,8 +137,8 @@ View::View(const std::set<QString> &globalEventNames,
             emit sendPicksInfo(type, num, l_val, pick_val, r_val);
           });
 
-  connect(_polarizationEventButton, &QPushButton::clicked,
-          [this]() { emit createPolarizationAnalysisWindow(); });
+  //  connect(_polarizationEventButton, &QPushButton::clicked,
+  //          [this]() { emit createPolarizationAnalysisWindow(); });
   connect(_okButton, &QPushButton::clicked, [this]() {
     if (allValid()) {
       accept();
@@ -146,12 +147,12 @@ View::View(const std::set<QString> &globalEventNames,
     }
   });
   connect(_cancelButton, &QPushButton::clicked, this, &View::reject);
-  connect(_addPWave, &QAction::triggered, [this]() {
-    _graphicEvent->getView()->setWaveAddTriggerFlag(Data::SeismWavePick::PWAVE);
-  });
-  connect(_addSWave, &QAction::triggered, [this]() {
-    _graphicEvent->getView()->setWaveAddTriggerFlag(Data::SeismWavePick::SWAVE);
-  });
+  //  connect(_addPWave, &QAction::triggered, [this]() {
+  //    _graphicEvent->getView()->setWaveAddTriggerFlag(Data::SeismWavePick::PWAVE);
+  //  });
+  //  connect(_addSWave, &QAction::triggered, [this]() {
+  //    _graphicEvent->getView()->setWaveAddTriggerFlag(Data::SeismWavePick::SWAVE);
+  //  });
   // Connecting end
 
   QHBoxLayout *changingListButtonsLayout = new QHBoxLayout();
@@ -171,8 +172,8 @@ View::View(const std::set<QString> &globalEventNames,
   buttonsLayout->addStretch(1);
   buttonsLayout->addWidget(_okButton);
   buttonsLayout->addWidget(_cancelButton);
-  buttonsLayout->addWidget(_addWaveButton);
-  buttonsLayout->addWidget(_polarizationEventButton);
+  //  buttonsLayout->addWidget(_addWaveButton);
+  //  buttonsLayout->addWidget(_polarizationEventButton);
 
   QVBoxLayout *graphicLayout = new QVBoxLayout();
   graphicLayout->addWidget(_graphicEvent->getView(), 10);
@@ -189,10 +190,11 @@ View::View(const std::set<QString> &globalEventNames,
 
 void View::loadEvent(const std::unique_ptr<Data::SeismEvent> &event) {
   _infoEvent->setEnabled(true);
-  _addWaveButton->setEnabled(true);
-  _polarizationEventButton->setEnabled(true);
+  //  _addWaveButton->setEnabled(true);
+  //  _polarizationEventButton->setEnabled(true);
 
   _infoEvent->update(event);
+  //  _graphicEvent->clear();
   _graphicEvent->update(event);
 }
 
@@ -201,8 +203,8 @@ void View::unloadEvent() {
   _graphicEvent->clear();
 
   _infoEvent->setDisabled(true);
-  _addWaveButton->setDisabled(true);
-  _polarizationEventButton->setDisabled(true);
+  //  _addWaveButton->setDisabled(true);
+  //  _polarizationEventButton->setDisabled(true);
 }
 
 void View::update(
