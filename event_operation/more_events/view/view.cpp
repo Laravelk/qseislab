@@ -112,25 +112,16 @@ View::View(const std::set<QString> &globalEventNames,
 
   connect(_eventList, &QListWidget::itemSelectionChanged, [this]() {
     auto selectedEvents = _eventList->selectedItems();
-    std::cout << "selected count == " << selectedEvents.size() << std::endl;
     if (1 == selectedEvents.size()) {
-      _infoEvent->setEnabled(true);
-      _addWaveButton->setEnabled(true);
-      _polarizationEventButton->setEnabled(true);
-      auto item = selectedEvents[0];
-      std::cerr << _eventList->row(item) << std::endl;
-      emit changeCurrentEvent(item->data(Qt::DecorationRole).toUuid());
+      emit changeCurrentEvent(
+          selectedEvents[0]->data(Qt::DecorationRole).toUuid());
     } else {
-      _infoEvent->setDisabled(true);
-      _addWaveButton->setDisabled(true);
-      _polarizationEventButton->setDisabled(true);
       emit hideCurrentEvent();
     }
   });
 
-  // BUG: here!
   connect(_infoEvent, &InfoEvent::nameChanged, [this](auto &name) {
-    auto item = _eventList->currentItem();
+    auto item = _eventList->selectedItems()[0];
     auto oldName = item->text();
     removeLocal(oldName);
     updateRepetition(oldName);
@@ -197,6 +188,10 @@ View::View(const std::set<QString> &globalEventNames,
 }
 
 void View::loadEvent(const std::unique_ptr<Data::SeismEvent> &event) {
+  _infoEvent->setEnabled(true);
+  _addWaveButton->setEnabled(true);
+  _polarizationEventButton->setEnabled(true);
+
   _infoEvent->update(event);
   _graphicEvent->update(event);
 }
@@ -204,6 +199,10 @@ void View::loadEvent(const std::unique_ptr<Data::SeismEvent> &event) {
 void View::unloadEvent() {
   _infoEvent->clear();
   _graphicEvent->clear();
+
+  _infoEvent->setDisabled(true);
+  _addWaveButton->setDisabled(true);
+  _polarizationEventButton->setDisabled(true);
 }
 
 void View::update(
