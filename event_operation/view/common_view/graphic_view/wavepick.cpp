@@ -5,7 +5,7 @@
 #include <QtWidgets/QGraphicsSceneMouseEvent>
 #include <type_traits>
 
-// #include <iostream> // TODO: remove
+ #include <iostream> // TODO: remove
 
 namespace EventOperation {
 WavePick::WavePick(Data::SeismWavePick::Type type, QGraphicsItem *parent,
@@ -33,7 +33,6 @@ WavePick::WavePick(Data::SeismWavePick::Type type, QGraphicsItem *parent,
   _anchor = QPointF(ax, ay);
   setPos(_anchor);
   _rect = QRectF(0, 0, width, height);
-  //_rect.moveCenter(QPointF(_anchor));
   updateGeometry();
 }
 
@@ -97,6 +96,7 @@ void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
                                  event->buttonDownPos(Qt::LeftButton))
                     .x(),
                 _anchor.y());
+//    std::cerr << _valueLeftBorder << " " << newPosition.x() << " " << _valueRightBorder << std::endl;
     if (newPosition.x() < _valueRightBorder &&
         newPosition.x() > _valueLeftBorder) {
       setPos(QPointF(

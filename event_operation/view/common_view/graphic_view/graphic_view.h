@@ -77,6 +77,9 @@ private:
   bool checkAvailability(Data::SeismWavePick::Type, int);
   QGraphicsTextItem *text;
 
+  const int MICROSECONDS_IN_SECOND = 1000000;
+  const int MICROSECONDS_IN_MILISECOND = 1000;
+
 signals:
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
 

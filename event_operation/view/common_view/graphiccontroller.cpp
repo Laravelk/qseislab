@@ -33,7 +33,7 @@ GraphicController::GraphicController(QWidget *parent)
 }
 
 void GraphicController::update(const std::unique_ptr<SeismEvent> &event) {
-   _event = event.get();
+  _event = event.get();
   _view->chart()->removeAllSeries();
   _view->clearPicks();
   _view->setDefaultScale();
@@ -56,52 +56,46 @@ void GraphicController::update(const std::unique_ptr<SeismEvent> &event) {
   _view->show();
 }
 
-void GraphicController::setGainCoefficient(const float gainCoefficient)
-{
-        _gain = gainCoefficient;
-        updateSeries();
+void GraphicController::setGainCoefficient(const float gainCoefficient) {
+  _gain = gainCoefficient;
+  updateSeries();
 }
 
-void GraphicController::setClippingValue(const float clippingValue)
-{
-    _clipping = clippingValue;
-    updateSeries();
+void GraphicController::setClippingValue(const float clippingValue) {
+  _clipping = clippingValue;
+  updateSeries();
 }
 
-void GraphicController::deleteAllWiggle()
-{
-    for (auto & wiggleAreaSeries : _positiveWiggleSeries) {
-        _chart->removeSeries(wiggleAreaSeries);
-    }
-    for (auto & wiggleAreaSeries : _negativeWiggleSeries) {
-        _chart->removeSeries(wiggleAreaSeries);
-    }
-    std::cerr << _positiveWiggleSeries.size() << " " << _negativeWiggleSeries.size() << std::endl;
-    _positiveWiggleSeries.clear();
-    _negativeWiggleSeries.clear();
+void GraphicController::deleteAllWiggle() {
+  for (auto &wiggleAreaSeries : _positiveWiggleSeries) {
+    _chart->removeSeries(wiggleAreaSeries);
+  }
+  for (auto &wiggleAreaSeries : _negativeWiggleSeries) {
+    _chart->removeSeries(wiggleAreaSeries);
+  }
+  _positiveWiggleSeries.clear();
+  _negativeWiggleSeries.clear();
+  _isPositiveWiggleSet = false;
+  _isNegativeWiggleSet = false;
 }
 
-void GraphicController::setWiggle(const int status)
-{
-    if (status == 0) {
-        std::cerr << "delete all" << std::endl;
-        deleteAllWiggle();
-    }
+void GraphicController::setWiggle(const int status) {
+  if (status == 0) {
+    deleteAllWiggle();
+  }
 
-    if (status == 1) {
-        std::cerr << "add positive" << std::endl;
-        deleteAllWiggle();
-        addWiggle(true);
-    }
+  if (status == 1) {
+    deleteAllWiggle();
+    _isPositiveWiggleSet = true;
+    addWiggle(true);
+  }
 
-    if (status == 2) {
-        std::cerr << "add negative" << std::endl;
-
-        deleteAllWiggle();
-        addWiggle(false);
-    }
+  if (status == 2) {
+    deleteAllWiggle();
+    _isNegativeWiggleSet = true;
+    addWiggle(false);
+  }
 }
-
 
 void GraphicController::clear() {
   _view->chart()->removeAllSeries();
@@ -115,22 +109,19 @@ void GraphicController::clear() {
   _view->hide();
 }
 
-void GraphicController::hideAxisX(bool hide)
-{
-    _hideAxisX = hide;
-    updateSeries();
+void GraphicController::hideAxisX(bool hide) {
+  _hideAxisX = hide;
+  updateSeries();
 }
 
-void GraphicController::hideAxisY(bool hide)
-{
-    _hideAxisY = hide;
-    updateSeries();
+void GraphicController::hideAxisY(bool hide) {
+  _hideAxisY = hide;
+  updateSeries();
 }
 
-void GraphicController::hideAxisZ(bool hide)
-{
-    _hideAxisZ = hide;
-    updateSeries();
+void GraphicController::hideAxisZ(bool hide) {
+  _hideAxisZ = hide;
+  updateSeries();
 }
 
 void GraphicController::addWaveArrival(Data::SeismWavePick pick, int index) {
@@ -141,9 +132,11 @@ void GraphicController::addWaveArrival(Data::SeismWavePick pick, int index) {
   } else {
     color = Qt::darkBlue;
   }
-  _view->addPick(pick.getType(), QPointF(pick.getArrival() - 500, index), size,
-                 color, _rangeAxisX, pick.getPolarizationLeftBorder(),
-                 pick.getPolarizationRightBorder());
+  std::cerr << _rangeAxisX << std::endl;
+
+  _view->addPick(pick.getType(), QPointF((double) pick.getArrival() / MICROSECONDS_IN_SECOND - (double)500 / MICROSECONDS_IN_SECOND, index), size,
+                 color, _rangeAxisX, (double) pick.getPolarizationLeftBorder() / MICROSECONDS_IN_SECOND,
+                 (double) pick.getPolarizationRightBorder() / MICROSECONDS_IN_SECOND);
 }
 
 void GraphicController::setInterval(const std::unique_ptr<SeismEvent> &event) {
@@ -157,7 +150,7 @@ void GraphicController::setInterval(const std::unique_ptr<SeismEvent> &event) {
 
 void GraphicController::addTraceSeries(
     const std::unique_ptr<Data::SeismComponent> &component, int index) {
-  const float intervalAxisX = component->getSampleInterval();
+  const float intervalAxisX = component->getSampleInterval() / MICROSECONDS_IN_SECOND;
   const QColor color[] = {QColor(220, 20, 60), QColor(50, 205, 50),
                           QColor(65, 105, 225)};
   int idx = -1;
@@ -168,16 +161,15 @@ void GraphicController::addTraceSeries(
     SeismTrace *trace = component->getTraces().at(j).get();
     float tmp = 0;
     for (int k = 0; k < trace->getBufferSize(); k++) {
-      series->append(static_cast<qreal>(tmp),
-                     TRACE_OFFSET * (idx) +
-                         AMPLITUDE_SCALAR * trace->getBuffer()[k] * _gain / _norm +
-                         index);
+      series->append(
+          static_cast<qreal>(tmp),
+          TRACE_OFFSET * (idx) +
+              AMPLITUDE_SCALAR * trace->getBuffer()[k] * _gain / _norm + index);
       tmp += intervalAxisX;
     }
     _chart->addSeries(series);
-    connect(series, &QLineSeries::clicked, [this](const QPointF &pos) {
-       _view->mouseEvent(pos);
-    });
+    connect(series, &QLineSeries::clicked,
+            [this](const QPointF &pos) { _view->mouseEvent(pos); });
     series->setColor(color[j]);
     series->attachAxis(_axisX);
     series->attachAxis(_axisY);
@@ -185,83 +177,93 @@ void GraphicController::addTraceSeries(
   }
 }
 
-float GraphicController::findPointAroundZero(float zero, QPointF &from, QPointF &to)
-{
-    float k = (to.y() - from.y()) / (to.x() - from.x());
-    float b = (to.x() * from.y() - to.y() * from.x()) / (to.x() - from.x());
-    float zeroX = 1;
-    int index = 0;
-    while (zeroX <= 0.01) {
-        zeroX = ((to.y() - (to.y() - from.y()) / index) - b) / k;
-    }
-    return zeroX;
+double GraphicController::findPointAroundZero(int numberOfComponent, int idx,
+                                              QPointF &from, QPointF &to) {
+  double k = (to.y() - from.y()) / (to.x() - from.x());
+  double b = (to.x() * from.y() - to.y() * from.x()) / (to.x() - from.x());
+  return (static_cast<double>(TRACE_OFFSET * (idx) + numberOfComponent - b) /
+          k);
 }
 
+void GraphicController::addWiggle(bool flag) {
+  QList<QAreaSeries *> *areaSeries;
+  if (flag == true) {
+    areaSeries = &_positiveWiggleSeries;
+  } else {
+    areaSeries = &_negativeWiggleSeries;
+  }
 
-void GraphicController::addWiggle(bool flag)
-{
-    QList<QAreaSeries*> *areaSeries;
+  int idx = -1;
+  int numberOfComponent = 0;
+  for (auto series : _allSeries) {
+    double seriesYZeroCord = TRACE_OFFSET * (idx) + numberOfComponent;
+    QLineSeries *medianSeries = new QLineSeries();
+    medianSeries->setUseOpenGL(true);
+    medianSeries->append(0, seriesYZeroCord);
+    medianSeries->append(_rangeAxisX, seriesYZeroCord);
+    QLineSeries *newSeries = new QLineSeries;
+    newSeries->setUseOpenGL(true);
+    QPointF lp = series->at(0);
     if (flag == true) {
-        areaSeries = &_positiveWiggleSeries;
+      for (auto &point : series->points()) {
+        double x = point.x();
+        if (lp.y() < seriesYZeroCord && point.y() > seriesYZeroCord) {
+          x = findPointAroundZero(numberOfComponent, idx, lp, point);
+          newSeries->append(QPointF(x, seriesYZeroCord));
+        }
+        if (lp.y() > seriesYZeroCord && point.y() < seriesYZeroCord && point.y()) {
+            x = findPointAroundZero(numberOfComponent, idx, lp, point);
+            newSeries->append(x, seriesYZeroCord);
+        }
+        if (point.y() >= seriesYZeroCord) {
+          newSeries->append(point);
+        }
+        lp = point;
+      }
     } else {
-        areaSeries = &_negativeWiggleSeries;
+      for (auto &point : series->points()) {
+          double x = 0;
+          if (lp.y() > seriesYZeroCord && point.y() < seriesYZeroCord) {
+            x = findPointAroundZero(numberOfComponent, idx, lp, point);
+            newSeries->append(QPointF(x, seriesYZeroCord));
+          }
+          if (lp.y() < seriesYZeroCord && point.y() > seriesYZeroCord) {
+              x = findPointAroundZero(numberOfComponent, idx, lp, point);
+              newSeries->append(x, seriesYZeroCord);
+          }
+          if (point.y() <= seriesYZeroCord) {
+            newSeries->append(point);
+          }
+        lp = point;
+      }
     }
+    QAreaSeries *upperArea = new QAreaSeries();
+    upperArea->setUpperSeries(newSeries);
+    upperArea->setLowerSeries(medianSeries);
+    upperArea->setUseOpenGL(true);
+    settingAreaSeries(upperArea);
+    _chart->addSeries(upperArea);
+    upperArea->attachAxis(_axisX);
+    upperArea->attachAxis(_axisY);
+    areaSeries->append(upperArea);
+    if ((idx == -1 && _hideAxisX) || (idx == 0 && _hideAxisY) ||
+                       (idx == 1 && _hideAxisZ)) {
+    upperArea->hide();
+    }
+    idx++;
+    if (idx == 2) {
+      numberOfComponent++;
+      idx = -1;
+    }
+  }
+} // namespace EventOperation
 
-    int idx = -1;
-    int numberOfComponent = 0;
-    for (auto series : _allSeries) {
-        QLineSeries *medianSeries = new QLineSeries();
-        medianSeries->setUseOpenGL(true);
-        medianSeries->append(0, TRACE_OFFSET * (idx) + numberOfComponent);
-        medianSeries->append(_rangeAxisX, TRACE_OFFSET * (idx) + numberOfComponent);
-        QLineSeries *newSeries = new QLineSeries;
-        QPointF lp = series->at(0);
-        if (flag == true) {
-            for (auto &point : series->points()) {
-                if (point.y() > TRACE_OFFSET * (idx) + numberOfComponent) {
-                    newSeries->append(point);
-                } else {
-//                    float x = findPointAroundZero(0, lp, point);
-                    newSeries->append(QPointF(point.x(), TRACE_OFFSET * (idx) + numberOfComponent));
-                }
-                 lp = point;
-            }
-        } else {
-            for (auto &point : series->points()) {
-                if (point.y() < TRACE_OFFSET * (idx) + numberOfComponent) {
-                    newSeries->append(point);
-                } else {
-//                    float x = findPointAroundZero(0, lp, point);
-                    newSeries->append(QPointF(point.x(), TRACE_OFFSET * (idx) + numberOfComponent));
-                }
-                 lp = point;
-            }
-        }
-        QAreaSeries *upperArea = new QAreaSeries();
-        upperArea->setUpperSeries(newSeries);
-        upperArea->setLowerSeries(medianSeries);
-        upperArea->setUseOpenGL(true);
-        settingAreaSeries(upperArea);
-        _chart->addSeries(upperArea);
-        upperArea->attachAxis(_axisX);
-        upperArea->attachAxis(_axisY);
-        areaSeries->append(upperArea);
-
-        idx++;
-        if (idx == 2) {
-            numberOfComponent++;
-            idx = -1;
-        }
-}
-}
-
-void GraphicController::settingAreaSeries(QAreaSeries *series)
-{
-   QPen pen(0x059605);
-   pen.setWidth(1);
-   series->setPen(pen);
-   QBrush brush(Qt::black);
-   series->setBrush(brush);
+void GraphicController::settingAreaSeries(QAreaSeries *series) {
+  QPen pen(0x059605);
+  pen.setWidth(1);
+  series->setPen(pen);
+  QBrush brush(Qt::black);
+  series->setBrush(brush);
 }
 
 void GraphicController::setAxesY(int componentNumber) {
@@ -281,44 +283,54 @@ void GraphicController::getRangeX(
     for (auto &trace : component->getTraces()) {
       if (trace->getBufferSize() > _rangeAxisX) {
         maxCountElementInTrace = trace->getBufferSize();
-        sampleInterval = component->getSampleInterval();
+        sampleInterval = component->getSampleInterval() / MICROSECONDS_IN_SECOND;
       }
     }
   }
   _rangeAxisX = sampleInterval * maxCountElementInTrace;
 }
 
-void GraphicController::updateSeries()
-{
-    QList<QLineSeries*>::iterator seriesIterator = _allSeries.begin();
-    int componentNumber = 0;
-    float currentGain = _gain;
-    if (_clipping < _gain) {
-        currentGain = _clipping;
-    }
-    for (auto &component : _event->getComponents()) {
-        _norm = component->getMaxValue() / currentGain * NORMED;
-        int index = -1;
-        for (auto &trace : component->getTraces()) {
-            QList<QPointF> points;
-            QList<QPointF> oldPoints = seriesIterator.i->t()->points();
-            if ((index == -1 && !_hideAxisX) || (index == 0 && !_hideAxisY) || (index == 1 && !_hideAxisZ)) {
-                for (int k = 0; k < trace->getBufferSize(); k++) {
-                    float newYValue = trace->getBuffer()[k] * currentGain / _norm;
-                    points.append(QPointF(oldPoints.at(k).x(),
-                                   TRACE_OFFSET * (index) +
-                                       AMPLITUDE_SCALAR * newYValue + componentNumber));
-            }
-            seriesIterator.i->t()->replace(points);
-            seriesIterator.i->t()->show();
-            } else {
-                seriesIterator.i->t()->hide();
-            }
-            seriesIterator++;
-            index++;
+void GraphicController::updateSeries() {
+  QList<QLineSeries *>::iterator seriesIterator = _allSeries.begin();
+  int componentNumber = 0;
+  float currentGain = _gain;
+  if (_clipping < _gain) {
+    currentGain = _clipping;
+  }
+  for (auto &component : _event->getComponents()) {
+    _norm = component->getMaxValue() / currentGain * NORMED;
+    int index = -1;
+    for (auto &trace : component->getTraces()) {
+      QList<QPointF> points;
+      QList<QPointF> oldPoints = seriesIterator.i->t()->points();
+      if ((index == -1 && !_hideAxisX) || (index == 0 && !_hideAxisY) ||
+          (index == 1 && !_hideAxisZ)) {
+        for (int k = 0; k < trace->getBufferSize(); k++) {
+          float newYValue = trace->getBuffer()[k] * currentGain / _norm;
+          points.append(
+              QPointF(oldPoints.at(k).x(), TRACE_OFFSET * (index) +
+                                               AMPLITUDE_SCALAR * newYValue +
+                                               componentNumber));
         }
-        componentNumber++;
+        seriesIterator.i->t()->replace(points);
+        seriesIterator.i->t()->show();
+      } else {
+        seriesIterator.i->t()->hide();
+      }
+      seriesIterator++;
+      index++;
     }
+    componentNumber++;
+  }
+
+  if (_isPositiveWiggleSet) {
+      deleteAllWiggle();
+      setWiggle(1);
+  }
+  if (_isNegativeWiggleSet) {
+      deleteAllWiggle();
+      setWiggle(2);
+  }
 }
 
 } // namespace EventOperation

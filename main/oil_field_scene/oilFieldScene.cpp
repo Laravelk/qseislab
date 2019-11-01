@@ -24,6 +24,7 @@ OilFieldScene::OilFieldScene(Q3DSurface *surface)
 }
 
 void OilFieldScene::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
+  //  if (event->isProcessed()) {
   float x, y, z;
   std::tie(x, y, z) = event->getLocation();
   QVector3D position(x, z, y);
@@ -36,6 +37,7 @@ void OilFieldScene::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
   _surface->addCustomItem(item);
   checkAxisRange(*item);
   _events.insert(std::pair<Uuid, QCustom3DItem *>(event->getUuid(), item));
+  //  }
 }
 
 void OilFieldScene::addHorizon(
@@ -97,28 +99,24 @@ void OilFieldScene::addWell(const std::unique_ptr<Data::SeismWell> &well) {
   }
 }
 
-bool OilFieldScene::showEvent(QUuid uid) {
-  if (_events.at(uid)) {
+bool OilFieldScene::showEvent(const QUuid &uid) {
+  if (_events.end() != _events.find(uid)) {
     _events.at(uid)->setVisible(true);
     return true;
   }
   return false;
 }
 
-bool OilFieldScene::showEvent(std::unique_ptr<Data::SeismEvent> &event) {
-  if (_events.at(event->getUuid())) {
-    _events.at(event->getUuid())->setVisible(true);
-    return true;
-  }
-  return false;
-}
+// bool OilFieldScene::showEvent(const std::unique_ptr<Data::SeismEvent> &event)
+// {
+//  showEvent(event->getUuid());
+//}
 
 void OilFieldScene::setProject(
     const std::unique_ptr<Data::SeismProject> &project) {
-  //  for (auto &uuid_event : project->getAllMap<SeismEvent>()) {
-  //    addEvent(uuid_event.second);
-  //    showEvent(uuid_event.first);
-  //  }
+  for (auto &uuid_event : project->getAllMap<SeismEvent>()) {
+    addEvent(uuid_event.second);
+  }
   for (auto &uuid_horizon : project->getAllMap<SeismHorizon>()) {
     addHorizon(uuid_horizon.second);
   }
@@ -130,141 +128,142 @@ void OilFieldScene::setProject(
   }
 }
 
-bool OilFieldScene::removeEvent(
-    const std::unique_ptr<Data::SeismEvent> &event) {
-  Uuid uid = event.get()->getUuid();
-  return removeEvent(uid);
-}
+// bool OilFieldScene::removeEvent(
+//    const std::unique_ptr<Data::SeismEvent> &event) {
+//  return removeEvent(event->getUuid());
+//}
 
 bool OilFieldScene::removeEvent(const Uuid &uid) {
-  QCustom3DItem *item = _events[uid];
-  if (item == _isItemHanlde) {
-    _isHandle = false;
-    _surface->removeCustomItemAt(_label->position());
-  }
-  QVector3D position = item->position();
-  if (_events.erase(uid)) {
-    _surface->removeCustomItemAt(position);
+  if (_events.end() != _events.find(uid)) {
+    QCustom3DItem *item = _events[uid];
+    if (item == _isItemHanlde) {
+      removeItemHandle();
+    }
+    _surface->removeCustomItem(item);
+    _events.erase(uid);
     return true;
   }
   return false;
 }
 
-bool OilFieldScene::removeHorizon(
-    const std::unique_ptr<Data::SeismHorizon> &horizon) {
-  return removeHorizon(horizon.get()->getUuid());
-}
+// bool OilFieldScene::removeHorizon(
+//    const std::unique_ptr<Data::SeismHorizon> &horizon) {
+//  return removeHorizon(horizon->getUuid());
+//}
 
 bool OilFieldScene::removeHorizon(const Uuid &uid) {
-  QSurface3DSeries *series = _horizons[uid];
-  if (_horizons.erase(uid)) {
-    _surface->removeSeries(series);
+  if (_horizons.end() != _horizons.find(uid)) {
+    _surface->removeSeries(_horizons.at(uid));
+    _horizons.erase(uid);
     return true;
   }
   return false;
+
+  //  QSurface3DSeries *series = ;
+  //  if (_horizons.erase(uid)) {
+  //    _horizons.erase(uid);
+  //    return true;
+  //  }
+  //  return false;
 }
 
-bool OilFieldScene::removeReceiver(
-    const std::unique_ptr<Data::SeismReceiver> &receiver) {
-  return removeReceiver(receiver.get()->getUuid());
-}
+// bool OilFieldScene::removeReceiver(
+//    const std::unique_ptr<Data::SeismReceiver> &receiver) {
+//  return removeReceiver(receiver->getUuid());
+//}
 
 bool OilFieldScene::removeReceiver(const Uuid &uid) {
-  QCustom3DItem *item = _receivers[uid];
-  if (_receivers.erase(uid)) {
+  if (_receivers.end() != _receivers.find(uid)) {
+    QCustom3DItem *item = _receivers[uid];
+    if (item == _isItemHanlde) {
+      removeItemHandle();
+    }
     _surface->removeCustomItem(item);
+    _receivers.erase(uid);
     return true;
   }
   return false;
 }
 
-bool OilFieldScene::removeWell(const std::unique_ptr<Data::SeismWell> &well) {
-  return removeWell(well.get()->getUuid());
-}
+// bool OilFieldScene::removeWell(const std::unique_ptr<Data::SeismWell> &well)
+// {
+//  return removeWell(well->getUuid());
+//}
 
 bool OilFieldScene::removeWell(const Uuid &uid) {
-  std::vector<QCustom3DItem *> v = _wells[uid];
-  if (_wells.erase(uid)) {
-    for (auto &it : v) {
-      _surface->removeCustomItem(it);
+  if (_wells.end() != _wells.find(uid)) {
+    for (auto &item : _wells[uid]) {
+      if (item == _isItemHanlde) {
+        removeItemHandle();
+      }
+      _surface->removeCustomItem(item);
     }
+    _wells.erase(uid);
     return true;
   }
   return false;
 }
 
-bool OilFieldScene::hideEvent(QUuid uid) {
-  if (_events.at(uid)) {
-    _events.at(uid)->setVisible(true);
-  }
-  return false;
-}
-
-bool OilFieldScene::hideEvent(std::unique_ptr<Data::SeismEvent> &event) {
-  if (_events.at(event->getUuid())) {
-    _events.at(event->getUuid())->setVisible(true);
+bool OilFieldScene::hideEvent(const QUuid &uid) {
+  if (_events.end() != _events.find(uid)) {
+    auto event = _events.at(uid);
+    if (event == _isItemHanlde) {
+      removeItemHandle();
+    }
+    event->setVisible(false);
     return true;
   }
   return false;
 }
+
+// bool OilFieldScene::hideEvent(const std::unique_ptr<Data::SeismEvent> &event)
+// {
+//  if (_events.at(event->getUuid())) {
+//    _events.at(event->getUuid())->setVisible(true);
+//    return true;
+//  }
+//  return false;
+//}
 
 void OilFieldScene::hideAllEvent(bool hide) {
-  if (hide) {
-    _isEventsHide = true;
-    for (auto &event : _events) {
-      event.second->setVisible(false);
+  _isEventsHide = hide;
+  for (auto &uid_event : _events) {
+    auto event = uid_event.second;
+    if (event == _isItemHanlde) {
+      removeItemHandle();
     }
-  } else {
-    _isEventsHide = false;
-    for (auto &event : _events) {
-      event.second->setVisible(true);
-    }
+    event->setVisible(!hide);
   }
 }
 
 void OilFieldScene::hideAllWell(bool hide) {
-  if (hide) {
-    _isWellsHide = true;
-    for (auto &well : _wells) {
-      for (auto &wellPart : well.second) {
-        wellPart->setVisible(false);
+  _isWellsHide = hide;
+  for (auto &well : _wells) {
+    for (auto &wellPart : well.second) {
+      if (wellPart == _isItemHanlde) {
+        removeItemHandle();
       }
-    }
-  } else {
-    _isWellsHide = false;
-    for (auto &well : _wells) {
-      for (auto &wellPart : well.second) {
-        wellPart->setVisible(true);
-      }
+      wellPart->setVisible(!hide);
     }
   }
 }
 
 void OilFieldScene::hideAllReceiver(bool hide) {
-  if (hide) {
-    _isReceiversHide = true;
-    for (auto &receiver : _receivers) {
-      receiver.second->setVisible(false);
+  _isReceiversHide = hide;
+  for (auto &uid_receiver : _receivers) {
+    auto receiver = uid_receiver.second;
+    if (receiver == _isItemHanlde) {
+      removeItemHandle();
+      //      _surface->removeCustomItemAt(_label->position());
     }
-  } else {
-    _isReceiversHide = false;
-    for (auto &receiver : _receivers) {
-      receiver.second->setVisible(true);
-    }
+    receiver->setVisible(!hide);
   }
 }
 
 void OilFieldScene::hideAllHorizon(bool hide) {
-  if (hide) {
-    _isHorizonsHide = true;
-    for (auto &horizon : _horizons) {
-      horizon.second->setVisible(false);
-    }
-  } else {
-    _isHorizonsHide = false;
-    for (auto &horizon : _horizons) {
-      horizon.second->setVisible(true);
-    }
+  _isHorizonsHide = hide;
+  for (auto &horizon : _horizons) {
+    horizon.second->setVisible(!hide);
   }
 }
 
@@ -276,13 +275,21 @@ const std::map<Uuid, QSurface3DSeries *> OilFieldScene::getHorizons() const {
   return _horizons;
 }
 
+void OilFieldScene::removeItemHandle() {
+  assert(nullptr != _isItemHanlde && nullptr != _label);
+  _surface->removeCustomItemAt(_label->position());
+  _isItemHanlde = nullptr;
+  _label = nullptr;
+  _isHandle = false;
+}
+
 void OilFieldScene::handleElementSelected(QAbstract3DGraph::ElementType type) {
   if (type == QAbstract3DGraph::ElementCustomItem) {
     QCustom3DItem *item = _surface->selectedCustomItem();
-    _isItemHanlde = item;
     if (_isHandle) {
-      _surface->removeCustomItemAt(_label->position());
+      removeItemHandle();
     }
+    _isItemHanlde = item;
     QVector3D sizeOfLabel(1.0f, 1.0f, 0.0f);
     QVector3D positionOfLabel;
     positionOfLabel.setX(

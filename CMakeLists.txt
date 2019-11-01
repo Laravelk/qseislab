@@ -50,8 +50,8 @@ set(SOURCES
         event_operation/view/common_view/infoevent.cpp
         event_operation/view/common_view/graphiccontroller.cpp
         event_operation/view/common_view/chartgesture.cpp
-    event_operation/view/common_view/graphic_view/pipes2dname.cpp
-    event_operation/view/common_view/3dscene/polarizationanalysiswindow.cpp
+        event_operation/view/common_view/graphic_view/pipes2dname.cpp
+        event_operation/view/common_view/3dscene/polarizationanalysiswindow.cpp
 
 
         horizon_operation/controller.cpp
@@ -65,6 +65,7 @@ set(SOURCES
         receiver_operation/model.cpp
         receiver_operation/CSVparser.cpp
         receiver_operation/view/view.cpp
+        receiver_operation/view/totalchannelcounter.cpp
         receiver_operation/view/inforeceiver.cpp
         receiver_operation/view/addreceivermanager.cpp
 
@@ -103,6 +104,7 @@ set(SOURCES
         main/oil_field_scene/oilfieldscene.cpp
 
         share_view/tableassistant.cpp
+        share_view/filteringtableassistant.cpp
         share_view/parsing/evaluateExpr.cpp
 
         project_operation/new_project/controller.cpp
@@ -147,6 +149,7 @@ set(HEADERS
         receiver_operation/model.h
         receiver_operation/CSVparser.hpp
         receiver_operation/view/view.h
+        receiver_operation/view/totalchannelcounter.h
         receiver_operation/view/inforeceiver.h
         receiver_operation/view/addreceivermanager.h
 
@@ -187,6 +190,7 @@ set(HEADERS
         main/oil_field_scene/oilfieldscene.h
 
         share_view/tableassistant.h
+        share_view/filteringtableassistant.h
         share_view/parsing/evaluateExpr.h
         share_view/parsing/parser.h
 

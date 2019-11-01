@@ -41,11 +41,6 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
   if (0 >= leftBorderPos) {
     leftBorderPos = 1;
   }
-
-  //  if (rightBorderXOffset >= rangeX) {
-  //    rightBorderXOffset = rangeX - 1;
-  //  }
-
   WavePick *leftBorder =
       new WavePick(type, rect, chart(), QPointF(leftBorderPos, pos.y()), size,
                    borderBrush, 0, pick);
@@ -54,20 +49,20 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
                    borderBrush, pick, rangeX);
   connect(pick, &WavePick::changed, [this, pick, leftBorder, rightBorder]() {
     emit sendPicksInfo(pick->getType(), pick->getComponentNumber(),
-                       leftBorder->getXPos(), pick->getXPos(),
-                       rightBorder->getXPos());
+                       leftBorder->getXPos() * MICROSECONDS_IN_SECOND, pick->getXPos() * MICROSECONDS_IN_SECOND,
+                       rightBorder->getXPos() * MICROSECONDS_IN_SECOND);
   });
   connect(leftBorder, &WavePick::changed,
           [this, pick, leftBorder, rightBorder]() {
             emit sendPicksInfo(pick->getType(), pick->getComponentNumber(),
-                               leftBorder->getXPos(), pick->getXPos(),
-                               rightBorder->getXPos());
+                               leftBorder->getXPos() * MICROSECONDS_IN_SECOND, pick->getXPos() * MICROSECONDS_IN_SECOND,
+                               rightBorder->getXPos() * MICROSECONDS_IN_SECOND);
           });
   connect(rightBorder, &WavePick::changed,
           [this, pick, leftBorder, rightBorder]() {
             emit sendPicksInfo(pick->getType(), pick->getComponentNumber(),
-                               leftBorder->getXPos(), pick->getXPos(),
-                               rightBorder->getXPos());
+                               leftBorder->getXPos() * MICROSECONDS_IN_SECOND, pick->getXPos() * MICROSECONDS_IN_SECOND,
+                               rightBorder->getXPos() * MICROSECONDS_IN_SECOND);
           });
 
   pick->setBorders(leftBorder, rightBorder);
@@ -107,7 +102,7 @@ void GraphicView::mousePressEvent(QMouseEvent *event) {
     if (checkAvailability(Data::SeismWavePick::PWAVE,
                           static_cast<int>(pos.y()))) {
       addPick(Data::SeismWavePick::PWAVE, pos, QSize(2, 40), Qt::darkRed,
-              _rangeX, pos.x() - 20000, pos.x() + 20000);
+              _rangeX, pos.x() - 20000 / 1000000, pos.x() + 20000 / 1000000);
     }
     _isAddPWaveTriggerPressed = false;
   }
@@ -117,7 +112,7 @@ void GraphicView::mousePressEvent(QMouseEvent *event) {
     if (checkAvailability(Data::SeismWavePick::SWAVE,
                           static_cast<int>(pos.y()))) {
       addPick(Data::SeismWavePick::SWAVE, pos, QSize(2, 40), Qt::darkRed,
-              _rangeX, pos.x() - 20000, pos.x() + 20000);
+              _rangeX, pos.x() - 20000 / 1000000, pos.x() + 20000 / 1000000);
     }
     _isAddSWaveTriggerPressed = false;
   }
@@ -249,14 +244,14 @@ void GraphicView::scaleContentsBy(qreal factor) {
 
 QPointF GraphicView::calculatePickPosition(QPointF pointByMouse) {
   if (pointByMouse.y() > _countOfComponents - 1) {
-    return QPointF(pointByMouse.x() - 500, _countOfComponents - 1);
+    return QPointF(pointByMouse.x() - 500 / 1000000, _countOfComponents - 1);
   }
 
   if (pointByMouse.y() < 0) {
-    return QPointF(pointByMouse.x() - 500, 0);
+    return QPointF(pointByMouse.x() - 500 / 1000000, 0);
   }
 
-  return QPointF(pointByMouse.x() - 500, round(pointByMouse.y()));
+  return QPointF(pointByMouse.x() - 500 / 1000000, round(pointByMouse.y()));
 }
 
 bool GraphicView::checkAvailability(Data::SeismWavePick::Type type, int index) {

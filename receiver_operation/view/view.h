@@ -1,10 +1,10 @@
 #pragma once
 
 #include "addreceivermanager.h"
+#include "share_view/tableassistant.h"
 
 #include <QDialog>
 #include <QLabel>
-#include <QTableWidget>
 
 #include <memory>
 
@@ -13,6 +13,7 @@ class SeismReceiver;
 }
 
 namespace ReceiverOperation {
+class TotalChannelCounter;
 class View : public QDialog {
   Q_OBJECT
 
@@ -34,23 +35,19 @@ signals:
   void receiverClicked(const QUuid &) const;
   void sendCsvFilePath(const QString &) const;
   void addReceiverClicked() const;
-  void removeReceiverClicked(const QUuid) const;
+  void removeReceiverClicked(const QUuid &) const;
 
 private slots:
   void handleFromCsvClicked();
   void handleAddReceiverClicked();
-  void handleReceiverClicked(int, int);
+  //  void handleReceiverClicked(int, int);
 
   void finishReceiverManager(int);
 
 private:
-  static const int remove_receiver_col;
-
-  void initReceiversTable(QTableWidget *);
-  void insertReceiverInTable(const std::unique_ptr<Data::SeismReceiver> &);
-
-  QLabel *_totalChannelNumLabel;
-  QTableWidget *_receiversTable;
+  //  QLabel *_totalChannelNumLabel;
+  TotalChannelCounter *_channelCounter;
+  TableAssistant *_receiversTable;
   QPushButton *_saveButton;
 
   std::unique_ptr<AddReceiverManager> _addReceiverManager;

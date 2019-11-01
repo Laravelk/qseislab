@@ -1,9 +1,9 @@
 #pragma once
 
 #include "addwellmanager.h"
+#include "share_view/tableassistant.h"
 
 #include <QDialog>
-#include <QTableWidget>
 
 #include <memory>
 
@@ -31,17 +31,13 @@ public:
 signals:
   void addWellClicked();
   void sendFilePath(const QString &);
-  void removeWellClicked(const QUuid) const;
+  void removeWellClicked(const QUuid &) const;
 
 private slots:
   void handleAddWellClicked();
-  void handleWellClicked(int, int);
 
 private:
-  void initWellsTable(QTableWidget *);
-  void insertWellInTable(const std::unique_ptr<Data::SeismWell> &);
-
-  QTableWidget *_wellsTable;
+  TableAssistant *_wellsTable;
   QPushButton *_saveButton;
 
   std::unique_ptr<AddWellManager> _addWellManager;

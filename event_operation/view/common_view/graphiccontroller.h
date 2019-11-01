@@ -1,8 +1,8 @@
 #pragma once
 
 #include "chartgesture.h"
-#include "graphic_view/graphic_view.h"
 #include "data/seismevent.h"
+#include "graphic_view/graphic_view.h"
 
 #include <QtCharts>
 
@@ -45,12 +45,14 @@ private:
   bool _hideAxisX = false;
   bool _hideAxisY = false;
   bool _hideAxisZ = false;
+  bool _isPositiveWiggleSet = false;
+  bool _isNegativeWiggleSet = false;
   GraphicView *_view;
   ChartGesture *_chart;
   QValueAxis *_axisX = new QValueAxis;
   QValueAxis *_axisY = new QValueAxis;
-  QList<QAreaSeries*>_positiveWiggleSeries;
-  QList<QAreaSeries*>_negativeWiggleSeries;
+  QList<QAreaSeries *> _positiveWiggleSeries;
+  QList<QAreaSeries *> _negativeWiggleSeries;
 
   QList<QLineSeries *> _allSeries;
 
@@ -62,7 +64,7 @@ private:
   void setAxesY(int);
   void getRangeX(const std::unique_ptr<Data::SeismEvent> &);
   void updateSeries();
-  float findPointAroundZero(float zero, QPointF &, QPointF&);
+  double findPointAroundZero(int, int, QPointF &, QPointF &);
   void deleteAllWiggle();
 
 signals:
@@ -74,6 +76,8 @@ private:
   const float NORMED = 2.1f;
   const int GRAPH_WIDHT = 750;
   const int GRAPH_HEIGHT = 470;
+  const int MICROSECONDS_IN_SECOND = 1000000;
+  const int MICROSECONDS_IN_MILISECOND = 1000;
 };
 
 } // namespace EventOperation

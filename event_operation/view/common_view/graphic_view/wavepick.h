@@ -33,7 +33,7 @@ public:
 
   void updateGeometry();
 
-  int getXPos() { return static_cast<int>(_anchor.x()); }
+  qreal getXPos() { return _anchor.x(); }
   void setLeftBorder(std::variant<WavePick *, qreal>);
   void setRightBorder(std::variant<WavePick *, qreal>);
   void setBorders(std::variant<WavePick *, qreal>,
