@@ -68,12 +68,6 @@ private:
   QPushButton *_okButton;
   QPushButton *_cancelButton;
 
-  //  QPushButton *_addWaveButton;
-  //  QPushButton *_polarizationEventButton;
-
-  //  QAction *_addPWave;
-  //  QAction *_addSWave;
-
   std::set<QString> _globalEventNames;
   std::map<QString, int> _localEventNames;
 };

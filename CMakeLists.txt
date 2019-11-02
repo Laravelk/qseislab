@@ -45,8 +45,6 @@ set(SOURCES
         event_operation/one_event/view/view.cpp
 
         event_operation/more_events/controller.cpp
-#        event_operation/more_events/view/filemanager.cpp
-#        event_operation/more_events/view/wellmanager.cpp
         event_operation/more_events/view/view.cpp
 
         event_operation/share/model.cpp
@@ -58,20 +56,10 @@ set(SOURCES
         event_operation/share/view/graphic_view/pipes2dname.cpp
         event_operation/share/view/3dscene/polarizationanalysiswindow.cpp
 
-#        event_operation/controller.cpp
-#        event_operation/model.cpp
-#        event_operation/view/filemanager.cpp
-#        event_operation/view/wellmanager.cpp
-#        event_operation/view/view.cpp
-
-#        event_operation/view/common_view/graphic_view/graphic_view.cpp
-#        event_operation/view/common_view/graphic_view/wavepick.cpp
-#        event_operation/view/common_view/infoevent.cpp
-#        event_operation/view/common_view/graphiccontroller.cpp
-#        event_operation/view/common_view/chartgesture.cpp
-#        event_operation/view/common_view/graphic_view/pipes2dname.cpp
-#        event_operation/view/common_view/3dscene/polarizationanalysiswindow.cpp
-
+        event_operation/share/view/tools_view/wigglewidget.cpp
+        event_operation/share/view/tools_view/hidecomponentwidget.cpp
+        event_operation/share/view/tools_view/clippingwidget.cpp
+        event_operation/share/view/tools_view/gainwidget.cpp
 
 
         horizon_operation/controller.cpp
@@ -120,7 +108,6 @@ set(SOURCES
         main/view/workpage.cpp
         main/view/infoproject.cpp
 
-#        main/surface_view/surface.cpp
         main/oil_field_scene/oilfieldscene.cpp
 
         share_view/tableassistant.cpp
@@ -149,8 +136,6 @@ set(HEADERS
         event_operation/one_event/view/view.h
 
         event_operation/more_events/controller.h
-#        event_operation/more_events/view/filemanager.h
-#        event_operation/more_events/view/wellmanager.h
         event_operation/more_events/view/view.h
 
         event_operation/share/model.h
@@ -161,6 +146,11 @@ set(HEADERS
         event_operation/share/view/chartgesture.h
         event_operation/share/view/graphic_view/pipes2dname.h
         event_operation/share/view/3dscene/polarizationanalysiswindow.h
+
+        event_operation/share/view/tools_view/wigglewidget.h
+        event_operation/share/view/tools_view/hidecomponentwidget.h
+        event_operation/share/view/tools_view/clippingwidget.h
+        event_operation/share/view/tools_view/gainwidget.h
 
 
         horizon_operation/controller.h

@@ -13,6 +13,10 @@ class SeismTrace;
 } // namespace Data
 
 namespace EventOperation {
+class WiggleWidget;
+class HideComponentWidget;
+class ClippingWidget;
+class GainWidget;
 class GraphicController : public QFrame {
   Q_OBJECT
 public:
@@ -24,6 +28,7 @@ public:
   void setView(GraphicView *view) { _view = view; }
 
   void update(const std::unique_ptr<Data::SeismEvent> &);
+  void updateEventName(const QString &);
   void setGainCoefficient(const float gainCoefficient);
   void setClippingValue(const float clippingValue);
   void setWiggle(const int status);
@@ -83,17 +88,26 @@ private:
   const int MICROSECONDS_IN_MILISECOND = 1000;
 
 private:
-  void settingGraphicMenu();
-  void showGraphicMenu();
-  void hideGraphicMenu();
-  void settingWiggleButton();
-  void insertRowInComponentsHideTable(const QString &, int);
+  void showToolsMenu();
+  void hideToolsMenu();
 
-  QSlider *_clippingSlider;
-  QSlider *_gainSlider;
-  QLabel *_clippintSliderLabel;
-  QLabel *_gainSliderLabel;
-  QTableWidget *_hideComponentsTable;
+  //  void settingGraphicMenu();
+  //  void showGraphicMenu();
+  //  void hideGraphicMenu();
+  //  void settingWiggleButton();
+  //  void insertRowInComponentsHideTable(const QString &, int);
+
+  WiggleWidget *_wiggleWidget;
+  HideComponentWidget *_hideComponentWidget;
+  ClippingWidget *_clippingWidget;
+  GainWidget *_gainWidget;
+
+  //  QSlider *_clippingSlider;
+  //  QSlider *_gainSlider;
+  //  QLabel *_clippintSliderLabel;
+  //  QLabel *_gainSliderLabel;
+
+  //  QTableWidget *_hideComponentsTable;
 
   QPushButton *_addWaveButton;
   QAction *_addPWave;
@@ -101,9 +115,9 @@ private:
 
   QPushButton *_polarizationEventButton;
 
-  QRadioButton *_noneWiggle;
-  QRadioButton *_positiveWiggle;
-  QRadioButton *_negativeWiggle;
+  //  QRadioButton *_noneWiggle;
+  //  QRadioButton *_positiveWiggle;
+  //  QRadioButton *_negativeWiggle;
 };
 
 } // namespace EventOperation
