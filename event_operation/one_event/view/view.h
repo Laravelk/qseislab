@@ -19,6 +19,7 @@ class SeismWell;
 } // namespace Data
 
 namespace EventOperation {
+class EventToolsWidget;
 class InfoEvent;
 class GraphicController;
 class ChartGesture;
@@ -46,9 +47,14 @@ signals:
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
   void createPolarizationAnalysisWindow();
 
+  // tool-signals
+  void dataToEBasisClicked() const;
+
 private:
   void commonSetting();
   void updateRepetition(const QString &);
+
+  EventToolsWidget *_toolsWidget;
 
   InfoEvent *_infoEvent;
   QVBoxLayout *_wellManagersLayout;

@@ -10,7 +10,7 @@ FileManager::FileManager(QWidget *parent)
       _browseButton(new QPushButton("Browse", this)),
       _fileDialog(new QFileDialog(this)) {
 
-  setFixedWidth(250);
+  //  setFixedWidth(250);
   setFrameStyle(1);
 
   _fileName->setMinimumWidth(100);

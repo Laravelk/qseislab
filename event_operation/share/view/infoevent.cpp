@@ -14,7 +14,7 @@ InfoEvent::InfoEvent(QWidget *parent)
       _sWavePickAmountLabel(new QLabel()), _addedDateLabel(new QLabel()),
       _addedTimeLabel(new QLabel()) {
 
-  setFixedWidth(250);
+  //  setFixedWidth(250);
   setFrameStyle(1);
 
   _stampDateEdit->setMinimumDate(QDate::currentDate().addDays(-365));

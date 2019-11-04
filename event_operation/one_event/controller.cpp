@@ -2,6 +2,7 @@
 
 #include "data/seismevent.h"
 #include "data/seismwell.h"
+#include "event_operation/eventtools.h"
 #include "event_operation/share/model.h"
 #include "event_operation/share/view/3dscene/polarizationanalysiswindow.h"
 
@@ -86,6 +87,9 @@ Controller::Controller(
             }
           });
 
+  connect(_view.get(), &View::dataToEBasisClicked,
+          [this]() { EventTools::dataToEBasis(_event); });
+
   connect(_view.get(), &View::finished, this, &Controller::finish);
 }
 
@@ -133,6 +137,9 @@ Controller::Controller(
               ++idx;
             }
           });
+
+  connect(_view.get(), &View::dataToEBasisClicked,
+          [this]() { EventTools::dataToEBasis(_event); });
 
   connect(_view.get(), &View::finished, this, &Controller::finish);
 }

@@ -41,6 +41,8 @@ find_package(Eigen3 REQUIRED)
 
 
 set(SOURCES
+        event_operation/eventtools.cpp
+
         event_operation/one_event/controller.cpp
         event_operation/one_event/view/filemanager.cpp
         event_operation/one_event/view/wellmanager.cpp
@@ -55,6 +57,7 @@ set(SOURCES
         event_operation/share/view/infoevent.cpp
         event_operation/share/view/graphiccontroller.cpp
         event_operation/share/view/chartgesture.cpp
+        event_operation/share/view/eventtoolswidget.cpp
         event_operation/share/view/graphic_view/pipes2dname.cpp
         event_operation/share/view/3dscene/polarizationanalysiswindow.cpp
 
@@ -133,6 +136,8 @@ set(SOURCES
 )
 
 set(HEADERS
+        event_operation/eventtools.h
+
         event_operation/one_event/controller.h
         event_operation/one_event/view/filemanager.h
         event_operation/one_event/view/wellmanager.h
@@ -147,6 +152,7 @@ set(HEADERS
         event_operation/share/view/infoevent.h
         event_operation/share/view/graphiccontroller.h
         event_operation/share/view/chartgesture.h
+        event_operation/share/view/eventtoolswidget.h
         event_operation/share/view/graphic_view/pipes2dname.h
         event_operation/share/view/3dscene/polarizationanalysiswindow.h
 
