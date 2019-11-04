@@ -51,6 +51,7 @@ PolarizationAnalysisWindow::PolarizationAnalysisWindow(
       _cancelButton(new QPushButton("Cancel")), _receiverBox(new QComboBox),
       _waveTypeBox(new QComboBox), _view(new Qt3DExtras::Qt3DWindow),
       _scene(new Qt3DCore::QEntity()), _event(event.get()) {
+
   _container = QWidget::createWindowContainer(_view);
   setMinimumSize(900, 500);
 

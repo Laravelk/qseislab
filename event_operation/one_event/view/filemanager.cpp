@@ -19,7 +19,7 @@ FileManager::FileManager(QWidget *parent)
 
   _fileDialog->setFileMode(QFileDialog::ExistingFile);
   _fileDialog->setOption(QFileDialog::DontResolveSymlinks);
-  _fileDialog->setNameFilter("*.segy, *.sgy");
+  _fileDialog->setNameFilter("*.segy *.sgy");
   //    _fileDialog->setDirectory(QDir::home());
 
   connect(_browseButton, &QPushButton::clicked, [this] {

@@ -81,13 +81,16 @@ void AddHorizonManager::update(
     return;
   }
   _nameLineEdit->setText(horizon->getName());
-  _NxLineEdit->setText(QString::number(horizon->getNx()));
-  _NyLineEdit->setText(QString::number(horizon->getNy()));
   _pointAmountLabel->setNum(horizon->getPointsAmount());
-  _addButton->setDisabled(false);
-  _nameLineEdit->setDisabled(false);
-  _NxLineEdit->setDisabled(false);
-  _NyLineEdit->setDisabled(false);
+  _addButton->setEnabled(true);
+  _nameLineEdit->setEnabled(true);
+
+  const int Nx = horizon->getNx();
+  const int Ny = horizon->getNy();
+  _NxLineEdit->setText(QString::number(Nx));
+  _NyLineEdit->setText(QString::number(Ny));
+  _NxLineEdit->setDisabled(0 < Nx);
+  _NyLineEdit->setDisabled(0 < Ny);
 }
 
 void AddHorizonManager::settingHorizonInfo(

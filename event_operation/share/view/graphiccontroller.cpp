@@ -51,7 +51,6 @@ GraphicController::GraphicController(QWidget *parent)
   addWaveButtonMenu->addAction(_addPWave);
   addWaveButtonMenu->addAction(_addSWave);
   _addWaveButton->setMenu(addWaveButtonMenu);
-  _addWaveButton->hide();
 
   // conect`s
   connect(_polarizationEventButton, &QPushButton::clicked,

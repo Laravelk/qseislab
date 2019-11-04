@@ -99,6 +99,7 @@ set(SOURCES
         data/io/seismcomponentwriter.cpp
         data/io/pointreader.cpp
         data/io/pointwriter.cpp
+        data/io/horizonreadergrd.cpp
 
         main.cpp
 
@@ -193,6 +194,7 @@ set(HEADERS
         data/io/seismcomponentwriter.h
         data/io/pointreader.h
         data/io/pointwriter.h
+        data/io/horizonreadergrd.h
 
         main/controller.h
         main/view/view.h

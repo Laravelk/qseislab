@@ -32,7 +32,7 @@ View::View(const std::set<QString> &globalEventNames,
 
   _fileDialog->setFileMode(QFileDialog::ExistingFiles);
   _fileDialog->setOption(QFileDialog::DontResolveSymlinks);
-  _fileDialog->setNameFilter("*.segy, *.sgy");
+  _fileDialog->setNameFilter("*.segy *.sgy");
 
   _wellNames->addItem("Select Owner_Array...");
   for (auto &uuid_name : wellNames_map) {
@@ -126,6 +126,10 @@ View::View(const std::set<QString> &globalEventNames,
           [this](auto type, auto num, auto l_val, auto pick_val, auto r_val) {
             emit sendPicksInfo(type, num, l_val, pick_val, r_val);
           });
+  connect(_graphicEvent,
+          &EventOperation::GraphicController::
+              createPolarizationAnalysisWindowClicked,
+          [this]() { emit createPolarizationAnalysisWindow(); });
   connect(_okButton, &QPushButton::clicked, [this]() {
     if (allValid()) {
       accept();

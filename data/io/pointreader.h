@@ -1,6 +1,6 @@
 #pragma once
 
-#include "data/seismhorizon.h"
+#include "data/seism_data_type.h"
 
 #include <QDataStream>
 #include <QFileInfo>
