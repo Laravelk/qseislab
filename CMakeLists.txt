@@ -37,6 +37,8 @@ endif()
 
 find_package(segyio REQUIRED)
 
+find_package(Eigen3 REQUIRED)
+
 
 set(SOURCES
         event_operation/one_event/controller.cpp
@@ -232,3 +234,5 @@ add_executable(qseislab ${SOURCES} ${HEADERS} resources/resources.qrc)
 qt5_use_modules(qseislab ${_Q_MODULES})
 
 target_link_libraries(qseislab segyio::segyio)
+
+target_link_libraries(qseislab Eigen3::Eigen)
