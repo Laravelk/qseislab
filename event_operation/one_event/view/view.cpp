@@ -163,9 +163,6 @@ void View::update(const std::unique_ptr<SeismEvent> &event, const QUuid &uuid,
                   const QString &wellName) {
   assert(nullptr != _wellManagersLayout);
 
-  //  std::cout << "update event-name: " << event->getName().toStdString()
-  //            << std::endl; // TODO: remove
-
   _wellNames_map[uuid] = wellName;
   WellManager *manager = qobject_cast<WellManager *>(
       _wellManagersLayout->itemAt(_wellManagersLayout->count() - 2)->widget());

@@ -4,8 +4,8 @@
 #include <iostream>
 
 #include <math.h>
+#include <QDebug>
 
-//#include <iostream> // TODO: delete
 
 namespace EventOperation {
 GraphicView::GraphicView(QChart *chart, QWidget *parent)
@@ -38,9 +38,6 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
     borderBrush = Qt::darkCyan;
   }
   WavePick *pick = new WavePick(type, rect, chart(), pos, size, brush, 2, 4);
-  if (0 >= leftBorderPos) {
-    leftBorderPos = 1;
-  }
   WavePick *leftBorder =
       new WavePick(type, rect, chart(), QPointF(leftBorderPos, pos.y()), size,
                    borderBrush, 0, pick);
@@ -67,10 +64,12 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
                                pick->getXPos() * MICROSECONDS_IN_SECOND,
                                rightBorder->getXPos() * MICROSECONDS_IN_SECOND);
           });
-
   pick->setBorders(leftBorder, rightBorder);
   pick->setZValue(11);
   pick->setScale(_currentlyWavesScale);
+  pick->emitChanged();
+  leftBorder->emitChanged();
+  rightBorder->emitChanged();
   leftBorder->setScale(_currentlyWavesScale);
   rightBorder->setScale(_currentlyWavesScale);
   leftBorder->setZValue(11);
@@ -105,8 +104,7 @@ void GraphicView::mousePressEvent(QMouseEvent *event) {
     if (checkAvailability(Data::SeismWavePick::PWAVE,
                           static_cast<int>(pos.y()))) {
       addPick(Data::SeismWavePick::PWAVE, pos, QSize(2, 40), Qt::darkRed,
-              _rangeX, pos.x() - 20000 / MICROSECONDS_IN_SECOND,
-              pos.x() + 20000 / MICROSECONDS_IN_SECOND);
+              _rangeX, pos.x() - 0.05, pos.x() + 0.05);
     }
     _isAddPWaveTriggerPressed = false;
   }
@@ -115,9 +113,8 @@ void GraphicView::mousePressEvent(QMouseEvent *event) {
     QPointF pos = calculatePickPosition(chart()->mapToValue(event->pos()));
     if (checkAvailability(Data::SeismWavePick::SWAVE,
                           static_cast<int>(pos.y()))) {
-      addPick(Data::SeismWavePick::SWAVE, pos, QSize(2, 40), Qt::darkRed,
-              _rangeX, pos.x() - 20000 / MICROSECONDS_IN_SECOND,
-              pos.x() + 20000 / MICROSECONDS_IN_SECOND);
+      addPick(Data::SeismWavePick::SWAVE, pos, QSize(2, 40), Qt::darkBlue,
+              _rangeX, pos.x() - 0.05 , pos.x() + 0.05);
     }
     _isAddSWaveTriggerPressed = false;
   }
@@ -231,9 +228,9 @@ void GraphicView::resizeEvent(QResizeEvent *event) {
 
 // TODO: uncomment for wheelEvent on Windows
 void GraphicView::wheelEvent(QWheelEvent *event) {
-  //  qreal factor = event->angleDelta().y() > 0 ? 0.7 : 1.3;
-  //  scaleContentsBy(factor);
-  //  QChartView::wheelEvent(event);
+  qreal factor = event->angleDelta().y() > 0 ? 0.7 : 1.3;
+  scaleContentsBy(factor);
+  QChartView::wheelEvent(event);
 }
 
 void GraphicView::scaleContentsBy(qreal factor) {
@@ -249,16 +246,14 @@ void GraphicView::scaleContentsBy(qreal factor) {
 
 QPointF GraphicView::calculatePickPosition(QPointF pointByMouse) {
   if (pointByMouse.y() > _countOfComponents - 1) {
-    return QPointF(pointByMouse.x() - 500 / MICROSECONDS_IN_SECOND,
-                   _countOfComponents - 1);
+    return QPointF(pointByMouse.x() - 500 / 1000000, _countOfComponents - 1);
   }
 
   if (pointByMouse.y() < 0) {
-    return QPointF(pointByMouse.x() - 500 / MICROSECONDS_IN_SECOND, 0);
+    return QPointF(pointByMouse.x() - 500 / 1000000, 0);
   }
 
-  return QPointF(pointByMouse.x() - 500 / MICROSECONDS_IN_SECOND,
-                 round(pointByMouse.y()));
+  return QPointF(pointByMouse.x() - 500 / 1000000, round(pointByMouse.y()));
 }
 
 bool GraphicView::checkAvailability(Data::SeismWavePick::Type type, int index) {

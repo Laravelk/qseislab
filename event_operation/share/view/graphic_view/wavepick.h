@@ -44,8 +44,10 @@ public:
 
   QRectF boundingRect() const;
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
-
   void resize(QSizeF);
+  void emitChanged() {
+      emit changed();
+  }
 
 signals:
   void changed();
