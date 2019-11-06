@@ -29,7 +29,7 @@ signals:
 private:
   FileManager *_fileManager;
   QLineEdit *_nameLineEdit;
-  QLabel *_pointNumberLabel;
+  QLabel *_pointAmountLabel;
   QPushButton *_addButton;
 };
 

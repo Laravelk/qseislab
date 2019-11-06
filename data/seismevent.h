@@ -26,16 +26,25 @@ public:
 
   const QUuid &getUuid() const;
 
+  void setName(const QString &);
+  const QString &getName() const;
+
+  //  void setAddedDateTime(const QDateTime &);
+  const QDateTime &getAddedDateTime() const;
+
   void setType(int);   // TODO: remove
   int getType() const; // TODO: remove
 
-  int getComponentNumber() const;
+  void setStampDateTime(const QDateTime &);
+  const QDateTime &getStampDateTime() const;
+
+  int getPickAmountByType(const SeismWavePick::Type) const;
+  int getReceiverAmount() const;
+
+  int getComponentAmount() const;
   void addComponent(std::unique_ptr<SeismComponent>);
   bool removeComponentByReceiverUuid(const QUuid &);
   const std::list<std::unique_ptr<SeismComponent>> &getComponents() const;
-
-  void setDateTime(const QDateTime &);
-  const QDateTime &getDateTime() const;
 
   void process();
   bool isProcessed() const;
@@ -48,11 +57,14 @@ signals:
 
 private:
   QUuid _uuid;
+  QString _path;
+
+  QString _name;
+  QDateTime _addedDateTime;
 
   int _type = 0; // TODO: remove
 
-  QString _path;
-  QDateTime _dateTime;
+  QDateTime _stampDateTime;
   bool _isProcessed{false};
   Point _location{0, 0, 0};
   std::list<std::unique_ptr<SeismComponent>> _components;

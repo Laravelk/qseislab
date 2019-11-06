@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
@@ -162,14 +163,14 @@ public:
                },
                _1)];
     } else if constexpr (std::is_same_v<QTime, param_t>) {
-      param_ =
-          (as_string[digit >> digit >> ascii::char_(':') >> digit >> digit])
-              [_val = phx::bind(
-                   [](auto &str) -> QTime {
-                     return QTime::fromString(QString::fromStdString(str),
-                                              "hh:mm");
-                   },
-                   _1)];
+      param_ = (as_string[digit >> digit >> ascii::char_(':') >> digit >>
+                          digit >> ascii::char_(':') >> digit >> digit])
+          [_val = phx::bind(
+               [](auto &str) -> QTime {
+                 return QTime::fromString(QString::fromStdString(str),
+                                          "hh:mm:zzz");
+               },
+               _1)];
     } else if constexpr (std::is_same_v<float, param_t>) {
       param_ = qi::float_;
     } else if constexpr (std::is_same_v<int, param_t>) {

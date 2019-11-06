@@ -1,4 +1,3 @@
 # git ignore file
-*.txt.?*
-*.DS_Store
-**.user*
+/.DS_Store
+/*.user*

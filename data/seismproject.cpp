@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QJsonArray>
 
+#include <assert.h>
 #include <iostream> // TODO: remove
 
 namespace Data {
@@ -291,7 +292,7 @@ void SeismProject::update<SeismEvent>(std::unique_ptr<SeismEvent> event) {
   emit updatedEvent(_events_map[uuid]);
 }
 
-template <> int SeismProject::getNumber<SeismEvent>() const {
+template <> int SeismProject::getAmount<SeismEvent>() const {
   return static_cast<int>(_events_map.size());
 }
 
@@ -329,7 +330,7 @@ template <> bool SeismProject::remove<SeismHorizon>(const QUuid &uuid) {
   return false;
 }
 
-template <> int SeismProject::getNumber<SeismHorizon>() const {
+template <> int SeismProject::getAmount<SeismHorizon>() const {
   return static_cast<int>(_horizons_map.size());
 }
 
@@ -384,7 +385,7 @@ template <> bool SeismProject::remove<SeismWell>(const QUuid &uuid) {
   return false;
 }
 
-template <> int SeismProject::getNumber<SeismWell>() const {
+template <> int SeismProject::getAmount<SeismWell>() const {
   return static_cast<int>(_wells_map.size());
 }
 

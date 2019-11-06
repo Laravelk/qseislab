@@ -25,14 +25,14 @@ InfoProject::InfoProject(const std::unique_ptr<Data::SeismProject> &project,
   formLayout->addRow(
       "Time:", new QLabel(project->getDateTime().time().toString("hh:mm")));
   formLayout->addRow(
-      "Events Number:",
-      new QLabel(QString::number(project->getNumber<Data::SeismEvent>())));
+      "Events Amount:",
+      new QLabel(QString::number(project->getAmount<Data::SeismEvent>())));
   formLayout->addRow(
-      "Horizons Number:",
-      new QLabel(QString::number(project->getNumber<Data::SeismHorizon>())));
+      "Horizons Amount:",
+      new QLabel(QString::number(project->getAmount<Data::SeismHorizon>())));
   formLayout->addRow(
-      "Wells Number:",
-      new QLabel(QString::number(project->getNumber<Data::SeismWell>())));
+      "Wells Amount:",
+      new QLabel(QString::number(project->getAmount<Data::SeismWell>())));
 
   QVBoxLayout *mainLayout = new QVBoxLayout();
   mainLayout->addLayout(formLayout);

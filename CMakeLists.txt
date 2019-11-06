@@ -29,7 +29,7 @@ find_package(Qt5 COMPONENTS ${_Q_MODULES} REQUIRED)
 #add_subdirectory(parser_test)
 
 # Bad way
-set(Boost_INCLUDE_DIR "C:/Program Files/boost_1_71_0/boost_1_71_0")
+set(Boost_INCLUDE_DIR "C:/Users/seismuser/all/boost_1_71_0/boost_1_71_0")
 find_package(Boost REQUIRED)
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
@@ -37,21 +37,34 @@ endif()
 
 find_package(segyio REQUIRED)
 
+find_package(Eigen3 REQUIRED)
+
 
 set(SOURCES
-        event_operation/controller.cpp
-        event_operation/model.cpp
-        event_operation/view/filemanager.cpp
-        event_operation/view/wellmanager.cpp
-        event_operation/view/view.cpp
+        event_operation/eventtools.cpp
 
-        event_operation/view/common_view/graphic_view/graphic_view.cpp
-        event_operation/view/common_view/graphic_view/wavepick.cpp
-        event_operation/view/common_view/infoevent.cpp
-        event_operation/view/common_view/graphiccontroller.cpp
-        event_operation/view/common_view/chartgesture.cpp
-        event_operation/view/common_view/graphic_view/pipes2dname.cpp
-        event_operation/view/common_view/3dscene/polarizationanalysiswindow.cpp
+        event_operation/one_event/controller.cpp
+        event_operation/one_event/view/filemanager.cpp
+        event_operation/one_event/view/wellmanager.cpp
+        event_operation/one_event/view/view.cpp
+
+        event_operation/more_events/controller.cpp
+        event_operation/more_events/view/view.cpp
+
+        event_operation/share/model.cpp
+        event_operation/share/view/graphic_view/graphic_view.cpp
+        event_operation/share/view/graphic_view/wavepick.cpp
+        event_operation/share/view/infoevent.cpp
+        event_operation/share/view/graphiccontroller.cpp
+        event_operation/share/view/chartgesture.cpp
+        event_operation/share/view/eventtoolswidget.cpp
+        event_operation/share/view/graphic_view/pipes2dname.cpp
+        event_operation/share/view/3dscene/polarizationanalysiswindow.cpp
+
+        event_operation/share/view/tools_view/wigglewidget.cpp
+        event_operation/share/view/tools_view/hidecomponentwidget.cpp
+        event_operation/share/view/tools_view/clippingwidget.cpp
+        event_operation/share/view/tools_view/gainwidget.cpp
 
 
         horizon_operation/controller.cpp
@@ -91,6 +104,7 @@ set(SOURCES
         data/io/seismcomponentwriter.cpp
         data/io/pointreader.cpp
         data/io/pointwriter.cpp
+        data/io/horizonreadergrd.cpp
 
         main.cpp
 
@@ -100,7 +114,6 @@ set(SOURCES
         main/view/workpage.cpp
         main/view/infoproject.cpp
 
-#        main/surface_view/surface.cpp
         main/oil_field_scene/oilfieldscene.cpp
 
         share_view/tableassistant.cpp
@@ -123,19 +136,30 @@ set(SOURCES
 )
 
 set(HEADERS
-        event_operation/controller.h
-        event_operation/model.h
-        event_operation/view/filemanager.h
-        event_operation/view/wellmanager.h
-        event_operation/view/view.h
+        event_operation/eventtools.h
 
-        event_operation/view/common_view/graphic_view/graphic_view.h
-        event_operation/view/common_view/graphic_view/wavepick.h
-        event_operation/view/common_view/infoevent.h
-        event_operation/view/common_view/graphiccontroller.h
-        event_operation/view/common_view/chartgesture.h
-        event_operation/view/common_view/graphic_view/pipes2dname.h
-        event_operation/view/common_view/3dscene/polarizationanalysiswindow.h
+        event_operation/one_event/controller.h
+        event_operation/one_event/view/filemanager.h
+        event_operation/one_event/view/wellmanager.h
+        event_operation/one_event/view/view.h
+
+        event_operation/more_events/controller.h
+        event_operation/more_events/view/view.h
+
+        event_operation/share/model.h
+        event_operation/share/view/graphic_view/graphic_view.h
+        event_operation/share/view/graphic_view/wavepick.h
+        event_operation/share/view/infoevent.h
+        event_operation/share/view/graphiccontroller.h
+        event_operation/share/view/chartgesture.h
+        event_operation/share/view/eventtoolswidget.h
+        event_operation/share/view/graphic_view/pipes2dname.h
+        event_operation/share/view/3dscene/polarizationanalysiswindow.h
+
+        event_operation/share/view/tools_view/wigglewidget.h
+        event_operation/share/view/tools_view/hidecomponentwidget.h
+        event_operation/share/view/tools_view/clippingwidget.h
+        event_operation/share/view/tools_view/gainwidget.h
 
 
         horizon_operation/controller.h
@@ -178,6 +202,7 @@ set(HEADERS
         data/io/seismcomponentwriter.h
         data/io/pointreader.h
         data/io/pointwriter.h
+        data/io/horizonreadergrd.h
 
         main/controller.h
         main/view/view.h
@@ -215,3 +240,5 @@ add_executable(qseislab ${SOURCES} ${HEADERS} resources/resources.qrc)
 qt5_use_modules(qseislab ${_Q_MODULES})
 
 target_link_libraries(qseislab segyio::segyio)
+
+target_link_libraries(qseislab Eigen3::Eigen)

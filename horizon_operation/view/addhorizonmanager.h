@@ -31,7 +31,7 @@ private:
   QLineEdit *_nameLineEdit;
   QLineEdit *_NxLineEdit;
   QLineEdit *_NyLineEdit;
-  QLabel *_pointNumberLabel;
+  QLabel *_pointAmountLabel;
   QPushButton *_addButton;
 };
 

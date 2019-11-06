@@ -2,6 +2,8 @@
 
 #include "parser.h"
 
+#include <assert.h>
+
 #include <iostream>
 
 namespace TableFilterParsing {

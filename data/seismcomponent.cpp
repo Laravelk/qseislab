@@ -16,6 +16,13 @@ SeismComponent::SeismComponent(const QJsonObject &json) {
     err_msg += "::receiverUuid : not found\n";
   }
 
+  //  if (json.contains("stampDateTime")) {
+  //    _stampDateTime = QDateTime::fromString(json["stampTime"].toString(),
+  //                                       "dd.MM.yyyy hh:mm:ss:zzz");
+  //  } else {
+  //    err_msg += "::stampTime : not found\n";
+  //  }
+
   if (json.contains("sampleInterval")) {
     _sampleInterval = static_cast<float>(json["sampleInterval"].toDouble());
   } else {
@@ -104,6 +111,14 @@ SeismComponent::SeismComponent(const SeismComponent &other)
 
 const QUuid &SeismComponent::getReceiverUuid() const { return _receiverUuid; }
 
+const QDateTime &SeismComponent::getStampDateTime() const {
+  return _stampDateTime;
+}
+
+void SeismComponent::setStampDateTime(const QDateTime &dateTime) {
+  _stampDateTime = dateTime;
+}
+
 float SeismComponent::getSampleInterval() const { return _sampleInterval; }
 
 void SeismComponent::setSampleInterval(float sampleInterval) {
@@ -120,7 +135,7 @@ void SeismComponent::addTrace(std::unique_ptr<SeismTrace> trace) {
   _traces.push_back(std::move(trace));
 }
 
-unsigned SeismComponent::getTracesNumber() const {
+unsigned SeismComponent::getTracesAmount() const {
   return static_cast<unsigned>(_traces.size());
 }
 
@@ -129,14 +144,18 @@ SeismComponent::getTraces() const {
   return _traces;
 }
 
-void SeismComponent::addWavePick(SeismWavePick wavePick) {
+void SeismComponent::addWavePick(const SeismWavePick wavePick) {
   _wavePicks_map[wavePick.getType()] = wavePick;
   emit changed();
 }
 
-void SeismComponent::removeWavePick(SeismWavePick::Type type) {
+void SeismComponent::removeWavePick(const SeismWavePick::Type type) {
   _wavePicks_map.erase(type);
   emit changed();
+}
+
+bool SeismComponent::containsWavePickBy(const SeismWavePick::Type type) const {
+  return _wavePicks_map.end() != _wavePicks_map.find(type);
 }
 
 const SeismWavePick &
@@ -151,6 +170,7 @@ SeismComponent::getWavePicks() const {
 
 QJsonObject &SeismComponent::writeToJson(QJsonObject &json) const {
   json["receiverUuid"] = _receiverUuid.toString();
+  //  json["stampTime"] = _stampTime.toString("dd.MM.yyyy hh:mm:ss:zzz");
   json["sampleInterval"] = static_cast<double>(_sampleInterval);
 
   QJsonArray wavesArray;

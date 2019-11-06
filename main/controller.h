@@ -4,7 +4,8 @@
 #include "data/seismproject.h"
 #include "view/view.h"
 
-#include "event_operation/controller.h"
+#include "event_operation/more_events/controller.h"
+#include "event_operation/one_event/controller.h"
 
 #include "horizon_operation/controller.h"
 
@@ -34,6 +35,7 @@ signals:
 private slots:
   void recvProject(std::unique_ptr<Data::SeismProject> &);
 
+  void handleAddEventsClicked();
   void handleAddEventClicked();
   void handleViewEventClicked(const QUuid);
 
@@ -55,11 +57,8 @@ private:
 
   std::unique_ptr<View> _mainWindow;
 
-  std::unique_ptr<EventOperation::Generic::Controller>
-      _eventController; // TODO: remove extra
-  //  std::unique_ptr<EventOperation::AddEvent::Controller> _addEventController;
-  //  std::unique_ptr<EventOperation::ViewEvent::Controller>
-  //  _viewEventController;
+  std::unique_ptr<EventOperation::OneEvent::Controller> _oneEventController;
+  std::unique_ptr<EventOperation::MoreEvents::Controller> _moreEventsController;
 
   std::unique_ptr<HorizonOperation::Controller> _horizonController;
 

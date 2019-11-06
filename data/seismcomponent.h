@@ -4,6 +4,7 @@
 #include "seismtrace.h"
 #include "seismwavepick.h"
 
+#include <QDateTime>
 #include <QJsonObject>
 #include <QObject>
 #include <QUuid>
@@ -24,6 +25,9 @@ public:
 
   const QUuid &getReceiverUuid() const;
 
+  const QDateTime &getStampDateTime() const;
+  void setStampDateTime(const QDateTime &);
+
   float getSampleInterval() const;
   void setSampleInterval(float);
 
@@ -31,11 +35,12 @@ public:
 
   void addTrace(std::unique_ptr<SeismTrace>);
 
-  unsigned getTracesNumber() const;
+  unsigned getTracesAmount() const;
   const std::vector<std::unique_ptr<SeismTrace>> &getTraces() const;
 
   void addWavePick(SeismWavePick);
-  void removeWavePick(SeismWavePick::Type);
+  void removeWavePick(const SeismWavePick::Type);
+  bool containsWavePickBy(const SeismWavePick::Type) const;
   const SeismWavePick &getWavePick(SeismWavePick::Type) const;
   const std::map<SeismWavePick::Type, SeismWavePick> &getWavePicks() const;
 
@@ -46,6 +51,7 @@ signals:
 
 private:
   QUuid _receiverUuid;
+  QDateTime _stampDateTime;
   float _sampleInterval{0.0};
   float _maxValue{-1.0};
   std::vector<std::unique_ptr<SeismTrace>> _traces;

@@ -17,7 +17,7 @@ FileManager::FileManager(QWidget *parent)
 
   _fileDialog->setFileMode(QFileDialog::ExistingFile);
   _fileDialog->setOption(QFileDialog::DontResolveSymlinks);
-  _fileDialog->setNameFilter("*.bin");
+  _fileDialog->setNameFilter("*.bin *.grd");
   // Setting`s  end
 
   // Connecting

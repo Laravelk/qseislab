@@ -7,6 +7,8 @@
 #include "data/seismevent.h"
 #include "data/seismproject.h"
 
+#include <assert.h>
+
 typedef Data::SeismEvent SeismEvent;
 typedef Data::SeismProject SeismProject;
 
@@ -42,6 +44,10 @@ View::View(QWidget *parent) : QMainWindow(parent) {
   connect(this, &View::projectPresence, act, &QAction::setEnabled);
 
   QMenu *editMenu = new QMenu("&Edit");
+  act = editMenu->addAction("Add Events", [this] { emit addEventsClicked(); });
+  act->setDisabled(true);
+  connect(this, &View::projectPresence, act, &QAction::setEnabled);
+
   act = editMenu->addAction("Add Event", [this] { emit addEventClicked(); });
   act->setDisabled(true);
   connect(this, &View::projectPresence, act, &QAction::setEnabled);

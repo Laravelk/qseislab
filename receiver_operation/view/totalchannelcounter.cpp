@@ -8,7 +8,7 @@ namespace ReceiverOperation {
 TotalChannelCounter::TotalChannelCounter(QWidget *parent)
     : QWidget(parent), _count(new QLabel("0")) {
 
-  QLabel *label = new QLabel("Total channel number: ");
+  QLabel *label = new QLabel("Total channel amount: ");
   QHBoxLayout *layout = new QHBoxLayout();
   layout->addWidget(label);
   layout->addWidget(_count);
@@ -19,9 +19,9 @@ TotalChannelCounter::TotalChannelCounter(QWidget *parent)
 
 void TotalChannelCounter::add(
     const std::unique_ptr<Data::SeismReceiver> &receiver) {
-  int number = receiver->getChannelNum();
-  _numbers_map[receiver->getUuid()] = number;
-  _count->setNum(_count->text().toInt() + number);
+  int amount = receiver->getChannelAmount();
+  _numbers_map[receiver->getUuid()] = amount;
+  _count->setNum(_count->text().toInt() + amount);
 }
 
 bool TotalChannelCounter::remove(const QUuid &uuid) {

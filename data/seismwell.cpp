@@ -5,6 +5,8 @@
 
 #include <QJsonArray>
 
+#include <assert.h>
+
 typedef Data::IO::PointReader PointReader;
 typedef Data::IO::PointWriter PointWriter;
 
@@ -57,16 +59,16 @@ SeismWell::SeismWell(const QJsonObject &json, const QDir &dir)
       _points.push_back(reader.next());
     }
 
-    if (json.contains("pointNumber")) {
-      int jPointNum = json["pointNumber"].toInt();
+    if (json.contains("pointAmount")) {
+      int jPointNum = json["pointAmount"].toInt();
       int realPointNum = static_cast<int>(_points.size());
       if (jPointNum != realPointNum) {
-        err_msg += "::pointNumber : json-value != real-size  "
+        err_msg += "::pointAmount : json-value != real-size  "
                    "(Note: real-size == " +
                    std::to_string(_points.size()) + ")\n";
       }
     } else {
-      err_msg += "::pointNumber : not found  (Note: real value == " +
+      err_msg += "::pointAmount : not found  (Note: real value == " +
                  std::to_string(_points.size()) + ")\n";
     }
 
@@ -102,14 +104,14 @@ void SeismWell::setName(const QString &name) { _name = name; }
 
 const QString &SeismWell::getName() const { return _name; }
 
-int SeismWell::getPointsNumber() const {
+int SeismWell::getPointsAmount() const {
   return static_cast<int>(_points.size());
 }
 
 void SeismWell::addPoint(Point point) { _points.push_back(point); }
 
 const Point &SeismWell::getPoint(int idx) {
-  assert(0 <= idx && idx < getPointsNumber());
+  assert(0 <= idx && idx < getPointsAmount());
 
   return _points[static_cast<unsigned>(idx)];
 }
@@ -136,7 +138,7 @@ bool SeismWell::removeReceiver(const QUuid &uuid) {
   return false;
 }
 
-int SeismWell::getReceiversNumber() const {
+int SeismWell::getReceiversAmount() const {
   return static_cast<int>(_receivers.size());
 }
 
@@ -179,7 +181,7 @@ void SeismWell::removeAllReceivers() { _receivers.clear(); }
 //  //  return false;
 //}
 
-// int SeismWell::getReceiversNumber() const {
+// int SeismWell::getReceiversAmount() const {
 //  return static_cast<int>(_receivers_map.size());
 //  //  return static_cast<int>(_receivers.size());
 //}
@@ -203,7 +205,7 @@ QJsonObject &SeismWell::writeToJson(QJsonObject &json, const QDir &dir) {
 
   json["name"] = _name;
   json["path"] = _path;
-  json["pointNumber"] = getPointsNumber();
+  json["pointAmount"] = getPointsAmount();
 
   PointWriter writer(QFileInfo(dir, _path));
   for (auto point : _points) {

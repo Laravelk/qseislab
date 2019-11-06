@@ -1,5 +1,7 @@
 #include "seismtrace.h"
 
+#include <assert.h>
+
 namespace Data {
 SeismTrace::SeismTrace() {}
 
@@ -15,14 +17,14 @@ SeismTrace::SeismTrace() {}
 //  _bufferSize = data.first;
 //  _buffer = std::move(data.second);
 
-//  if (json.contains("sampleNumber")) {
-//    int jsize = json["sampleNumber"].toInt();
+//  if (json.contains("sampleAmount")) {
+//    int jsize = json["sampleAmount"].toInt();
 //    if (jsize != static_cast<int>(_bufferSize)) {
 //      err_msg += "::data : data-size in json-file doesn`t match data-size in "
 //                 "bin-file\n";
 //    }
 //  } else {
-//    err_msg += "::sampleNumber : not found\n";
+//    err_msg += "::sampleAmount : not found\n";
 //  }
 
 //  if (!err_msg.empty()) {
@@ -71,7 +73,7 @@ void SeismTrace::setBuffer(uint32_t size, float *buffer) {
 
 QJsonObject &SeismTrace::writeToJson(QJsonObject &json) const {
   //  json["sampleInterval"] = static_cast<double>(_sampleInterval);
-  json["sampleNumber"] = static_cast<int>(_bufferSize);
+  json["sampleAmount"] = static_cast<int>(_bufferSize);
   return json;
 }
 

@@ -3,6 +3,8 @@
 #include "data/io/pointreader.h"
 #include "data/io/pointwriter.h"
 
+#include <assert.h>
+
 typedef Data::IO::PointReader PointReader;
 typedef Data::IO::PointWriter PointWriter;
 
@@ -48,11 +50,11 @@ SeismHorizon::SeismHorizon(const QJsonObject &json, const QDir &dir)
       _points.push_back(reader.next());
     }
 
-    if (json.contains("pointNumber")) {
-      int jPointNum = json["pointNumber"].toInt();
+    if (json.contains("pointAmount")) {
+      int jPointNum = json["pointAmount"].toInt();
       int realPointNum = static_cast<int>(_points.size());
       if (jPointNum != realPointNum) {
-        err_msg += "::pointNumber : json-value != real-size  "
+        err_msg += "::pointAmount : json-value != real-size  "
                    "(Note: real-size == " +
                    std::to_string(_points.size()) + ")\n";
       }
@@ -65,7 +67,7 @@ SeismHorizon::SeismHorizon(const QJsonObject &json, const QDir &dir)
         }
       }
     } else {
-      err_msg += "::pointNumber : not found  (Note: real value == " +
+      err_msg += "::pointAmount : not found  (Note: real value == " +
                  std::to_string(_points.size()) + ")\n";
     }
 
@@ -91,14 +93,14 @@ void SeismHorizon::setName(const QString &name) { _name = name; }
 
 const QString &SeismHorizon::getName() const { return _name; }
 
-int SeismHorizon::getPointsNumber() const {
+int SeismHorizon::getPointsAmount() const {
   return static_cast<int>(_points.size());
 }
 
 void SeismHorizon::addPoint(Point point) { _points.push_back(point); }
 
 const Point &SeismHorizon::getPoint(int idx) {
-  assert(0 <= idx && idx < getPointsNumber());
+  assert(0 <= idx && idx < getPointsAmount());
 
   return _points[static_cast<unsigned>(idx)];
 }
@@ -122,7 +124,7 @@ QJsonObject &SeismHorizon::writeToJson(QJsonObject &json, const QDir &dir) {
 
   json["name"] = _name;
   json["path"] = _path;
-  json["pointNumber"] = getPointsNumber();
+  json["pointAmount"] = getPointsAmount();
   json["Nx"] = _Nx;
   json["Ny"] = _Ny;
 
