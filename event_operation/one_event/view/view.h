@@ -1,6 +1,7 @@
 #pragma once
 
 #include "data/seismwavepick.h"
+#include "data/seismevent.h"
 
 #include <QBoxLayout>
 #include <QDialog>
@@ -12,9 +13,10 @@
 #include <QRadioButton>
 #include <QSlider>
 #include <QTableWidget>
+#include <QUndoStack>
 
 namespace Data {
-class SeismEvent;
+//class SeismEvent;
 class SeismWell;
 } // namespace Data
 
@@ -29,10 +31,12 @@ class View : public QDialog {
 
 public:
   explicit View(const std::set<QString> &,
-                const std::unique_ptr<Data::SeismEvent> &,
+                  const std::unique_ptr<Data::SeismEvent> &, QUndoStack* ,
                 QWidget *parent = nullptr);
-  explicit View(const std::set<QString> &, const std::map<QUuid, QString> &,
+  explicit View(const std::set<QString> &, const std::map<QUuid, QString> &, QUndoStack* ,
                 QWidget *parent = nullptr);
+
+  void update(const std::unique_ptr<Data::SeismEvent> &);
 
   void update(const std::unique_ptr<Data::SeismEvent> &, const QUuid &);
   void update(const std::unique_ptr<Data::SeismEvent> &, const QUuid &,
@@ -47,8 +51,11 @@ signals:
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
   void createPolarizationAnalysisWindow();
 
+  void undoClicked() const;
+  void redoClicked() const;
+
   // tool-signals
-  void dataToEBasisClicked() const;
+  void eventTransformClicked(Data::SeismEvent::TransformOperation) const;
 
 private:
   void commonSetting();

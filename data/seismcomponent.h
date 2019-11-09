@@ -35,7 +35,8 @@ public:
 
   void addTrace(std::unique_ptr<SeismTrace>);
 
-  unsigned getTracesAmount() const;
+  int getTraceSize() const;
+  int getTracesAmount() const;
   const std::vector<std::unique_ptr<SeismTrace>> &getTraces() const;
 
   void addWavePick(SeismWavePick);
@@ -54,6 +55,7 @@ private:
   QDateTime _stampDateTime;
   float _sampleInterval{0.0};
   float _maxValue{-1.0};
+  int _tracesSize{-1};
   std::vector<std::unique_ptr<SeismTrace>> _traces;
   std::map<SeismWavePick::Type, SeismWavePick> _wavePicks_map;
 };

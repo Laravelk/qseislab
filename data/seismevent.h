@@ -3,12 +3,15 @@
 #include "seism_data_type.h"
 #include "seismcomponent.h"
 
-#include <memory>
+#include "event_operation/modification/rotatedatatoebasis.h"
 
 #include <QDateTime>
 #include <QDir>
 #include <QJsonObject>
 #include <QUuid>
+
+#include <memory>
+#include <set>
 
 namespace Data {
 class SeismWell;
@@ -16,6 +19,10 @@ class SeismEvent : public QObject {
   Q_OBJECT
 public:
   static const QString _default_path;
+
+  enum TransformOperation {
+      RotateDataToEBasis
+  };
 
   explicit SeismEvent();
   explicit SeismEvent(const QJsonObject &,
@@ -46,6 +53,8 @@ public:
   bool removeComponentByReceiverUuid(const QUuid &);
   const std::list<std::unique_ptr<SeismComponent>> &getComponents() const;
 
+  bool isTransformBy(TransformOperation) const;
+
   void process();
   bool isProcessed() const;
   const Point &getLocation() const;
@@ -68,6 +77,11 @@ private:
   bool _isProcessed{false};
   Point _location{0, 0, 0};
   std::list<std::unique_ptr<SeismComponent>> _components;
+
+  std::set<TransformOperation> _appliedOperations; // NOTE: уместно ли использовать set?
+  void addTransformOperation(TransformOperation);
+  void removeTransformOperation(TransformOperation);
+  friend class EventOperation::Modefication::RotateDataToEBasis;
 };
 
 } // namespace Data

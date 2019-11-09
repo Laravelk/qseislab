@@ -1,5 +1,6 @@
 #include "view.h"
 
+#include "event_operation/share/view/eventtoolswidget.h"
 #include "event_operation/share/view/graphiccontroller.h"
 #include "event_operation/share/view/infoevent.h"
 
@@ -17,8 +18,9 @@ typedef Data::SeismEvent SeismEvent;
 namespace EventOperation {
 namespace MoreEvents {
 View::View(const std::set<QString> &globalEventNames,
-           const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
+           const std::map<QUuid, QString> &wellNames_map, QUndoStack* undoStack, QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
+      _toolsWidget(new EventToolsWidget()),
       _infoEvent(new InfoEvent()), _wellNames(new QComboBox()),
       _fileDialog(new QFileDialog(this)), _eventList(new QListWidget()),
       _graphicEvent(new GraphicController(this)),
@@ -29,6 +31,8 @@ View::View(const std::set<QString> &globalEventNames,
   // Setting`s
   setWindowTitle("SeismWindow");
   setMinimumSize(1300, 590);
+
+  _toolsWidget->setDisabled(true);
 
   _fileDialog->setFileMode(QFileDialog::ExistingFiles);
   _fileDialog->setOption(QFileDialog::DontResolveSymlinks);
@@ -46,14 +50,19 @@ View::View(const std::set<QString> &globalEventNames,
 
   _infoEvent->setDisabled(true);
   _okButton->setDisabled(true);
+  _cancelButton->setFocus();
 
   QPushButton *addEventsButton = new QPushButton("+");
-  addEventsButton->setFixedWidth(25);
+  addEventsButton->setDisabled(true);
+//  addEventsButton->setFixedWidth(25);
   QPushButton *removeEventsButton = new QPushButton("-");
-  removeEventsButton->setFixedWidth(25);
+//  removeEventsButton->setFixedWidth(25);
   // Setting`s end
 
   // Connecting
+  connect(_toolsWidget, &EventToolsWidget::eventTransformClicked, [this](auto oper){
+      emit eventTransformClicked(oper);
+  });
   connect(addEventsButton, &QPushButton::clicked, [this]() {
     _fileDialog->open(this, SLOT(recvFilesPath(const QStringList &)));
   });
@@ -62,6 +71,7 @@ View::View(const std::set<QString> &globalEventNames,
     if (selectedEvents.size() == _eventList->count()) {
       _wellNames->setEnabled(true);
       _okButton->setDisabled(true);
+      _cancelButton->setFocus();
     }
 
     int nextFocusRow = 0;
@@ -154,40 +164,75 @@ View::View(const std::set<QString> &globalEventNames,
   leftLayout->addStretch(1);
 
   QHBoxLayout *buttonsLayout = new QHBoxLayout();
+  auto undoButton = new QPushButton("Undo");
+  auto redoButton = new QPushButton("Redo");
+  undoButton->setDisabled(true);
+  redoButton->setDisabled(true);
+  connect(undoStack, &QUndoStack::canUndoChanged, undoButton, &QPushButton::setEnabled);
+  connect(undoStack, &QUndoStack::canRedoChanged, redoButton, &QPushButton::setEnabled);
+  connect(undoButton, &QPushButton::clicked, [this](){
+      emit undoClicked();
+  });
+  connect(redoButton, &QPushButton::clicked, [this](){
+      emit redoClicked();
+  });
+  buttonsLayout->addWidget(undoButton);
+  buttonsLayout->addWidget(redoButton);
+
+  buttonsLayout->addWidget(_toolsWidget);
   buttonsLayout->addStretch(1);
   buttonsLayout->addWidget(_okButton);
   buttonsLayout->addWidget(_cancelButton);
 
+
   QVBoxLayout *graphicLayout = new QVBoxLayout();
   graphicLayout->addWidget(_graphicEvent->getView(), 10);
   graphicLayout->addStretch(1);
-  graphicLayout->addLayout(buttonsLayout);
+//  graphicLayout->addLayout(buttonsLayout);
 
   QHBoxLayout *mainLayout = new QHBoxLayout();
   mainLayout->addLayout(leftLayout);
   mainLayout->addLayout(graphicLayout, 10);
 
-  setLayout(mainLayout);
+  QVBoxLayout *mainButtonLayout = new QVBoxLayout();
+  mainButtonLayout->addLayout(mainLayout);
+  mainButtonLayout->addStretch(1);
+  mainButtonLayout->addLayout(buttonsLayout);
+
+  setLayout(mainButtonLayout);
   // Layout`s end
 }
 
 void View::loadEvent(const std::unique_ptr<Data::SeismEvent> &event) {
+    _toolsWidget->setEnabled(true);
+    _toolsWidget->update(event);
+
   _infoEvent->setEnabled(true);
   _infoEvent->update(event);
   _graphicEvent->update(event);
 }
 
 void View::unloadEvent() {
+    _toolsWidget->setDisabled(true);
+
   _infoEvent->clear();
   _graphicEvent->clear();
 
   _infoEvent->setDisabled(true);
 }
 
+void View::update(const std::unique_ptr<Data::SeismEvent> & event)
+{
+    _toolsWidget->update(event);
+    _graphicEvent->update(event);
+    // NOTE: надо _eventList обновлять?
+}
+
 void View::update(
     const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &events_map) {
   _wellNames->setDisabled(true);
   _okButton->setEnabled(true);
+  _okButton->setFocus();
 
   std::set<QUuid> existingUuid;
   for (int i = 0; i < _eventList->count(); ++i) {

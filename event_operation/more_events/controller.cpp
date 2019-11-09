@@ -18,7 +18,8 @@ Controller::Controller(
     const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &all_events,
     const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &wells_map,
     QObject *parent)
-    : QObject(parent), _model(new Model(new SegyReader(), this)) {
+    : QObject(parent), _model(new Model(new SegyReader(), this)),
+    _appliedOperations(new QUndoStack()){
 
   // prepare data for view
   std::map<QUuid, QString> wellNames_map;
@@ -29,7 +30,7 @@ Controller::Controller(
   for (auto &uuid_event : all_events) {
     eventNames.insert(uuid_event.second->getName());
   }
-  _view = std::make_unique<View>(eventNames, wellNames_map);
+  _view = std::make_unique<View>(eventNames, wellNames_map, _appliedOperations);
   // ...
 
   connect(_model, &Model::notify,
@@ -66,19 +67,23 @@ Controller::Controller(
   connect(_view.get(), &View::changeCurrentEvent, [this](auto &uuid) {
     if (!_currentEventUuid.isNull()) {
       _view->settingEventInfo(_events_map[_currentEventUuid]);
-    } else {
     }
+
     _currentEventUuid = uuid;
     _view->loadEvent(_events_map[_currentEventUuid]);
+
+    _appliedOperations->clear();
   });
 
   connect(_view.get(), &View::hideCurrentEvent, [this]() {
     if (!_currentEventUuid.isNull()) {
       _view->settingEventInfo(_events_map[_currentEventUuid]);
-    } else {
     }
+
     _currentEventUuid = QUuid();
     _view->unloadEvent();
+
+    _appliedOperations->clear();
   });
 
   connect(_view.get(), &View::removeEvent,
@@ -102,6 +107,32 @@ Controller::Controller(
               ++idx;
             }
           });
+
+  connect(_view.get(), &View::undoClicked, [this](){
+      if (!_currentEventUuid.isNull()) {
+          _appliedOperations->undo();
+          _view->update(_events_map[_currentEventUuid]);
+      }
+  });
+  connect(_view.get(), &View::redoClicked, [this](){
+      if (!_currentEventUuid.isNull()) {
+          _appliedOperations->redo();
+          _view->update(_events_map[_currentEventUuid]);
+      }
+  });
+
+  connect(_view.get(), &View::eventTransformClicked,
+          [this, &wells_map](auto oper) {
+              if (!_currentEventUuid.isNull()) {
+                  auto& event = _events_map[_currentEventUuid];
+                  switch (oper) {
+                  case SeismEvent::RotateDataToEBasis:
+                      _appliedOperations->push(new Modefication::RotateDataToEBasis(event, wells_map));
+                  }
+
+                  _view->update(event);
+              }
+        });
 
   connect(_view.get(), &View::finished, this, &Controller::finish);
 }

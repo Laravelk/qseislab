@@ -2,15 +2,17 @@
 
 #include "data/seismevent.h"
 #include "data/seismwell.h"
-#include "event_operation/eventtools.h"
 #include "event_operation/share/model.h"
 #include "event_operation/share/view/3dscene/polarizationanalysiswindow.h"
+
+#include "event_operation/modification/rotatedatatoebasis.h"
 
 #include "data/io/segyreader.h"
 
 #include <iostream> // TODO: remove
 
 typedef Data::IO::SegyReader SegyReader;
+typedef Data::SeismEvent SeismEvent;
 
 namespace EventOperation {
 namespace OneEvent {
@@ -19,7 +21,8 @@ Controller::Controller(
     const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &wells_map,
     QObject *parent)
     : QObject(parent), _model(new Model(new SegyReader(), this)),
-      _event(std::make_unique<Data::SeismEvent>()) {
+      _event(std::make_unique<Data::SeismEvent>()),
+    _appliedOperations(new QUndoStack()){
 
   // prepare data for view
   std::map<QUuid, QString> wellNames_map;
@@ -30,7 +33,7 @@ Controller::Controller(
   for (auto &uuid_event : all_events) {
     eventNames.insert(uuid_event.second->getName());
   }
-  _view = std::make_unique<View>(eventNames, wellNames_map);
+  _view = std::make_unique<View>(eventNames, wellNames_map, _appliedOperations);
   // ...
 
   connect(_event.get(), &Data::SeismEvent::changed, []() {
@@ -87,8 +90,24 @@ Controller::Controller(
             }
           });
 
-  connect(_view.get(), &View::dataToEBasisClicked,
-          [this]() { EventTools::dataToEBasis(_event); });
+  connect(_view.get(), &View::undoClicked, [this](){
+      _appliedOperations->undo();
+      _view->update(_event);
+  });
+  connect(_view.get(), &View::redoClicked, [this](){
+      _appliedOperations->redo();
+      _view->update(_event);
+  });
+
+  connect(_view.get(), &View::eventTransformClicked,
+          [this, &wells_map](auto oper) {
+              switch (oper) {
+              case SeismEvent::RotateDataToEBasis:
+                  _appliedOperations->push(new Modefication::RotateDataToEBasis(_event, wells_map));
+              }
+
+              _view->update(_event);
+          });
 
   connect(_view.get(), &View::finished, this, &Controller::finish);
 }
@@ -97,7 +116,8 @@ Controller::Controller(
     const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &all_events,
     const std::unique_ptr<Data::SeismEvent> &event, QObject *parent)
     : QObject(parent), _model(nullptr),
-      _event(std::make_unique<Data::SeismEvent>(*event)) {
+      _event(std::make_unique<Data::SeismEvent>(*event)),
+    _appliedOperations(new QUndoStack()){
 
   //    _eventNameContainer[QUuid()] = _event->getName(); // TODO: it`s OK?
 
@@ -109,7 +129,7 @@ Controller::Controller(
       eventNames.insert(uuid_event.second->getName());
     }
   }
-  _view = std::make_unique<View>(eventNames, _event);
+  _view = std::make_unique<View>(eventNames, _event, _appliedOperations);
   // ...
 
   connect(_event.get(), &Data::SeismEvent::changed, []() {
@@ -138,8 +158,8 @@ Controller::Controller(
             }
           });
 
-  connect(_view.get(), &View::dataToEBasisClicked,
-          [this]() { EventTools::dataToEBasis(_event); });
+//  connect(_view.get(), &View::dataToEBasisClicked,
+//          [this]() { EventTools::dataToEBasis(_event); });
 
   connect(_view.get(), &View::finished, this, &Controller::finish);
 }

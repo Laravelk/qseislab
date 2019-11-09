@@ -20,17 +20,17 @@ typedef Data::SeismEvent SeismEvent;
 namespace EventOperation {
 namespace OneEvent {
 View::View(const std::set<QString> &eventNames,
-           const std::unique_ptr<Data::SeismEvent> &event, QWidget *parent)
+           const std::unique_ptr<Data::SeismEvent> &event, QUndoStack* undoStack, QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
       _eventNames(eventNames) {
 
   commonSetting();
-  _toolsWidget->setEnabled(true);
+  _toolsWidget->update(event);
+//  _toolsWidget->setEnabled(true);
   _infoEvent->setEnabled(true);
   _infoEvent->update(event);
   _graphicEvent->update(event);
   _okButton->setEnabled(true);
-  _okButton->setFocus();
 
   _infoEvent->update(event);
 
@@ -40,10 +40,27 @@ View::View(const std::set<QString> &eventNames,
   leftLayout->addStretch(1);
 
   QHBoxLayout *buttonsLayout = new QHBoxLayout();
+//  buttonsLayout->addWidget(new QUndoView(undoStack)); // NOTE: undo/redo - view TODO: re-build
+  auto undoButton = new QPushButton("Undo");
+  auto redoButton = new QPushButton("Redo");
+  undoButton->setDisabled(true);
+  redoButton->setDisabled(true);
+  connect(undoStack, &QUndoStack::canUndoChanged, undoButton, &QPushButton::setEnabled);
+  connect(undoStack, &QUndoStack::canRedoChanged, redoButton, &QPushButton::setEnabled);
+  connect(undoButton, &QPushButton::clicked, [this](){
+      emit undoClicked();
+  });
+  connect(redoButton, &QPushButton::clicked, [this](){
+      emit redoClicked();
+  });
+  buttonsLayout->addWidget(undoButton);
+  buttonsLayout->addWidget(redoButton);
+
   buttonsLayout->addWidget(_toolsWidget);
   buttonsLayout->addStretch(1);
   buttonsLayout->addWidget(_okButton);
   buttonsLayout->addWidget(_cancelButton);
+
 
   //  QVBoxLayout *graphicLayout = new QVBoxLayout();
   //  graphicLayout->addWidget(_graphicEvent->getView(), 10);
@@ -64,7 +81,7 @@ View::View(const std::set<QString> &eventNames,
 }
 
 View::View(const std::set<QString> &eventNames,
-           const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
+           const std::map<QUuid, QString> &wellNames_map, QUndoStack* undoStack, QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
       _wellManagersLayout(new QVBoxLayout()),
       _addButtonManagers(new QPushButton("Add")), _wellNames_map(wellNames_map),
@@ -123,6 +140,23 @@ View::View(const std::set<QString> &eventNames,
   leftLayout->addStretch(1);
 
   QHBoxLayout *buttonsLayout = new QHBoxLayout();
+//  buttonsLayout->addWidget(new QUndoView(undoStack)); // NOTE: undo/redo - view TODO: re-build
+
+  auto undoButton = new QPushButton("Undo");
+  auto redoButton = new QPushButton("Redo");
+  undoButton->setDisabled(true);
+  redoButton->setDisabled(true);
+  connect(undoStack, &QUndoStack::canUndoChanged, undoButton, &QPushButton::setEnabled);
+  connect(undoStack, &QUndoStack::canRedoChanged, redoButton, &QPushButton::setEnabled);
+  connect(undoButton, &QPushButton::clicked, [this](){
+      emit undoClicked();
+  });
+  connect(redoButton, &QPushButton::clicked, [this](){
+      emit redoClicked();
+  });
+  buttonsLayout->addWidget(undoButton);
+  buttonsLayout->addWidget(redoButton);
+
   buttonsLayout->addWidget(_toolsWidget);
   buttonsLayout->addStretch(1);
   buttonsLayout->addWidget(_okButton);
@@ -138,7 +172,15 @@ View::View(const std::set<QString> &eventNames,
   mainLayout->addStretch(1);
   mainLayout->addWidget(_graphicEvent->getView(), 10);
 
+  // setting tool-bar
+//  QToolBar* toolBar = new QToolBar();
+//  toolBar->addWidget(_toolsWidget);
+//  QAction* action = toolBar->addAction("");
+
+  // end of setting tool-bar
+
   QVBoxLayout *mainButtonLayout = new QVBoxLayout();
+//  mainButtonLayout->addWidget(toolBar);
   mainButtonLayout->addLayout(mainLayout);
   mainButtonLayout->addStretch(1);
   mainButtonLayout->addLayout(buttonsLayout);
@@ -147,11 +189,20 @@ View::View(const std::set<QString> &eventNames,
   // Layout`s end
 }
 
+void View::update(const std::unique_ptr<Data::SeismEvent> &event)
+{
+    _toolsWidget->update(event);
+    _infoEvent->update(event);
+    _graphicEvent->update(event);
+}
+
 void View::update(const std::unique_ptr<SeismEvent> &event,
                   const QUuid &removedWellUuid) {
   _wellNames_map.erase(removedWellUuid);
 
   _toolsWidget->setEnabled(true);
+  _toolsWidget->update(event);
+
   _infoEvent->setEnabled(true);
   _infoEvent->update(event);
   _graphicEvent->update(event);
@@ -166,6 +217,7 @@ void View::update(const std::unique_ptr<SeismEvent> &event, const QUuid &uuid,
   //  std::cout << "update event-name: " << event->getName().toStdString()
   //            << std::endl; // TODO: remove
 
+
   _wellNames_map[uuid] = wellName;
   WellManager *manager = qobject_cast<WellManager *>(
       _wellManagersLayout->itemAt(_wellManagersLayout->count() - 2)->widget());
@@ -177,21 +229,26 @@ void View::update(const std::unique_ptr<SeismEvent> &event, const QUuid &uuid,
   }
 
   if (0 == event->getComponentAmount()) {
-    _toolsWidget->setDisabled(true);
+      _toolsWidget->setDisabled(true);
+
     _infoEvent->clear();
     _infoEvent->setDisabled(true);
 
     _graphicEvent->clear();
 
     _okButton->setDisabled(true);
+    _cancelButton->setFocus();
   } else {
-    _toolsWidget->setEnabled(true);
+_toolsWidget->setEnabled(true);
+
     _infoEvent->setEnabled(true);
     _infoEvent->update(event);
     _graphicEvent->update(event);
     _okButton->setEnabled(true);
     _okButton->setFocus();
   }
+
+  _toolsWidget->update(event); // TODO: надо ли и сбрасываются ли применения?
 }
 
 void View::setNotification(const QString &text) {
@@ -218,17 +275,20 @@ void View::commonSetting() {
   setWindowTitle("SeismWindow");
   setMinimumSize(1300, 590);
 
+  _toolsWidget->setDisabled(true);
+
   _infoEvent->setDisabled(true);
 
-  _toolsWidget->setDisabled(true);
   _okButton->setDisabled(true);
+  _cancelButton->setFocus();
   // Setting`s end
 
   // Connecting
-  connect(_toolsWidget, &EventToolsWidget::dataToEBasisClicked,
-          [this]() { emit dataToEBasisClicked(); });
+  connect(_toolsWidget, &EventToolsWidget::eventTransformClicked,
+          [this](auto oper) { emit eventTransformClicked(oper); });
   connect(_infoEvent, &InfoEvent::nameChanged,
-          [this](auto &name) { updateRepetition(name); });
+          [this](auto &name) { updateRepetition(name);
+          _graphicEvent->updateEventName(name);});
   connect(_graphicEvent, &EventOperation::GraphicController::sendPicksInfo,
           [this](auto type, auto num, auto l_val, auto pick_val, auto r_val) {
             emit sendPicksInfo(type, num, l_val, pick_val, r_val);

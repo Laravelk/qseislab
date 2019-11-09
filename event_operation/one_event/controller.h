@@ -3,6 +3,7 @@
 #include "view/view.h"
 
 #include <QObject>
+#include <QUndoCommand>
 
 #include <memory>
 
@@ -41,10 +42,12 @@ private:
 
   std::unique_ptr<View> _view;
 
-  std::unique_ptr<Data::SeismEvent> _event;
   std::map<QUuid, QString> _eventNameContainer;
 
   PolarizationAnalysisWindow *_polarizationWindow;
+
+  std::unique_ptr<Data::SeismEvent> _event;
+  QUndoStack* _appliedOperations;
 };
 
 } // namespace OneEvent

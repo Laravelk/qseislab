@@ -200,11 +200,15 @@ bool SeismEvent::removeComponentByReceiverUuid(const QUuid &receiverUuid) {
 
 const std::list<std::unique_ptr<SeismComponent>> &
 SeismEvent::getComponents() const {
-  return _components;
+    return _components;
+}
+
+bool SeismEvent::isTransformBy(TransformOperation oper) const {
+    return _appliedOperations.end() != _appliedOperations.find(oper);
 }
 
 void SeismEvent::process() {
-  _location = {1.67, 1.113, 1.13};
+  _location = {1.67, 1.113, 1.13}; // TODO: realize!
   _isProcessed = true;
 }
 
@@ -245,6 +249,14 @@ QJsonObject &SeismEvent::writeToJson(QJsonObject &json, const QDir &dir) {
   json["Components"] = componentsArray;
 
   return json;
+}
+
+void SeismEvent::addTransformOperation(TransformOperation oper) {
+    _appliedOperations.insert(oper);
+}
+
+void SeismEvent::removeTransformOperation(TransformOperation oper) {
+    _appliedOperations.erase(oper);
 }
 
 } // namespace Data

@@ -2,9 +2,9 @@
 
 #include "view/view.h"
 
-#include <QObject>
-
+#include <QUndoCommand>
 #include <QUuid>
+
 #include <map>
 #include <memory>
 
@@ -43,6 +43,8 @@ private:
   QUuid _currentEventUuid;
 
   PolarizationAnalysisWindow *_polarizationWindow;
+
+  QUndoStack* _appliedOperations;
 };
 
 } // namespace MoreEvents
