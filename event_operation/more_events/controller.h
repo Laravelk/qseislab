@@ -42,7 +42,7 @@ private:
 
   QUuid _currentEventUuid;
 
-  PolarizationAnalysisWindow *_polarizationWindow;
+  PolarizationAnalysisWindow *_polarizationWindow = nullptr;
 };
 
 } // namespace MoreEvents

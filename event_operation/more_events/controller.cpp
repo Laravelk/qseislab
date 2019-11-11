@@ -61,6 +61,11 @@ Controller::Controller(
     _polarizationWindow =
         new PolarizationAnalysisWindow(_events_map.at(_currentEventUuid));
     _polarizationWindow->show();
+    _view->setAddPolarizationWindowButtonEnable(false);
+    connect (_polarizationWindow, &QDialog::finished, [this](int status) {
+        _polarizationWindow = nullptr;
+        _view->setAddPolarizationWindowButtonEnable(true);
+    });
   });
 
   connect(_view.get(), &View::changeCurrentEvent, [this](auto &uuid) {
@@ -102,6 +107,20 @@ Controller::Controller(
               ++idx;
             }
           });
+
+  connect(_view.get(), &View::removePick, [this](const auto type, const auto num) {
+      int idx = 0;
+      if (_polarizationWindow) {
+          _polarizationWindow->setDefault();
+      }
+      for (auto &component : _events_map.at(_currentEventUuid)->getComponents()) {
+          if (num == idx) {
+              component->removeWavePick(type);
+              break;
+          }
+          idx++;
+      }
+  });
 
   connect(_view.get(), &View::finished, this, &Controller::finish);
 }

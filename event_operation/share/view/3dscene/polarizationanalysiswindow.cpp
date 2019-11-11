@@ -64,7 +64,7 @@ PolarizationAnalysisWindow::PolarizationAnalysisWindow(
   // manipulator
   Qt3DExtras::QOrbitCameraController *manipulator =
       new Qt3DExtras::QOrbitCameraController(_scene);
-  manipulator->setLinearSpeed(-10);
+  manipulator->setLinearSpeed(-5);
   manipulator->setLookSpeed(-120);
   manipulator->setCamera(camera);
 
@@ -119,6 +119,15 @@ PolarizationAnalysisWindow::PolarizationAnalysisWindow(
 
   drawArrows();
   drawTextAxes();
+}
+
+void PolarizationAnalysisWindow::setDefault()
+{
+    _currentWaveTypeString = DEFAULT_WAVE_STRING;
+    _currentReceiverNumberString = DEFAULT_RECEIVER_STRING;
+    _waveTypeBox->setCurrentIndex(0);
+    _receiverBox->setCurrentIndex(0);
+    update();
 }
 
 void PolarizationAnalysisWindow::drawArrows() {

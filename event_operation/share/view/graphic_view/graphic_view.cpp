@@ -9,7 +9,7 @@
 
 namespace EventOperation {
 GraphicView::GraphicView(QChart *chart, QWidget *parent)
-    : QChartView(chart, parent), mouseIsTouching(false) {
+    : QChartView(chart, parent), _zoomIsTouching(false) {
   chart->setAnimationOptions(QChart::NoAnimation);
   setDragMode(QGraphicsView::NoDrag);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -18,7 +18,9 @@ GraphicView::GraphicView(QChart *chart, QWidget *parent)
   rect = scene()->addRect(chart->plotArea());
   rect->setFlag(QGraphicsItem::ItemClipsChildrenToShape);
   rect->setZValue(10);
-  scene()->addItem(rect);
+  _status = new QGraphicsTextItem(OVERVIEW_MODE_STRING, this->chart());
+  _status->setPos(QPointF(20, 450));
+  _status->show();
 }
 
 void GraphicView::addPick(Data::SeismWavePick::Type type, qreal ax, qreal ay,
@@ -46,40 +48,60 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
                    borderBrush, pick, rangeX);
   connect(pick, &WavePick::changed, [this, pick, leftBorder, rightBorder]() {
     emit sendPicksInfo(pick->getType(), pick->getComponentAmount(),
-                       leftBorder->getXPos() * MICROSECONDS_IN_SECOND,
-                       pick->getXPos() * MICROSECONDS_IN_SECOND,
-                       rightBorder->getXPos() * MICROSECONDS_IN_SECOND);
+                       static_cast<int>(leftBorder->getXPos() * MICROSECONDS_IN_SECOND),
+                       static_cast<int>(pick->getXPos() * MICROSECONDS_IN_SECOND),
+                       static_cast<int>(rightBorder->getXPos() * MICROSECONDS_IN_SECOND));
   });
   connect(leftBorder, &WavePick::changed,
           [this, pick, leftBorder, rightBorder]() {
             emit sendPicksInfo(pick->getType(), pick->getComponentAmount(),
-                               leftBorder->getXPos() * MICROSECONDS_IN_SECOND,
-                               pick->getXPos() * MICROSECONDS_IN_SECOND,
-                               rightBorder->getXPos() * MICROSECONDS_IN_SECOND);
+                               static_cast<int>(leftBorder->getXPos() * MICROSECONDS_IN_SECOND),
+                               static_cast<int>(pick->getXPos() * MICROSECONDS_IN_SECOND),
+                               static_cast<int>(rightBorder->getXPos() * MICROSECONDS_IN_SECOND));
           });
   connect(rightBorder, &WavePick::changed,
           [this, pick, leftBorder, rightBorder]() {
             emit sendPicksInfo(pick->getType(), pick->getComponentAmount(),
-                               leftBorder->getXPos() * MICROSECONDS_IN_SECOND,
-                               pick->getXPos() * MICROSECONDS_IN_SECOND,
-                               rightBorder->getXPos() * MICROSECONDS_IN_SECOND);
+                               static_cast<int>(leftBorder->getXPos() * MICROSECONDS_IN_SECOND),
+                               static_cast<int>(pick->getXPos() * MICROSECONDS_IN_SECOND),
+                               static_cast<int>(rightBorder->getXPos() * MICROSECONDS_IN_SECOND));
           });
+
+  connect(pick, &WavePick::needDelete, [this, pick, leftBorder, rightBorder]() {
+      if (_editMode) {
+          _wavePicks.removeOne(pick);
+          _wavePicks.removeOne(leftBorder);
+          _wavePicks.removeOne(rightBorder);
+          scene()->removeItem(pick);
+          scene()->removeItem(leftBorder);
+          scene()->removeItem(rightBorder);
+          repaint();
+          emit removePick(pick->getType(), pick->getComponentAmount());
+          delete pick;
+          delete leftBorder;
+          delete rightBorder;
+      }
+  });
   pick->setBorders(leftBorder, rightBorder);
-  pick->setZValue(11);
   pick->setScale(_currentlyWavesScale);
+    leftBorder->setScale(_currentlyWavesScale);
+    rightBorder->setScale(_currentlyWavesScale);
   pick->emitChanged();
   leftBorder->emitChanged();
   rightBorder->emitChanged();
-  leftBorder->setScale(_currentlyWavesScale);
-  rightBorder->setScale(_currentlyWavesScale);
-  leftBorder->setZValue(11);
-  rightBorder->setZValue(11);
   _wavePicks.push_back(leftBorder);
   _wavePicks.push_back(rightBorder);
   _wavePicks.push_back(pick);
+  for (auto &pick : _wavePicks) {
+      pick->updateGeometry();
+  }
 }
 
 void GraphicView::setWaveAddTriggerFlag(Data::SeismWavePick::Type type) {
+    if (!_editMode) {
+        _addWaveMode = true;
+        _status->setPlainText(ADD_WAVE_STRING);
+    }
   if (type == Data::SeismWavePick::PWAVE) {
     _isAddPWaveTriggerPressed = true;
     _isAddSWaveTriggerPressed = false;
@@ -93,55 +115,103 @@ void GraphicView::setWaveAddTriggerFlag(Data::SeismWavePick::Type type) {
 
 bool GraphicView::viewportEvent(QEvent *event) {
   if (event->type() == QEvent::TouchBegin) {
-    mouseIsTouching = true;
+    _zoomIsTouching = true;
+    chart()->setAnimationOptions(QChart::NoAnimation);
   }
   return QChartView::viewportEvent(event);
 }
 
 void GraphicView::mousePressEvent(QMouseEvent *event) {
-  if (_isAddPWaveTriggerPressed) {
+//    if (!_editMode && (event->buttons() == Qt::LeftButton)) {
+//        QPoint origin = event->pos();
+//        if (!rubberBand) {
+//            rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
+//        }
+//        _firstPoint = origin;
+//        std::cerr << "origin " << _firstPoint.x() << " " << _firstPoint.y() << std::endl;
+//        rubberBand->setGeometry(QRect(origin, QSize()));
+//        _zoomIsTouching = true;
+//        rubberBand->show();
+//    }
+
+  if ((_isAddPWaveTriggerPressed && _editMode) || (_isAddPWaveTriggerPressed && _addWaveMode)) {
     QPointF pos = calculatePickPosition(chart()->mapToValue(event->pos()));
     if (checkAvailability(Data::SeismWavePick::PWAVE,
                           static_cast<int>(pos.y()))) {
       addPick(Data::SeismWavePick::PWAVE, pos, QSize(2, 40), Qt::darkRed,
-              _rangeX, pos.x() - 0.05, pos.x() + 0.05);
+              _rangeX, pos.x() - 0.025, pos.x() + 0.025);
     }
     _isAddPWaveTriggerPressed = false;
   }
 
-  if (_isAddSWaveTriggerPressed) {
+  if ((_isAddSWaveTriggerPressed && _editMode) || (_isAddSWaveTriggerPressed && _addWaveMode)) {
     QPointF pos = calculatePickPosition(chart()->mapToValue(event->pos()));
     if (checkAvailability(Data::SeismWavePick::SWAVE,
                           static_cast<int>(pos.y()))) {
       addPick(Data::SeismWavePick::SWAVE, pos, QSize(2, 40), Qt::darkBlue,
-              _rangeX, pos.x() - 0.05 , pos.x() + 0.05);
+              _rangeX, pos.x() - 0.025 , pos.x() + 0.025);
     }
     _isAddSWaveTriggerPressed = false;
   }
 
-  QChartView::mousePressEvent(event);
-  if (event->button() == Qt::RightButton) {
+  if (_addWaveMode) {
+      _status->setPlainText(OVERVIEW_MODE_STRING);
+      _addWaveMode = false;
+  }
+
+  if (event->button() == Qt::RightButton && _editMode) {
     for (auto &wave : _wavePicks) {
       wave->updateGeometry();
     }
   }
+  QChartView::mousePressEvent(event);
+
 }
 
 void GraphicView::mouseMoveEvent(QMouseEvent *event) {
-  if (mouseIsTouching)
-    return;
+//  if (!_editMode && _zoomIsTouching && event->buttons() == Qt::LeftButton) {
+//        if (rubberBand) {
+//            rubberBand->setGeometry(QRect(_firstPoint, event->pos()).normalized());
+//            rubberBand->show();
+//        }
+//  }
   QChartView::mouseMoveEvent(event);
 }
 
 void GraphicView::mouseReleaseEvent(QMouseEvent *event) {
+//    if (rubberBand && _zoomIsTouching && event->button() == Qt::LeftButton) {
+//        rubberBand->hide();
+//        QPoint point = rubberBand->pos();
+//        QSize size = rubberBand->size();
+//        std::cerr << "point " << point.x() << " " << point.y() << std::endl;
+//        std::cerr << "size " << size.width() << " " << size.height() << std::endl;
+//        _chart->zoomIn(QRect(point, size));
+//        delete rubberBand;
+//        rubberBand = nullptr;
+//        float scale = std::min(chart()->plotArea().width() / size.width(), chart()->plotArea().height() / size.height());
+////        std::cerr << " scale " << scale << std::endl;
+//        if (scale == INFINITY) {
+//            return;
+//        }
+//        scale = abs(scale) > 5 ? 5 : scale;
+//        _currentlyWavesScale *= scale;
+//        _rubberBandFactorList.push_back(scale);
+//        for (auto &pick : _wavePicks) {
+//            pick->setScale(_currentlyWavesScale);
+//            pick->updateGeometry();
+//        }
+//        _zoomIsTouching = false;
+//        return;
+//  }
+
   if (event->button() == Qt::RightButton) {
     if (scene()) {
       scaleContentsBy(0.7);
       return;
     }
   }
-  if (mouseIsTouching) {
-    mouseIsTouching = false;
+  if (_zoomIsTouching) {
+    _zoomIsTouching = false;
   }
   QChartView::mouseReleaseEvent(event);
 }
@@ -178,6 +248,14 @@ void GraphicView::keyPressEvent(QKeyEvent *event) {
   case Qt::Key_S:
     scrollContentsBy(0, -10);
     break;
+  case Qt::Key_Alt: {
+      _editMode = true;
+      _status->setPlainText(EDIT_MODE_STRING);
+      for (auto &pick : _wavePicks) {
+          pick->setEditable(true);
+      }
+      break;
+  }
   default:
     QGraphicsView::keyPressEvent(event);
     break;
@@ -185,7 +263,18 @@ void GraphicView::keyPressEvent(QKeyEvent *event) {
 }
 
 void GraphicView::keyReleaseEvent(QKeyEvent *event) {
-  QChartView::keyReleaseEvent(event);
+    switch (event->key()) {
+    case Qt::Key_Alt:
+        _editMode = false;
+        _status->setPlainText(OVERVIEW_MODE_STRING);
+        for (auto &pick : _wavePicks) {
+            pick->setEditable(false);
+        }
+        break;
+    default:
+        QChartView::keyReleaseEvent(event);
+        break;
+    }
 }
 
 void GraphicView::mouseDoubleClickEvent(QMouseEvent *event) {
@@ -198,12 +287,14 @@ void GraphicView::paintEvent(QPaintEvent *event) {
 }
 
 void GraphicView::scrollContentsBy(int dx, int dy) {
-  if (scene()) {
-    _chart->scroll(dx, dy);
-    for (auto &wave : _wavePicks) {
-      wave->updateGeometry();
+    if (!_editMode) {
+        if (scene()) {
+        _chart->scroll(dx, dy);
+        for (auto &wave : _wavePicks) {
+          wave->updateGeometry();
+        }
+       }
     }
-  }
 }
 
 void GraphicView::resizeEvent(QResizeEvent *event) {
@@ -212,12 +303,13 @@ void GraphicView::resizeEvent(QResizeEvent *event) {
     QSizeF scaleCoff;
     if (event->oldSize().width() != -1) {
       scaleCoff =
-          QSizeF(1.0f * event->size().width() / event->oldSize().width(),
-                 1.0f * event->size().height() / event->oldSize().height());
+          QSizeF(static_cast<double>(1.0f * event->size().width() / event->oldSize().width()),
+                 static_cast<double> (1.0f * event->size().height() / event->oldSize().height()));
     } else {
-      scaleCoff = QSizeF(1.0f, 1.0f);
+      scaleCoff = QSizeF(static_cast<double>(1.0f), static_cast<double>(1.0f));
     }
     _chart->resize(event->size());
+    _status->setPos(_status->pos().x() * scaleCoff.width(), _status->pos().y() * scaleCoff.height());
     for (auto &wave : _wavePicks) {
       wave->resize(scaleCoff);
       wave->updateGeometry();
@@ -234,26 +326,34 @@ void GraphicView::wheelEvent(QWheelEvent *event) {
 }
 
 void GraphicView::scaleContentsBy(qreal factor) {
-  if (scene()) {
-    _chart->zoom(factor);
-    _currentlyWavesScale *= factor;
-    for (auto &wavePick : _wavePicks) {
-      wavePick->setScale(_currentlyWavesScale);
-      wavePick->updateGeometry();
-    }
+    if (!_editMode) {
+          if (!_rubberBandFactorList.isEmpty() && factor < 1) {
+              factor = 1.0f / _rubberBandFactorList.back();
+//              std::cerr << factor << " ";
+            _rubberBandFactorList.pop_back();
+          }
+          if (scene()) {
+            _chart->zoom(factor);
+            _currentlyWavesScale *= factor;
+//            std::cerr << _currentlyWavesScale << std::endl;
+            for (auto &wavePick : _wavePicks) {
+              wavePick->setScale(_currentlyWavesScale);
+              wavePick->updateGeometry();
+            }
+          }
   }
 }
 
 QPointF GraphicView::calculatePickPosition(QPointF pointByMouse) {
   if (pointByMouse.y() > _countOfComponents - 1) {
-    return QPointF(pointByMouse.x() - 500 / 1000000, _countOfComponents - 1);
+    return QPointF(pointByMouse.x() - 500 / MICROSECONDS_IN_SECOND, _countOfComponents - 1);
   }
 
   if (pointByMouse.y() < 0) {
-    return QPointF(pointByMouse.x() - 500 / 1000000, 0);
+    return QPointF(pointByMouse.x() - 500 / MICROSECONDS_IN_SECOND, 0);
   }
 
-  return QPointF(pointByMouse.x() - 500 / 1000000, round(pointByMouse.y()));
+  return QPointF(pointByMouse.x() - 500 / MICROSECONDS_IN_SECOND, round(pointByMouse.y()));
 }
 
 bool GraphicView::checkAvailability(Data::SeismWavePick::Type type, int index) {

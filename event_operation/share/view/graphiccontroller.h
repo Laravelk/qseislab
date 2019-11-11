@@ -32,6 +32,9 @@ public:
   void setGainCoefficient(const float gainCoefficient);
   void setClippingValue(const float clippingValue);
   void setWiggle(const int status);
+  void setAddPolarizationWindowButtonEnable(bool enable) {
+          _polarizationEventButton->setEnabled(enable);
+  }
   void clear();
 
   void hideAxisX(bool);
@@ -76,6 +79,7 @@ private:
 
 signals:
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
+  void removePick(Data::SeismWavePick::Type, int);
   void createPolarizationAnalysisWindowClicked();
 
 private:

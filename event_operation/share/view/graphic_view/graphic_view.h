@@ -31,9 +31,10 @@ public:
   void setRangeX(const qreal rangeX) { _rangeX = rangeX; }
   void setCountOfComponents(int count) { _countOfComponents = count; }
   void setScale(const qreal scale) { _currentlyWavesScale = scale; }
-  void setDefaultScale() { _currentlyWavesScale = 1.0; }
+  void setDefaultScale() { _currentlyWavesScale = 1.0f; }
 
   QList<WavePick *> *getPickcs() { return &_wavePicks; }
+  const bool isEdit() const { return _editMode; }
   void clearPicks() {
     for (auto &pick : _wavePicks) {
       scene()->removeItem(pick);
@@ -65,25 +66,36 @@ private:
   qreal WAVE_RADIUS;
   qreal _rangeX;
   int _countOfComponents = 0;
-  bool mouseIsTouching = false;
+  bool _zoomIsTouching = false;
+  bool _editMode = false;
+  bool _addWaveMode = false;
   bool _isAddPWaveTriggerPressed = false;
   bool _isAddSWaveTriggerPressed = false;
   qreal _mFactor = 1.0;
   ChartGesture *_chart;
   QList<WavePick *> _wavePicks;
   QList<Pipes2DName *> _pipesName;
-  qreal _currentlyWavesScale = 1.0;
+  qreal _currentlyWavesScale = 1.0f;
   QPointF calculatePickPosition(QPointF);
   bool checkAvailability(Data::SeismWavePick::Type, int);
-  QGraphicsTextItem *text;
+  QGraphicsTextItem *_status;
+  QRubberBand *rubberBand = nullptr;
 
   const int MICROSECONDS_IN_SECOND = 1000000;
   const int MICROSECONDS_IN_MILISECOND = 1000;
 
+  QList<qreal> _rubberBandFactorList;
+  QPoint _firstPoint;
+
 signals:
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
+  void removePick(Data::SeismWavePick::Type, int);
 
 private:
   QGraphicsRectItem *rect;
+
+  const QString EDIT_MODE_STRING = "Edit Mode";
+  const QString OVERVIEW_MODE_STRING = "Overview Mode";
+  const QString ADD_WAVE_STRING = "Add Wave";
 };
 } // namespace EventOperation

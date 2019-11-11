@@ -31,6 +31,7 @@ public:
 
   void loadEvent(const std::unique_ptr<Data::SeismEvent> &);
   void unloadEvent();
+  void setAddPolarizationWindowButtonEnable(bool enable);
 
   void update(const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &);
 
@@ -46,6 +47,7 @@ signals:
   void sendWellUuidAndFilePaths(const QUuid &, const QStringList &) const;
 
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
+  void removePick(Data::SeismWavePick::Type, int);
   void createPolarizationAnalysisWindow();
 
 private slots:
@@ -61,6 +63,7 @@ private:
   QComboBox *_wellNames;
   QUuid _wellUuid;
   QFileDialog *_fileDialog;
+  QTabWidget *_tabWidget;
 
   QListWidget *_eventList;
 

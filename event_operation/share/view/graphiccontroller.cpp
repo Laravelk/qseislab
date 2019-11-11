@@ -40,6 +40,9 @@ GraphicController::GraphicController(QWidget *parent)
             emit sendPicksInfo(type, componentAmount, leftBorderPos, pickPos,
                                rightBorderPos);
           });
+  connect(_view, &GraphicView::removePick, [this](Data::SeismWavePick::Type type, int componentAmount) {
+        emit removePick(type, componentAmount);
+  });
 
   // _allView setting`s
   _allView = new QWidget();
@@ -130,7 +133,6 @@ void GraphicController::update(const std::unique_ptr<SeismEvent> &event) {
 
   // setting event-name on title
   _view->chart()->setTitle(event->getName());
-
   _view->chart()->removeAllSeries();
   _allSeries.clear();
   _view->clearPicks();

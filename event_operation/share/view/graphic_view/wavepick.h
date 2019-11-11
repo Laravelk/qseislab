@@ -27,8 +27,7 @@ public:
            QSizeF, QBrush, std::variant<WavePick *, qreal>,
            std::variant<WavePick *, qreal>);
   WavePick(Data::SeismWavePick::Type, QGraphicsItem *, QChart *, qreal, qreal,
-           int, int, QBrush, WavePick *);
-
+           int, int, QBrush, WavePick * );
   void setAnchor(const QPointF);
 
   void updateGeometry();
@@ -48,17 +47,21 @@ public:
   void emitChanged() {
       emit changed();
   }
+  void setEditable(bool status) {_isEditable = status; }
 
 signals:
   void changed();
+  void needDelete();
 
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *);
   void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
+  void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *);
 
 private:
   const qreal DEFAULT_OFFSET_TO_BORDER = 10000;
+  bool _isEditable = false;
   Data::SeismWavePick::Type _type;
   QChart *_chart;
   QPointF _pos;

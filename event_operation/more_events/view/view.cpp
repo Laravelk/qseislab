@@ -24,7 +24,7 @@ View::View(const std::set<QString> &globalEventNames,
       _graphicEvent(new GraphicController(this)),
       _okButton(new QPushButton("Ok")),
       _cancelButton(new QPushButton("Cancel")),
-      _globalEventNames(globalEventNames) {
+      _globalEventNames(globalEventNames), _tabWidget(new QTabWidget()) {
 
   // Setting`s
   setWindowTitle("SeismWindow");
@@ -130,6 +130,9 @@ View::View(const std::set<QString> &globalEventNames,
           &EventOperation::GraphicController::
               createPolarizationAnalysisWindowClicked,
           [this]() { emit createPolarizationAnalysisWindow(); });
+  connect(_graphicEvent, &EventOperation::GraphicController::removePick, [this](auto type, auto num) {
+      emit removePick(type, num);
+  });
   connect(_okButton, &QPushButton::clicked, [this]() {
     if (allValid()) {
       accept();
@@ -159,12 +162,16 @@ View::View(const std::set<QString> &globalEventNames,
   buttonsLayout->addWidget(_cancelButton);
 
   QVBoxLayout *graphicLayout = new QVBoxLayout();
-  graphicLayout->addWidget(_graphicEvent->getView(), 10);
+//  graphicLayout->addWidget(_graphicEvent->getView(), 10);
   graphicLayout->addStretch(1);
   graphicLayout->addLayout(buttonsLayout);
 
+  _tabWidget->addTab(_graphicEvent->getView(), "graphic");
+  _tabWidget->addTab(new QWidget(), "IN PROGRESS");
+
   QHBoxLayout *mainLayout = new QHBoxLayout();
   mainLayout->addLayout(leftLayout);
+  mainLayout->addWidget(_tabWidget);
   mainLayout->addLayout(graphicLayout, 10);
 
   setLayout(mainLayout);
@@ -182,6 +189,11 @@ void View::unloadEvent() {
   _graphicEvent->clear();
 
   _infoEvent->setDisabled(true);
+}
+
+void View::setAddPolarizationWindowButtonEnable(bool enable)
+{
+    _graphicEvent->setAddPolarizationWindowButtonEnable(enable);
 }
 
 void View::update(
