@@ -7,6 +7,8 @@
 #include <QtWidgets/QGraphicsItem>
 
 #include <variant>
+#include <iostream>
+
 
 QT_BEGIN_NAMESPACE
 class QGraphicsSceneEvent;
@@ -37,6 +39,7 @@ public:
   void setRightBorder(std::variant<WavePick *, qreal>);
   void setBorders(std::variant<WavePick *, qreal>,
                   std::variant<WavePick *, qreal>);
+  void scallByAxis(QSizeF scaleS);
 
   Data::SeismWavePick::Type getType() { return _type; }
   int getComponentAmount() { return static_cast<int>(_anchor.y()); }
@@ -61,6 +64,8 @@ protected:
 
 private:
   const qreal DEFAULT_OFFSET_TO_BORDER = 10000;
+  const qreal MAX_WIDTH;
+  const QSizeF DEFAULT_SIZE;
   bool _isEditable = false;
   Data::SeismWavePick::Type _type;
   QChart *_chart;

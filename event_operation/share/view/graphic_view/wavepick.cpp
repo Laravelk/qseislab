@@ -13,7 +13,7 @@ WavePick::WavePick(Data::SeismWavePick::Type type, QGraphicsItem *parent,
                    std::variant<WavePick *, qreal> leftBorder,
                    std::variant<WavePick *, qreal> rightBorder)
     : QGraphicsItem(parent), _chart(chart), _pos(pos), _size(size),
-      _leftBorder(leftBorder), _rightBorder(rightBorder), _brush(brush) {
+      _leftBorder(leftBorder), _rightBorder(rightBorder), _brush(brush), DEFAULT_SIZE(size), MAX_WIDTH(size.width()) {
   setFlag(QGraphicsItem::ItemIgnoresTransformations);
   _type = type;
   _anchor = pos;
@@ -27,7 +27,7 @@ WavePick::WavePick(Data::SeismWavePick::Type type, QGraphicsItem *parent,
                    QChart *chart, qreal ax, qreal ay, int width, int height,
                    QBrush brush, WavePick *pick)
     : QGraphicsItem(parent), _chart(chart), _pos(QPointF(ax, ay)),
-      _size(QSize(width, height)), _brush(brush) {
+      _size(QSize(width, height)), _brush(brush), DEFAULT_SIZE(QSizeF(width, height)), MAX_WIDTH(width) {
   _type = type;
   _anchor = QPointF(ax, ay);
   setPos(_anchor);
@@ -70,6 +70,14 @@ void WavePick::setBorders(std::variant<WavePick *, qreal> left,
                           std::variant<WavePick *, qreal> right) {
   _leftBorder = left;
   _rightBorder = right;
+}
+
+void WavePick::scallByAxis(QSizeF scaleS)
+{
+    qreal scaleY = scaleS.height();
+    _size.setWidth(3);
+    _size.setHeight(_size.height() * scaleY);
+    _rect.setSize(_size);
 }
 
 QRectF WavePick::boundingRect() const {

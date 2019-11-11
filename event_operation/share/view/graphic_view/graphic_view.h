@@ -30,8 +30,6 @@ public:
   void setWaveRadius(const qreal wr) { WAVE_RADIUS = wr; }
   void setRangeX(const qreal rangeX) { _rangeX = rangeX; }
   void setCountOfComponents(int count) { _countOfComponents = count; }
-  void setScale(const qreal scale) { _currentlyWavesScale = scale; }
-  void setDefaultScale() { _currentlyWavesScale = 1.0f; }
 
   QList<WavePick *> *getPickcs() { return &_wavePicks; }
   const bool isEdit() const { return _editMode; }
@@ -71,11 +69,9 @@ private:
   bool _addWaveMode = false;
   bool _isAddPWaveTriggerPressed = false;
   bool _isAddSWaveTriggerPressed = false;
-  qreal _mFactor = 1.0;
   ChartGesture *_chart;
   QList<WavePick *> _wavePicks;
   QList<Pipes2DName *> _pipesName;
-  qreal _currentlyWavesScale = 1.0f;
   QPointF calculatePickPosition(QPointF);
   bool checkAvailability(Data::SeismWavePick::Type, int);
   QGraphicsTextItem *_status;
@@ -83,8 +79,6 @@ private:
 
   const int MICROSECONDS_IN_SECOND = 1000000;
   const int MICROSECONDS_IN_MILISECOND = 1000;
-
-  QList<qreal> _rubberBandFactorList;
   QPoint _firstPoint;
 
 signals:

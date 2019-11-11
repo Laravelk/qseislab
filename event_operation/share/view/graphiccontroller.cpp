@@ -136,7 +136,7 @@ void GraphicController::update(const std::unique_ptr<SeismEvent> &event) {
   _view->chart()->removeAllSeries();
   _allSeries.clear();
   _view->clearPicks();
-  _view->setDefaultScale();
+//  _view->setDefaultScale();
   _rangeAxisX = 0;
   getRangeX(event);
   _view->setCountOfComponents(event->getComponentAmount());
@@ -353,6 +353,10 @@ void GraphicController::addWiggle(bool flag) {
       }
     }
     QAreaSeries *upperArea = new QAreaSeries();
+    QColor upperAreaColor = series->color();
+    upperAreaColor.setAlpha(100);
+    upperArea->setPen(upperAreaColor);
+    upperArea->setBrush(QBrush(upperAreaColor)); // TODO: delete
     upperArea->setUpperSeries(newSeries);
     upperArea->setLowerSeries(medianSeries);
     upperArea->setUseOpenGL(true);
@@ -377,8 +381,9 @@ void GraphicController::settingAreaSeries(QAreaSeries *series) {
   QPen pen(0x059605);
   pen.setWidth(1);
   series->setPen(pen);
-  QBrush brush(Qt::black);
-  series->setBrush(brush);
+//  QBrush brush(Qt::black);
+//  series->setBrush(brush);
+  series->setBorderColor(Qt::white);
 }
 
 void GraphicController::setAxesY(int componentNumber) {
