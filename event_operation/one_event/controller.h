@@ -27,13 +27,17 @@ public:
 
   explicit Controller(
       const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &,
-      const std::unique_ptr<Data::SeismEvent> &, QObject *parent = nullptr);
+      const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &,
+      const std::unique_ptr<Data::SeismEvent> &, std::unique_ptr<QUndoStack> &,
+      QObject *parent = nullptr);
 
   void start();
   void finish(int);
 
 signals:
   void sendEvent(std::unique_ptr<Data::SeismEvent> &) const;
+  void sendEventAndStack(std::unique_ptr<Data::SeismEvent> &,
+                         std::unique_ptr<QUndoStack> &);
   void finished() const;
 
 private:
@@ -47,7 +51,8 @@ private:
   PolarizationAnalysisWindow *_polarizationWindow;
 
   std::unique_ptr<Data::SeismEvent> _event;
-  QUndoStack* _appliedOperations;
+  //  QUndoStack *_appliedOperations;
+  std::unique_ptr<QUndoStack> _undoStack;
 };
 
 } // namespace OneEvent

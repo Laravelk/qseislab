@@ -1,5 +1,6 @@
 #pragma once
 
+#include "customundostack.h"
 #include "data/seismevent.h"
 #include "data/seismproject.h"
 #include "view/view.h"
@@ -54,6 +55,13 @@ private slots:
 
 private:
   std::unique_ptr<Data::SeismProject> _project;
+
+  //  std::map<QUuid, std::unique_ptr<CustomUndoStack>> _eventStacks;
+  std::map<QUuid, std::unique_ptr<QUndoStack>> _eventStacks;
+  std::unique_ptr<QUndoStack> _shareEventStack;
+  // TODO(stack): завести мапу со стеками для каждого ивента
+  //        (uuid-стек(кастомный))
+  // TODO(stack): завести общтй стек операций над ивентами (стендартный)
 
   std::unique_ptr<View> _mainWindow;
 

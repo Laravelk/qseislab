@@ -17,6 +17,8 @@ public:
 
   void viewAboutProject(const std::unique_ptr<Data::SeismProject> &);
 
+  void updateUndoStack(const std::unique_ptr<QUndoStack> &);
+
   void loadProject(const std::unique_ptr<Data::SeismProject> &);
   void addEvent(const std::unique_ptr<Data::SeismEvent> &);
   void
@@ -37,6 +39,10 @@ public:
   void closeProject();
 
 signals:
+  void changeEventFocus(const QUuid &) const;
+  void undoClicked(const QUuid &) const;
+  void redoClicked(const QUuid &) const;
+
   void addEventsClicked() const;
   void addEventClicked() const;
   void viewEventClicked(const QUuid) const;

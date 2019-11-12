@@ -86,6 +86,16 @@ FilteringTableAssistant::FilteringTableAssistant(Mode mode, QWidget *parent)
   // Layouts end
 }
 
+const QUuid FilteringTableAssistant::getFocusObject() const {
+  // TODO: придумать как доставать uuid  у выделенной строки или нулевой uuid
+  // возвращать
+  auto selectedItems = _objectsTable->selectedItems();
+  if (1 != selectedItems.size()) {
+    return QUuid();
+  }
+  return QUuid();
+}
+
 bool FilteringTableAssistant::remove(const QUuid &uuid) {
   for (int row = 0; row < _objectsTable->rowCount(); ++row) {
     if (uuid == _objectsTable->item(row, 0)->data(Qt::DisplayRole).toUuid()) {

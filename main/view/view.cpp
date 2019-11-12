@@ -44,6 +44,21 @@ View::View(QWidget *parent) : QMainWindow(parent) {
   connect(this, &View::projectPresence, act, &QAction::setEnabled);
 
   QMenu *editMenu = new QMenu("&Edit");
+  act = editMenu->addAction("Undo", [this] {
+    if (nullptr != _workPage) {
+      emit undoClicked(_workPage->getFocusEvent());
+    }
+  });
+  act->setDisabled(true);
+  connect(this, &View::projectPresence, act, &QAction::setEnabled);
+  act = editMenu->addAction("Redo", [this] {
+    if (nullptr != _workPage) {
+      emit redoClicked(_workPage->getFocusEvent());
+    }
+  });
+  act->setDisabled(true);
+  connect(this, &View::projectPresence, act, &QAction::setEnabled);
+
   act = editMenu->addAction("Add Events", [this] { emit addEventsClicked(); });
   act->setDisabled(true);
   connect(this, &View::projectPresence, act, &QAction::setEnabled);

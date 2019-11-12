@@ -1,7 +1,7 @@
 #pragma once
 
-#include "data/seismwavepick.h"
 #include "data/seismevent.h"
+#include "data/seismwavepick.h"
 
 #include <QBoxLayout>
 #include <QDialog>
@@ -16,7 +16,7 @@
 #include <QUndoStack>
 
 namespace Data {
-//class SeismEvent;
+// class SeismEvent;
 class SeismWell;
 } // namespace Data
 
@@ -31,10 +31,10 @@ class View : public QDialog {
 
 public:
   explicit View(const std::set<QString> &,
-                  const std::unique_ptr<Data::SeismEvent> &, QUndoStack* ,
-                QWidget *parent = nullptr);
-  explicit View(const std::set<QString> &, const std::map<QUuid, QString> &, QUndoStack* ,
-                QWidget *parent = nullptr);
+                const std::unique_ptr<Data::SeismEvent> &,
+                const std::unique_ptr<QUndoStack> &, QWidget *parent = nullptr);
+  explicit View(const std::set<QString> &, const std::map<QUuid, QString> &,
+                const std::unique_ptr<QUndoStack> &, QWidget *parent = nullptr);
 
   void update(const std::unique_ptr<Data::SeismEvent> &);
 

@@ -24,6 +24,8 @@ public:
 
   void loadProject(const std::unique_ptr<Data::SeismProject> &);
 
+  const QUuid getFocusEvent() const;
+
   void addEvent(const std::unique_ptr<Data::SeismEvent> &);
   void
   processedEvents(const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &);

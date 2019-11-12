@@ -113,6 +113,10 @@ void WorkPage::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
   _eventsTable->setAll<SeismEvent>(project->getAllMap<SeismEvent>());
 }
 
+const QUuid WorkPage::getFocusEvent() const {
+  return _eventsTable->getFocusObject();
+}
+
 void WorkPage::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
   _oilFieldScene->addEvent(event); // TODO: uncoment
   _eventsTable->add<SeismEvent>(event);

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "data/seismwavepick.h"
 #include "data/seismevent.h"
+#include "data/seismwavepick.h"
 
 #include <QBoxLayout>
 #include <QComboBox>
@@ -15,7 +15,7 @@
 #include <set>
 
 namespace Data {
-//class SeismEvent;
+// class SeismEvent;
 class SeismWell;
 } // namespace Data
 
@@ -29,13 +29,18 @@ class View : public QDialog {
   Q_OBJECT
 
 public:
-  explicit View(const std::set<QString> &, const std::map<QUuid, QString> &, QUndoStack*,
+  explicit View(const std::set<QString> &, const std::map<QUuid, QString> &,
                 QWidget *parent = nullptr);
+  //  explicit View(const std::set<QString> &, const std::map<QUuid, QString> &,
+  //  QUndoStack*,
+  //                QWidget *parent = nullptr);
 
-  void loadEvent(const std::unique_ptr<Data::SeismEvent> &);
-  void unloadEvent();
+  //  void loadEvent(const std::unique_ptr<Data::SeismEvent> &);
+  void loadEvent(const std::unique_ptr<Data::SeismEvent> &,
+                 const std::unique_ptr<QUndoStack> &);
+  void unloadEvent(const std::unique_ptr<QUndoStack> &);
 
-  void update(const std::unique_ptr<Data::SeismEvent>& );
+  void update(const std::unique_ptr<Data::SeismEvent> &);
 
   void update(const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &);
 
@@ -67,6 +72,9 @@ private:
   void removeLocal(const QString &);
   QBrush updateRepetition(const QString &);
   bool allValid() const;
+
+  QPushButton *_undoButton;
+  QPushButton *_redoButton;
 
   EventToolsWidget *_toolsWidget;
 

@@ -15,7 +15,31 @@ using namespace ProjectOperation;
 
 namespace Main {
 Controller::Controller(QObject *parent)
-    : QObject(parent), _mainWindow(std::make_unique<View>()) {
+    : QObject(parent), _mainWindow(std::make_unique<View>()),
+      _shareEventStack(std::make_unique<QUndoStack>()) {
+
+  // share-undo/redo connecting
+  connect(_mainWindow.get(), &View::changeEventFocus, [this](auto &uuid) {
+    if (uuid.isNull()) {
+      _mainWindow->updateUndoStack(_shareEventStack);
+    } else {
+      _mainWindow->updateUndoStack(_eventStacks[uuid]);
+    }
+  });
+  connect(_mainWindow.get(), &View::undoClicked, [this](auto &uuid) {
+    if (uuid.isNull()) {
+      _shareEventStack->undo();
+    } else {
+      _eventStacks[uuid]->undo();
+    }
+  });
+  connect(_mainWindow.get(), &View::redoClicked, [this](auto &uuid) {
+    if (uuid.isNull()) {
+      _shareEventStack->redo();
+    } else {
+      _eventStacks[uuid]->redo();
+    }
+  });
 
   connect(_mainWindow.get(), &View::addEventsClicked, this,
           &Controller::handleAddEventsClicked);
@@ -57,10 +81,14 @@ void Controller::recvProject(std::unique_ptr<SeismProject> &project) {
   _project = std::move(project);
 
   // Event`s connecting
-  connect(_project.get(), &SeismProject::addedEvent,
-          [this](auto &event) { _mainWindow->addEvent(event); });
-  connect(_project.get(), &SeismProject::removedEvent,
-          [this](auto &uuid) { _mainWindow->removeEvent(uuid); });
+  connect(_project.get(), &SeismProject::addedEvent, [this](auto &event) {
+    //    _eventStacks[event->getUuid()] = std::make_unique<CustomUndoStack>();
+    _mainWindow->addEvent(event);
+  });
+  connect(_project.get(), &SeismProject::removedEvent, [this](auto &uuid) {
+    _eventStacks.erase(uuid);
+    _mainWindow->removeEvent(uuid);
+  });
   connect(_project.get(), &SeismProject::processedEvents, [this] {
     _mainWindow->processedEvents(_project->getAllMap<SeismEvent>());
   });
@@ -94,10 +122,14 @@ void Controller::handleAddEventsClicked() {
         _project->getAllMap<SeismEvent>(), _project->getAllMap<SeismWell>(),
         this);
 
-    connect(_moreEventsController.get(), &MoreEvents::Controller::sendEvents,
-            [this](auto &events_map) {
+    connect(_moreEventsController.get(),
+            &MoreEvents::Controller::sendEventsAndStacks,
+            [this](auto &events_map, auto &stacks_map) {
               for (auto &uuid_event : events_map) {
                 _project->add<SeismEvent>(std::move(uuid_event.second));
+              }
+              for (auto &uuid_stack : stacks_map) {
+                _eventStacks[uuid_stack.first] = std::move(uuid_stack.second);
               }
             });
     connect(_moreEventsController.get(), &MoreEvents::Controller::finished,
@@ -113,9 +145,15 @@ void Controller::handleAddEventClicked() {
         _project->getAllMap<SeismEvent>(), _project->getAllMap<SeismWell>(),
         this);
 
-    connect(
-        _oneEventController.get(), &OneEvent::Controller::sendEvent,
-        [this](auto &event) { _project->add<SeismEvent>(std::move(event)); });
+    //    connect(
+    //        _oneEventController.get(), &OneEvent::Controller::sendEvent,
+    //        [this](auto &event) { _project->add<SeismEvent>(std::move(event));
+    //        });
+    connect(_oneEventController.get(), &OneEvent::Controller::sendEventAndStack,
+            [this](auto &event, auto &undoStack) {
+              _eventStacks[event->getUuid()] = std::move(undoStack);
+              _project->add<SeismEvent>(std::move(event));
+            });
     connect(_oneEventController.get(), &OneEvent::Controller::finished,
             [this] { _oneEventController.reset(); });
 
@@ -126,11 +164,16 @@ void Controller::handleAddEventClicked() {
 void Controller::handleViewEventClicked(const QUuid uuid) {
   if (!_oneEventController) {
     _oneEventController = std::make_unique<OneEvent::Controller>(
-        _project->getAllMap<SeismEvent>(), _project->get<SeismEvent>(uuid),
-        this);
+        _project->getAllMap<SeismEvent>(), _project->getAllMap<SeismWell>(),
+        _project->get<SeismEvent>(uuid), _eventStacks[uuid], this);
 
-    connect(_oneEventController.get(), &OneEvent::Controller::sendEvent,
-            [this](auto &event) {
+    //    connect(_oneEventController.get(), &OneEvent::Controller::sendEvent,
+    //            [this](auto &event) {
+    //              _project->update<SeismEvent>(std::move(event));
+    //            });
+    connect(_oneEventController.get(), &OneEvent::Controller::sendEventAndStack,
+            [this](auto &event, auto &undoStack) {
+              _eventStacks[event->getUuid()] = std::move(undoStack);
               _project->update<SeismEvent>(std::move(event));
             });
 

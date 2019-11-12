@@ -18,8 +18,9 @@ Controller::Controller(
     const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &all_events,
     const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &wells_map,
     QObject *parent)
-    : QObject(parent), _model(new Model(new SegyReader(), this)),
-    _appliedOperations(new QUndoStack()){
+    : QObject(parent), _model(new Model(new SegyReader(), this))
+//      _appliedOperations(new QUndoStack())
+{
 
   // prepare data for view
   std::map<QUuid, QString> wellNames_map;
@@ -30,7 +31,8 @@ Controller::Controller(
   for (auto &uuid_event : all_events) {
     eventNames.insert(uuid_event.second->getName());
   }
-  _view = std::make_unique<View>(eventNames, wellNames_map, _appliedOperations);
+  _view = std::make_unique<View>(eventNames, wellNames_map);
+  //                                 , _appliedOperations);
   // ...
 
   connect(_model, &Model::notify,
@@ -54,6 +56,7 @@ Controller::Controller(
                 }
                 auto &uuid = event->getUuid();
                 _events_map[uuid] = std::move(event);
+                _stacks_map[uuid] = std::make_unique<QUndoStack>();
               }
             }
             _view->update(_events_map);
@@ -70,9 +73,10 @@ Controller::Controller(
     }
 
     _currentEventUuid = uuid;
-    _view->loadEvent(_events_map[_currentEventUuid]);
+    _view->loadEvent(_events_map[_currentEventUuid],
+                     _stacks_map[_currentEventUuid]);
 
-    _appliedOperations->clear();
+    //    _appliedOperations->clear();
   });
 
   connect(_view.get(), &View::hideCurrentEvent, [this]() {
@@ -80,10 +84,10 @@ Controller::Controller(
       _view->settingEventInfo(_events_map[_currentEventUuid]);
     }
 
+    _view->unloadEvent(_stacks_map[_currentEventUuid]);
     _currentEventUuid = QUuid();
-    _view->unloadEvent();
 
-    _appliedOperations->clear();
+    //    _appliedOperations->clear();
   });
 
   connect(_view.get(), &View::removeEvent,
@@ -108,31 +112,38 @@ Controller::Controller(
             }
           });
 
-  connect(_view.get(), &View::undoClicked, [this](){
-      if (!_currentEventUuid.isNull()) {
-          _appliedOperations->undo();
-          _view->update(_events_map[_currentEventUuid]);
-      }
+  connect(_view.get(), &View::undoClicked, [this]() {
+    if (!_currentEventUuid.isNull()) {
+      //      _appliedOperations->undo();
+      _stacks_map[_currentEventUuid]->undo();
+      _view->update(_events_map[_currentEventUuid]);
+    }
   });
-  connect(_view.get(), &View::redoClicked, [this](){
-      if (!_currentEventUuid.isNull()) {
-          _appliedOperations->redo();
-          _view->update(_events_map[_currentEventUuid]);
-      }
+  connect(_view.get(), &View::redoClicked, [this]() {
+    if (!_currentEventUuid.isNull()) {
+      //      _appliedOperations->redo();
+      _stacks_map[_currentEventUuid]->redo();
+      _view->update(_events_map[_currentEventUuid]);
+    }
   });
 
-  connect(_view.get(), &View::eventTransformClicked,
-          [this, &wells_map](auto oper) {
-              if (!_currentEventUuid.isNull()) {
-                  auto& event = _events_map[_currentEventUuid];
-                  switch (oper) {
-                  case SeismEvent::RotateDataToEBasis:
-                      _appliedOperations->push(new Modefication::RotateDataToEBasis(event, wells_map));
-                  }
+  connect(
+      _view.get(), &View::eventTransformClicked, [this, &wells_map](auto oper) {
+        if (!_currentEventUuid.isNull()) {
+          auto &event = _events_map[_currentEventUuid];
+          switch (oper) {
+          case SeismEvent::RotateDataToEBasis:
+            //            _appliedOperations->push(
+            //                new
+            //                Modefication::RotateDataToEBasis(event.get(),
+            //                wells_map));
+            _stacks_map[_currentEventUuid]->push(
+                new Modefication::RotateDataToEBasis(event.get(), wells_map));
+          }
 
-                  _view->update(event);
-              }
-        });
+          _view->update(event);
+        }
+      });
 
   connect(_view.get(), &View::finished, this, &Controller::finish);
 }
@@ -147,7 +158,7 @@ void Controller::finish(int result) {
     if (!_currentEventUuid.isNull()) {
       _view->settingEventInfo(_events_map[_currentEventUuid]);
     }
-    emit sendEvents(_events_map);
+    emit sendEventsAndStacks(_events_map, _stacks_map);
   }
 
   emit finished();

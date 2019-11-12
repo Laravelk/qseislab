@@ -12,6 +12,8 @@ public:
 
   FilteringTableAssistant(Mode, QWidget *parent = nullptr);
 
+  const QUuid getFocusObject() const;
+
   bool remove(const QUuid &);
 
   template <typename T> void add(const std::unique_ptr<T> &);

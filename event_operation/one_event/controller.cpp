@@ -22,7 +22,8 @@ Controller::Controller(
     QObject *parent)
     : QObject(parent), _model(new Model(new SegyReader(), this)),
       _event(std::make_unique<Data::SeismEvent>()),
-    _appliedOperations(new QUndoStack()){
+      //      _appliedOperations(new QUndoStack()),
+      _undoStack(std::make_unique<QUndoStack>()) {
 
   // prepare data for view
   std::map<QUuid, QString> wellNames_map;
@@ -33,7 +34,7 @@ Controller::Controller(
   for (auto &uuid_event : all_events) {
     eventNames.insert(uuid_event.second->getName());
   }
-  _view = std::make_unique<View>(eventNames, wellNames_map, _appliedOperations);
+  _view = std::make_unique<View>(eventNames, wellNames_map, _undoStack);
   // ...
 
   connect(_event.get(), &Data::SeismEvent::changed, []() {
@@ -90,34 +91,44 @@ Controller::Controller(
             }
           });
 
-  connect(_view.get(), &View::undoClicked, [this](){
-      _appliedOperations->undo();
-      _view->update(_event);
+  connect(_view.get(), &View::undoClicked, [this]() {
+    _undoStack->undo();
+    //    _appliedOperations->undo();
+    _view->update(_event);
   });
-  connect(_view.get(), &View::redoClicked, [this](){
-      _appliedOperations->redo();
-      _view->update(_event);
+  connect(_view.get(), &View::redoClicked, [this]() {
+    //    _appliedOperations->redo();
+    _undoStack->redo();
+    _view->update(_event);
   });
 
-  connect(_view.get(), &View::eventTransformClicked,
-          [this, &wells_map](auto oper) {
-              switch (oper) {
-              case SeismEvent::RotateDataToEBasis:
-                  _appliedOperations->push(new Modefication::RotateDataToEBasis(_event, wells_map));
-              }
+  connect(
+      _view.get(), &View::eventTransformClicked, [this, &wells_map](auto oper) {
+        switch (oper) {
+        case SeismEvent::RotateDataToEBasis:
+          //              _appliedOperations->push(
+          //                  new Modefication::RotateDataToEBasis(_event,
+          //                  wells_map));
+          _undoStack->push(
+              new Modefication::RotateDataToEBasis(_event.get(), wells_map));
+        }
 
-              _view->update(_event);
-          });
+        _view->update(_event);
+      });
 
   connect(_view.get(), &View::finished, this, &Controller::finish);
 }
 
 Controller::Controller(
     const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &all_events,
-    const std::unique_ptr<Data::SeismEvent> &event, QObject *parent)
+    const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &wells_map,
+    const std::unique_ptr<Data::SeismEvent> &event,
+    std::unique_ptr<QUndoStack> &undoStack, QObject *parent)
     : QObject(parent), _model(nullptr),
       _event(std::make_unique<Data::SeismEvent>(*event)),
-    _appliedOperations(new QUndoStack()){
+      _undoStack(std::move(undoStack))
+//      _appliedOperations(new QUndoStack())
+{
 
   //    _eventNameContainer[QUuid()] = _event->getName(); // TODO: it`s OK?
 
@@ -129,7 +140,7 @@ Controller::Controller(
       eventNames.insert(uuid_event.second->getName());
     }
   }
-  _view = std::make_unique<View>(eventNames, _event, _appliedOperations);
+  _view = std::make_unique<View>(eventNames, _event, _undoStack);
   // ...
 
   connect(_event.get(), &Data::SeismEvent::changed, []() {
@@ -158,8 +169,34 @@ Controller::Controller(
             }
           });
 
-//  connect(_view.get(), &View::dataToEBasisClicked,
-//          [this]() { EventTools::dataToEBasis(_event); });
+  //  connect(_view.get(), &View::dataToEBasisClicked,
+  //          [this]() { EventTools::dataToEBasis(_event); });
+
+  connect(_view.get(), &View::undoClicked, [this]() {
+    _undoStack->undo();
+    //    _appliedOperations->undo();
+    _view->update(_event);
+  });
+  connect(_view.get(), &View::redoClicked, [this]() {
+    //    _appliedOperations->redo();
+    _undoStack->redo();
+    _view->update(_event);
+  });
+
+  connect(
+      _view.get(), &View::eventTransformClicked, [this, &wells_map](auto oper) {
+        switch (oper) {
+        case SeismEvent::RotateDataToEBasis:
+          //              _appliedOperations->push(
+          //                  new Modefication::RotateDataToEBasis(_event,
+          //                  wells_map));
+          std::cout << "here" << std::endl;
+          _undoStack->push(
+              new Modefication::RotateDataToEBasis(_event.get(), wells_map));
+        }
+
+        _view->update(_event);
+      });
 
   connect(_view.get(), &View::finished, this, &Controller::finish);
 }
@@ -172,7 +209,8 @@ void Controller::start() {
 void Controller::finish(int result) {
   if (QDialog::Accepted == result) {
     _view->settingEventInfo(_event);
-    emit sendEvent(_event);
+    emit sendEventAndStack(_event, _undoStack);
+    //    emit sendEvent(_event);
   }
 
   emit finished();

@@ -14,13 +14,13 @@ class EventToolsWidget : public QWidget {
 public:
   explicit EventToolsWidget(QWidget *parent = nullptr);
 
-  void update(const std::unique_ptr<Data::SeismEvent>& );
+  void update(const std::unique_ptr<Data::SeismEvent> &);
 
 signals:
-    void eventTransformClicked(Data::SeismEvent::TransformOperation) const;
-//  void dataToEBasisClicked() const;
+  void eventTransformClicked(Data::SeismEvent::TransformOperation) const;
+  //  void dataToEBasisClicked() const;
 
-  private:
-      QPushButton* _dataToEBasisButton;
+private:
+  QPushButton *_dataToEBasisButton;
 };
 } // namespace EventOperation
