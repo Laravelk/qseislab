@@ -168,6 +168,9 @@ View::View(const std::set<QString> &globalEventNames,
 
   _tabWidget->addTab(_graphicEvent->getView(), "graphic");
   _tabWidget->addTab(new QWidget(), "IN PROGRESS");
+  QPalette paletteTabWidget = _tabWidget->palette();
+  paletteTabWidget.setColor(_tabWidget->backgroundRole(), Qt::white);
+  _tabWidget->setPalette(paletteTabWidget);
 
   QHBoxLayout *mainLayout = new QHBoxLayout();
   mainLayout->addLayout(leftLayout);
