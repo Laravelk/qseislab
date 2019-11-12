@@ -9,7 +9,7 @@
 
 namespace EventOperation {
 GraphicView::GraphicView(QChart *chart, QWidget *parent)
-    : QChartView(chart, parent), _zoomIsTouching(false) {
+    : QChartView(chart, parent), _zoomIsTouching(false), _colorData(new ColorData) {
   chart->setAnimationOptions(QChart::NoAnimation);
   setDragMode(QGraphicsView::NoDrag);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -23,29 +23,22 @@ GraphicView::GraphicView(QChart *chart, QWidget *parent)
   _status->show();
 }
 
-void GraphicView::addPick(Data::SeismWavePick::Type type, qreal ax, qreal ay,
-                          int width, int height, QBrush brush, qreal rangeX,
+void GraphicView::addPick(Data::SeismWavePick::Type type, qreal ax, qreal ay, qreal rangeX,
                           qreal leftBorderOffset, qreal rightBorderOffset) {
-  addPick(type, QPointF(ax, ay), QSize(width, height), brush, rangeX,
+  addPick(type, QPointF(ax, ay), rangeX,
           leftBorderOffset, rightBorderOffset);
 }
 
-void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
-                          QSizeF size, QBrush brush, qreal rangeX,
+void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos, qreal rangeX,
                           qreal leftBorderPos, qreal rightBorderPos) {
-  QBrush borderBrush;
-  if (Data::SeismWavePick::SWAVE == type) {
-    borderBrush = Qt::darkGreen;
-  } else {
-    borderBrush = Qt::darkCyan;
-  }
-  WavePick *pick = new WavePick(type, rect, chart(), pos, size, brush, 2, 4);
+    std::cerr << "CREATE ITEM WITH SIZE " <<_sizeWaveItem.width() << " " << _sizeWaveItem.height() << std::endl;
+  WavePick *pick = new WavePick(type, rect, chart(), pos, _sizeWaveItem, _colorData->getPickColor(type), 2, 4);
   WavePick *leftBorder =
-      new WavePick(type, rect, chart(), QPointF(leftBorderPos, pos.y()), size,
-                   borderBrush, 0, pick);
+      new WavePick(type, rect, chart(), QPointF(leftBorderPos, pos.y()), _sizeWaveItem,
+                   _colorData->getBorderPickColor(type), 0, pick);
   WavePick *rightBorder =
-      new WavePick(type, rect, chart(), QPointF(rightBorderPos, pos.y()), size,
-                   borderBrush, pick, rangeX);
+      new WavePick(type, rect, chart(), QPointF(rightBorderPos, pos.y()), _sizeWaveItem,
+                   _colorData->getBorderPickColor(type), pick, rangeX);
   connect(pick, &WavePick::changed, [this, pick, leftBorder, rightBorder]() {
     emit sendPicksInfo(pick->getType(), pick->getComponentAmount(),
                        static_cast<int>(leftBorder->getXPos() * MICROSECONDS_IN_SECOND),
@@ -134,7 +127,7 @@ void GraphicView::mousePressEvent(QMouseEvent *event) {
     QPointF pos = calculatePickPosition(chart()->mapToValue(event->pos()));
     if (checkAvailability(Data::SeismWavePick::PWAVE,
                           static_cast<int>(pos.y()))) {
-      addPick(Data::SeismWavePick::PWAVE, pos, QSize(2, 40), Qt::darkRed,
+      addPick(Data::SeismWavePick::PWAVE, pos,
               _rangeX, pos.x() - 0.025, pos.x() + 0.025);
     }
     _isAddPWaveTriggerPressed = false;
@@ -144,7 +137,7 @@ void GraphicView::mousePressEvent(QMouseEvent *event) {
     QPointF pos = calculatePickPosition(chart()->mapToValue(event->pos()));
     if (checkAvailability(Data::SeismWavePick::SWAVE,
                           static_cast<int>(pos.y()))) {
-      addPick(Data::SeismWavePick::SWAVE, pos, QSize(2, 40), Qt::darkBlue,
+      addPick(Data::SeismWavePick::SWAVE, pos,
               _rangeX, pos.x() - 0.025 , pos.x() + 0.025);
     }
     _isAddSWaveTriggerPressed = false;
@@ -183,11 +176,12 @@ void GraphicView::mouseReleaseEvent(QMouseEvent *event) {
         _chart->zoomIn(QRect(point, size));
         rubberBand = nullptr;
         float scale = std::min(chart()->plotArea().width() / size.width(), chart()->plotArea().height() / size.height());
-        if (scale == INFINITY) {
+        if (abs(scale) > 400) {
             return;
         }
+        _sizeWaveItem = QSizeF(_sizeWaveItem.width(), _sizeWaveItem.height() * scale);
         for (auto &pick : _wavePicks) {
-            pick->scallByAxis(QSizeF(chart()->plotArea().width() / size.width(), chart()->plotArea().height() / size.height()));
+            _sizeWaveItem = pick->scallByAxis(QSizeF(chart()->plotArea().width() / size.width(), chart()->plotArea().height() / size.height()));
             pick->updateGeometry();
         }
         _zoomIsTouching = false;
@@ -319,10 +313,13 @@ void GraphicView::scaleContentsBy(qreal factor) {
     if (!_editMode) {
           _chart->zoom(factor);
           if (scene()) {
+              _sizeWaveItem = QSizeF(_sizeWaveItem.width(), _sizeWaveItem.height() * factor);
             for (auto &wavePick : _wavePicks) {
-               wavePick->scallByAxis(QSizeF(factor, factor));
+              _sizeWaveItem = wavePick->scallByAxis(QSizeF(factor,factor));
               wavePick->updateGeometry();
             }
+            std::cerr << std::endl << std::endl;
+
           }
   }
 }

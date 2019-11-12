@@ -161,20 +161,19 @@ View::View(const std::set<QString> &globalEventNames,
   buttonsLayout->addWidget(_okButton);
   buttonsLayout->addWidget(_cancelButton);
 
-  QVBoxLayout *graphicLayout = new QVBoxLayout();
-//  graphicLayout->addWidget(_graphicEvent->getView(), 10);
-  graphicLayout->addStretch(1);
-  graphicLayout->addLayout(buttonsLayout);
-
   _tabWidget->addTab(_graphicEvent->getView(), "graphic");
   _tabWidget->addTab(new QWidget(), "IN PROGRESS");
   QPalette paletteTabWidget = _tabWidget->palette();
   paletteTabWidget.setColor(_tabWidget->backgroundRole(), Qt::white);
   _tabWidget->setPalette(paletteTabWidget);
 
+  QVBoxLayout *graphicLayout = new QVBoxLayout();
+  graphicLayout->addWidget(_tabWidget);
+  graphicLayout->addStretch(1);
+  graphicLayout->addLayout(buttonsLayout);
+
   QHBoxLayout *mainLayout = new QHBoxLayout();
   mainLayout->addLayout(leftLayout);
-  mainLayout->addWidget(_tabWidget);
   mainLayout->addLayout(graphicLayout, 10);
 
   setLayout(mainLayout);

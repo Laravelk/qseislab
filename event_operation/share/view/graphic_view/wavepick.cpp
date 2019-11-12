@@ -72,12 +72,13 @@ void WavePick::setBorders(std::variant<WavePick *, qreal> left,
   _rightBorder = right;
 }
 
-void WavePick::scallByAxis(QSizeF scaleS)
+QSizeF WavePick::scallByAxis(QSizeF scaleS)
 {
     qreal scaleY = scaleS.height();
     _size.setWidth(3);
     _size.setHeight(_size.height() * scaleY);
     _rect.setSize(_size);
+    return  _rect.size();
 }
 
 QRectF WavePick::boundingRect() const {
