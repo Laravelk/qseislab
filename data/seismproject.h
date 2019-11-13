@@ -42,7 +42,7 @@ public:
   template <typename T> void update(std::unique_ptr<T>);
   template <typename T> bool remove(const QUuid &);
   template <typename T> int getAmount() const;
-  template <typename T> const std::unique_ptr<T> &get(const QUuid &) const;
+  template <typename T> std::unique_ptr<T> &get(const QUuid &);
 
   template <typename T>
   const std::map<QUuid, std::unique_ptr<T>> &getAllMap() const;

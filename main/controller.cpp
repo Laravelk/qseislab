@@ -86,7 +86,7 @@ void Controller::recvProject(std::unique_ptr<SeismProject> &project) {
     _mainWindow->addEvent(event);
   });
   connect(_project.get(), &SeismProject::removedEvent, [this](auto &uuid) {
-    _eventStacks.erase(uuid);
+    //    _eventStacks.erase(uuid);
     _mainWindow->removeEvent(uuid);
   });
   connect(_project.get(), &SeismProject::processedEvents, [this] {
@@ -171,10 +171,13 @@ void Controller::handleViewEventClicked(const QUuid uuid) {
     //            [this](auto &event) {
     //              _project->update<SeismEvent>(std::move(event));
     //            });
-    connect(_oneEventController.get(), &OneEvent::Controller::sendEventAndStack,
-            [this](auto &event, auto &undoStack) {
-              _eventStacks[event->getUuid()] = std::move(undoStack);
+    connect(_oneEventController.get(), &OneEvent::Controller::sendEvent,
+            [this](auto &event) {
               _project->update<SeismEvent>(std::move(event));
+            });
+    connect(_oneEventController.get(), &OneEvent::Controller::sendStack,
+            [this](auto &uuid, auto &undoStack) {
+              _eventStacks[uuid] = std::move(undoStack);
             });
 
     connect(_oneEventController.get(), &OneEvent::Controller::finished,

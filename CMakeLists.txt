@@ -43,6 +43,7 @@ find_package(Eigen3 REQUIRED)
 set(SOURCES
         event_operation/modification/share_functions.cpp
         event_operation/modification/rotatedatatoebasis.cpp
+        event_operation/modification/testmultiplier.cpp
 
         event_operation/one_event/controller.cpp
         event_operation/one_event/view/filemanager.cpp
@@ -140,6 +141,7 @@ set(SOURCES
 set(HEADERS
         event_operation/modification/share_functions.h
         event_operation/modification/rotatedatatoebasis.h
+        event_operation/modification/testmultiplier.h
 
         event_operation/one_event/controller.h
         event_operation/one_event/view/filemanager.h

@@ -28,7 +28,7 @@ public:
   explicit Controller(
       const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &,
       const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &,
-      const std::unique_ptr<Data::SeismEvent> &, std::unique_ptr<QUndoStack> &,
+      std::unique_ptr<Data::SeismEvent> &, std::unique_ptr<QUndoStack> &,
       QObject *parent = nullptr);
 
   void start();
@@ -38,6 +38,7 @@ signals:
   void sendEvent(std::unique_ptr<Data::SeismEvent> &) const;
   void sendEventAndStack(std::unique_ptr<Data::SeismEvent> &,
                          std::unique_ptr<QUndoStack> &);
+  void sendStack(const QUuid &, std::unique_ptr<QUndoStack> &);
   void finished() const;
 
 private:

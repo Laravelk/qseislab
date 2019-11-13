@@ -5,6 +5,8 @@
 #include "event_operation/share/model.h"
 #include "event_operation/share/view/3dscene/polarizationanalysiswindow.h"
 
+#include "event_operation/modification/testmultiplier.h"
+
 #include "data/io/segyreader.h"
 
 #include <iostream> // TODO: remove
@@ -139,6 +141,9 @@ Controller::Controller(
             //                wells_map));
             _stacks_map[_currentEventUuid]->push(
                 new Modefication::RotateDataToEBasis(event.get(), wells_map));
+          case SeismEvent::TestMultiplier:
+            _stacks_map[_currentEventUuid]->push(
+                new Modefication::TestMultiplier(event.get(), 5.0));
           }
 
           _view->update(event);

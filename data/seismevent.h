@@ -20,9 +20,7 @@ class SeismEvent : public QObject {
 public:
   static const QString _default_path;
 
-  enum TransformOperation {
-      RotateDataToEBasis
-  };
+  enum TransformOperation { RotateDataToEBasis, TestMultiplier };
 
   explicit SeismEvent();
   explicit SeismEvent(const QJsonObject &,
@@ -78,7 +76,8 @@ private:
   Point _location{0, 0, 0};
   std::list<std::unique_ptr<SeismComponent>> _components;
 
-  std::set<TransformOperation> _appliedOperations; // NOTE: уместно ли использовать set?
+  std::set<TransformOperation>
+      _appliedOperations; // NOTE: уместно ли использовать set?
   void addTransformOperation(TransformOperation);
   void removeTransformOperation(TransformOperation);
   friend class EventOperation::Modefication::RotateDataToEBasis;

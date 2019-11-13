@@ -22,5 +22,6 @@ signals:
 
 private:
   QPushButton *_dataToEBasisButton;
+  QPushButton *_testMultButton;
 };
 } // namespace EventOperation

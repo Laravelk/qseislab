@@ -110,6 +110,8 @@ void View::viewAboutProject(
   infoProject->show();
 }
 
+void View::updateUndoStack(const std::unique_ptr<QUndoStack> &) {}
+
 void View::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
   delete centralWidget();
   _workPage = new WorkPage(this);

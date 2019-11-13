@@ -297,9 +297,9 @@ template <> int SeismProject::getAmount<SeismEvent>() const {
 }
 
 template <>
-const std::unique_ptr<SeismEvent> &
-SeismProject::get<SeismEvent>(const QUuid &uuid) const {
-  return _events_map.at(uuid);
+std::unique_ptr<SeismEvent> &SeismProject::get<SeismEvent>(const QUuid &uuid) {
+  //  return _events_map.at(uuid);
+  return _events_map[uuid];
 }
 
 template <>
@@ -335,8 +335,8 @@ template <> int SeismProject::getAmount<SeismHorizon>() const {
 }
 
 template <>
-const std::unique_ptr<SeismHorizon> &
-SeismProject::get<SeismHorizon>(const QUuid &uuid) const {
+std::unique_ptr<SeismHorizon> &
+SeismProject::get<SeismHorizon>(const QUuid &uuid) {
   return _horizons_map.at(uuid);
 }
 
@@ -390,8 +390,7 @@ template <> int SeismProject::getAmount<SeismWell>() const {
 }
 
 template <>
-const std::unique_ptr<SeismWell> &
-SeismProject::get<SeismWell>(const QUuid &uuid) const {
+std::unique_ptr<SeismWell> &SeismProject::get<SeismWell>(const QUuid &uuid) {
   return _wells_map.at(uuid);
 }
 
