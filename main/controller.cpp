@@ -90,10 +90,11 @@ void Controller::recvProject(std::unique_ptr<SeismProject> &project) {
     _mainWindow->removeEvent(uuid);
   });
   connect(_project.get(), &SeismProject::processedEvents, [this] {
-    _mainWindow->processedEvents(_project->getAllMap<SeismEvent>());
+    //    _mainWindow->processedEvents(_project->getAllMap<SeismEvent>());
+    _mainWindow->processedEvents(_project->getAllEventMap());
   });
-  connect(_project.get(), &SeismProject::updatedEvent,
-          [this](auto &event) { _mainWindow->updateEvent(event); });
+  //  connect(_project.get(), &SeismProject::updatedEvent,
+  //          [this](auto &event) { _mainWindow->updateEvent(event); });
 
   // Horizon`s connecting
   connect(_project.get(), &SeismProject::addedHorizon,
@@ -117,33 +118,38 @@ void Controller::recvProject(std::unique_ptr<SeismProject> &project) {
 }
 
 void Controller::handleAddEventsClicked() {
-  if (!_moreEventsController) {
-    _moreEventsController = std::make_unique<MoreEvents::Controller>(
-        _project->getAllMap<SeismEvent>(), _project->getAllMap<SeismWell>(),
-        this);
+  //  if (!_moreEventsController) {
+  //    //    _moreEventsController = std::make_unique<MoreEvents::Controller>(
+  //    //        _project->getAllMap<SeismEvent>(),
+  //    //        _project->getAllMap<SeismWell>(), this);
+  //    _moreEventsController = std::make_unique<MoreEvents::Controller>(
+  //        _project->getAllEventMap(), _project->getAllMap<SeismWell>(), this);
 
-    connect(_moreEventsController.get(),
-            &MoreEvents::Controller::sendEventsAndStacks,
-            [this](auto &events_map, auto &stacks_map) {
-              for (auto &uuid_event : events_map) {
-                _project->add<SeismEvent>(std::move(uuid_event.second));
-              }
-              for (auto &uuid_stack : stacks_map) {
-                _eventStacks[uuid_stack.first] = std::move(uuid_stack.second);
-              }
-            });
-    connect(_moreEventsController.get(), &MoreEvents::Controller::finished,
-            [this] { _moreEventsController.reset(); });
+  //    connect(_moreEventsController.get(),
+  //            &MoreEvents::Controller::sendEventsAndStacks,
+  //            [this](auto &events_map, auto &stacks_map) {
+  //              for (auto &uuid_event : events_map) {
+  //                _project->add<SeismEvent>(std::move(uuid_event.second));
+  //              }
+  //              for (auto &uuid_stack : stacks_map) {
+  //                _eventStacks[uuid_stack.first] =
+  //                std::move(uuid_stack.second);
+  //              }
+  //            });
+  //    connect(_moreEventsController.get(), &MoreEvents::Controller::finished,
+  //            [this] { _moreEventsController.reset(); });
 
-    _moreEventsController->start();
-  }
+  //    _moreEventsController->start();
+  //  }
 }
 
 void Controller::handleAddEventClicked() {
   if (!_oneEventController) {
+    //    _oneEventController = std::make_unique<OneEvent::Controller>(
+    //        _project->getAllMap<SeismEvent>(),
+    //        _project->getAllMap<SeismWell>(), this);
     _oneEventController = std::make_unique<OneEvent::Controller>(
-        _project->getAllMap<SeismEvent>(), _project->getAllMap<SeismWell>(),
-        this);
+        _project->getAllEventMap(), _project->getAllMap<SeismWell>(), this);
 
     //    connect(
     //        _oneEventController.get(), &OneEvent::Controller::sendEvent,
@@ -151,8 +157,11 @@ void Controller::handleAddEventClicked() {
     //        });
     connect(_oneEventController.get(), &OneEvent::Controller::sendEventAndStack,
             [this](auto &event, auto &undoStack) {
-              _eventStacks[event->getUuid()] = std::move(undoStack);
-              _project->add<SeismEvent>(std::move(event));
+              //              _eventStacks[event->getUuid()] =
+              //              std::move(undoStack);
+              //              _project->add<SeismEvent>(std::move(event));
+              _eventStacks[event->getUuid()] = undoStack;
+              _project->add(event);
             });
     connect(_oneEventController.get(), &OneEvent::Controller::finished,
             [this] { _oneEventController.reset(); });
@@ -163,22 +172,27 @@ void Controller::handleAddEventClicked() {
 
 void Controller::handleViewEventClicked(const QUuid uuid) {
   if (!_oneEventController) {
+    //    _oneEventController = std::make_unique<OneEvent::Controller>(
+    //        _project->getAllMap<SeismEvent>(),
+    //        _project->getAllMap<SeismWell>(), _project->get<SeismEvent>(uuid),
+    //        _eventStacks[uuid], this);
     _oneEventController = std::make_unique<OneEvent::Controller>(
-        _project->getAllMap<SeismEvent>(), _project->getAllMap<SeismWell>(),
-        _project->get<SeismEvent>(uuid), _eventStacks[uuid], this);
+        _project->getAllEventMap(), _project->getAllMap<SeismWell>(),
+        _project->atEvent(uuid), _eventStacks.at(uuid), this);
 
     //    connect(_oneEventController.get(), &OneEvent::Controller::sendEvent,
     //            [this](auto &event) {
     //              _project->update<SeismEvent>(std::move(event));
     //            });
-    connect(_oneEventController.get(), &OneEvent::Controller::sendEvent,
-            [this](auto &event) {
-              _project->update<SeismEvent>(std::move(event));
-            });
-    connect(_oneEventController.get(), &OneEvent::Controller::sendStack,
-            [this](auto &uuid, auto &undoStack) {
-              _eventStacks[uuid] = std::move(undoStack);
-            });
+    //    connect(_oneEventController.get(), &OneEvent::Controller::sendEvent,
+    //            [this](auto &event) {
+    //              // _project->update<SeismEvent>(std::move(event));
+    //              // _project->update<SeismEvent>(std::move(event));
+    //            });
+    //    connect(_oneEventController.get(), &OneEvent::Controller::sendStack,
+    //            [this](auto &uuid, auto &undoStack) {
+    //              _eventStacks[uuid] = std::move(undoStack);
+    //            });
 
     connect(_oneEventController.get(), &OneEvent::Controller::finished,
             [this] { _oneEventController.reset(); });

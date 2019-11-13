@@ -19,7 +19,7 @@ namespace EventOperation {
 class PolarizationAnalysisWindow : public QDialog {
   Q_OBJECT
 public:
-  PolarizationAnalysisWindow(const std::unique_ptr<Data::SeismEvent> &,
+  PolarizationAnalysisWindow(const std::shared_ptr<Data::SeismEvent> &,
                              QDialog *parent = nullptr);
 
 protected:

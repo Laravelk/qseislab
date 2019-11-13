@@ -25,7 +25,7 @@ OilFieldScene::OilFieldScene(Q3DSurface *surface)
   surface->axisY()->setReversed(true);
 }
 
-void OilFieldScene::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
+void OilFieldScene::addEvent(const std::shared_ptr<Data::SeismEvent> &event) {
   //  if (event->isProcessed()) {
   float x, y, z;
   std::tie(x, y, z) = event->getLocation();
@@ -116,7 +116,7 @@ bool OilFieldScene::showEvent(const QUuid &uid) {
 
 void OilFieldScene::setProject(
     const std::unique_ptr<Data::SeismProject> &project) {
-  for (auto &uuid_event : project->getAllMap<SeismEvent>()) {
+  for (auto &uuid_event : project->getAllEventMap()) {
     addEvent(uuid_event.second);
   }
   for (auto &uuid_horizon : project->getAllMap<SeismHorizon>()) {

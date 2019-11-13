@@ -110,7 +110,7 @@ void View::viewAboutProject(
   infoProject->show();
 }
 
-void View::updateUndoStack(const std::unique_ptr<QUndoStack> &) {}
+void View::updateUndoStack(const std::shared_ptr<QUndoStack> &) {}
 
 void View::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
   delete centralWidget();
@@ -126,18 +126,18 @@ void View::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
   emit projectPresence(true);
 }
 
-void View::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
+void View::addEvent(const std::shared_ptr<Data::SeismEvent> &event) {
   assert(nullptr != _workPage);
   _workPage->addEvent(event);
 }
 
 void View::processedEvents(
-    const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &events) {
+    const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &events) {
   assert(nullptr != _workPage);
   _workPage->processedEvents(events);
 }
 
-void View::updateEvent(const std::unique_ptr<Data::SeismEvent> &event) {
+void View::updateEvent(const std::shared_ptr<Data::SeismEvent> &event) {
   assert(nullptr != _workPage);
   _workPage->updateEvent(event);
 }

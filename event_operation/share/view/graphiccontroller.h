@@ -27,7 +27,7 @@ public:
   void setChart(ChartGesture *chart) { _chart = chart; }
   void setView(GraphicView *view) { _view = view; }
 
-  void update(const std::unique_ptr<Data::SeismEvent> &);
+  void update(const std::shared_ptr<Data::SeismEvent> &);
   void updateEventName(const QString &);
   void setGainCoefficient(const float gainCoefficient);
   void setClippingValue(const float clippingValue);
@@ -64,12 +64,12 @@ private:
   QList<QLineSeries *> _allSeries;
 
   void addWaveArrival(Data::SeismWavePick, int);
-  void setInterval(const std::unique_ptr<Data::SeismEvent> &);
+  void setInterval(const std::shared_ptr<Data::SeismEvent> &);
   void addTraceSeries(const std::unique_ptr<Data::SeismComponent> &, int);
   void addWiggle(bool t); // true is positive, false is negative
   void settingAreaSeries(QAreaSeries *series);
   void setAxesY(int);
-  void getRangeX(const std::unique_ptr<Data::SeismEvent> &);
+  void getRangeX(const std::shared_ptr<Data::SeismEvent> &);
   void updateSeries();
   double findPointAroundZero(int, int, QPointF &, QPointF &);
   void deleteAllWiggle();

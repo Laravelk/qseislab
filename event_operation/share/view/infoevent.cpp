@@ -64,7 +64,7 @@ void InfoEvent::setEnabled(bool b) {
   _stampTimeEdit->setEnabled(b);
 }
 
-void InfoEvent::update(const std::unique_ptr<Data::SeismEvent> &event) {
+void InfoEvent::update(const std::shared_ptr<Data::SeismEvent> &event) {
   if (event) {
     _nameEdit->setText(event->getName());
     _stampDateEdit->setDate(event->getStampDateTime().date());
@@ -95,7 +95,7 @@ void InfoEvent::clear() {
 }
 
 void InfoEvent::settingEventInfo(
-    const std::unique_ptr<Data::SeismEvent> &event) const {
+    const std::shared_ptr<Data::SeismEvent> &event) const {
   event->setName(_nameEdit->text());
   event->setStampDateTime({_stampDateEdit->date(), _stampTimeEdit->time()});
 }

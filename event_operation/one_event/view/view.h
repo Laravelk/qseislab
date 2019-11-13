@@ -31,18 +31,18 @@ class View : public QDialog {
 
 public:
   explicit View(const std::set<QString> &,
-                const std::unique_ptr<Data::SeismEvent> &,
-                const std::unique_ptr<QUndoStack> &, QWidget *parent = nullptr);
+                const std::shared_ptr<Data::SeismEvent> &,
+                const std::shared_ptr<QUndoStack> &, QWidget *parent = nullptr);
   explicit View(const std::set<QString> &, const std::map<QUuid, QString> &,
-                const std::unique_ptr<QUndoStack> &, QWidget *parent = nullptr);
+                const std::shared_ptr<QUndoStack> &, QWidget *parent = nullptr);
 
-  void update(const std::unique_ptr<Data::SeismEvent> &);
+  void update(const std::shared_ptr<Data::SeismEvent> &);
 
-  void update(const std::unique_ptr<Data::SeismEvent> &, const QUuid &);
-  void update(const std::unique_ptr<Data::SeismEvent> &, const QUuid &,
+  void update(const std::shared_ptr<Data::SeismEvent> &, const QUuid &);
+  void update(const std::shared_ptr<Data::SeismEvent> &, const QUuid &,
               const QString &);
   void setNotification(const QString &);
-  void settingEventInfo(const std::unique_ptr<Data::SeismEvent> &) const;
+  void settingEventInfo(const std::shared_ptr<Data::SeismEvent> &) const;
   ChartGesture *getChartGesture();
 
 signals:

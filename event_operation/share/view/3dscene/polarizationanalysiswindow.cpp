@@ -46,7 +46,7 @@ typedef Data::SeismWavePick SeismWavePick;
 namespace EventOperation {
 
 PolarizationAnalysisWindow::PolarizationAnalysisWindow(
-    const std::unique_ptr<Data::SeismEvent> &event, QDialog *parent)
+    const std::shared_ptr<Data::SeismEvent> &event, QDialog *parent)
     : QDialog(parent), _okButton(new QPushButton("Ok")),
       _cancelButton(new QPushButton("Cancel")), _receiverBox(new QComboBox),
       _waveTypeBox(new QComboBox), _view(new Qt3DExtras::Qt3DWindow),

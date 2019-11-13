@@ -233,6 +233,27 @@ void SeismProject::setFileInfo(const QFileInfo &fileInfo) {
 
 const QFileInfo &SeismProject::getFileInfo() { return _fileInfo; }
 
+void SeismProject::add(const std::shared_ptr<SeismEvent> &event) {
+  _isSaved = false;
+  auto &uuid = event->getUuid();
+  _events_map[uuid] = event;
+
+  // TODO: сделать коннект с ивентов, чтоюы при любом его апдейте мы знали и
+  // говорили остальным
+
+  emit addedEvent(_events_map[uuid]);
+}
+
+const std::shared_ptr<SeismEvent> &
+SeismProject::atEvent(const QUuid uuid) const {
+  return _events_map.at(uuid);
+}
+
+const std::map<QUuid, std::shared_ptr<SeismEvent>> &
+SeismProject::getAllEventMap() const {
+  return _events_map;
+}
+
 void SeismProject::processEvents() {
   for (auto &itr : _events_map) {
     (itr.second)->process();
@@ -265,14 +286,14 @@ void SeismProject::removeAllReceivers() {
 // end of Receivers func`s
 
 // Event template`s
-template <>
-void SeismProject::add<SeismEvent>(std::unique_ptr<SeismEvent> event) {
-  _isSaved = false;
-  auto uuid = event->getUuid();
-  _events_map[uuid] = std::move(event);
+// template <>
+// void SeismProject::add<SeismEvent>(std::unique_ptr<SeismEvent> event) {
+//  _isSaved = false;
+//  auto uuid = event->getUuid();
+//  _events_map[uuid] = std::move(event);
 
-  emit addedEvent(_events_map[uuid]);
-}
+//  emit addedEvent(_events_map[uuid]);
+//}
 
 template <> bool SeismProject::remove<SeismEvent>(const QUuid &uuid) {
   if (_events_map.erase(uuid)) {
@@ -283,30 +304,31 @@ template <> bool SeismProject::remove<SeismEvent>(const QUuid &uuid) {
   return false;
 }
 
-template <>
-void SeismProject::update<SeismEvent>(std::unique_ptr<SeismEvent> event) {
-  _isSaved = false;
-  auto uuid = event->getUuid();
-  _events_map[uuid] = std::move(event);
+// template <>
+// void SeismProject::update<SeismEvent>(std::unique_ptr<SeismEvent> event) {
+//  _isSaved = false;
+//  auto uuid = event->getUuid();
+//  _events_map[uuid] = std::move(event);
 
-  emit updatedEvent(_events_map[uuid]);
-}
+//  emit updatedEvent(_events_map[uuid]);
+//}
 
 template <> int SeismProject::getAmount<SeismEvent>() const {
   return static_cast<int>(_events_map.size());
 }
 
-template <>
-std::unique_ptr<SeismEvent> &SeismProject::get<SeismEvent>(const QUuid &uuid) {
-  //  return _events_map.at(uuid);
-  return _events_map[uuid];
-}
+// template <>
+// std::unique_ptr<SeismEvent> &SeismProject::get<SeismEvent>(const QUuid &uuid)
+// {
+//  //  return _events_map.at(uuid);
+//  return _events_map[uuid];
+//}
 
-template <>
-const std::map<QUuid, std::unique_ptr<SeismEvent>> &
-SeismProject::getAllMap<SeismEvent>() const {
-  return _events_map;
-}
+// template <>
+// const std::map<QUuid, std::unique_ptr<SeismEvent>> &
+// SeismProject::getAllMap<SeismEvent>() const {
+//  return _events_map;
+//}
 // end of Event template`s
 
 // Horizon template`s
@@ -335,8 +357,8 @@ template <> int SeismProject::getAmount<SeismHorizon>() const {
 }
 
 template <>
-std::unique_ptr<SeismHorizon> &
-SeismProject::get<SeismHorizon>(const QUuid &uuid) {
+const std::unique_ptr<SeismHorizon> &
+SeismProject::get<SeismHorizon>(const QUuid &uuid) const {
   return _horizons_map.at(uuid);
 }
 
@@ -390,7 +412,8 @@ template <> int SeismProject::getAmount<SeismWell>() const {
 }
 
 template <>
-std::unique_ptr<SeismWell> &SeismProject::get<SeismWell>(const QUuid &uuid) {
+const std::unique_ptr<SeismWell> &
+SeismProject::get<SeismWell>(const QUuid &uuid) const {
   return _wells_map.at(uuid);
 }
 

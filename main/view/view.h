@@ -17,13 +17,13 @@ public:
 
   void viewAboutProject(const std::unique_ptr<Data::SeismProject> &);
 
-  void updateUndoStack(const std::unique_ptr<QUndoStack> &);
+  void updateUndoStack(const std::shared_ptr<QUndoStack> &);
 
   void loadProject(const std::unique_ptr<Data::SeismProject> &);
-  void addEvent(const std::unique_ptr<Data::SeismEvent> &);
+  void addEvent(const std::shared_ptr<Data::SeismEvent> &);
   void
-  processedEvents(const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &);
-  void updateEvent(const std::unique_ptr<Data::SeismEvent> &);
+  processedEvents(const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &);
+  void updateEvent(const std::shared_ptr<Data::SeismEvent> &);
   void removeEvent(const QUuid &);
 
   void addHorizon(const std::unique_ptr<Data::SeismHorizon> &);

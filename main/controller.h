@@ -5,7 +5,7 @@
 #include "data/seismproject.h"
 #include "view/view.h"
 
-#include "event_operation/more_events/controller.h"
+//#include "event_operation/more_events/controller.h"
 #include "event_operation/one_event/controller.h"
 
 #include "horizon_operation/controller.h"
@@ -57,8 +57,8 @@ private:
   std::unique_ptr<Data::SeismProject> _project;
 
   //  std::map<QUuid, std::unique_ptr<CustomUndoStack>> _eventStacks;
-  std::map<QUuid, std::unique_ptr<QUndoStack>> _eventStacks;
-  std::unique_ptr<QUndoStack> _shareEventStack;
+  std::map<QUuid, std::shared_ptr<QUndoStack>> _eventStacks;
+  std::shared_ptr<QUndoStack> _shareEventStack;
   // TODO(stack): завести мапу со стеками для каждого ивента
   //        (uuid-стек(кастомный))
   // TODO(stack): завести общтй стек операций над ивентами (стендартный)
@@ -66,7 +66,8 @@ private:
   std::unique_ptr<View> _mainWindow;
 
   std::unique_ptr<EventOperation::OneEvent::Controller> _oneEventController;
-  std::unique_ptr<EventOperation::MoreEvents::Controller> _moreEventsController;
+  //  std::unique_ptr<EventOperation::MoreEvents::Controller>
+  //  _moreEventsController;
 
   std::unique_ptr<HorizonOperation::Controller> _horizonController;
 

@@ -23,10 +23,10 @@ public:
   void setDisabled(bool);
   void setEnabled(bool);
 
-  void update(const std::unique_ptr<Data::SeismEvent> &);
+  void update(const std::shared_ptr<Data::SeismEvent> &);
   void clear();
 
-  void settingEventInfo(const std::unique_ptr<Data::SeismEvent> &) const;
+  void settingEventInfo(const std::shared_ptr<Data::SeismEvent> &) const;
 
 signals:
   void nameChanged(const QString &);

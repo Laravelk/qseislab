@@ -18,13 +18,13 @@ typedef Data::SeismEvent SeismEvent;
 namespace EventOperation {
 namespace OneEvent {
 Controller::Controller(
-    const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &all_events,
+    const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &all_events,
     const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &wells_map,
     QObject *parent)
     : QObject(parent), _model(new Model(new SegyReader(), this)),
-      _event(std::make_unique<Data::SeismEvent>()),
+      _event(std::make_shared<Data::SeismEvent>()),
       //      _appliedOperations(new QUndoStack()),
-      _undoStack(std::make_unique<QUndoStack>()) {
+      _undoStack(std::make_shared<QUndoStack>()) {
 
   // prepare data for view
   std::map<QUuid, QString> wellNames_map;
@@ -128,13 +128,13 @@ Controller::Controller(
 }
 
 Controller::Controller(
-    const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &all_events,
+    const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &all_events,
     const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &wells_map,
-    std::unique_ptr<Data::SeismEvent> &event,
-    std::unique_ptr<QUndoStack> &undoStack, QObject *parent)
-    : QObject(parent), _model(nullptr), _event(std::move(event)),
+    const std::shared_ptr<Data::SeismEvent> &event,
+    const std::shared_ptr<QUndoStack> &undoStack, QObject *parent)
+    : QObject(parent), _model(nullptr), _event(event),
       //      _event(std::make_unique<Data::SeismEvent>(*event)),
-      _undoStack(std::move(undoStack))
+      _undoStack(undoStack)
 //      _appliedOperations(new QUndoStack())
 {
 
@@ -231,8 +231,8 @@ void Controller::finish(int result) {
     // TODO: correctly!
     emit sendEventAndStack(_event, _undoStack);
   }
-  emit sendStack(uuid, _undoStack);
-  emit sendEvent(_event);
+  //  emit sendStack(uuid, _undoStack);
+  //  emit sendEvent(_event);
 
   emit finished();
 }

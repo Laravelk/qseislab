@@ -110,20 +110,21 @@ WorkPage::WorkPage(QWidget *parent)
 void WorkPage::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
   //  _surface->setProject(project);
   _oilFieldScene->setProject(project);
-  _eventsTable->setAll<SeismEvent>(project->getAllMap<SeismEvent>());
+  //  _eventsTable->setAll<SeismEvent>(project->getAllMap<SeismEvent>());
+  _eventsTable->setAll<SeismEvent>(project->getAllEventMap());
 }
 
 const QUuid WorkPage::getFocusEvent() const {
   return _eventsTable->getFocusObject();
 }
 
-void WorkPage::addEvent(const std::unique_ptr<Data::SeismEvent> &event) {
+void WorkPage::addEvent(const std::shared_ptr<Data::SeismEvent> &event) {
   _oilFieldScene->addEvent(event); // TODO: uncoment
   _eventsTable->add<SeismEvent>(event);
 }
 
 void WorkPage::processedEvents(
-    const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &events) {
+    const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &events) {
   _eventsTable->setAll<SeismEvent>(events);
 
   for (auto &itr : events) {
@@ -131,7 +132,7 @@ void WorkPage::processedEvents(
   }
 }
 
-void WorkPage::updateEvent(const std::unique_ptr<Data::SeismEvent> &event) {
+void WorkPage::updateEvent(const std::shared_ptr<Data::SeismEvent> &event) {
   _eventsTable->update<SeismEvent>(event);
 
   //  _oilFieldScene->updateEvent(event); // TODO: uncomment and realize!

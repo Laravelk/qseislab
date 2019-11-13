@@ -20,8 +20,8 @@ typedef Data::SeismEvent SeismEvent;
 namespace EventOperation {
 namespace OneEvent {
 View::View(const std::set<QString> &eventNames,
-           const std::unique_ptr<Data::SeismEvent> &event,
-           const std::unique_ptr<QUndoStack> &undoStack, QWidget *parent)
+           const std::shared_ptr<Data::SeismEvent> &event,
+           const std::shared_ptr<QUndoStack> &undoStack, QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
       _eventNames(eventNames) {
 
@@ -82,7 +82,7 @@ View::View(const std::set<QString> &eventNames,
 
 View::View(const std::set<QString> &eventNames,
            const std::map<QUuid, QString> &wellNames_map,
-           const std::unique_ptr<QUndoStack> &undoStack, QWidget *parent)
+           const std::shared_ptr<QUndoStack> &undoStack, QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
       _wellManagersLayout(new QVBoxLayout()),
       _addButtonManagers(new QPushButton("Add")), _wellNames_map(wellNames_map),
@@ -193,13 +193,13 @@ View::View(const std::set<QString> &eventNames,
   // Layout`s end
 }
 
-void View::update(const std::unique_ptr<Data::SeismEvent> &event) {
+void View::update(const std::shared_ptr<Data::SeismEvent> &event) {
   _toolsWidget->update(event);
   _infoEvent->update(event);
   _graphicEvent->update(event);
 }
 
-void View::update(const std::unique_ptr<SeismEvent> &event,
+void View::update(const std::shared_ptr<SeismEvent> &event,
                   const QUuid &removedWellUuid) {
   _wellNames_map.erase(removedWellUuid);
 
@@ -213,7 +213,7 @@ void View::update(const std::unique_ptr<SeismEvent> &event,
   _okButton->setFocus();
 }
 
-void View::update(const std::unique_ptr<SeismEvent> &event, const QUuid &uuid,
+void View::update(const std::shared_ptr<SeismEvent> &event, const QUuid &uuid,
                   const QString &wellName) {
   assert(nullptr != _wellManagersLayout);
 
@@ -260,7 +260,7 @@ void View::setNotification(const QString &text) {
 }
 
 void View::settingEventInfo(
-    const std::unique_ptr<Data::SeismEvent> &event) const {
+    const std::shared_ptr<Data::SeismEvent> &event) const {
   _infoEvent->settingEventInfo(event);
 }
 

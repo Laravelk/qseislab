@@ -14,7 +14,7 @@ class EventToolsWidget : public QWidget {
 public:
   explicit EventToolsWidget(QWidget *parent = nullptr);
 
-  void update(const std::unique_ptr<Data::SeismEvent> &);
+  void update(const std::shared_ptr<Data::SeismEvent> &);
 
 signals:
   void eventTransformClicked(Data::SeismEvent::TransformOperation) const;
