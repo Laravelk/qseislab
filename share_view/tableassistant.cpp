@@ -4,6 +4,7 @@
 #include "data/seismreceiver.h"
 #include "data/seismwell.h"
 
+#include <QTableWidget>
 #include <QBoxLayout>
 #include <QHeaderView>
 #include <QPushButton>
@@ -72,14 +73,14 @@ void TableAssistant::requestRemoveAll() {
   }
 }
 
-template <typename T>
-void TableAssistant::setAll(const std::map<QUuid, std::unique_ptr<T>> &map) {
-  clearTable();
+// template <typename T>
+// void TableAssistant::setAll(const std::map<QUuid, std::unique_ptr<T>> &map) {
+//   clearTable();
 
-  for (auto &uuid_obj : map) {
-    add<T>(uuid_obj.second);
-  }
-}
+//   for (auto &uuid_obj : map) {
+//     add<T>(uuid_obj.second);
+//   }
+// }
 
 void TableAssistant::clearTable() {
   const int end = _table->rowCount();
@@ -91,6 +92,7 @@ void TableAssistant::clearTable() {
 // Horizons
 void TableAssistant::forHorizons() {
   assert(ForHorizons == _mode);
+
   _table->setColumnCount(7);
   _table->setColumnHidden(0, true);
 
@@ -114,14 +116,15 @@ void TableAssistant::forHorizons() {
 
 template <>
 void TableAssistant::add<SeismHorizon>(
-    const std::unique_ptr<SeismHorizon> &horizon) {
+    SeismHorizon const * const horizon) {
   assert(ForHorizons == _mode);
+
   _table->setSortingEnabled(false);
 
   _table->insertRow(_table->rowCount());
   int row = _table->rowCount() - 1;
 
-  auto uuid = horizon->getUuid();
+  auto& uuid = horizon->getUuid();
   _table->setItem(row, 0, new QTableWidgetItem(uuid.toString()));
 
   _table->setItem(row, 1, new QTableWidgetItem(horizon->getName()));
@@ -142,7 +145,7 @@ void TableAssistant::add<SeismHorizon>(
   removeButton->setIcon(icon);
   _table->setCellWidget(row, 6, removeButton);
   connect(removeButton, &QPushButton::clicked,
-          [this, uuid]() { emit removeClicked(uuid); });
+          [this, &uuid]() { emit removeClicked(uuid); });
 
   _table->resizeColumnsToContents();
   _table->setSortingEnabled(true);
@@ -150,11 +153,12 @@ void TableAssistant::add<SeismHorizon>(
 
 template <>
 void TableAssistant::update<SeismHorizon>(
-    const std::unique_ptr<SeismHorizon> &horizon) {
+    SeismHorizon const * const horizon) {
   assert(ForHorizons == _mode);
+
   _table->setSortingEnabled(false);
 
-  const auto &uuid = horizon->getUuid();
+  auto &uuid = horizon->getUuid();
   for (int row = 0; row < _table->rowCount(); ++row) {
     if (uuid == _table->item(row, 0)->data(Qt::DisplayRole).toUuid()) {
       _table->item(row, 1)->setData(Qt::DisplayRole, horizon->getName());
@@ -174,6 +178,7 @@ void TableAssistant::update<SeismHorizon>(
 // Wells
 void TableAssistant::forWells() {
   assert(ForWells == _mode);
+
   _table->setColumnCount(5);
   _table->setColumnHidden(0, true);
 
@@ -194,14 +199,15 @@ void TableAssistant::forWells() {
 }
 
 template <>
-void TableAssistant::add<SeismWell>(const std::unique_ptr<SeismWell> &well) {
+void TableAssistant::add<SeismWell>(SeismWell const * const well) {
   assert(ForWells == _mode);
+
   _table->setSortingEnabled(false);
 
   _table->insertRow(_table->rowCount());
   int row = _table->rowCount() - 1;
 
-  auto uuid = well->getUuid();
+  auto& uuid = well->getUuid();
   _table->setItem(row, 0, new QTableWidgetItem(uuid.toString()));
 
   _table->setItem(row, 1, new QTableWidgetItem(well->getName()));
@@ -215,18 +221,19 @@ void TableAssistant::add<SeismWell>(const std::unique_ptr<SeismWell> &well) {
   removeButton->setIcon(icon);
   _table->setCellWidget(row, 4, removeButton);
   connect(removeButton, &QPushButton::clicked,
-          [this, uuid]() { emit removeClicked(uuid); });
+          [this, &uuid]() { emit removeClicked(uuid); });
 
   _table->resizeColumnsToContents();
   _table->setSortingEnabled(true);
 }
 
 template <>
-void TableAssistant::update<SeismWell>(const std::unique_ptr<SeismWell> &well) {
+void TableAssistant::update<SeismWell>(SeismWell const * const well) {
   assert(ForWells == _mode);
+
   _table->setSortingEnabled(false);
 
-  const auto &uuid = well->getUuid();
+  auto &uuid = well->getUuid();
   for (int row = 0; row < _table->rowCount(); ++row) {
     if (uuid == _table->item(row, 0)->data(Qt::DisplayRole).toUuid()) {
       _table->item(row, 1)->setData(Qt::DisplayRole, well->getName());
@@ -243,6 +250,7 @@ void TableAssistant::update<SeismWell>(const std::unique_ptr<SeismWell> &well) {
 // Receivers
 void TableAssistant::forReceivers() {
   assert(ForReceivers == _mode);
+
   _table->setColumnCount(7);
   _table->setColumnHidden(0, true);
 
@@ -265,15 +273,15 @@ void TableAssistant::forReceivers() {
 }
 
 template <>
-void TableAssistant::add<SeismReceiver>(
-    const std::unique_ptr<SeismReceiver> &receiver) {
+void TableAssistant::add<SeismReceiver>(SeismReceiver const * const receiver) {
   assert(ForReceivers == _mode);
+
   _table->setSortingEnabled(false);
 
   _table->insertRow(_table->rowCount());
   int row = _table->rowCount() - 1;
 
-  auto uuid = receiver->getUuid();
+  auto& uuid = receiver->getUuid();
   _table->setItem(row, 0, new QTableWidgetItem(uuid.toString()));
 
   _table->setItem(row, 1, new QTableWidgetItem(receiver->getName()));
@@ -295,19 +303,19 @@ void TableAssistant::add<SeismReceiver>(
   removeButton->setIcon(icon);
   _table->setCellWidget(row, 6, removeButton);
   connect(removeButton, &QPushButton::clicked,
-          [this, uuid]() { emit removeClicked(uuid); });
+          [this, &uuid]() { emit removeClicked(uuid); });
 
   _table->resizeColumnsToContents();
   _table->setSortingEnabled(true);
 }
 
 template <>
-void TableAssistant::update<SeismReceiver>(
-    const std::unique_ptr<SeismReceiver> &receiver) {
+void TableAssistant::update<SeismReceiver>(SeismReceiver const * const receiver) {
   assert(ForReceivers == _mode);
+
   _table->setSortingEnabled(false);
 
-  const auto &uuid = receiver->getUuid();
+  auto &uuid = receiver->getUuid();
   for (int row = 0; row < _table->rowCount(); ++row) {
     if (uuid == _table->item(row, 0)->data(Qt::DisplayRole).toUuid()) {
       _table->item(row, 1)->setData(Qt::DisplayRole, receiver->getName());

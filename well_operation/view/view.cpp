@@ -1,6 +1,8 @@
 #include "view.h"
 
 #include "data/seismwell.h"
+#include "addwellmanager.h"
+#include "share_view/tableassistant.h"
 
 #include <QBoxLayout>
 #include <QHeaderView>
@@ -49,18 +51,18 @@ View::View(QWidget *parent)
   // Layout`s end
 }
 
-void View::addWell(const std::unique_ptr<SeismWell> &well) {
+void View::addWell(SeismWell const * const well) {
   _wellsTable->add<SeismWell>(well);
 }
 
-void View::updateWell(const std::unique_ptr<SeismWell> &well) {
+void View::updateWell(SeismWell const * const well) {
   _addWellManager->update(well);
   _wellsTable->update<SeismWell>(well);
 }
 
 void View::removeWell(const QUuid &uuid) { _wellsTable->remove(uuid); }
 
-void View::settingWellInfo(const std::unique_ptr<Data::SeismWell> &well) {
+void View::settingWellInfo(Data::SeismWell * const well) {
   _addWellManager->settingWellInfo(well);
 }
 
@@ -68,11 +70,6 @@ void View::setNotification(const QString &text) {
   QMessageBox *msg = new QMessageBox(QMessageBox::Critical, "Message", text,
                                      QMessageBox::Ok, this);
   msg->show();
-}
-
-void View::changed(bool b) {
-  _saveButton->setEnabled(b);
-  _saveButton->setFocus();
 }
 
 void View::handleAddWellClicked() {
@@ -90,6 +87,11 @@ void View::handleAddWellClicked() {
 
   _addWellManager->setModal(true);
   _addWellManager->show();
+}
+
+void View::isChanged(bool b) {
+  _saveButton->setEnabled(b);
+  if(b) _saveButton->setFocus();
 }
 
 } // namespace WellOperation

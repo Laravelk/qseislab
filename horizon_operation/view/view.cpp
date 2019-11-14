@@ -1,6 +1,8 @@
 #include "view.h"
 
 #include "data/seismhorizon.h"
+ #include "addhorizonmanager.h"
+ #include "share_view/tableassistant.h"
 
 #include <QBoxLayout>
 #include <QHeaderView>
@@ -49,18 +51,22 @@ View::View(QWidget *parent)
   // Layout`s end
 }
 
-void View::addHorizon(const std::unique_ptr<SeismHorizon> &horizon) {
+void View::addHorizon(SeismHorizon const * const horizon) {
   _horizonsTable->add<SeismHorizon>(horizon);
+  isChanged(true);
 }
 
-void View::updateHorizon(const std::unique_ptr<SeismHorizon> &horizon) {
+void View::updateHorizon(SeismHorizon const * const horizon) {
   _addHorizonManager->update(horizon);
+  isChanged(true);
 }
 
-void View::removeHorizon(const QUuid &uuid) { _horizonsTable->remove(uuid); }
+void View::removeHorizon(const QUuid &uuid) {
+    _horizonsTable->remove(uuid);
+    isChanged(true);
+}
 
-void View::settingHorizonInfo(
-    const std::unique_ptr<Data::SeismHorizon> &horizon) {
+void View::settingHorizonInfo(SeismHorizon * const horizon) {
   _addHorizonManager->settingHorizonInfo(horizon);
 }
 
@@ -70,10 +76,10 @@ void View::setNotification(const QString &text) {
   msg->show();
 }
 
-void View::changed(bool b) {
-  _saveButton->setEnabled(b);
-  _saveButton->setFocus();
-}
+// void View::changed(bool b) {
+//   _saveButton->setEnabled(b);
+//   _saveButton->setFocus();
+// }
 
 void View::handleAddHorizonClicked() {
   _addHorizonManager = std::make_unique<AddHorizonManager>(this);
@@ -91,6 +97,11 @@ void View::handleAddHorizonClicked() {
 
   _addHorizonManager->setModal(true);
   _addHorizonManager->show();
+}
+
+void View::isChanged(bool b) {
+  _saveButton->setEnabled(b);
+  if(b) _saveButton->setFocus();
 }
 
 } // namespace HorizonOperation

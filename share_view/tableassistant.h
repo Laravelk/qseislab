@@ -1,24 +1,25 @@
 #pragma once
 
 #include <QFrame>
-#include <QTableWidget>
 
 #include <memory>
+
+class QTableWidget;
 
 class TableAssistant : public QFrame {
   Q_OBJECT
 public:
   enum Mode { ForHorizons, ForWells, ForReceivers };
 
-  TableAssistant(Mode, QWidget *parent = nullptr);
+  explicit TableAssistant(Mode, QWidget *parent = nullptr);
 
   bool remove(const QUuid &);
   void requestRemoveAll();
-  template <typename T>
-  void setAll(const std::map<QUuid, std::unique_ptr<T>> &);
+  // template <typename T>
+  // void setAll(const std::map<QUuid, std::unique_ptr<T>> &);
 
-  template <typename T> void add(const std::unique_ptr<T> &);
-  template <typename T> void update(const std::unique_ptr<T> &);
+  template <typename T> void add(T const * const);
+  template <typename T> void update(T const * const);
 
 signals:
   void viewClicked(const QUuid &);

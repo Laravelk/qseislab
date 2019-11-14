@@ -2,6 +2,7 @@
 
 #include "data/seismwell.h"
 #include "model.h"
+#include "view/view.h"
 
 typedef Data::SeismWell SeismWell;
 
@@ -14,45 +15,46 @@ Controller::Controller(QObject *parent)
           [this](auto &msg) { _view->setNotification(msg); });
 
   connect(_view.get(), &View::addWellClicked, [this] {
-    _view->settingWellInfo(_tmpWell);
-    _view->addWell(_tmpWell);
-    _view->changed(true);
-    auto uuid = _tmpWell->getUuid();
-    _wells[uuid] = std::move(_tmpWell);
+    _view->settingWellInfo(_tmpWell.get());
+    _view->addWell(_tmpWell.get());
+
+    auto& uuid = _tmpWell->getUuid();
+    _wells_map[uuid] = std::move(_tmpWell);
   });
 
-  connect(_view.get(), &View::removeWellClicked, [this](auto uuid) {
+  connect(_view.get(), &View::removeWellClicked, [this](auto& uuid) {
     _view->removeWell(uuid);
-    _view->changed(true);
-    _wells.erase(uuid);
+
+    _wells_map.erase(uuid);
   });
 
   connect(_view.get(), &View::sendFilePath, [this](auto path) {
-    std::unique_ptr<SeismWell> well = _model->getSeismWellFrom(path);
-    // TODO: может удалить if - ?
+    auto well = _model->getSeismWellFrom(path);
     if (well) {
       _tmpWell = std::move(well);
-      _view->updateWell(_tmpWell);
+      _view->updateWell(_tmpWell.get());
     }
   });
 
   connect(_view.get(), &View::finished, this, &Controller::finish);
 }
 
-void Controller::viewWells(
-    const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &wells_map) {
-  for (auto &pair : wells_map) {
-    _wells[pair.first] = std::make_unique<Data::SeismWell>(*(pair.second));
-    _view->addWell(_wells[pair.first]);
+void Controller::viewWells(const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &wells_map) {
+  _wells_map = wells_map;
+
+  for(auto& uuid_well : _wells_map) {
+    _view->addWell(uuid_well.second.get());
   }
 
-  _view->setModal(true);
+  _view->setModal(true); // TODO: надо ли?
   _view->show();
 }
 
 void Controller::finish(int result) {
   if (QDialog::Accepted == result) {
-    emit sendWells(_wells);
+
+    // TODO: сделать корректное заполнение изменившихся полей
+    emit sendWells(_wells_map);
   }
 
   emit finished();

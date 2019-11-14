@@ -18,9 +18,9 @@ class AddHorizonManager : public QDialog {
 public:
   explicit AddHorizonManager(QWidget *parent = nullptr);
 
-  void update(const std::unique_ptr<Data::SeismHorizon> &);
+  void update(Data::SeismHorizon const * const);
 
-  void settingHorizonInfo(const std::unique_ptr<Data::SeismHorizon> &);
+  void settingHorizonInfo(Data::SeismHorizon * const);
 
 signals:
   void sendFilePath(const QString &) const;
