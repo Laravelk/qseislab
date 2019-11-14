@@ -59,7 +59,7 @@ AddReceiverManager::AddReceiverManager(
 }
 
 const QUuid AddReceiverManager::settingReceiverInfo(
-    const std::unique_ptr<Data::SeismReceiver> &receiver) {
+    const std::shared_ptr<Data::SeismReceiver> &receiver) {
   receiver->setName(_nameLineEdit->text());
   //  receiver->setChannelNum(_channelNumLineEdit->text().toInt());
   receiver->setLocation({_X_LineEdit->text().toFloat(),

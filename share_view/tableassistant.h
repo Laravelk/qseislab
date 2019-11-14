@@ -15,10 +15,10 @@ public:
   bool remove(const QUuid &);
   void requestRemoveAll();
   template <typename T>
-  void setAll(const std::map<QUuid, std::unique_ptr<T>> &);
+  void setAll(const std::map<QUuid, std::shared_ptr<T>> &);
 
-  template <typename T> void add(const std::unique_ptr<T> &);
-  template <typename T> void update(const std::unique_ptr<T> &);
+  template <typename T> void add(const std::shared_ptr<T> &);
+  template <typename T> void update(const std::shared_ptr<T> &);
 
 signals:
   void viewClicked(const QUuid &);

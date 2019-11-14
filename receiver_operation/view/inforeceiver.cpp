@@ -10,7 +10,7 @@ typedef Data::SeismReceiver SeismReceiver;
 typedef Data::SeismChannelReceiver SeismChannelReceiver;
 
 namespace ReceiverOperation {
-InfoReceiver::InfoReceiver(const std::unique_ptr<Data::SeismReceiver> &receiver,
+InfoReceiver::InfoReceiver(const std::shared_ptr<Data::SeismReceiver> &receiver,
                            QWidget *parent)
     : QDialog(parent), _nameLineEdit(new QLineEdit(receiver->getName())),
       _channelsTable(new QTableWidget()) {
@@ -67,7 +67,7 @@ void InfoReceiver::initChannelssTable(QTableWidget *table) {
 }
 
 void InfoReceiver::insertChannelInTable(
-    const std::unique_ptr<Data::SeismChannelReceiver> &channel) {
+    const std::shared_ptr<Data::SeismChannelReceiver> &channel) {
   _channelsTable->insertRow(_channelsTable->rowCount());
 
   int insertRow = _channelsTable->rowCount() - 1;

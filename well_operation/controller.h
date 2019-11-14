@@ -18,20 +18,20 @@ class Controller : public QObject {
 public:
   explicit Controller(QObject *parent = nullptr);
 
-  void viewWells(const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &);
+  void viewWells(const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &);
 
   void finish(int);
 
 signals:
-  void sendWells(std::map<QUuid, std::unique_ptr<Data::SeismWell>> &);
+  void sendWells(std::map<QUuid, std::shared_ptr<Data::SeismWell>> &);
   void finished() const;
 
 private:
   Model *_model;
   std::unique_ptr<View> _view;
 
-  std::unique_ptr<Data::SeismWell> _tmpWell;
-  std::map<QUuid, std::unique_ptr<Data::SeismWell>> _wells;
+  std::shared_ptr<Data::SeismWell> _tmpWell;
+  std::map<QUuid, std::shared_ptr<Data::SeismWell>> _wells;
 };
 
 } // namespace WellOperation

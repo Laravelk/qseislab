@@ -60,7 +60,7 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
   // Layout`s end
 }
 
-void View::addReceiver(const std::unique_ptr<SeismReceiver> &receiver) {
+void View::addReceiver(const std::shared_ptr<SeismReceiver> &receiver) {
   _receiversTable->add<SeismReceiver>(receiver);
   _channelCounter->add(receiver);
 }
@@ -76,15 +76,15 @@ void View::removeReceiver(const QUuid &uuid) {
   _channelCounter->remove(uuid);
 }
 
-void View::viewFullInfo(const std::unique_ptr<Data::SeismReceiver> &receiver) {
+void View::viewFullInfo(const std::shared_ptr<Data::SeismReceiver> &receiver) {
   InfoReceiver *about = new InfoReceiver(receiver, this);
   about->setModal(true);
   about->show();
 }
 
 const QUuid
-View::settingReceiverInfo(const std::unique_ptr<SeismReceiver> &horizon) {
-  return _addReceiverManager->settingReceiverInfo(horizon);
+View::settingReceiverInfo(const std::shared_ptr<SeismReceiver> &receiver) {
+  return _addReceiverManager->settingReceiverInfo(receiver);
 }
 
 void View::changed(bool b) {

@@ -9,14 +9,14 @@ typedef Data::SeismWell SeismWell;
 
 namespace ReceiverOperation {
 Controller::Controller(
-    const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &wells_map,
+    const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &wells_map,
     QObject *parent)
-    : QObject(parent), _model(new Model(this)) {
+    : QObject(parent), _model(new Model(this)), _wells_map(wells_map) {
 
-  for (auto &uuid_well : wells_map) {
-    _wells_map[uuid_well.first] =
-        std::make_unique<SeismWell>(*(uuid_well.second));
-  }
+  //  for (auto &uuid_well : wells_map) {
+  //    _wells_map[uuid_well.first] =
+  //        std::make_unique<SeismWell>(*(uuid_well.second));
+  //  }
 
   std::map<QUuid, QString> wellNames_map;
   for (auto &uuid_well : wells_map) {
@@ -27,18 +27,19 @@ Controller::Controller(
   connect(_model, &Model::notify,
           [this](auto &msg) { _view->setNotification(msg); });
 
-  connect(_view.get(), &View::sendCsvFilePath, [this](auto &path) {
-    auto new_wells_map = _model->getSeismReceiversFrom(path, _wells_map);
-    if (!new_wells_map.empty()) {
-      _wells_map = std::move(new_wells_map);
-      for (auto &uuid_well : _wells_map) {
-        for (auto &receiver : uuid_well.second->getReceivers()) {
-          _view->addReceiver(receiver);
-        }
-      }
-      _view->changed();
-    }
-  });
+  // TODO: переделать!!!
+  //  connect(_view.get(), &View::sendCsvFilePath, [this](auto &path) {
+  //    auto new_wells_map = _model->getSeismReceiversFrom(path, _wells_map);
+  //    if (!new_wells_map.empty()) {
+  //      _wells_map = std::move(new_wells_map);
+  //      for (auto &uuid_well : _wells_map) {
+  //        for (auto &receiver : uuid_well.second->getReceivers()) {
+  //          _view->addReceiver(receiver);
+  //        }
+  //      }
+  //      _view->changed();
+  //    }
+  //  });
 
   connect(_view.get(), &View::receiverClicked, [this](auto uuid) {
     for (auto &uuid_well : _wells_map) {
@@ -51,8 +52,8 @@ Controller::Controller(
   });
 
   connect(_view.get(), &View::addReceiverClicked, [this] {
-    std::unique_ptr<SeismReceiver> newReceiver =
-        std::make_unique<SeismReceiver>();
+    std::shared_ptr<SeismReceiver> newReceiver =
+        std::make_shared<SeismReceiver>();
     const QUuid wellUuid = _view->settingReceiverInfo(newReceiver);
     _view->addReceiver(newReceiver);
     _view->changed(true);
@@ -62,8 +63,8 @@ Controller::Controller(
   connect(_view.get(), &View::removeReceiverClicked, [this](auto uuid) {
     _view->removeReceiver(uuid);
     _view->changed(true);
-    for (auto &pair : _wells_map) {
-      if (pair.second->removeReceiver(uuid)) {
+    for (auto &uuid_well : _wells_map) {
+      if (uuid_well.second->removeReceiver(uuid)) {
         break;
       }
     }
@@ -85,12 +86,13 @@ void Controller::viewReceivers() {
 
 void Controller::finish(int result) {
   if (QDialog::Accepted == result) {
-    emit removeAllReceivers();
-    for (auto &uuid_well : _wells_map) {
-      for (auto &receiver : uuid_well.second->getReceivers()) {
-        emit sendReciver(uuid_well.first, receiver);
-      }
-    }
+    //    emit removeAllReceivers();
+    //    for (auto &uuid_well : _wells_map) {
+    //      for (auto &receiver : uuid_well.second->getReceivers()) {
+    //        emit sendReciver(uuid_well.first, receiver);
+    //      }
+    //    }
+    emit sendWells(_wells_map);
   }
   emit finished();
 }

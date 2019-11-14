@@ -143,7 +143,7 @@ void WorkPage::removeEvent(const QUuid &uuid) {
   _eventsTable->remove(uuid);
 }
 
-void WorkPage::addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon) {
+void WorkPage::addHorizon(const std::shared_ptr<Data::SeismHorizon> &horizon) {
   //  _surface->addHorizon(horizon);
   _oilFieldScene->addHorizon(horizon);
 }
@@ -153,7 +153,7 @@ void WorkPage::removeHorizon(const QUuid &uuid) {
   _oilFieldScene->removeHorizon(uuid);
 }
 
-void WorkPage::addWell(const std::unique_ptr<Data::SeismWell> &well) {
+void WorkPage::addWell(const std::shared_ptr<Data::SeismWell> &well) {
   //  _surface->addWell(well);
   _oilFieldScene->addWell(well);
   for (auto &receiver : well->getReceivers()) {
@@ -167,7 +167,7 @@ void WorkPage::removeWell(const QUuid &uuid) {
 }
 
 void WorkPage::addReceiver(
-    const std::unique_ptr<Data::SeismReceiver> &receiver) {
+    const std::shared_ptr<Data::SeismReceiver> &receiver) {
   //  _surface->addReceiver(receiver);
   _oilFieldScene->addReceiver(receiver);
 }

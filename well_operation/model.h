@@ -15,7 +15,7 @@ class Model : public QObject {
 public:
   explicit Model(QObject *);
 
-  std::unique_ptr<Data::SeismWell> getSeismWellFrom(const QString &);
+  std::shared_ptr<Data::SeismWell> getSeismWellFrom(const QString &);
 
 signals:
   void notify(const QString &) const;

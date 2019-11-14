@@ -65,7 +65,7 @@ private:
 
   void addWaveArrival(Data::SeismWavePick, int);
   void setInterval(const std::shared_ptr<Data::SeismEvent> &);
-  void addTraceSeries(const std::unique_ptr<Data::SeismComponent> &, int);
+  void addTraceSeries(const std::shared_ptr<Data::SeismComponent> &, int);
   void addWiggle(bool t); // true is positive, false is negative
   void settingAreaSeries(QAreaSeries *series);
   void setAxesY(int);

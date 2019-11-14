@@ -9,8 +9,8 @@ typedef Data::IO::PointReader PointReader;
 namespace WellOperation {
 Model::Model(QObject *parent) : QObject(parent) {}
 
-std::unique_ptr<SeismWell> Model::getSeismWellFrom(const QString &path) {
-  std::unique_ptr<SeismWell> well = std::make_unique<SeismWell>();
+std::shared_ptr<SeismWell> Model::getSeismWellFrom(const QString &path) {
+  std::shared_ptr<SeismWell> well = std::make_shared<SeismWell>();
 
   QFileInfo fileInfo(path);
   well->setName(fileInfo.baseName());

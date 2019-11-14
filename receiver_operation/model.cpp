@@ -17,13 +17,13 @@ const unsigned Model::columnNum = 24;
 
 Model::Model(QObject *parent) : QObject(parent) {}
 
-std::map<QUuid, std::unique_ptr<SeismWell>> Model::getSeismReceiversFrom(
+std::map<QUuid, std::shared_ptr<SeismWell>> Model::getSeismReceiversFrom(
     const QString &path,
-    const std::map<QUuid, std::unique_ptr<SeismWell>> &wells_map) {
+    const std::map<QUuid, std::shared_ptr<SeismWell>> &wells_map) {
 
-  std::map<QUuid, std::unique_ptr<SeismWell>> new_well_map;
+  std::map<QUuid, std::shared_ptr<SeismWell>> new_well_map;
   for (auto &pair : wells_map) {
-    new_well_map[pair.first] = std::make_unique<SeismWell>(*(pair.second));
+    new_well_map[pair.first] = std::make_shared<SeismWell>(*(pair.second));
   }
 
   try {
@@ -33,7 +33,8 @@ std::map<QUuid, std::unique_ptr<SeismWell>> Model::getSeismReceiversFrom(
     for (unsigned row = 0; row < file.rowCount(); ++row) {
       QString wellName =
           QString::fromStdString(file[row][21]); // Owner_Array-field
-      std::unique_ptr<SeismWell> &well = findWellOfName(wellName, new_well_map);
+      const std::shared_ptr<SeismWell> &well =
+          findWellOfName(wellName, new_well_map);
 
       int receiverNum = std::stoi(file[row][0]); // Instrument_Number-field
       bool isNewReceiver = true;
@@ -49,7 +50,7 @@ std::map<QUuid, std::unique_ptr<SeismWell>> Model::getSeismReceiversFrom(
         checkCorrect(receiver, existReceiver);
       }
 
-      auto newChannel = std::make_unique<SeismChannelReceiver>();
+      auto newChannel = std::make_shared<SeismChannelReceiver>();
       settingChannelInfo(newChannel, file[row]);
 
       checkCorrect(newChannel, receiver);
@@ -193,10 +194,11 @@ void Model::checkHeaderCorrect(const csv::Parser &parser) {
 
   // TODO: uncomment!!!
   // NOTE: why on MacOS doesn`t work?
-//  if ("Array_Channel_Number" != parser.getHeaderElement(idx)) {
-//    err_msg +=
-//        "header (idx: " + std::to_string(idx) + ") != Array_Channel_Number\n";
-//  }
+  //  if ("Array_Channel_Number" != parser.getHeaderElement(idx)) {
+  //    err_msg +=
+  //        "header (idx: " + std::to_string(idx) + ") !=
+  //        Array_Channel_Number\n";
+  //  }
   ++idx;
 
   if (!err_msg.empty()) {
@@ -204,7 +206,7 @@ void Model::checkHeaderCorrect(const csv::Parser &parser) {
   }
 }
 
-void Model::settingRecieverInfo(const std::unique_ptr<SeismReceiver> &receiver,
+void Model::settingRecieverInfo(const std::shared_ptr<SeismReceiver> &receiver,
                                 const csv::Row &csvRow) {
   receiver->setReceiverNum(std::stoi(csvRow[0])); // Instrument_Number-field
   receiver->setName(
@@ -226,7 +228,7 @@ void Model::settingRecieverInfo(const std::unique_ptr<SeismReceiver> &receiver,
 }
 
 void Model::settingChannelInfo(
-    const std::unique_ptr<SeismChannelReceiver> &channel,
+    const std::shared_ptr<SeismChannelReceiver> &channel,
     const csv::Row &csvRow) {
   channel->setName(QString::fromStdString(csvRow[3])); // Channel_Label-field
   channel->setChannelNum(std::stoi(csvRow[2]));        // Channel_Number-field
@@ -244,9 +246,9 @@ void Model::settingChannelInfo(
       std::stoi(csvRow[23])); // Array_Channel_Number-field
 }
 
-const std::unique_ptr<SeismReceiver> &
-Model::getReceiver(const int receiverNum, std::unique_ptr<SeismWell> &well,
-                   bool *isNew) {
+const std::shared_ptr<SeismReceiver> &
+Model::getReceiver(const int receiverNum,
+                   const std::shared_ptr<SeismWell> &well, bool *isNew) {
 
   for (auto &receiver : well->getReceivers()) {
     if (receiverNum == receiver->getReceiverNum()) {
@@ -256,17 +258,17 @@ Model::getReceiver(const int receiverNum, std::unique_ptr<SeismWell> &well,
   }
 
   *isNew = true;
-  auto new_receiver = std::make_unique<SeismReceiver>();
+  auto new_receiver = std::make_shared<SeismReceiver>();
   well->addReceiver(std::move(new_receiver));
   return well->getReceivers().back();
 }
 
-std::unique_ptr<Data::SeismWell> &Model::findWellOfName(
+const std::shared_ptr<Data::SeismWell> &Model::findWellOfName(
     const QString &wellName,
-    std::map<QUuid, std::unique_ptr<Data::SeismWell>> &wells_map) {
-  for (auto &itr : wells_map) {
-    if (wellName == (itr.second)->getName()) {
-      return itr.second;
+    std::map<QUuid, std::shared_ptr<Data::SeismWell>> &wells_map) {
+  for (auto &uuid_well : wells_map) {
+    if (wellName == (uuid_well.second)->getName()) {
+      return uuid_well.second;
     }
   }
 
@@ -275,8 +277,8 @@ std::unique_ptr<Data::SeismWell> &Model::findWellOfName(
 }
 
 bool Model::receiverExistInWell(
-    const std::unique_ptr<Data::SeismReceiver> &receiver,
-    const std::unique_ptr<Data::SeismWell> &well) {
+    const std::shared_ptr<Data::SeismReceiver> &receiver,
+    const std::shared_ptr<Data::SeismWell> &well) {
   for (auto &existReceiver : well->getReceivers()) {
     if (existReceiver->getWellReceiverNum() == receiver->getWellReceiverNum()) {
       return true;
@@ -286,9 +288,9 @@ bool Model::receiverExistInWell(
   return false;
 }
 
-const std::unique_ptr<Data::SeismReceiver> &
+const std::shared_ptr<Data::SeismReceiver> &
 Model::getExistReceiverFromWellOfWellNum(
-    const std::unique_ptr<Data::SeismWell> &well, const int wellReceiverNum) {
+    const std::shared_ptr<Data::SeismWell> &well, const int wellReceiverNum) {
   for (auto &receiver : well->getReceivers()) {
     if (wellReceiverNum == receiver->getWellReceiverNum()) {
       return receiver;
@@ -300,7 +302,7 @@ Model::getExistReceiverFromWellOfWellNum(
                            well->getName().toStdString() + ")");
 }
 
-void Model::checkCorrect(const std::unique_ptr<Data::SeismReceiver> &receiver,
+void Model::checkCorrect(const std::shared_ptr<Data::SeismReceiver> &receiver,
                          const csv::Row &csvRow) {
   std::string err_msg;
   if (receiver->getReceiverNum() != std::stoi(csvRow[0])) {
@@ -346,8 +348,8 @@ void Model::checkCorrect(const std::unique_ptr<Data::SeismReceiver> &receiver,
 }
 
 void Model::checkCorrect(
-    const std::unique_ptr<Data::SeismReceiver> &newReceiever,
-    const std::unique_ptr<Data::SeismReceiver> &existReceiver) {
+    const std::shared_ptr<Data::SeismReceiver> &newReceiever,
+    const std::shared_ptr<Data::SeismReceiver> &existReceiver) {
 
   std::string err_msg;
 
@@ -369,8 +371,8 @@ void Model::checkCorrect(
 }
 
 void Model::checkCorrect(
-    const std::unique_ptr<Data::SeismChannelReceiver> &channel,
-    const std::unique_ptr<Data::SeismReceiver> &receiver) {
+    const std::shared_ptr<Data::SeismChannelReceiver> &channel,
+    const std::shared_ptr<Data::SeismReceiver> &receiver) {
 
   std::string err_msg;
 

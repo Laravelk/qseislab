@@ -18,7 +18,7 @@ Controller::Controller(QObject *parent)
     _view->settingHorizonInfo(_tmpHorizon);
     _view->addHorizon(_tmpHorizon);
     _view->changed(true);
-    _horizons[_tmpHorizon->getUuid()] = std::move(_tmpHorizon);
+    _horizons[_tmpHorizon->getUuid()] = _tmpHorizon;
     //    _newHorizons.push_back(std::move(_tmpHorizon));
   });
 
@@ -30,7 +30,7 @@ Controller::Controller(QObject *parent)
   });
 
   connect(_view.get(), &View::sendFilePath, [this](auto path) {
-    std::unique_ptr<SeismHorizon> horizon = _model->getSeismHorizonFrom(path);
+    std::shared_ptr<SeismHorizon> horizon = _model->getSeismHorizonFrom(path);
     // TODO: может удалить if - ?
     if (horizon) {
       _tmpHorizon = std::move(horizon);
@@ -42,12 +42,17 @@ Controller::Controller(QObject *parent)
 }
 
 void Controller::viewHorizons(
-    const std::map<QUuid, std::unique_ptr<SeismHorizon>> &horizons_map) {
+    const std::map<QUuid, std::shared_ptr<SeismHorizon>> &horizons_map) {
 
-  for (auto &pair : horizons_map) {
-    _horizons[pair.first] = std::make_unique<SeismHorizon>(*(pair.second));
-    _view->addHorizon(_horizons[pair.first]);
+  _horizons = horizons_map;
+  for (auto &uuid_horizon : _horizons) {
+    _view->addHorizon(uuid_horizon.second);
   }
+
+  //  for (auto &pair : horizons_map) {
+  //    _horizons[pair.first] = std::make_unique<SeismHorizon>(*(pair.second));
+  //    _view->addHorizon(_horizons[pair.first]);
+  //  }
 
   _view->setModal(true);
   _view->show();

@@ -18,7 +18,7 @@ public:
   explicit AddReceiverManager(const std::map<QUuid, QString> &,
                               QWidget *parent = nullptr);
 
-  const QUuid settingReceiverInfo(const std::unique_ptr<Data::SeismReceiver> &);
+  const QUuid settingReceiverInfo(const std::shared_ptr<Data::SeismReceiver> &);
 
 signals:
   void notify(const QString &);

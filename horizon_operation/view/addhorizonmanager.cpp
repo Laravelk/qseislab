@@ -67,7 +67,7 @@ AddHorizonManager::AddHorizonManager(QWidget *parent)
 }
 
 void AddHorizonManager::update(
-    const std::unique_ptr<Data::SeismHorizon> &horizon) {
+    const std::shared_ptr<Data::SeismHorizon> &horizon) {
   if (!horizon) {
     _fileManager->clear();
     _nameLineEdit->clear();
@@ -94,7 +94,7 @@ void AddHorizonManager::update(
 }
 
 void AddHorizonManager::settingHorizonInfo(
-    const std::unique_ptr<Data::SeismHorizon> &horizon) {
+    const std::shared_ptr<Data::SeismHorizon> &horizon) {
   horizon->setName(_nameLineEdit->text());
   horizon->setNx(_NxLineEdit->text().toInt());
   horizon->setNy(_NyLineEdit->text().toInt());

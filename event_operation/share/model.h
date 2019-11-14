@@ -19,8 +19,8 @@ class Model : public QObject {
 public:
   explicit Model(Data::IO::AbstractSegyReader *, QObject *);
 
-  std::list<std::unique_ptr<Data::SeismComponent>>
-  getSeismComponents(const std::unique_ptr<Data::SeismWell> &, const QString &);
+  std::list<std::shared_ptr<Data::SeismComponent>>
+  getSeismComponents(const std::shared_ptr<Data::SeismWell> &, const QString &);
 
   ~Model();
 

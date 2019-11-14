@@ -14,8 +14,8 @@ public:
   virtual void readBinHeader() = 0;
 
   virtual bool hasNextComponent() const = 0;
-  virtual std::unique_ptr<SeismComponent>
-  nextComponent(const std::unique_ptr<SeismReceiver> &) = 0;
+  virtual std::shared_ptr<SeismComponent>
+  nextComponent(const std::shared_ptr<SeismReceiver> &) = 0;
 
   virtual void close() = 0;
 

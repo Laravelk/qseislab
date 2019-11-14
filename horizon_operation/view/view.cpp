@@ -49,18 +49,18 @@ View::View(QWidget *parent)
   // Layout`s end
 }
 
-void View::addHorizon(const std::unique_ptr<SeismHorizon> &horizon) {
+void View::addHorizon(const std::shared_ptr<SeismHorizon> &horizon) {
   _horizonsTable->add<SeismHorizon>(horizon);
 }
 
-void View::updateHorizon(const std::unique_ptr<SeismHorizon> &horizon) {
+void View::updateHorizon(const std::shared_ptr<SeismHorizon> &horizon) {
   _addHorizonManager->update(horizon);
 }
 
 void View::removeHorizon(const QUuid &uuid) { _horizonsTable->remove(uuid); }
 
 void View::settingHorizonInfo(
-    const std::unique_ptr<Data::SeismHorizon> &horizon) {
+    const std::shared_ptr<Data::SeismHorizon> &horizon) {
   _addHorizonManager->settingHorizonInfo(horizon);
 }
 

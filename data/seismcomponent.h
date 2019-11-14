@@ -33,11 +33,11 @@ public:
 
   float getMaxValue() const;
 
-  void addTrace(std::unique_ptr<SeismTrace>);
+  void addTrace(const std::shared_ptr<SeismTrace> &);
 
   int getTraceSize() const;
   int getTracesAmount() const;
-  const std::vector<std::unique_ptr<SeismTrace>> &getTraces() const;
+  const std::vector<std::shared_ptr<SeismTrace>> &getTraces() const;
 
   void addWavePick(SeismWavePick);
   void removeWavePick(const SeismWavePick::Type);
@@ -56,7 +56,7 @@ private:
   float _sampleInterval{0.0};
   float _maxValue{-1.0};
   int _tracesSize{-1};
-  std::vector<std::unique_ptr<SeismTrace>> _traces;
+  std::vector<std::shared_ptr<SeismTrace>> _traces;
   std::map<SeismWavePick::Type, SeismWavePick> _wavePicks_map;
 };
 

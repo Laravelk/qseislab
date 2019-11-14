@@ -19,7 +19,7 @@ namespace EventOperation {
 namespace OneEvent {
 Controller::Controller(
     const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &all_events,
-    const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &wells_map,
+    const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &wells_map,
     QObject *parent)
     : QObject(parent), _model(new Model(new SegyReader(), this)),
       _event(std::make_shared<Data::SeismEvent>()),
@@ -129,7 +129,7 @@ Controller::Controller(
 
 Controller::Controller(
     const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &all_events,
-    const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &wells_map,
+    const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &wells_map,
     const std::shared_ptr<Data::SeismEvent> &event,
     const std::shared_ptr<QUndoStack> &undoStack, QObject *parent)
     : QObject(parent), _model(nullptr), _event(event),

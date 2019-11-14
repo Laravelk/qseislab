@@ -16,10 +16,10 @@ namespace EventOperation {
 Model::Model(AbstractSegyReader *reader, QObject *parent)
     : QObject(parent), _reader(reader) {}
 
-std::list<std::unique_ptr<SeismComponent>>
-Model::getSeismComponents(const std::unique_ptr<SeismWell> &well,
+std::list<std::shared_ptr<SeismComponent>>
+Model::getSeismComponents(const std::shared_ptr<SeismWell> &well,
                           const QString &path) {
-  std::list<std::unique_ptr<SeismComponent>> components;
+  std::list<std::shared_ptr<SeismComponent>> components;
 
   try {
     _reader->setFilePath(path.toLocal8Bit().data());

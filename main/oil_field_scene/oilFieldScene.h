@@ -29,9 +29,9 @@ public:
   ~OilFieldScene() = default;
 
   void addEvent(const std::shared_ptr<Data::SeismEvent> &);
-  void addHorizon(const std::unique_ptr<Data::SeismHorizon> &);
-  void addReceiver(const std::unique_ptr<Data::SeismReceiver> &);
-  void addWell(const std::unique_ptr<Data::SeismWell> &);
+  void addHorizon(const std::shared_ptr<Data::SeismHorizon> &);
+  void addReceiver(const std::shared_ptr<Data::SeismReceiver> &);
+  void addWell(const std::shared_ptr<Data::SeismWell> &);
 
   bool showEvent(const QUuid &);
   //  bool showEvent(const std::unique_ptr<Data::SeismEvent> &);

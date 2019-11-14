@@ -51,7 +51,7 @@ AddWellManager::AddWellManager(QWidget *parent)
   // Layout`s end
 }
 
-void AddWellManager::update(const std::unique_ptr<Data::SeismWell> &well) {
+void AddWellManager::update(const std::shared_ptr<Data::SeismWell> &well) {
   if (!well) {
     _fileManager->clear();
     _nameLineEdit->clear();
@@ -67,7 +67,7 @@ void AddWellManager::update(const std::unique_ptr<Data::SeismWell> &well) {
 }
 
 void AddWellManager::settingWellInfo(
-    const std::unique_ptr<Data::SeismWell> &well) {
+    const std::shared_ptr<Data::SeismWell> &well) {
   well->setName(_nameLineEdit->text());
 }
 

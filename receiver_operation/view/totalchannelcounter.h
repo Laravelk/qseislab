@@ -18,7 +18,7 @@ class TotalChannelCounter : public QWidget {
 public:
   explicit TotalChannelCounter(QWidget *parent = nullptr);
 
-  void add(const std::unique_ptr<Data::SeismReceiver> &);
+  void add(const std::shared_ptr<Data::SeismReceiver> &);
   bool remove(const QUuid &);
 
 private:

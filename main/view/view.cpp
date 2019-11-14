@@ -147,7 +147,7 @@ void View::removeEvent(const QUuid &uuid) {
   _workPage->removeEvent(uuid);
 }
 
-void View::addHorizon(const std::unique_ptr<Data::SeismHorizon> &horizon) {
+void View::addHorizon(const std::shared_ptr<Data::SeismHorizon> &horizon) {
   assert(nullptr != _workPage);
   _workPage->addHorizon(horizon);
 }
@@ -157,7 +157,7 @@ void View::removeHorizon(const QUuid &uuid) {
   _workPage->removeHorizon(uuid);
 }
 
-void View::addWell(const std::unique_ptr<Data::SeismWell> &well) {
+void View::addWell(const std::shared_ptr<Data::SeismWell> &well) {
   assert(nullptr != _workPage);
   _workPage->addWell(well);
 }
@@ -167,7 +167,7 @@ void View::removeWell(const QUuid &uuid) {
   _workPage->removeWell(uuid);
 }
 
-void View::addReceiver(const std::unique_ptr<Data::SeismReceiver> &receiver) {
+void View::addReceiver(const std::shared_ptr<Data::SeismReceiver> &receiver) {
   assert(nullptr != _workPage);
   _workPage->addReceiver(receiver);
 }

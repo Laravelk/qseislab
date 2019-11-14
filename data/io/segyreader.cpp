@@ -52,8 +52,8 @@ void SegyReader::readBinHeader() {
 
 bool SegyReader::hasNextComponent() const { return _trace_num > _alreadyRead; }
 
-std::unique_ptr<SeismComponent>
-SegyReader::nextComponent(const std::unique_ptr<SeismReceiver> &receiver) {
+std::shared_ptr<SeismComponent>
+SegyReader::nextComponent(const std::shared_ptr<SeismReceiver> &receiver) {
   int err;
   char traceh[SEGY_TRACE_HEADER_SIZE];
 
@@ -62,8 +62,8 @@ SegyReader::nextComponent(const std::unique_ptr<SeismReceiver> &receiver) {
                          sizeof(float); // TODO: доставать размеры форматов и
                                         // размер данных из библиотеки
 
-  std::unique_ptr<SeismComponent> component =
-      std::make_unique<SeismComponent>(receiver->getUuid());
+  std::shared_ptr<SeismComponent> component =
+      std::make_shared<SeismComponent>(receiver->getUuid());
   int p_wave_arrival = 0;
   int s_wave_arrival = 0;
 
@@ -155,8 +155,8 @@ SegyReader::nextComponent(const std::unique_ptr<SeismReceiver> &receiver) {
     }
     segy_to_native(_format, _sam_num, buffer);
 
-    std::unique_ptr<SeismTrace> trace = std::make_unique<SeismTrace>();
-    trace = std::make_unique<SeismTrace>();
+    std::shared_ptr<SeismTrace> trace = std::make_shared<SeismTrace>();
+    //    trace = std::make_shared<SeismTrace>();
     trace->setBuffer(buffer_size, buffer);
     delete[] buffer;
 

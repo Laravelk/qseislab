@@ -45,36 +45,36 @@ public:
   const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &
   getAllEventMap() const;
 
-  template <typename T> void add(std::unique_ptr<T>);
-  template <typename T> void update(std::unique_ptr<T>);
+  template <typename T> void add(const std::shared_ptr<T> &);
+  template <typename T> void update(const std::shared_ptr<T> &);
   template <typename T> bool remove(const QUuid &);
   template <typename T> int getAmount() const;
-  template <typename T> const std::unique_ptr<T> &get(const QUuid &) const;
+  template <typename T> const std::shared_ptr<T> &get(const QUuid &) const;
 
   template <typename T>
-  const std::map<QUuid, std::unique_ptr<T>> &getAllMap() const;
-  template <typename T> void setAllMap(std::map<QUuid, std::unique_ptr<T>> &);
+  const std::map<QUuid, std::shared_ptr<T>> &getAllMap() const;
+  template <typename T> void setAllMap(std::map<QUuid, std::shared_ptr<T>> &);
 
   void processEvents();
 
-  bool addReceiver(const QUuid &, std::unique_ptr<Data::SeismReceiver> &);
+  bool addReceiver(const QUuid &, const std::shared_ptr<Data::SeismReceiver> &);
   void removeAllReceivers();
 
 signals:
   //  void addedEvent(const std::unique_ptr<Data::SeismEvent> &) const;
   void addedEvent(const std::shared_ptr<Data::SeismEvent> &) const;
-  void updatedEvent(const std::unique_ptr<Data::SeismEvent> &) const;
+  void updatedEvent(const std::shared_ptr<Data::SeismEvent> &) const;
   void removedEvent(const QUuid &) const;
   void processedEvents() const;
 
-  void addedHorizon(const std::unique_ptr<Data::SeismHorizon> &) const;
+  void addedHorizon(const std::shared_ptr<Data::SeismHorizon> &) const;
   void removedHorizon(const QUuid &) const;
 
-  void addedWell(const std::unique_ptr<Data::SeismWell> &) const;
+  void addedWell(const std::shared_ptr<Data::SeismWell> &) const;
   void removedWell(const QUuid &) const;
 
   void addedReceiver(
-      const std::unique_ptr<Data::SeismReceiver> &) const; // TODO: re-see
+      const std::shared_ptr<Data::SeismReceiver> &) const; // TODO: re-see
   void removedReceiver(const QUuid &) const;               // TODO: re-see
 
 private:
@@ -87,8 +87,8 @@ private:
   //  std::map<QUuid, std::unique_ptr<SeismEvent>> _events_map;
   std::map<QUuid, std::shared_ptr<SeismEvent>> _events_map;
 
-  std::map<QUuid, std::unique_ptr<SeismHorizon>> _horizons_map;
-  std::map<QUuid, std::unique_ptr<SeismWell>> _wells_map;
+  std::map<QUuid, std::shared_ptr<SeismHorizon>> _horizons_map;
+  std::map<QUuid, std::shared_ptr<SeismWell>> _wells_map;
 };
 
 } // namespace Data

@@ -260,7 +260,7 @@ void GraphicController::setInterval(const std::shared_ptr<SeismEvent> &event) {
 }
 
 void GraphicController::addTraceSeries(
-    const std::unique_ptr<Data::SeismComponent> &component, int index) {
+    const std::shared_ptr<Data::SeismComponent> &component, int index) {
   const float intervalAxisX =
       component->getSampleInterval() / MICROSECONDS_IN_SECOND;
   const QColor color[] = {QColor(220, 20, 60), QColor(50, 205, 50),

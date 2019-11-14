@@ -18,11 +18,11 @@ class View : public QDialog {
 public:
   explicit View(QWidget *parent = nullptr);
 
-  void updateWell(const std::unique_ptr<Data::SeismWell> &);
-  void addWell(const std::unique_ptr<Data::SeismWell> &);
+  void updateWell(const std::shared_ptr<Data::SeismWell> &);
+  void addWell(const std::shared_ptr<Data::SeismWell> &);
   void removeWell(const QUuid &);
 
-  void settingWellInfo(const std::unique_ptr<Data::SeismWell> &);
+  void settingWellInfo(const std::shared_ptr<Data::SeismWell> &);
 
   void changed(bool);
 

@@ -17,15 +17,15 @@ namespace Modefication {
 class RotateDataToEBasis : public QUndoCommand {
 public:
   RotateDataToEBasis(Data::SeismEvent *,
-                     const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &);
+                     const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &);
 
   void undo() override;
 
   void redo() override;
 
 private:
-  const std::unique_ptr<Data::SeismReceiver> &
-  findReceiver(const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &,
+  const std::shared_ptr<Data::SeismReceiver> &
+  findReceiver(const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &,
                const QUuid &);
 
   Data::SeismEvent *_event;

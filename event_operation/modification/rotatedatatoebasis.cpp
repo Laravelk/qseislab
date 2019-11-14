@@ -17,7 +17,7 @@ namespace EventOperation {
 namespace Modefication {
 RotateDataToEBasis::RotateDataToEBasis(
     SeismEvent *event,
-    const std::map<QUuid, std::unique_ptr<SeismWell>> &wells_map)
+    const std::map<QUuid, std::shared_ptr<SeismWell>> &wells_map)
     : _event(event) {
   setText("Rotate Data to E-Basis");
   for (auto &component : _event->getComponents()) {
@@ -62,8 +62,8 @@ void RotateDataToEBasis::redo() {
   _event->addTransformOperation(SeismEvent::RotateDataToEBasis);
 }
 
-const std::unique_ptr<SeismReceiver> &RotateDataToEBasis::findReceiver(
-    const std::map<QUuid, std::unique_ptr<SeismWell>> &wells_map,
+const std::shared_ptr<SeismReceiver> &RotateDataToEBasis::findReceiver(
+    const std::map<QUuid, std::shared_ptr<SeismWell>> &wells_map,
     const QUuid &receiver_uuid) {
   for (auto &uuid_well : wells_map) {
     for (auto &receiver : uuid_well.second->getReceivers()) {

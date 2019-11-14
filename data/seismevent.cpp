@@ -17,7 +17,7 @@ SeismEvent::SeismEvent()
 }
 
 SeismEvent::SeismEvent(const QJsonObject &json,
-                       std::map<QUuid, std::unique_ptr<SeismWell>> &wells_map,
+                       std::map<QUuid, std::shared_ptr<SeismWell>> &wells_map,
                        const QDir &dir)
     : _uuid(QUuid::createUuid()) {
 
@@ -89,7 +89,7 @@ SeismEvent::SeismEvent(const QJsonObject &json,
 
           try {
             auto seismComponent =
-                std::make_unique<SeismComponent>(objComponent.toObject());
+                std::make_shared<SeismComponent>(objComponent.toObject());
             auto &receiverUuid = seismComponent->getReceiverUuid();
             bool findReceiver = false;
             for (auto &uuid_well : wells_map) {
@@ -176,14 +176,15 @@ int SeismEvent::getComponentAmount() const {
   return static_cast<int>(_components.size());
 }
 
-void SeismEvent::addComponent(std::unique_ptr<SeismComponent> component) {
+void SeismEvent::addComponent(
+    const std::shared_ptr<SeismComponent> &component) {
   const auto &componentStampDateTime = component->getStampDateTime();
   if (!_stampDateTime.isValid()) {
     _stampDateTime = componentStampDateTime;
   } else if (_stampDateTime > componentStampDateTime) {
     _stampDateTime = componentStampDateTime;
   }
-  _components.push_back(std::move(component));
+  _components.push_back(component);
   connect(_components.back().get(), &SeismComponent::changed,
           [this]() { emit changed(); });
 }
@@ -198,13 +199,13 @@ bool SeismEvent::removeComponentByReceiverUuid(const QUuid &receiverUuid) {
   return false;
 }
 
-const std::list<std::unique_ptr<SeismComponent>> &
+const std::list<std::shared_ptr<SeismComponent>> &
 SeismEvent::getComponents() const {
-    return _components;
+  return _components;
 }
 
 bool SeismEvent::isTransformBy(TransformOperation oper) const {
-    return _appliedOperations.end() != _appliedOperations.find(oper);
+  return _appliedOperations.end() != _appliedOperations.find(oper);
 }
 
 void SeismEvent::process() {
@@ -252,11 +253,11 @@ QJsonObject &SeismEvent::writeToJson(QJsonObject &json, const QDir &dir) {
 }
 
 void SeismEvent::addTransformOperation(TransformOperation oper) {
-    _appliedOperations.insert(oper);
+  _appliedOperations.insert(oper);
 }
 
 void SeismEvent::removeTransformOperation(TransformOperation oper) {
-    _appliedOperations.erase(oper);
+  _appliedOperations.erase(oper);
 }
 
 } // namespace Data

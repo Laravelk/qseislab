@@ -92,12 +92,12 @@ SeismComponent::SeismComponent(const QJsonObject &json) {
     throw std::runtime_error(err_msg);
   }
 
-//  for (unsigned i = 0; i < _traces.size(); ++i) {
-//    float traceMaxValue = (_traces[i])->getMaxValue();
-//    if (traceMaxValue > _maxValue) {
-//      _maxValue = traceMaxValue;
-//    }
-//  }
+  //  for (unsigned i = 0; i < _traces.size(); ++i) {
+  //    float traceMaxValue = (_traces[i])->getMaxValue();
+  //    if (traceMaxValue > _maxValue) {
+  //      _maxValue = traceMaxValue;
+  //    }
+  //  }
 }
 
 SeismComponent::SeismComponent(const SeismComponent &other)
@@ -127,45 +127,43 @@ void SeismComponent::setSampleInterval(float sampleInterval) {
 
 float SeismComponent::getMaxValue() const { return _maxValue; }
 
-void SeismComponent::addTrace(std::unique_ptr<SeismTrace> trace) {
+void SeismComponent::addTrace(const std::shared_ptr<SeismTrace> &trace) {
   if (_maxValue < trace->getMaxValue()) {
     _maxValue = trace->getMaxValue();
   }
 
   // TODO: добавление трасс разного размера
   // NOTE: пока что берется наибольщий размер, а другие добиваются нулями
-  if(trace->getBufferSize() > _tracesSize) {
-      _tracesSize = trace->getBufferSize();
-      for (auto& _trace : _traces) {
-          if (_trace->getBufferSize() < _tracesSize) {
-              float* old_buffer = trace->getBuffer().get();
-              float* new_buffer = new float[static_cast<unsigned long>(_tracesSize)];
-              for(int i = 0; _tracesSize; ++i) {
-                  if (_trace->getBufferSize() > i) {
-                      new_buffer[i] = old_buffer[i];
-                  } else {
-                      new_buffer[i] = 0.0;
-                  }
-              }
-
-              old_buffer = nullptr;
-              trace->setBuffer(static_cast<uint32_t>(_tracesSize), new_buffer);
+  if (trace->getBufferSize() > _tracesSize) {
+    _tracesSize = trace->getBufferSize();
+    for (auto &_trace : _traces) {
+      if (_trace->getBufferSize() < _tracesSize) {
+        float *old_buffer = trace->getBuffer().get();
+        float *new_buffer = new float[static_cast<unsigned long>(_tracesSize)];
+        for (int i = 0; _tracesSize; ++i) {
+          if (_trace->getBufferSize() > i) {
+            new_buffer[i] = old_buffer[i];
+          } else {
+            new_buffer[i] = 0.0;
           }
+        }
+
+        old_buffer = nullptr;
+        trace->setBuffer(static_cast<uint32_t>(_tracesSize), new_buffer);
       }
+    }
   }
 
-  _traces.push_back(std::move(trace));
+  _traces.push_back(trace);
 }
 
-int SeismComponent::getTraceSize() const {
-    return _tracesSize;
-}
+int SeismComponent::getTraceSize() const { return _tracesSize; }
 
 int SeismComponent::getTracesAmount() const {
   return static_cast<int>(_traces.size());
 }
 
-const std::vector<std::unique_ptr<SeismTrace>> &
+const std::vector<std::shared_ptr<SeismTrace>> &
 SeismComponent::getTraces() const {
   return _traces;
 }

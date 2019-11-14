@@ -93,7 +93,7 @@ SeismReceiver::SeismReceiver(const QJsonObject &json) {
     for (auto objChannel : channelsArray) {
       try {
         auto channel =
-            std::make_unique<SeismChannelReceiver>(objChannel.toObject());
+            std::make_shared<SeismChannelReceiver>(objChannel.toObject());
         _channels.push_back(std::move(channel));
       } catch (const std::runtime_error &err) {
         err_msg += "Channel (idx: " + std::to_string(idx) + ")\n";
@@ -179,11 +179,12 @@ int SeismReceiver::getChannelAmount() const {
   return static_cast<int>(_channels.size());
 }
 
-void SeismReceiver::addChannel(std::unique_ptr<SeismChannelReceiver> channel) {
-  _channels.push_back(std::move(channel));
+void SeismReceiver::addChannel(
+    const std::shared_ptr<SeismChannelReceiver> &channel) {
+  _channels.push_back(channel);
 }
 
-const std::vector<std::unique_ptr<SeismChannelReceiver>> &
+const std::vector<std::shared_ptr<SeismChannelReceiver>> &
 SeismReceiver::getChannels() const {
   return _channels;
 }

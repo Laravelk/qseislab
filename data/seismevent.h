@@ -24,7 +24,7 @@ public:
 
   explicit SeismEvent();
   explicit SeismEvent(const QJsonObject &,
-                      std::map<QUuid, std::unique_ptr<SeismWell>> &,
+                      std::map<QUuid, std::shared_ptr<SeismWell>> &,
                       const QDir &) noexcept(false);
 
   explicit SeismEvent(const SeismEvent &);
@@ -47,9 +47,9 @@ public:
   int getReceiverAmount() const;
 
   int getComponentAmount() const;
-  void addComponent(std::unique_ptr<SeismComponent>);
+  void addComponent(const std::shared_ptr<SeismComponent> &);
   bool removeComponentByReceiverUuid(const QUuid &);
-  const std::list<std::unique_ptr<SeismComponent>> &getComponents() const;
+  const std::list<std::shared_ptr<SeismComponent>> &getComponents() const;
 
   bool isTransformBy(TransformOperation) const;
 
@@ -74,7 +74,7 @@ private:
   QDateTime _stampDateTime;
   bool _isProcessed{false};
   Point _location{0, 0, 0};
-  std::list<std::unique_ptr<SeismComponent>> _components;
+  std::list<std::shared_ptr<SeismComponent>> _components;
 
   std::set<TransformOperation>
       _appliedOperations; // NOTE: уместно ли использовать set?

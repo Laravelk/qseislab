@@ -10,7 +10,7 @@ class SeismComponent;
 
 namespace EventOperation {
 namespace Modefication {
-bool rotateDataWithTransitionMatrix(const std::unique_ptr<Data::SeismComponent>&, const Eigen::MatrixXf& );
+bool rotateDataWithTransitionMatrix(
+    const std::shared_ptr<Data::SeismComponent> &, const Eigen::MatrixXf &);
 }
-}
-
+} // namespace EventOperation

@@ -14,12 +14,12 @@ class SeismComponentWriter {
 public:
   explicit SeismComponentWriter(const QFileInfo &);
 
-  void writeComponent(const std::unique_ptr<SeismComponent> &);
+  void writeComponent(const std::shared_ptr<SeismComponent> &);
 
   ~SeismComponentWriter();
 
 private:
-  void writeTrace(const std::unique_ptr<SeismTrace> &);
+  void writeTrace(const std::shared_ptr<SeismTrace> &);
 
   QFile _file;
   QDataStream _outstream;

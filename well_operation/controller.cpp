@@ -28,7 +28,7 @@ Controller::Controller(QObject *parent)
   });
 
   connect(_view.get(), &View::sendFilePath, [this](auto path) {
-    std::unique_ptr<SeismWell> well = _model->getSeismWellFrom(path);
+    std::shared_ptr<SeismWell> well = _model->getSeismWellFrom(path);
     // TODO: может удалить if - ?
     if (well) {
       _tmpWell = std::move(well);
@@ -40,11 +40,15 @@ Controller::Controller(QObject *parent)
 }
 
 void Controller::viewWells(
-    const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &wells_map) {
-  for (auto &pair : wells_map) {
-    _wells[pair.first] = std::make_unique<Data::SeismWell>(*(pair.second));
-    _view->addWell(_wells[pair.first]);
+    const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &wells_map) {
+  _wells = wells_map;
+  for (auto &uuid_well : _wells) {
+    _view->addWell(uuid_well.second);
   }
+  //  for (auto &pair : wells_map) {
+  //    _wells[pair.first] = std::make_unique<Data::SeismWell>(*(pair.second));
+  //    _view->addWell(_wells[pair.first]);
+  //  }
 
   _view->setModal(true);
   _view->show();

@@ -15,8 +15,8 @@ using namespace ProjectOperation;
 
 namespace Main {
 Controller::Controller(QObject *parent)
-    : QObject(parent), _mainWindow(std::make_unique<View>()),
-      _shareEventStack(std::make_unique<QUndoStack>()) {
+    : QObject(parent), _shareEventStack(std::make_unique<QUndoStack>()),
+      _mainWindow(std::make_unique<View>()) {
 
   // share-undo/redo connecting
   connect(_mainWindow.get(), &View::changeEventFocus, [this](auto &uuid) {

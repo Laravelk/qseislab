@@ -49,18 +49,18 @@ View::View(QWidget *parent)
   // Layout`s end
 }
 
-void View::addWell(const std::unique_ptr<SeismWell> &well) {
+void View::addWell(const std::shared_ptr<SeismWell> &well) {
   _wellsTable->add<SeismWell>(well);
 }
 
-void View::updateWell(const std::unique_ptr<SeismWell> &well) {
+void View::updateWell(const std::shared_ptr<SeismWell> &well) {
   _addWellManager->update(well);
   _wellsTable->update<SeismWell>(well);
 }
 
 void View::removeWell(const QUuid &uuid) { _wellsTable->remove(uuid); }
 
-void View::settingWellInfo(const std::unique_ptr<Data::SeismWell> &well) {
+void View::settingWellInfo(const std::shared_ptr<Data::SeismWell> &well) {
   _addWellManager->settingWellInfo(well);
 }
 

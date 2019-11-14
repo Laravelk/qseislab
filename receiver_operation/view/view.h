@@ -20,12 +20,12 @@ class View : public QDialog {
 public:
   explicit View(const std::map<QUuid, QString> &, QWidget *parent = nullptr);
 
-  void addReceiver(const std::unique_ptr<Data::SeismReceiver> &);
+  void addReceiver(const std::shared_ptr<Data::SeismReceiver> &);
   void removeReceiver(const QUuid &);
 
-  void viewFullInfo(const std::unique_ptr<Data::SeismReceiver> &);
+  void viewFullInfo(const std::shared_ptr<Data::SeismReceiver> &);
 
-  const QUuid settingReceiverInfo(const std::unique_ptr<Data::SeismReceiver> &);
+  const QUuid settingReceiverInfo(const std::shared_ptr<Data::SeismReceiver> &);
 
   void changed(bool b = true);
 

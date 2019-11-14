@@ -30,10 +30,10 @@ public:
   const Point &getPoint(int);
   const std::vector<Point> &getPoints();
 
-  void addReceiver(std::unique_ptr<Data::SeismReceiver>);
+  void addReceiver(const std::shared_ptr<Data::SeismReceiver> &);
   bool removeReceiver(const QUuid &);
   int getReceiversAmount() const;
-  std::list<std::unique_ptr<Data::SeismReceiver>> &
+  const std::list<std::shared_ptr<Data::SeismReceiver>> &
   getReceivers(); // TODO: re-see
   void removeAllReceivers();
 
@@ -45,7 +45,7 @@ private:
   QString _path;
   QString _name;
   std::vector<Point> _points;
-  std::list<std::unique_ptr<Data::SeismReceiver>> _receivers;
+  std::list<std::shared_ptr<Data::SeismReceiver>> _receivers;
   //  std::map<QUuid, std::unique_ptr<Data::SeismReceiver>> _receivers_map;
 };
 

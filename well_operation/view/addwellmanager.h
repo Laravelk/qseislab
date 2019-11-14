@@ -18,9 +18,9 @@ class AddWellManager : public QDialog {
 public:
   explicit AddWellManager(QWidget *parent = nullptr);
 
-  void update(const std::unique_ptr<Data::SeismWell> &);
+  void update(const std::shared_ptr<Data::SeismWell> &);
 
-  void settingWellInfo(const std::unique_ptr<Data::SeismWell> &);
+  void settingWellInfo(const std::shared_ptr<Data::SeismWell> &);
 
 signals:
   void sendFilePath(const QString &) const;

@@ -18,7 +18,7 @@ TotalChannelCounter::TotalChannelCounter(QWidget *parent)
 }
 
 void TotalChannelCounter::add(
-    const std::unique_ptr<Data::SeismReceiver> &receiver) {
+    const std::shared_ptr<Data::SeismReceiver> &receiver) {
   int amount = receiver->getChannelAmount();
   _numbers_map[receiver->getUuid()] = amount;
   _count->setNum(_count->text().toInt() + amount);

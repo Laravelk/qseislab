@@ -245,9 +245,9 @@ PolarizationAnalysisWindow::drawLine(const QVector3D &start,
 }
 
 void PolarizationAnalysisWindow::drawCurve(
-    const std::unique_ptr<Data::SeismTrace> &traceX,
-    const std::unique_ptr<Data::SeismTrace> &traceY,
-    const std::unique_ptr<Data::SeismTrace> &traceZ, const QColor &color,
+    const std::shared_ptr<Data::SeismTrace> &traceX,
+    const std::shared_ptr<Data::SeismTrace> &traceY,
+    const std::shared_ptr<Data::SeismTrace> &traceZ, const QColor &color,
     Qt3DCore::QEntity *_rootEntity, const int firstPointIndex,
     const int lastPointIndex, const float maxValue) {
   auto *geometry = new Qt3DRender::QGeometry(_rootEntity);
@@ -321,7 +321,7 @@ void PolarizationAnalysisWindow::drawCurve(
 }
 
 void PolarizationAnalysisWindow::drawTraces(
-    const std::unique_ptr<Data::SeismComponent> &component) {
+    const std::shared_ptr<Data::SeismComponent> &component) {
   int firstElement = 0;
   int lastElement = lastElementNumber(component);
   float maxValue = component->getMaxValue();
@@ -345,7 +345,7 @@ void PolarizationAnalysisWindow::drawTraces(
 }
 
 int PolarizationAnalysisWindow::lastElementNumber(
-    const std::unique_ptr<Data::SeismComponent> &component) {
+    const std::shared_ptr<Data::SeismComponent> &component) {
   int lastNumber = 0;
   for (auto &trace : component->getTraces()) {
     if (trace->getBufferSize() > lastNumber) {

@@ -38,7 +38,7 @@ SeismWell::SeismWell(const QJsonObject &json, const QDir &dir)
     for (auto objReceiver : receiversArray) {
       try {
         auto seismReceiver =
-            std::make_unique<SeismReceiver>(objReceiver.toObject());
+            std::make_shared<SeismReceiver>(objReceiver.toObject());
         _receivers.push_back(std::move(seismReceiver));
       } catch (std::runtime_error &err) {
         err_msg += "Receivers (idx: " + std::to_string(idx) + ")\n";
@@ -84,7 +84,7 @@ SeismWell::SeismWell(const QJsonObject &json, const QDir &dir)
 
 SeismWell::SeismWell(const SeismWell &other)
     : _uuid(other._uuid), _path(other._path), _name(other._name),
-      _points(other._points) {
+      _points(other._points), _receivers(other._receivers) {
 
   //  for (auto &pair : other._receivers_map) {
   //    _receivers_map[pair.first] =
@@ -92,7 +92,8 @@ SeismWell::SeismWell(const SeismWell &other)
   //  }
 
   for (auto &receiver : other._receivers) {
-    _receivers.push_back(std::make_unique<SeismReceiver>(*receiver));
+    _receivers.push_back(std::make_shared<SeismReceiver>(*receiver));
+    //    _receivers.push_back(receiver);
   }
 }
 
@@ -118,11 +119,11 @@ const Point &SeismWell::getPoint(int idx) {
 
 const std::vector<Point> &SeismWell::getPoints() { return _points; }
 
-void SeismWell::addReceiver(std::unique_ptr<SeismReceiver> receiver) {
+void SeismWell::addReceiver(const std::shared_ptr<SeismReceiver> &receiver) {
   //  _isSaved = false;
   //  auto uuid = generateUuid();
   //  receiver->setUuid(uuid);
-  _receivers.push_back(std::move(receiver));
+  _receivers.push_back(receiver);
 
   //  emit addedReceiver(_receivers.back());
 }
@@ -155,7 +156,7 @@ int SeismWell::getReceiversAmount() const {
 //  return *(_receivers.begin());
 //}
 
-std::list<std::unique_ptr<SeismReceiver>> &SeismWell::getReceivers() {
+const std::list<std::shared_ptr<SeismReceiver>> &SeismWell::getReceivers() {
   return _receivers;
 }
 

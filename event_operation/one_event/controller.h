@@ -22,12 +22,12 @@ class Controller : public QObject {
 public:
   explicit Controller(
       const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
-      const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &,
+      const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &,
       QObject *parent = nullptr);
 
   explicit Controller(
       const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
-      const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &,
+      const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &,
       const std::shared_ptr<Data::SeismEvent> &,
       const std::shared_ptr<QUndoStack> &, QObject *parent = nullptr);
 

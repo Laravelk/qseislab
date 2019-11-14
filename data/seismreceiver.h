@@ -53,8 +53,8 @@ public:
   int getWellReceiverNum() const;
 
   int getChannelAmount() const;
-  void addChannel(std::unique_ptr<Data::SeismChannelReceiver>);
-  const std::vector<std::unique_ptr<Data::SeismChannelReceiver>> &
+  void addChannel(const std::shared_ptr<Data::SeismChannelReceiver> &);
+  const std::vector<std::shared_ptr<Data::SeismChannelReceiver>> &
   getChannels() const;
 
   QJsonObject &writeToJson(QJsonObject &);
@@ -73,7 +73,7 @@ private:
   int _lowFreq;
   int _highFreq;
   int _wellReceiverNum;
-  std::vector<std::unique_ptr<Data::SeismChannelReceiver>> _channels;
+  std::vector<std::shared_ptr<Data::SeismChannelReceiver>> _channels;
 };
 
 } // namespace Data

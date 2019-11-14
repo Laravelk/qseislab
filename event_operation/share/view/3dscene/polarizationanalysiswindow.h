@@ -40,12 +40,12 @@ private:
   void drawTextAxes();
   Qt3DCore::QEntity *drawLine(const QVector3D &, const QVector3D &,
                               const QColor &, Qt3DCore::QEntity *);
-  void drawCurve(const std::unique_ptr<Data::SeismTrace> &,
-                 const std::unique_ptr<Data::SeismTrace> &,
-                 const std::unique_ptr<Data::SeismTrace> &, const QColor &,
+  void drawCurve(const std::shared_ptr<Data::SeismTrace> &,
+                 const std::shared_ptr<Data::SeismTrace> &,
+                 const std::shared_ptr<Data::SeismTrace> &, const QColor &,
                  Qt3DCore::QEntity *, const int, const int, const float);
-  void drawTraces(const std::unique_ptr<Data::SeismComponent> &);
-  int lastElementNumber(const std::unique_ptr<Data::SeismComponent> &);
+  void drawTraces(const std::shared_ptr<Data::SeismComponent> &);
+  int lastElementNumber(const std::shared_ptr<Data::SeismComponent> &);
   void update();
   Qt3DCore::QEntity *createTestScene();
   void clearScene();

@@ -14,8 +14,8 @@ public:
 
   bool hasNextComponent() const override;
 
-  std::unique_ptr<SeismComponent> nextComponent(
-      const std::unique_ptr<SeismReceiver> &) noexcept(false) override;
+  std::shared_ptr<SeismComponent> nextComponent(
+      const std::shared_ptr<SeismReceiver> &) noexcept(false) override;
 
   void close() override;
 

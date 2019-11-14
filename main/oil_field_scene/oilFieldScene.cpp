@@ -43,7 +43,7 @@ void OilFieldScene::addEvent(const std::shared_ptr<Data::SeismEvent> &event) {
 }
 
 void OilFieldScene::addHorizon(
-    const std::unique_ptr<Data::SeismHorizon> &horizon) {
+    const std::shared_ptr<Data::SeismHorizon> &horizon) {
   _points = horizon->getPoints();
   unsigned long countElementInLine =
       static_cast<unsigned long>(horizon->getNx());
@@ -59,7 +59,7 @@ void OilFieldScene::addHorizon(
 }
 
 void OilFieldScene::addReceiver(
-    const std::unique_ptr<Data::SeismReceiver> &receiver) {
+    const std::shared_ptr<Data::SeismReceiver> &receiver) {
   float x, y, z;
   std::tie(x, y, z) = receiver->getLocation();
   QVector3D position(x, z, y);
@@ -75,7 +75,7 @@ void OilFieldScene::addReceiver(
       std::pair<Uuid, QCustom3DItem *>(receiver->getUuid(), item));
 }
 
-void OilFieldScene::addWell(const std::unique_ptr<Data::SeismWell> &well) {
+void OilFieldScene::addWell(const std::shared_ptr<Data::SeismWell> &well) {
   float x = 0, y = 0, z = 0;
   float lx = 0, ly = 0, lz = 0;
   std::tie(lx, ly, lz) = well->getPoint(0);

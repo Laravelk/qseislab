@@ -18,11 +18,11 @@ class View : public QDialog {
 public:
   explicit View(QWidget *parent = nullptr);
 
-  void addHorizon(const std::unique_ptr<Data::SeismHorizon> &);
-  void updateHorizon(const std::unique_ptr<Data::SeismHorizon> &);
+  void addHorizon(const std::shared_ptr<Data::SeismHorizon> &);
+  void updateHorizon(const std::shared_ptr<Data::SeismHorizon> &);
   void removeHorizon(const QUuid &);
 
-  void settingHorizonInfo(const std::unique_ptr<Data::SeismHorizon> &);
+  void settingHorizonInfo(const std::shared_ptr<Data::SeismHorizon> &);
 
   void changed(bool);
 

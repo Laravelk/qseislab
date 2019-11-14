@@ -26,14 +26,14 @@ public:
   void updateEvent(const std::shared_ptr<Data::SeismEvent> &);
   void removeEvent(const QUuid &);
 
-  void addHorizon(const std::unique_ptr<Data::SeismHorizon> &);
+  void addHorizon(const std::shared_ptr<Data::SeismHorizon> &);
   void removeHorizon(const QUuid &);
 
-  void addWell(const std::unique_ptr<Data::SeismWell> &);
+  void addWell(const std::shared_ptr<Data::SeismWell> &);
   void removeWell(const QUuid &);
 
   void
-  addReceiver(const std::unique_ptr<Data::SeismReceiver> &); // TODO: re-see
+  addReceiver(const std::shared_ptr<Data::SeismReceiver> &); // TODO: re-see
   void removeReceiver(const QUuid &);                        // TODO: re-see
 
   void closeProject();

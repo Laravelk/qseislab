@@ -73,7 +73,7 @@ void TableAssistant::requestRemoveAll() {
 }
 
 template <typename T>
-void TableAssistant::setAll(const std::map<QUuid, std::unique_ptr<T>> &map) {
+void TableAssistant::setAll(const std::map<QUuid, std::shared_ptr<T>> &map) {
   clearTable();
 
   for (auto &uuid_obj : map) {
@@ -114,7 +114,7 @@ void TableAssistant::forHorizons() {
 
 template <>
 void TableAssistant::add<SeismHorizon>(
-    const std::unique_ptr<SeismHorizon> &horizon) {
+    const std::shared_ptr<SeismHorizon> &horizon) {
   assert(ForHorizons == _mode);
   _table->setSortingEnabled(false);
 
@@ -150,7 +150,7 @@ void TableAssistant::add<SeismHorizon>(
 
 template <>
 void TableAssistant::update<SeismHorizon>(
-    const std::unique_ptr<SeismHorizon> &horizon) {
+    const std::shared_ptr<SeismHorizon> &horizon) {
   assert(ForHorizons == _mode);
   _table->setSortingEnabled(false);
 
@@ -194,7 +194,7 @@ void TableAssistant::forWells() {
 }
 
 template <>
-void TableAssistant::add<SeismWell>(const std::unique_ptr<SeismWell> &well) {
+void TableAssistant::add<SeismWell>(const std::shared_ptr<SeismWell> &well) {
   assert(ForWells == _mode);
   _table->setSortingEnabled(false);
 
@@ -222,7 +222,7 @@ void TableAssistant::add<SeismWell>(const std::unique_ptr<SeismWell> &well) {
 }
 
 template <>
-void TableAssistant::update<SeismWell>(const std::unique_ptr<SeismWell> &well) {
+void TableAssistant::update<SeismWell>(const std::shared_ptr<SeismWell> &well) {
   assert(ForWells == _mode);
   _table->setSortingEnabled(false);
 
@@ -266,7 +266,7 @@ void TableAssistant::forReceivers() {
 
 template <>
 void TableAssistant::add<SeismReceiver>(
-    const std::unique_ptr<SeismReceiver> &receiver) {
+    const std::shared_ptr<SeismReceiver> &receiver) {
   assert(ForReceivers == _mode);
   _table->setSortingEnabled(false);
 
@@ -303,7 +303,7 @@ void TableAssistant::add<SeismReceiver>(
 
 template <>
 void TableAssistant::update<SeismReceiver>(
-    const std::unique_ptr<SeismReceiver> &receiver) {
+    const std::shared_ptr<SeismReceiver> &receiver) {
   assert(ForReceivers == _mode);
   _table->setSortingEnabled(false);
 
