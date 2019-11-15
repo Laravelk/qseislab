@@ -240,7 +240,8 @@ void Controller::handleReceiversClicked() {
 
 void Controller::handleWellsClicked() {
   if (!_wellController) {
-    _wellController = std::make_unique<WellOperation::Controller>(this);
+    _wellController =
+        std::make_unique<WellOperation::Controller>(_mainWindow.get(), this);
     connect(
         _wellController.get(), &WellOperation::Controller::sendWells,
         [this](auto &wells_map) { _project->setAllMap<SeismWell>(wells_map); });

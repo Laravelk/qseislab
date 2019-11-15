@@ -20,7 +20,7 @@ class AddWellManager : public QDialog {
 public:
   explicit AddWellManager(QWidget *parent = nullptr);
 
-  void update(Data::SeismWell const *const);
+  void loadWell(Data::SeismWell const *const);
 
   void settingWellInfo(Data::SeismWell *const);
 

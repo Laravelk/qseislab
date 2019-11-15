@@ -37,7 +37,6 @@ private:
                           const csv::Row &) noexcept(false);
 
   const std::shared_ptr<Data::SeismReceiver> &
-
   getReceiver(const int, const std::shared_ptr<Data::SeismWell> &, bool *);
 
   const std::shared_ptr<Data::SeismWell> &

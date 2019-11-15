@@ -8,6 +8,8 @@
 #include <QFile>
 #include <QTextStream>
 
+#include <iostream> // TODO: remove
+
 typedef Data::SeismWell SeismWell;
 typedef Data::SeismReceiver SeismReceiver;
 typedef Data::SeismChannelReceiver SeismChannelReceiver;
@@ -21,10 +23,14 @@ std::map<QUuid, std::shared_ptr<SeismWell>> Model::getSeismReceiversFrom(
     const QString &path,
     const std::map<QUuid, std::shared_ptr<SeismWell>> &wells_map) {
 
-  std::map<QUuid, std::shared_ptr<SeismWell>> new_well_map;
-  for (auto &pair : wells_map) {
-    new_well_map[pair.first] = std::make_shared<SeismWell>(*(pair.second));
+  std::map<QUuid, std::shared_ptr<SeismWell>> new_well_map = wells_map;
+  for (auto &uuid_well : new_well_map) {
+    std::cout << "from model well_nmae == "
+              << uuid_well.second->getName().toStdString() << std::endl;
   }
+  //  for (auto &pair : wells_map) {
+  //    new_well_map[pair.first] = std::make_shared<SeismWell>(*(pair.second));
+  //  }
 
   try {
     csv::Parser file = csv::Parser(path.toStdString());

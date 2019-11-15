@@ -34,8 +34,6 @@ public:
 
   const QUuid settingReceiverInfo(Data::SeismReceiver *const);
 
-  // void changed(bool b = true);
-
   void setNotification(const QString &);
 
 signals:

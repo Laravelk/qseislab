@@ -53,14 +53,23 @@ View::View(QWidget *parent)
 
 void View::addWell(SeismWell const *const well) {
   _wellsTable->add<SeismWell>(well);
+  isChanged(true);
 }
 
 void View::updateWell(SeismWell const *const well) {
-  _addWellManager->update(well);
+  //  _addWellManager->update(well);
   _wellsTable->update<SeismWell>(well);
+  isChanged(true);
 }
 
-void View::removeWell(const QUuid &uuid) { _wellsTable->remove(uuid); }
+void View::removeWell(const QUuid &uuid) {
+  _wellsTable->remove(uuid);
+  isChanged(true);
+}
+
+void View::loadNewWell(const Data::SeismWell *const well) {
+  _addWellManager->loadWell(well);
+}
 
 void View::settingWellInfo(Data::SeismWell *const well) {
   _addWellManager->settingWellInfo(well);

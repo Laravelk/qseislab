@@ -24,9 +24,9 @@ public:
   void addWell(Data::SeismWell const *const);
   void removeWell(const QUuid &);
 
-  void settingWellInfo(Data::SeismWell *const);
+  void loadNewWell(Data::SeismWell const *const);
 
-  // void changed(bool);
+  void settingWellInfo(Data::SeismWell *const);
 
   void setNotification(const QString &);
 

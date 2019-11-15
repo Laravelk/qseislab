@@ -2,19 +2,18 @@
 
 #include "data/seismwell.h"
 #include "model.h"
-//#include "view/view.h"
+#include "view/view.h"
 
 typedef Data::SeismWell SeismWell;
 
 namespace WellOperation {
-Controller::Controller(QObject *parent)
-    : QObject(parent), _model(new Model(this)),
-      _view(std::make_unique<View>()) {
+Controller::Controller(QWidget *viewParent, QObject *parent)
+    : QObject(parent), _model(new Model(this)), _view(new View(viewParent)) {
 
   connect(_model, &Model::notify,
           [this](auto &msg) { _view->setNotification(msg); });
 
-  connect(_view.get(), &View::addWellClicked, [this] {
+  connect(_view, &View::addWellClicked, [this] {
     _view->settingWellInfo(_tmpWell.get());
     _view->addWell(_tmpWell.get());
 
@@ -22,21 +21,21 @@ Controller::Controller(QObject *parent)
     _wells_map[uuid] = std::move(_tmpWell);
   });
 
-  connect(_view.get(), &View::removeWellClicked, [this](auto &uuid) {
+  connect(_view, &View::removeWellClicked, [this](auto &uuid) {
     _view->removeWell(uuid);
 
     _wells_map.erase(uuid);
   });
 
-  connect(_view.get(), &View::sendFilePath, [this](auto path) {
+  connect(_view, &View::sendFilePath, [this](auto path) {
     auto well = _model->getSeismWellFrom(path);
     if (well) {
       _tmpWell = std::move(well);
-      _view->updateWell(_tmpWell.get());
+      _view->loadNewWell(_tmpWell.get());
     }
   });
 
-  connect(_view.get(), &View::finished, this, &Controller::finish);
+  connect(_view, &View::finished, this, &Controller::finish);
 }
 
 void Controller::viewWells(
@@ -46,12 +45,8 @@ void Controller::viewWells(
   for (auto &uuid_well : _wells_map) {
     _view->addWell(uuid_well.second.get());
   }
-  //  for (auto &pair : wells_map) {
-  //    _wells[pair.first] = std::make_unique<Data::SeismWell>(*(pair.second));
-  //    _view->addWell(_wells[pair.first]);
-  //  }
 
-  _view->setModal(true); // TODO: надо ли?
+  // NOTE: _view->endOfSetup();
   _view->show();
 }
 

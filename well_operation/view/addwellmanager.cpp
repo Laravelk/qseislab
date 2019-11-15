@@ -53,20 +53,11 @@ AddWellManager::AddWellManager(QWidget *parent)
   // Layout`s end
 }
 
-void AddWellManager::update(Data::SeismWell const *const well) {
-  if (!well) {
-    _fileManager->clear();
-    _nameLineEdit->clear();
-    _pointAmountLabel->clear();
-    _addButton->setDisabled(true);
-    _nameLineEdit->setDisabled(true);
-    return;
-  }
-
+void AddWellManager::loadWell(Data::SeismWell const *const well) {
   _nameLineEdit->setText(well->getName());
   _pointAmountLabel->setNum(well->getPointsAmount());
-  _addButton->setDisabled(false);
-  _nameLineEdit->setDisabled(false);
+  _addButton->setEnabled(true);
+  _nameLineEdit->setEnabled(true);
 }
 
 void AddWellManager::settingWellInfo(Data::SeismWell *const well) {

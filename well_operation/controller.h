@@ -1,7 +1,5 @@
 #pragma once
 
-#include "view/view.h"
-
 #include <QObject>
 
 #include <memory>
@@ -17,7 +15,7 @@ class Controller : public QObject {
   Q_OBJECT
 
 public:
-  explicit Controller(QObject *parent = nullptr);
+  explicit Controller(QWidget *viewParent, QObject *parent = nullptr);
 
   void viewWells(const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &);
 
@@ -29,7 +27,7 @@ signals:
 
 private:
   Model *_model;
-  std::unique_ptr<View> _view;
+  View *_view;
 
   std::shared_ptr<Data::SeismWell> _tmpWell;
 
