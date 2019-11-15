@@ -4,6 +4,8 @@
 #include "filemanager.h"
 
 #include <QFormLayout>
+#include <QLabel>
+#include <QLineEdit>
 #include <QPushButton>
 
 namespace WellOperation {
@@ -51,7 +53,7 @@ AddWellManager::AddWellManager(QWidget *parent)
   // Layout`s end
 }
 
-void AddWellManager::update(const std::shared_ptr<Data::SeismWell> &well) {
+void AddWellManager::update(Data::SeismWell const *const well) {
   if (!well) {
     _fileManager->clear();
     _nameLineEdit->clear();
@@ -60,14 +62,14 @@ void AddWellManager::update(const std::shared_ptr<Data::SeismWell> &well) {
     _nameLineEdit->setDisabled(true);
     return;
   }
+
   _nameLineEdit->setText(well->getName());
   _pointAmountLabel->setNum(well->getPointsAmount());
   _addButton->setDisabled(false);
   _nameLineEdit->setDisabled(false);
 }
 
-void AddWellManager::settingWellInfo(
-    const std::shared_ptr<Data::SeismWell> &well) {
+void AddWellManager::settingWellInfo(Data::SeismWell *const well) {
   well->setName(_nameLineEdit->text());
 }
 

@@ -9,7 +9,6 @@
 
 namespace Data {
 class SeismWell;
-// class SeismProject;
 class SeismReceiver;
 class SeismChannelReceiver;
 } // namespace Data
@@ -38,6 +37,7 @@ private:
                           const csv::Row &) noexcept(false);
 
   const std::shared_ptr<Data::SeismReceiver> &
+
   getReceiver(const int, const std::shared_ptr<Data::SeismWell> &, bool *);
 
   const std::shared_ptr<Data::SeismWell> &

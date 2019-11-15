@@ -1,10 +1,12 @@
 #pragma once
 
 #include <QDialog>
-#include <QLabel>
-#include <QLineEdit>
-
+// #include <QLabel>
+// #include <QLineEdit>
 #include <memory>
+
+class QLabel;
+class QLineEdit;
 
 namespace Data {
 class SeismWell;
@@ -18,9 +20,9 @@ class AddWellManager : public QDialog {
 public:
   explicit AddWellManager(QWidget *parent = nullptr);
 
-  void update(const std::shared_ptr<Data::SeismWell> &);
+  void update(Data::SeismWell const *const);
 
-  void settingWellInfo(const std::shared_ptr<Data::SeismWell> &);
+  void settingWellInfo(Data::SeismWell *const);
 
 signals:
   void sendFilePath(const QString &) const;

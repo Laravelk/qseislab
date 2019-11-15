@@ -4,11 +4,14 @@
 #include "data/seismwell.h"
 #include "event_operation/share/model.h"
 #include "event_operation/share/view/3dscene/polarizationanalysiswindow.h"
+//#include "view/view.h"
 
 #include "event_operation/modification/rotatedatatoebasis.h"
 #include "event_operation/modification/testmultiplier.h"
 
 #include "data/io/segyreader.h"
+
+#include <QUndoStack>
 
 #include <iostream> // TODO: remove
 
@@ -22,8 +25,7 @@ Controller::Controller(
     const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &wells_map,
     QObject *parent)
     : QObject(parent), _model(new Model(new SegyReader(), this)),
-      _event(std::make_shared<Data::SeismEvent>()),
-      //      _appliedOperations(new QUndoStack()),
+      _event(std::make_shared<SeismEvent>()),
       _undoStack(std::make_shared<QUndoStack>()) {
 
   // prepare data for view
@@ -35,10 +37,11 @@ Controller::Controller(
   for (auto &uuid_event : all_events) {
     eventNames.insert(uuid_event.second->getName());
   }
-  _view = std::make_unique<View>(eventNames, wellNames_map, _undoStack);
+  _view = std::make_unique<View>(eventNames, wellNames_map, _undoStack.get());
   // ...
 
   connect(_event.get(), &Data::SeismEvent::changed, []() {
+    // _view->update(_event.get());
     //              std::cout << "event changed" << std::endl;
   });
 
@@ -55,11 +58,13 @@ Controller::Controller(
               }
               _eventNameContainer[wellUuid] = QFileInfo(filePath).baseName();
               _event->setName(generateEventName());
-              _view->update(_event, wellUuid);
+
+              _view->update(_event.get(), wellUuid);
             }
           });
   connect(_view.get(), &View::createPolarizationAnalysisWindow, [this]() {
-    _polarizationWindow = new PolarizationAnalysisWindow(_event);
+    _polarizationWindow = new PolarizationAnalysisWindow(
+        _event); // TODO: может тоже отдавть (const * const) ?
     _polarizationWindow->show();
   });
 
@@ -71,7 +76,8 @@ Controller::Controller(
             }
             _eventNameContainer.erase(uuid);
             _event->setName(generateEventName());
-            _view->update(_event, uuid, well->getName());
+
+            _view->update(_event.get(), uuid, well->getName());
           });
 
   connect(_view.get(), &View::sendPicksInfo,
@@ -96,13 +102,13 @@ Controller::Controller(
     std::cout << "event-address == " << _event.get() << std::endl;
     _undoStack->undo();
     //    _appliedOperations->undo();
-    _view->update(_event);
+    _view->update(_event.get());
   });
   connect(_view.get(), &View::redoClicked, [this]() {
     //    _appliedOperations->redo();
     std::cout << "event-address == " << _event.get() << std::endl;
     _undoStack->redo();
-    _view->update(_event);
+    _view->update(_event.get());
   });
 
   connect(
@@ -121,7 +127,7 @@ Controller::Controller(
           break;
         }
 
-        _view->update(_event);
+        _view->update(_event.get());
       });
 
   connect(_view.get(), &View::finished, this, &Controller::finish);
@@ -151,7 +157,7 @@ Controller::Controller(
       eventNames.insert(uuid_event.second->getName());
     }
   }
-  _view = std::make_unique<View>(eventNames, _event, _undoStack);
+  _view = std::make_unique<View>(eventNames, _event.get(), _undoStack.get());
   // ...
 
   connect(_event.get(), &Data::SeismEvent::changed, []() {
@@ -187,13 +193,13 @@ Controller::Controller(
     std::cout << "event-address == " << _event.get() << std::endl;
     _undoStack->undo();
     //    _appliedOperations->undo();
-    _view->update(_event);
+    _view->update(_event.get());
   });
   connect(_view.get(), &View::redoClicked, [this]() {
     //    _appliedOperations->redo();
     std::cout << "event-address == " << _event.get() << std::endl;
     _undoStack->redo();
-    _view->update(_event);
+    _view->update(_event.get());
   });
 
   connect(
@@ -213,7 +219,7 @@ Controller::Controller(
           break;
         }
 
-        _view->update(_event);
+        _view->update(_event.get());
       });
 
   connect(_view.get(), &View::finished, this, &Controller::finish);
@@ -225,9 +231,9 @@ void Controller::start() {
 }
 
 void Controller::finish(int result) {
-  auto &uuid = _event->getUuid();
+  //  auto &uuid = _event->getUuid();
   if (QDialog::Accepted == result) {
-    _view->settingEventInfo(_event);
+    _view->settingEventInfo(_event.get());
     // TODO: correctly!
     emit sendEventAndStack(_event, _undoStack);
   }

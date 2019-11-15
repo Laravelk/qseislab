@@ -30,19 +30,24 @@ class View : public QDialog {
   Q_OBJECT
 
 public:
-  explicit View(const std::set<QString> &,
-                const std::shared_ptr<Data::SeismEvent> &,
-                const std::shared_ptr<QUndoStack> &, QWidget *parent = nullptr);
+  explicit View(const std::set<QString> &, Data::SeismEvent const *const,
+                QUndoStack const *const, QWidget *parent = nullptr);
   explicit View(const std::set<QString> &, const std::map<QUuid, QString> &,
-                const std::shared_ptr<QUndoStack> &, QWidget *parent = nullptr);
+                QUndoStack const *const, QWidget *parent = nullptr);
 
-  void update(const std::shared_ptr<Data::SeismEvent> &);
+  //  void update(const std::shared_ptr<Data::SeismEvent> &);
 
-  void update(const std::shared_ptr<Data::SeismEvent> &, const QUuid &);
-  void update(const std::shared_ptr<Data::SeismEvent> &, const QUuid &,
-              const QString &);
+  //  void update(const std::shared_ptr<Data::SeismEvent> &, const QUuid &);
+  //  void update(const std::shared_ptr<Data::SeismEvent> &, const QUuid &,
+  //              const QString &);
+
+  void update(Data::SeismEvent const *const);
+
+  void update(Data::SeismEvent const *const, const QUuid &);
+  void update(Data::SeismEvent const *const, const QUuid &, const QString &);
+
   void setNotification(const QString &);
-  void settingEventInfo(const std::shared_ptr<Data::SeismEvent> &) const;
+  void settingEventInfo(Data::SeismEvent *const) const;
   ChartGesture *getChartGesture();
 
 signals:

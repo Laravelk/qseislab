@@ -34,7 +34,7 @@ EventToolsWidget::EventToolsWidget(QWidget *parent)
   // Layout`s end
 }
 
-void EventToolsWidget::update(const std::shared_ptr<SeismEvent> &event) {
+void EventToolsWidget::update(SeismEvent const *const event) {
   _dataToEBasisButton->setDisabled(
       event->isTransformBy(SeismEvent::TransformOperation::RotateDataToEBasis));
   _testMultButton->setDisabled(

@@ -19,9 +19,8 @@ typedef Data::SeismEvent SeismEvent;
 
 namespace EventOperation {
 namespace OneEvent {
-View::View(const std::set<QString> &eventNames,
-           const std::shared_ptr<Data::SeismEvent> &event,
-           const std::shared_ptr<QUndoStack> &undoStack, QWidget *parent)
+View::View(const std::set<QString> &eventNames, SeismEvent const *const event,
+           QUndoStack const *const undoStack, QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
       _eventNames(eventNames) {
 
@@ -48,9 +47,9 @@ View::View(const std::set<QString> &eventNames,
   redoButton->setEnabled(undoStack->canRedo());
   //  undoButton->setDisabled(true);
   //  redoButton->setDisabled(true);
-  connect(undoStack.get(), &QUndoStack::canUndoChanged, undoButton,
+  connect(undoStack, &QUndoStack::canUndoChanged, undoButton,
           &QPushButton::setEnabled);
-  connect(undoStack.get(), &QUndoStack::canRedoChanged, redoButton,
+  connect(undoStack, &QUndoStack::canRedoChanged, redoButton,
           &QPushButton::setEnabled);
   connect(undoButton, &QPushButton::clicked, [this]() { emit undoClicked(); });
   connect(redoButton, &QPushButton::clicked, [this]() { emit redoClicked(); });
@@ -82,7 +81,7 @@ View::View(const std::set<QString> &eventNames,
 
 View::View(const std::set<QString> &eventNames,
            const std::map<QUuid, QString> &wellNames_map,
-           const std::shared_ptr<QUndoStack> &undoStack, QWidget *parent)
+           QUndoStack const *const undoStack, QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
       _wellManagersLayout(new QVBoxLayout()),
       _addButtonManagers(new QPushButton("Add")), _wellNames_map(wellNames_map),
@@ -152,9 +151,9 @@ View::View(const std::set<QString> &eventNames,
   //  redoButton->setDisabled(true);
   undoButton->setEnabled(undoStack->canUndo());
   redoButton->setEnabled(undoStack->canRedo());
-  connect(undoStack.get(), &QUndoStack::canUndoChanged, undoButton,
+  connect(undoStack, &QUndoStack::canUndoChanged, undoButton,
           &QPushButton::setEnabled);
-  connect(undoStack.get(), &QUndoStack::canRedoChanged, redoButton,
+  connect(undoStack, &QUndoStack::canRedoChanged, redoButton,
           &QPushButton::setEnabled);
   connect(undoButton, &QPushButton::clicked, [this]() { emit undoClicked(); });
   connect(redoButton, &QPushButton::clicked, [this]() { emit redoClicked(); });
@@ -193,14 +192,13 @@ View::View(const std::set<QString> &eventNames,
   // Layout`s end
 }
 
-void View::update(const std::shared_ptr<Data::SeismEvent> &event) {
+void View::update(SeismEvent const *const event) {
   _toolsWidget->update(event);
   _infoEvent->update(event);
   _graphicEvent->update(event);
 }
 
-void View::update(const std::shared_ptr<SeismEvent> &event,
-                  const QUuid &removedWellUuid) {
+void View::update(SeismEvent const *const event, const QUuid &removedWellUuid) {
   _wellNames_map.erase(removedWellUuid);
 
   _toolsWidget->setEnabled(true);
@@ -213,7 +211,7 @@ void View::update(const std::shared_ptr<SeismEvent> &event,
   _okButton->setFocus();
 }
 
-void View::update(const std::shared_ptr<SeismEvent> &event, const QUuid &uuid,
+void View::update(SeismEvent const *const event, const QUuid &uuid,
                   const QString &wellName) {
   assert(nullptr != _wellManagersLayout);
 
@@ -259,8 +257,7 @@ void View::setNotification(const QString &text) {
   msg->show();
 }
 
-void View::settingEventInfo(
-    const std::shared_ptr<Data::SeismEvent> &event) const {
+void View::settingEventInfo(SeismEvent *const event) const {
   _infoEvent->settingEventInfo(event);
 }
 

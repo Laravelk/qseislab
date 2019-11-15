@@ -6,6 +6,8 @@
 #include <QFormLayout>
 #include <QPushButton>
 
+typedef Data::SeismHorizon SeismHorizon;
+
 namespace HorizonOperation {
 AddHorizonManager::AddHorizonManager(QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
@@ -66,8 +68,7 @@ AddHorizonManager::AddHorizonManager(QWidget *parent)
   // Layout`s end
 }
 
-void AddHorizonManager::update(
-    const std::shared_ptr<Data::SeismHorizon> &horizon) {
+void AddHorizonManager::update(SeismHorizon const *const horizon) {
   if (!horizon) {
     _fileManager->clear();
     _nameLineEdit->clear();
@@ -80,6 +81,7 @@ void AddHorizonManager::update(
     _NyLineEdit->setDisabled(true);
     return;
   }
+
   _nameLineEdit->setText(horizon->getName());
   _pointAmountLabel->setNum(horizon->getPointsAmount());
   _addButton->setEnabled(true);
@@ -93,8 +95,7 @@ void AddHorizonManager::update(
   _NyLineEdit->setDisabled(0 < Ny);
 }
 
-void AddHorizonManager::settingHorizonInfo(
-    const std::shared_ptr<Data::SeismHorizon> &horizon) {
+void AddHorizonManager::settingHorizonInfo(SeismHorizon *const horizon) {
   horizon->setName(_nameLineEdit->text());
   horizon->setNx(_NxLineEdit->text().toInt());
   horizon->setNy(_NyLineEdit->text().toInt());

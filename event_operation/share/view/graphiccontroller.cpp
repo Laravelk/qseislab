@@ -125,8 +125,8 @@ GraphicController::GraphicController(QWidget *parent)
   _allView->hide();
 }
 
-void GraphicController::update(const std::shared_ptr<SeismEvent> &event) {
-  _event = event.get();
+void GraphicController::update(SeismEvent const *const event) {
+  _event = event;
 
   // setting event-name on title
   _view->chart()->setTitle(event->getName());
@@ -250,7 +250,7 @@ void GraphicController::addWaveArrival(Data::SeismWavePick pick, int index) {
           MICROSECONDS_IN_SECOND);
 }
 
-void GraphicController::setInterval(const std::shared_ptr<SeismEvent> &event) {
+void GraphicController::setInterval(SeismEvent const *const event) {
   _interval = 0;
   for (auto &component : event->getComponents()) {
     if (_interval < component->getMaxValue()) {
@@ -388,8 +388,7 @@ void GraphicController::setAxesY(int componentNumber) {
   _axisY->setLabelFormat("%d");
 }
 
-void GraphicController::getRangeX(
-    const std::shared_ptr<Data::SeismEvent> &event) {
+void GraphicController::getRangeX(SeismEvent const *const event) {
   float sampleInterval = 0;
   int maxCountElementInTrace = 0;
   for (auto &component : event->getComponents()) {

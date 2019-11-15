@@ -4,6 +4,8 @@
 
 #include <QBoxLayout>
 
+typedef Data::SeismReceiver SeismReceiver;
+
 namespace ReceiverOperation {
 TotalChannelCounter::TotalChannelCounter(QWidget *parent)
     : QWidget(parent), _count(new QLabel("0")) {
@@ -17,11 +19,17 @@ TotalChannelCounter::TotalChannelCounter(QWidget *parent)
   setLayout(layout);
 }
 
-void TotalChannelCounter::add(
-    const std::shared_ptr<Data::SeismReceiver> &receiver) {
+void TotalChannelCounter::add(SeismReceiver const *const receiver) {
   int amount = receiver->getChannelAmount();
   _numbers_map[receiver->getUuid()] = amount;
   _count->setNum(_count->text().toInt() + amount);
+}
+
+void TotalChannelCounter::update(const Data::SeismReceiver *const receiver) {
+  int newAmount = receiver->getChannelAmount();
+  int oldAmount = _numbers_map[receiver->getUuid()];
+  _numbers_map[receiver->getUuid()] = newAmount;
+  _count->setNum(_count->text().toInt() - oldAmount + newAmount);
 }
 
 bool TotalChannelCounter::remove(const QUuid &uuid) {

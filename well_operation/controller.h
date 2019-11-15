@@ -12,6 +12,7 @@ class SeismWell;
 
 namespace WellOperation {
 class Model;
+class View;
 class Controller : public QObject {
   Q_OBJECT
 
@@ -31,7 +32,8 @@ private:
   std::unique_ptr<View> _view;
 
   std::shared_ptr<Data::SeismWell> _tmpWell;
-  std::map<QUuid, std::shared_ptr<Data::SeismWell>> _wells;
+
+  std::map<QUuid, std::shared_ptr<Data::SeismWell>> _wells_map;
 };
 
 } // namespace WellOperation

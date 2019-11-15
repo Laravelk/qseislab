@@ -2,11 +2,14 @@
 
 #include "data/seismreceiver.h"
 
+#include <QComboBox>
 #include <QFormLayout>
+#include <QLineEdit>
 #include <QPushButton>
 
-namespace ReceiverOperation {
+typedef Data::SeismReceiver SeismReceiver;
 
+namespace ReceiverOperation {
 AddReceiverManager::AddReceiverManager(
     const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
@@ -43,7 +46,6 @@ AddReceiverManager::AddReceiverManager(
 
   QFormLayout *formLayout = new QFormLayout();
   formLayout->addRow("Name: ", _nameLineEdit);
-  //  formLayout->addRow("Channel Num: ", _channelNumLineEdit);
   formLayout->addRow("X: ", _X_LineEdit);
   formLayout->addRow("Y: ", _Y_LineEdit);
   formLayout->addRow("Z: ", _Z_LineEdit);
@@ -58,10 +60,9 @@ AddReceiverManager::AddReceiverManager(
   // Layout`s end
 }
 
-const QUuid AddReceiverManager::settingReceiverInfo(
-    const std::shared_ptr<Data::SeismReceiver> &receiver) {
+const QUuid
+AddReceiverManager::settingReceiverInfo(SeismReceiver *const receiver) {
   receiver->setName(_nameLineEdit->text());
-  //  receiver->setChannelNum(_channelNumLineEdit->text().toInt());
   receiver->setLocation({_X_LineEdit->text().toFloat(),
                          _Y_LineEdit->text().toFloat(),
                          _Z_LineEdit->text().toFloat()});
@@ -74,9 +75,6 @@ void AddReceiverManager::handleAccept() {
   if (_nameLineEdit->text().isEmpty()) {
     err_msg += "Name-field is empty\n";
   }
-  //  if (_channelNumLineEdit->text().isEmpty()) {
-  //    err_msg += "ChannelNum-field is empty\n";
-  //  }
   if (_X_LineEdit->text().isEmpty()) {
     err_msg += "X-coordinate-field is empty\n";
   }

@@ -1,12 +1,14 @@
 #pragma once
 
 #include "addreceivermanager.h"
-#include "share_view/tableassistant.h"
 
 #include <QDialog>
-#include <QLabel>
 
 #include <memory>
+
+class TableAssistant;
+
+class QLabel;
 
 namespace Data {
 class SeismReceiver;
@@ -14,20 +16,25 @@ class SeismReceiver;
 
 namespace ReceiverOperation {
 class TotalChannelCounter;
+class AddReceiverManager;
 class View : public QDialog {
   Q_OBJECT
 
 public:
-  explicit View(const std::map<QUuid, QString> &, QWidget *parent = nullptr);
+  // explicit View(const std::map<QUuid, QString> &, QWidget *parent = nullptr);
+  explicit View(QWidget *parent = nullptr);
 
-  void addReceiver(const std::shared_ptr<Data::SeismReceiver> &);
+  void setWellNames(const std::map<QUuid, QString> &);
+
+  void addReceiver(Data::SeismReceiver const *const);
+  void updateReceiver(Data::SeismReceiver const *const);
   void removeReceiver(const QUuid &);
 
-  void viewFullInfo(const std::shared_ptr<Data::SeismReceiver> &);
+  void viewFullInfo(Data::SeismReceiver const *const);
 
-  const QUuid settingReceiverInfo(const std::shared_ptr<Data::SeismReceiver> &);
+  const QUuid settingReceiverInfo(Data::SeismReceiver *const);
 
-  void changed(bool b = true);
+  // void changed(bool b = true);
 
   void setNotification(const QString &);
 
@@ -36,6 +43,7 @@ signals:
   void sendCsvFilePath(const QString &) const;
   void addReceiverClicked() const;
   void removeReceiverClicked(const QUuid &) const;
+  void removeAllReceiverClicked() const;
 
 private slots:
   void handleFromCsvClicked();
@@ -45,7 +53,8 @@ private slots:
   void finishReceiverManager(int);
 
 private:
-  //  QLabel *_totalChannelNumLabel;
+  void isChanged(bool);
+
   TotalChannelCounter *_channelCounter;
   TableAssistant *_receiversTable;
   QPushButton *_saveButton;

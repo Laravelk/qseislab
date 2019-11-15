@@ -4,14 +4,15 @@
 #include "data/seismreceiver.h"
 
 #include <QBoxLayout>
+#include <QLineEdit>
 #include <QPushButton>
+#include <QTableWidget>
 
 typedef Data::SeismReceiver SeismReceiver;
 typedef Data::SeismChannelReceiver SeismChannelReceiver;
 
 namespace ReceiverOperation {
-InfoReceiver::InfoReceiver(const std::shared_ptr<Data::SeismReceiver> &receiver,
-                           QWidget *parent)
+InfoReceiver::InfoReceiver(SeismReceiver const *const receiver, QWidget *parent)
     : QDialog(parent), _nameLineEdit(new QLineEdit(receiver->getName())),
       _channelsTable(new QTableWidget()) {
 
@@ -30,7 +31,8 @@ InfoReceiver::InfoReceiver(const std::shared_ptr<Data::SeismReceiver> &receiver,
 
   // Connecting
   connect(saveButton, &QPushButton::clicked, [this, &receiver] {
-    receiver->setName(_nameLineEdit->text());
+    //    receiver->setName(_nameLineEdit->text());
+    // TODO: сдлеать норальное заполнене полей
     emit accept();
   });
   connect(cancelButton, &QPushButton::clicked, this, &InfoReceiver::reject);

@@ -1,22 +1,29 @@
 #include "view.h"
 
+//#include "addreceivermanager.h"
 #include "data/seismreceiver.h"
 #include "inforeceiver.h"
+#include "share_view/tableassistant.h"
 #include "totalchannelcounter.h"
 
 #include <QBoxLayout>
 #include <QFileDialog>
+#include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
 
 typedef Data::SeismReceiver SeismReceiver;
 
 namespace ReceiverOperation {
-View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
+View::View(
+    // const std::map<QUuid, QString> &wellNames_map,
+    QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
       _channelCounter(new TotalChannelCounter()),
       _receiversTable(new TableAssistant(TableAssistant::ForReceivers, this)),
-      _saveButton(new QPushButton("Save")), _wellNames_map(wellNames_map) {
+      _saveButton(new QPushButton("Save"))
+// , _wellNames_map(wellNames_map)
+{
 
   // Setting`s
   setWindowTitle("Receivers");
@@ -60,36 +67,36 @@ View::View(const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
   // Layout`s end
 }
 
-void View::addReceiver(const std::shared_ptr<SeismReceiver> &receiver) {
-  _receiversTable->add<SeismReceiver>(receiver);
-  _channelCounter->add(receiver);
+void View::setWellNames(const std::map<QUuid, QString> &wellNames_map) {
+  _wellNames_map = wellNames_map;
 }
 
-void View::finishReceiverManager(int result) {
-  if (QDialog::Accepted == result) {
-    emit addReceiverClicked();
-  }
+void View::addReceiver(SeismReceiver const *const receiver) {
+  _receiversTable->add<SeismReceiver>(receiver);
+  _channelCounter->add(receiver);
+  isChanged(true);
+}
+
+void View::updateReceiver(SeismReceiver const *const receiver) {
+  _receiversTable->update<SeismReceiver>(receiver);
+  _channelCounter->update(receiver);
+  isChanged(true);
 }
 
 void View::removeReceiver(const QUuid &uuid) {
   _receiversTable->remove(uuid);
   _channelCounter->remove(uuid);
+  isChanged(true);
 }
 
-void View::viewFullInfo(const std::shared_ptr<Data::SeismReceiver> &receiver) {
+void View::viewFullInfo(Data::SeismReceiver const *const receiver) {
   InfoReceiver *about = new InfoReceiver(receiver, this);
   about->setModal(true);
   about->show();
 }
 
-const QUuid
-View::settingReceiverInfo(const std::shared_ptr<SeismReceiver> &receiver) {
+const QUuid View::settingReceiverInfo(SeismReceiver *const receiver) {
   return _addReceiverManager->settingReceiverInfo(receiver);
-}
-
-void View::changed(bool b) {
-  _saveButton->setEnabled(b);
-  _saveButton->setFocus();
 }
 
 void View::setNotification(const QString &text) {
@@ -99,6 +106,7 @@ void View::setNotification(const QString &text) {
 }
 
 void View::handleFromCsvClicked() {
+  // TODO: если есть хотя бы один приемник, тогда выдавать это сообщение
   QMessageBox *msgBox = new QMessageBox(this);
   msgBox->setText("There are receivers in the project");
   msgBox->setInformativeText("Delete receivers?");
@@ -113,9 +121,11 @@ void View::handleFromCsvClicked() {
   case QMessageBox::No:
     break;
   case QMessageBox::Yes:
-    _receiversTable->requestRemoveAll();
+    emit removeAllReceiverClicked();
+    // _receiversTable->requestRemoveAll();
     break;
   }
+  // end of todo.
 
   QFileDialog *fileDialog = new QFileDialog(this);
   fileDialog->setFileMode(QFileDialog::ExistingFile);
@@ -137,6 +147,18 @@ void View::handleAddReceiverClicked() {
 
   _addReceiverManager->setModal(true);
   _addReceiverManager->show();
+}
+
+void View::finishReceiverManager(int result) {
+  if (QDialog::Accepted == result) {
+    emit addReceiverClicked();
+  }
+}
+
+void View::isChanged(bool b) {
+  _saveButton->setEnabled(b);
+  if (b)
+    _saveButton->setFocus();
 }
 
 } // namespace ReceiverOperation

@@ -1,30 +1,32 @@
 #pragma once
 
 #include "addwellmanager.h"
-#include "share_view/tableassistant.h"
 
 #include <QDialog>
 
 #include <memory>
+
+class TableAssistant;
 
 namespace Data {
 class SeismWell;
 }
 
 namespace WellOperation {
+class AddWellManager;
 class View : public QDialog {
   Q_OBJECT
 
 public:
   explicit View(QWidget *parent = nullptr);
 
-  void updateWell(const std::shared_ptr<Data::SeismWell> &);
-  void addWell(const std::shared_ptr<Data::SeismWell> &);
+  void updateWell(Data::SeismWell const *const);
+  void addWell(Data::SeismWell const *const);
   void removeWell(const QUuid &);
 
-  void settingWellInfo(const std::shared_ptr<Data::SeismWell> &);
+  void settingWellInfo(Data::SeismWell *const);
 
-  void changed(bool);
+  // void changed(bool);
 
   void setNotification(const QString &);
 
@@ -37,6 +39,8 @@ private slots:
   void handleAddWellClicked();
 
 private:
+  void isChanged(bool);
+
   TableAssistant *_wellsTable;
   QPushButton *_saveButton;
 

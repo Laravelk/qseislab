@@ -3,9 +3,10 @@
 #include "view/view.h"
 
 #include <QObject>
-#include <QUndoCommand>
 
 #include <memory>
+
+class QUndoStack;
 
 namespace Data {
 class SeismEvent;
@@ -16,6 +17,7 @@ namespace EventOperation {
 class Model;
 class PolarizationAnalysisWindow;
 namespace OneEvent {
+class View;
 class Controller : public QObject {
   Q_OBJECT
 
@@ -38,11 +40,11 @@ signals:
   void sendEvent(std::shared_ptr<Data::SeismEvent> &) const;
   void sendEventAndStack(std::shared_ptr<Data::SeismEvent> &,
                          std::shared_ptr<QUndoStack> &);
-  void sendStack(const QUuid &, std::shared_ptr<QUndoStack> &);
   void finished() const;
 
 private:
   QString generateEventName() const;
+
   Model *_model;
 
   std::unique_ptr<View> _view;
@@ -52,7 +54,6 @@ private:
   PolarizationAnalysisWindow *_polarizationWindow;
 
   std::shared_ptr<Data::SeismEvent> _event;
-  //  QUndoStack *_appliedOperations;
   std::shared_ptr<QUndoStack> _undoStack;
 };
 

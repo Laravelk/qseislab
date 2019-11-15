@@ -219,8 +219,7 @@ void Controller::handleHorizonsClicked() {
 
 void Controller::handleReceiversClicked() {
   if (!_receiverController) {
-    _receiverController = std::make_unique<ReceiverOperation::Controller>(
-        _project->getAllMap<SeismWell>(), this);
+    _receiverController = std::make_unique<ReceiverOperation::Controller>(this);
 
     connect(_receiverController.get(),
             &ReceiverOperation::Controller::removeAllReceivers,
@@ -235,7 +234,7 @@ void Controller::handleReceiversClicked() {
     connect(_receiverController.get(), &ReceiverOperation::Controller::finished,
             [this] { _receiverController.reset(); });
 
-    _receiverController->viewReceivers();
+    _receiverController->viewReceivers(_project->getAllMap<SeismWell>());
   }
 }
 
