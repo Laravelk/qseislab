@@ -62,16 +62,16 @@ bool TableAssistant::remove(const QUuid &uuid) {
   return false;
 }
 
-void TableAssistant::requestRemoveAll() {
-  QList<QUuid> list;
-  for (int row = 0; row < _table->rowCount(); ++row) {
-    list.append(_table->item(row, 0)->data(Qt::DisplayRole).toUuid());
-  }
+//void TableAssistant::requestRemoveAll() {
+//  QList<QUuid> list;
+//  for (int row = 0; row < _table->rowCount(); ++row) {
+//    list.append(_table->item(row, 0)->data(Qt::DisplayRole).toUuid());
+//  }
 
-  for (auto &uuid : list) {
-    emit removeClicked(uuid);
-  }
-}
+//  for (auto &uuid : list) {
+//    emit removeClicked(uuid);
+//  }
+//}
 
 // template <typename T>
 // void TableAssistant::setAll(const std::map<QUuid, std::unique_ptr<T>> &map) {

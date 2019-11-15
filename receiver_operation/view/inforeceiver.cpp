@@ -5,13 +5,14 @@
 
 #include <QBoxLayout>
 #include <QPushButton>
+#include <QLineEdit>
+#include <QTableWidget>
 
 typedef Data::SeismReceiver SeismReceiver;
 typedef Data::SeismChannelReceiver SeismChannelReceiver;
 
 namespace ReceiverOperation {
-InfoReceiver::InfoReceiver(const std::unique_ptr<Data::SeismReceiver> &receiver,
-                           QWidget *parent)
+InfoReceiver::InfoReceiver(SeismReceiver const * const receiver, QWidget *parent)
     : QDialog(parent), _nameLineEdit(new QLineEdit(receiver->getName())),
       _channelsTable(new QTableWidget()) {
 

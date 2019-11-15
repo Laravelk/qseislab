@@ -1,5 +1,6 @@
 #include "controller.h"
 
+#include "view/view.h"
 #include "data/seismevent.h"
 #include "data/seismwell.h"
 #include "event_operation/share/model.h"
@@ -9,6 +10,8 @@
 
 #include "data/io/segyreader.h"
 
+#include <QUndeStack>
+
 #include <iostream> // TODO: remove
 
 typedef Data::IO::SegyReader SegyReader;
@@ -17,13 +20,13 @@ typedef Data::SeismEvent SeismEvent;
 namespace EventOperation {
 namespace OneEvent {
 Controller::Controller(
-    const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &all_events,
-    const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &wells_map,
+    const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &all_events,
+    const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &wells_map,
     QObject *parent)
     : QObject(parent), _model(new Model(new SegyReader(), this)),
-      _event(std::make_unique<Data::SeismEvent>()),
+      _event(std::make_shared<SeismEvent>()),
       //      _appliedOperations(new QUndoStack()),
-      _undoStack(std::make_unique<QUndoStack>()) {
+      _undoStack(std::make_shared<QUndoStack>()) {
 
   // prepare data for view
   std::map<QUuid, QString> wellNames_map;
@@ -38,6 +41,7 @@ Controller::Controller(
   // ...
 
   connect(_event.get(), &Data::SeismEvent::changed, []() {
+    // _view->update(_event.get());
     //              std::cout << "event changed" << std::endl;
   });
 
@@ -54,11 +58,12 @@ Controller::Controller(
               }
               _eventNameContainer[wellUuid] = QFileInfo(filePath).baseName();
               _event->setName(generateEventName());
-              _view->update(_event, wellUuid);
+
+              _view->update(_event.get(), wellUuid);
             }
           });
   connect(_view.get(), &View::createPolarizationAnalysisWindow, [this]() {
-    _polarizationWindow = new PolarizationAnalysisWindow(_event);
+    _polarizationWindow = new PolarizationAnalysisWindow(_event.get());
     _polarizationWindow->show();
   });
 
@@ -70,7 +75,8 @@ Controller::Controller(
             }
             _eventNameContainer.erase(uuid);
             _event->setName(generateEventName());
-            _view->update(_event, uuid, well->getName());
+
+            _view->update(_event.get(), uuid, well->getName());
           });
 
   connect(_view.get(), &View::sendPicksInfo,

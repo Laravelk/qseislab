@@ -1,10 +1,11 @@
 #pragma once
 
 #include <QDialog>
-#include <QLineEdit>
-#include <QTableWidget>
 
 #include <memory>
+
+class QLineEdit;
+class QTableWidget; // TODO: переделать на нормальную таблицу (TableAssistant)!
 
 namespace Data {
 class SeismReceiver;
@@ -15,8 +16,7 @@ namespace ReceiverOperation {
 class InfoReceiver : public QDialog {
   Q_OBJECT
 public:
-  InfoReceiver(const std::unique_ptr<Data::SeismReceiver> &,
-               QWidget *parent = nullptr);
+  InfoReceiver(Data::SeismReceiver const * const, QWidget *parent = nullptr);
 
 private:
   void initChannelssTable(QTableWidget *);
