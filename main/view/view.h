@@ -39,9 +39,11 @@ public:
   void closeProject();
 
 signals:
-  void changeEventFocus(const QUuid &) const;
-  void undoClicked(const QUuid &) const;
-  void redoClicked(const QUuid &) const;
+  void eventTransformClicked(Data::SeismEvent::TransformOperation) const;
+
+  void changeEventFocus(const std::set<QUuid> &) const;
+  void undoClicked() const;
+  void redoClicked() const;
 
   void addEventsClicked() const;
   void addEventClicked() const;

@@ -50,8 +50,8 @@ set(SOURCES
         event_operation/one_event/view/wellmanager.cpp
         event_operation/one_event/view/view.cpp
 
-#        event_operation/more_events/controller.cpp
-#        event_operation/more_events/view/view.cpp
+        event_operation/more_events/controller.cpp
+        event_operation/more_events/view/view.cpp
 
         event_operation/share/model.cpp
         event_operation/share/view/graphic_view/graphic_view.cpp
@@ -109,7 +109,11 @@ set(SOURCES
         data/io/horizonreadergrd.cpp
 
         main.cpp
-        customundostack.cpp #Note: где должен лежать?
+        undo_stack_work/customindividualundostack.cpp #Note: где должен лежать?
+        undo_stack_work/customindividualundocommand.cpp
+        undo_stack_work/shareundocommand.cpp
+        undo_stack_work/event_modification/undocommandgetter.cpp
+        undo_stack_work/event_modification/testindividualcommand.cpp
 
         main/controller.cpp
         main/view/view.cpp
@@ -148,8 +152,8 @@ set(HEADERS
         event_operation/one_event/view/wellmanager.h
         event_operation/one_event/view/view.h
 
-#        event_operation/more_events/controller.h
-#        event_operation/more_events/view/view.h
+        event_operation/more_events/controller.h
+        event_operation/more_events/view/view.h
 
         event_operation/share/model.h
         event_operation/share/view/graphic_view/graphic_view.h
@@ -209,7 +213,11 @@ set(HEADERS
         data/io/pointwriter.h
         data/io/horizonreadergrd.h
 
-        customundostack.h #Note: где должен лежать?
+        undo_stack_work/customindividualundostack.h #Note: где должен лежать?
+        undo_stack_work/customindividualundocommand.h
+        undo_stack_work/shareundocommand.h
+        undo_stack_work/event_modification/undocommandgetter.h
+        undo_stack_work/event_modification/testindividualcommand.h
 
         main/controller.h
         main/view/view.h

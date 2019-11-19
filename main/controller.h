@@ -1,8 +1,8 @@
 #pragma once
 
-#include "customundostack.h"
 #include "data/seismevent.h"
 #include "data/seismproject.h"
+#include "undo_stack_work/customindividualundostack.h"
 #include "view/view.h"
 
 #include "event_operation/more_events/controller.h"
@@ -57,7 +57,9 @@ private:
   std::unique_ptr<Data::SeismProject> _project;
 
   //  std::map<QUuid, std::unique_ptr<CustomUndoStack>> _eventStacks;
-  std::map<QUuid, std::shared_ptr<QUndoStack>> _eventStacks;
+  //  QUuid _currentEvent;
+  std::set<QUuid> _eventFocus;
+  std::map<QUuid, std::shared_ptr<CustomIndividualUndoStack>> _eventStacks;
   std::shared_ptr<QUndoStack> _shareEventStack;
   // TODO(stack): завести мапу со стеками для каждого ивента
   //        (uuid-стек(кастомный))

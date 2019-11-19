@@ -44,46 +44,36 @@ View::View(QWidget *parent) : QMainWindow(parent) {
   connect(this, &View::projectPresence, act, &QAction::setEnabled);
 
   QMenu *editMenu = new QMenu("&Edit");
-  act = editMenu->addAction("Undo", [this] {
-    if (nullptr != _workPage) {
-      emit undoClicked(_workPage->getFocusEvent());
-    }
+  editMenu->setDisabled(true);
+  connect(this, &View::projectPresence, editMenu, &QMenu::setEnabled);
+  act = editMenu->addAction("Undo", [this] { emit undoClicked(); });
+  act = editMenu->addAction("Redo", [this] { emit redoClicked(); });
+
+  QMenu *actionMenu = new QMenu("Action");
+  actionMenu->addAction("Process Events",
+                        [this] { emit processEventsClicked(); });
+  //  actionMenu->addAction("Rotate", [this] {
+  //    emit eventTransformClicked(
+  //        SeismEvent::TransformOperation::RotateDataToEBasis);
+  //  });
+  actionMenu->addAction("Test Mult", [this] {
+    emit eventTransformClicked(SeismEvent::TransformOperation::TestMultiplier);
   });
-  act->setDisabled(true);
-  connect(this, &View::projectPresence, act, &QAction::setEnabled);
-  act = editMenu->addAction("Redo", [this] {
-    if (nullptr != _workPage) {
-      emit redoClicked(_workPage->getFocusEvent());
-    }
-  });
-  act->setDisabled(true);
-  connect(this, &View::projectPresence, act, &QAction::setEnabled);
+  editMenu->addMenu(actionMenu);
 
-  act = editMenu->addAction("Add Events", [this] { emit addEventsClicked(); });
-  act->setDisabled(true);
-  connect(this, &View::projectPresence, act, &QAction::setEnabled);
+  QMenu *viewMenu = new QMenu("&Data");
+  viewMenu->setDisabled(true);
+  connect(this, &View::projectPresence, viewMenu, &QMenu::setEnabled);
 
-  act = editMenu->addAction("Add Event", [this] { emit addEventClicked(); });
-  act->setDisabled(true);
-  connect(this, &View::projectPresence, act, &QAction::setEnabled);
+  viewMenu->addAction("Horizons", [this] { emit horizonsClicked(); });
+  viewMenu->addAction("Receivers", [this] { emit receiversClicked(); });
+  viewMenu->addAction("Wells", [this] { emit wellsClicked(); });
 
-  act = editMenu->addAction("Process Events",
-                            [this] { emit processEventsClicked(); });
-  act->setDisabled(true);
-  connect(this, &View::projectPresence, act, &QAction::setEnabled);
+  QMenu *eventMenu = new QMenu("Event");
+  eventMenu->addAction("Add Event", [this] { emit addEventClicked(); });
+  eventMenu->addAction("Add Events", [this] { emit addEventsClicked(); });
 
-  QMenu *viewMenu = new QMenu("&View");
-  act = viewMenu->addAction("Horizons", [this] { emit horizonsClicked(); });
-  act->setDisabled(true);
-  connect(this, &View::projectPresence, act, &QAction::setEnabled);
-
-  act = viewMenu->addAction("Receivers", [this] { emit receiversClicked(); });
-  act->setDisabled(true);
-  connect(this, &View::projectPresence, act, &QAction::setEnabled);
-
-  act = viewMenu->addAction("Wells", [this] { emit wellsClicked(); });
-  act->setDisabled(true);
-  connect(this, &View::projectPresence, act, &QAction::setEnabled);
+  viewMenu->addMenu(eventMenu);
 
   QMenu *helpMenu = new QMenu("&Help");
 
