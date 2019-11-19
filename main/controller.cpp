@@ -118,29 +118,29 @@ void Controller::recvProject(std::unique_ptr<SeismProject> &project) {
 }
 
 void Controller::handleAddEventsClicked() {
-  //  if (!_moreEventsController) {
-  //    //    _moreEventsController = std::make_unique<MoreEvents::Controller>(
-  //    //        _project->getAllMap<SeismEvent>(),
-  //    //        _project->getAllMap<SeismWell>(), this);
-  //    _moreEventsController = std::make_unique<MoreEvents::Controller>(
-  //        _project->getAllEventMap(), _project->getAllMap<SeismWell>(), this);
+    if (!_moreEventsController) {
+      //    _moreEventsController = std::make_unique<MoreEvents::Controller>(
+      //        _project->getAllMap<SeismEvent>(),
+      //        _project->getAllMap<SeismWell>(), this);
+      _moreEventsController = std::make_unique<MoreEvents::Controller>(
+          _project->getAllEventMap(), _project->getAllMap<SeismWell>(), this);
 
-  //    connect(_moreEventsController.get(),
-  //            &MoreEvents::Controller::sendEventsAndStacks,
-  //            [this](auto &events_map, auto &stacks_map) {
-  //              for (auto &uuid_event : events_map) {
-  //                _project->add<SeismEvent>(std::move(uuid_event.second));
-  //              }
-  //              for (auto &uuid_stack : stacks_map) {
-  //                _eventStacks[uuid_stack.first] =
-  //                std::move(uuid_stack.second);
-  //              }
-  //            });
-  //    connect(_moreEventsController.get(), &MoreEvents::Controller::finished,
-  //            [this] { _moreEventsController.reset(); });
+      connect(_moreEventsController.get(),
+              &MoreEvents::Controller::sendEventsAndStacks,
+              [this](auto &events_map, auto &stacks_map) {
+                for (auto &uuid_event : events_map) {
+                  _project->add<SeismEvent>(uuid_event.second);
+                }
+                for (auto &uuid_stack : stacks_map) {
+                  _eventStacks[uuid_stack.first] =
+                  uuid_stack.second;
+                }
+              });
+      connect(_moreEventsController.get(), &MoreEvents::Controller::finished,
+              [this] { _moreEventsController.reset(); });
 
-  //    _moreEventsController->start();
-  //  }
+      _moreEventsController->start();
+    }
 }
 
 void Controller::handleAddEventClicked() {

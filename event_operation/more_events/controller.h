@@ -22,8 +22,8 @@ class Controller : public QObject {
 
 public:
   explicit Controller(
-      const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &,
-      const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &,
+      const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
+      const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &,
       QObject *parent = nullptr);
 
   void start();
@@ -33,8 +33,8 @@ signals:
   //  void sendEvents(std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &)
   //  const;
   void
-  sendEventsAndStacks(std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &,
-                      std::map<QUuid, std::unique_ptr<QUndoStack>> &) const;
+  sendEventsAndStacks(std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
+                      std::map<QUuid, std::shared_ptr<QUndoStack>> &) const;
   void finished() const;
 
 private:
@@ -42,8 +42,8 @@ private:
 
   std::unique_ptr<View> _view;
 
-  std::map<QUuid, std::unique_ptr<Data::SeismEvent>> _events_map;
-  std::map<QUuid, std::unique_ptr<QUndoStack>> _stacks_map;
+  std::map<QUuid, std::shared_ptr<Data::SeismEvent>> _events_map;
+  std::map<QUuid, std::shared_ptr<QUndoStack>> _stacks_map;
 
   QUuid _currentEventUuid;
 

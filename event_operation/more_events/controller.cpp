@@ -17,11 +17,10 @@ typedef Data::SeismEvent SeismEvent;
 namespace EventOperation {
 namespace MoreEvents {
 Controller::Controller(
-    const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &all_events,
-    const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &wells_map,
+    const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &all_events,
+    const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &wells_map,
     QObject *parent)
     : QObject(parent), _model(new Model(new SegyReader(), this))
-//      _appliedOperations(new QUndoStack())
 {
 
   // prepare data for view
@@ -71,22 +70,22 @@ Controller::Controller(
 
   connect(_view.get(), &View::changeCurrentEvent, [this](auto &uuid) {
     if (!_currentEventUuid.isNull()) {
-      _view->settingEventInfo(_events_map[_currentEventUuid]);
+        _view->settingEventInfo(_events_map[_currentEventUuid].get());
     }
 
     _currentEventUuid = uuid;
-    _view->loadEvent(_events_map[_currentEventUuid],
-                     _stacks_map[_currentEventUuid]);
+    _view->loadEvent(_events_map[_currentEventUuid].get(),
+                     _stacks_map[_currentEventUuid].get());
 
     //    _appliedOperations->clear();
   });
 
   connect(_view.get(), &View::hideCurrentEvent, [this]() {
     if (!_currentEventUuid.isNull()) {
-      _view->settingEventInfo(_events_map[_currentEventUuid]);
+        _view->settingEventInfo(_events_map[_currentEventUuid].get());
     }
 
-    _view->unloadEvent(_stacks_map[_currentEventUuid]);
+    _view->unloadEvent(_stacks_map[_currentEventUuid].get());
     _currentEventUuid = QUuid();
 
     //    _appliedOperations->clear();
@@ -118,14 +117,14 @@ Controller::Controller(
     if (!_currentEventUuid.isNull()) {
       //      _appliedOperations->undo();
       _stacks_map[_currentEventUuid]->undo();
-      _view->update(_events_map[_currentEventUuid]);
+      _view->update(_events_map[_currentEventUuid].get());
     }
   });
   connect(_view.get(), &View::redoClicked, [this]() {
     if (!_currentEventUuid.isNull()) {
       //      _appliedOperations->redo();
       _stacks_map[_currentEventUuid]->redo();
-      _view->update(_events_map[_currentEventUuid]);
+      _view->update(_events_map[_currentEventUuid].get());
     }
   });
 
@@ -146,7 +145,7 @@ Controller::Controller(
                 new Modefication::TestMultiplier(event.get(), 5.0));
           }
 
-          _view->update(event);
+          _view->update(event.get());
         }
       });
 
@@ -161,7 +160,7 @@ void Controller::start() {
 void Controller::finish(int result) {
   if (QDialog::Accepted == result) {
     if (!_currentEventUuid.isNull()) {
-      _view->settingEventInfo(_events_map[_currentEventUuid]);
+        _view->settingEventInfo(_events_map[_currentEventUuid].get());
     }
     emit sendEventsAndStacks(_events_map, _stacks_map);
   }

@@ -197,11 +197,10 @@ View::View(const std::set<QString> &globalEventNames,
   // Layout`s end
 }
 
-void View::loadEvent(const std::unique_ptr<Data::SeismEvent> &event,
-                     const std::unique_ptr<QUndoStack> &undoStack) {
-  connect(undoStack.get(), &QUndoStack::canUndoChanged, _undoButton,
+void View::loadEvent(SeismEvent const * const event, QUndoStack const * const undoStack) {
+  connect(undoStack, &QUndoStack::canUndoChanged, _undoButton,
           &QPushButton::setEnabled);
-  connect(undoStack.get(), &QUndoStack::canRedoChanged, _redoButton,
+  connect(undoStack, &QUndoStack::canRedoChanged, _redoButton,
           &QPushButton::setEnabled);
   _undoButton->setEnabled(undoStack->canUndo());
   _redoButton->setEnabled(undoStack->canRedo());
@@ -214,10 +213,10 @@ void View::loadEvent(const std::unique_ptr<Data::SeismEvent> &event,
   _graphicEvent->update(event);
 }
 
-void View::unloadEvent(const std::unique_ptr<QUndoStack> &undoStack) {
-  disconnect(undoStack.get(), &QUndoStack::canUndoChanged, _undoButton,
+void View::unloadEvent(QUndoStack const * const undoStack) {
+  disconnect(undoStack, &QUndoStack::canUndoChanged, _undoButton,
              &QPushButton::setEnabled);
-  disconnect(undoStack.get(), &QUndoStack::canRedoChanged, _redoButton,
+  disconnect(undoStack, &QUndoStack::canRedoChanged, _redoButton,
              &QPushButton::setEnabled);
 
   _undoButton->setDisabled(true);
@@ -231,14 +230,13 @@ void View::unloadEvent(const std::unique_ptr<QUndoStack> &undoStack) {
   _infoEvent->setDisabled(true);
 }
 
-void View::update(const std::unique_ptr<Data::SeismEvent> &event) {
+void View::update(SeismEvent const * const event) {
   _toolsWidget->update(event);
   _graphicEvent->update(event);
   // NOTE: надо _eventList обновлять?
 }
 
-void View::update(
-    const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &events_map) {
+void View::update(const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &events_map) {
   _wellNames->setDisabled(true);
   _okButton->setEnabled(true);
   _okButton->setFocus();
@@ -267,8 +265,7 @@ void View::setNotification(const QString &text) {
   msg->show();
 }
 
-void View::settingEventInfo(
-    const std::unique_ptr<Data::SeismEvent> &event) const {
+void View::settingEventInfo(SeismEvent * const event) const {
   _infoEvent->settingEventInfo(event);
 }
 

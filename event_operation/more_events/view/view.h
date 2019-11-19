@@ -36,16 +36,17 @@ public:
   //                QWidget *parent = nullptr);
 
   //  void loadEvent(const std::unique_ptr<Data::SeismEvent> &);
-  void loadEvent(const std::unique_ptr<Data::SeismEvent> &,
-                 const std::unique_ptr<QUndoStack> &);
-  void unloadEvent(const std::unique_ptr<QUndoStack> &);
+//  void loadEvent(const std::unique_ptr<Data::SeismEvent> &,
+//                 const std::unique_ptr<QUndoStack> &);
+  void loadEvent(Data::SeismEvent const * const, QUndoStack const * const);
+  void unloadEvent(QUndoStack const * const);
 
-  void update(const std::unique_ptr<Data::SeismEvent> &);
+  void update(Data::SeismEvent const * const);
 
-  void update(const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &);
+  void update(const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &);
 
   void setNotification(const QString &);
-  void settingEventInfo(const std::unique_ptr<Data::SeismEvent> &) const;
+  void settingEventInfo(Data::SeismEvent * const) const;
   ChartGesture *getChartGesture();
 
 signals:
