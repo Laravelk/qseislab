@@ -28,8 +28,7 @@ WavePick::WavePick(Data::SeismWavePick::Type type, QGraphicsItem *parent,
                    QChart *chart, qreal ax, qreal ay, int width, int height,
                    QBrush brush, WavePick *pick)
     : QGraphicsItem(parent), _chart(chart), _pos(QPointF(ax, ay)),
-      _size(QSize(width, height)), _brush(brush),
-      DEFAULT_SIZE(QSizeF(width, height)), MAX_WIDTH(width) {
+      _size(QSize(width, height)), _brush(brush), DEFAULT_SIZE(QSizeF(width, height)), MAX_WIDTH(width) {
   _type = type;
   _anchor = QPointF(ax, ay);
   setPos(_anchor);
@@ -80,7 +79,7 @@ QSizeF WavePick::scallByAxis(QSizeF scaleS) {
   _size.setHeight(_size.height() * scaleY);
   _rect.setSize(_size);
   return _rect.size();
-}
+
 
 QRectF WavePick::boundingRect() const {
   QPointF anchor = mapFromParent(_chart->mapToPosition(_anchor));
@@ -137,6 +136,19 @@ void WavePick::mouseDoubleClickEvent(
   if (_isEditable) {
     emit needDelete();
   }
+  qreal newX = QPointF(_chart->mapToValue(mapToParent(event->pos()) -
+                                          event->buttonDownPos(Qt::LeftButton)))
+                   .x();
+  _anchor = QPointF(newX, _anchor.y());
+  emit changed();
+    }
+}
+
+void WavePick::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *) // second variant delete pick
+{
+    if (_isEditable) {
+        emit needDelete();
+    }
 }
 
 void WavePick::updateBorders() {
