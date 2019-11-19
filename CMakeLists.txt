@@ -51,7 +51,7 @@ set(SOURCES
         event_operation/more_events/controller.cpp
         event_operation/more_events/view/view.cpp
 
-        event_operation/share/polarizationanalysisdata.cpp
+        event_operation/share/polarizationanalysiscompute.cpp
         event_operation/share/model.cpp
         event_operation/share/view/graphic_view/graphic_view.cpp
         event_operation/share/view/graphic_view/wavepick.cpp
@@ -91,6 +91,7 @@ set(SOURCES
         well_operation/view/filemanager.cpp
 
 
+        data/seismpolarizationanalysisdata.cpp
         data/seismproject.cpp
         data/seismcomponent.cpp
         data/seismwavepick.cpp
@@ -147,7 +148,7 @@ set(HEADERS
         event_operation/more_events/controller.h
         event_operation/more_events/view/view.h
 
-        event_operation/share/polarizationanalysisdata.h
+        event_operation/share/polarizationanalysiscompute.h
         event_operation/share/model.h
         event_operation/share/view/graphic_view/graphic_view.h
         event_operation/share/view/graphic_view/wavepick.h
@@ -186,7 +187,7 @@ set(HEADERS
         well_operation/view/addwellmanager.h
         well_operation/view/filemanager.h
 
-
+        data/seismpolarizationanalysisdata.h
         data/seism_data_type.h
         data/seismproject.h
         data/seismcomponent.h

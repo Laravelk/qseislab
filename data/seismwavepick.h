@@ -1,10 +1,12 @@
 #pragma once
 
 #include <map>
+#include <optional>
 
 #include <QJsonObject>
 
 namespace Data {
+class SeismPolarizationAnalysisData;
 class SeismWavePick {
 public:
   enum Type { PWAVE = 1, SWAVE = 2 };
@@ -28,6 +30,10 @@ public:
   int getPolarizationRightBorder() const;
   void setPolarizationRightBorder(int);
 
+  std::optional<SeismPolarizationAnalysisData>
+  getPolarizationAnalysisData() const;
+  void setPolarizationAnalysisData(SeismPolarizationAnalysisData &data);
+
   QJsonObject &writeToJson(QJsonObject &) const noexcept(false);
 
 private:
@@ -36,6 +42,8 @@ private:
   int _arrival;
   int _polarizationLeftBorder;
   int _polarizationRightBorder;
+
+  std::optional<SeismPolarizationAnalysisData> _polarizationData;
 
   static std::map<Type, std::string> _make_enum_strings_map();
   static std::map<std::string, Type> _make_strings_enum_map();

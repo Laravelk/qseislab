@@ -21,18 +21,11 @@ public:
   PolarizationAnalysisData(std::unique_ptr<Data::SeismEvent> &);
   bool calculatePolarizationData();
 
+  void undo() override;
+  void redo() override;
+
 private:
-  bool _isValid = false;
   Data::SeismEvent *_event;
-  Data::SeismWavePick::Type _type;
-  int _numberComponent;
-
-  double _maxSingularValue = 0;
-  double _pAzimutInRadian = 0;
-  double _pIncidenceInRadian = 0;
-
-  double _pAzimutDegrees = 0;
-  double _pIncidenceDegrees = 0;
 
 private:
   Eigen::MatrixXf *getPointMatrix(const std::unique_ptr<Data::SeismComponent> &,
