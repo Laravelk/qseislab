@@ -16,7 +16,7 @@ class SeismWavePick;
 } // namespace Data
 
 namespace EventOperation {
-class PolarizationAnalysisData : QUndoComand {
+class PolarizationAnalysisData : QUndoCommand {
 public:
   PolarizationAnalysisData(std::unique_ptr<Data::SeismEvent> &);
   bool calculatePolarizationData();

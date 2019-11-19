@@ -6,9 +6,8 @@
 namespace EventOperation {
 
 PolarizationAnalysisData::PolarizationAnalysisData(
-    std::unique_ptr<Data::SeismEvent> &event, int componentNumber,
-    Data::SeismWavePick::Type type)
-    : _event(event.get()), _type(type), _numberComponent(componentNumber) {}
+    std::unique_ptr<Data::SeismEvent> &event)
+    : _event(event.get()) {}
 
 bool PolarizationAnalysisData::calculatePolarizationData() {
   if (!_isValid) {
