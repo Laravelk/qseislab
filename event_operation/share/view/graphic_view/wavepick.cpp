@@ -13,7 +13,8 @@ WavePick::WavePick(Data::SeismWavePick::Type type, QGraphicsItem *parent,
                    std::variant<WavePick *, qreal> leftBorder,
                    std::variant<WavePick *, qreal> rightBorder)
     : QGraphicsItem(parent), _chart(chart), _pos(pos), _size(size),
-      _leftBorder(leftBorder), _rightBorder(rightBorder), _brush(brush) {
+      _leftBorder(leftBorder), _rightBorder(rightBorder), _brush(brush),
+      DEFAULT_SIZE(size), MAX_WIDTH(size.width()) {
   setFlag(QGraphicsItem::ItemIgnoresTransformations);
   _type = type;
   _anchor = pos;
@@ -27,7 +28,8 @@ WavePick::WavePick(Data::SeismWavePick::Type type, QGraphicsItem *parent,
                    QChart *chart, qreal ax, qreal ay, int width, int height,
                    QBrush brush, WavePick *pick)
     : QGraphicsItem(parent), _chart(chart), _pos(QPointF(ax, ay)),
-      _size(QSize(width, height)), _brush(brush) {
+      _size(QSize(width, height)), _brush(brush),
+      DEFAULT_SIZE(QSizeF(width, height)), MAX_WIDTH(width) {
   _type = type;
   _anchor = QPointF(ax, ay);
   setPos(_anchor);
@@ -72,6 +74,14 @@ void WavePick::setBorders(std::variant<WavePick *, qreal> left,
   _rightBorder = right;
 }
 
+QSizeF WavePick::scallByAxis(QSizeF scaleS) {
+  qreal scaleY = scaleS.height();
+  _size.setWidth(3);
+  _size.setHeight(_size.height() * scaleY);
+  _rect.setSize(_size);
+  return _rect.size();
+}
+
 QRectF WavePick::boundingRect() const {
   QPointF anchor = mapFromParent(_chart->mapToPosition(_anchor));
   QRectF rect;
@@ -83,20 +93,21 @@ QRectF WavePick::boundingRect() const {
 }
 
 void WavePick::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+  if (event->buttons() == Qt::RightButton && _isEditable) {
+    emit needDelete();
+  }
   updateBorders();
   event->setAccepted(true);
 }
 
 void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
-  if (event->buttons() & Qt::LeftButton) {
+  if (event->buttons() && _isEditable & Qt::LeftButton) {
     QPointF newPosition =
         QPointF(_chart
                     ->mapToValue(mapToParent(event->pos()) -
                                  event->buttonDownPos(Qt::LeftButton))
                     .x(),
                 _anchor.y());
-//        std::cerr << _valueLeftBorder << " " << newPosition.x() << " " <<
-//        _valueRightBorder << std::endl;
     if (newPosition.x() < _valueRightBorder &&
         newPosition.x() > _valueLeftBorder) {
       setPos(QPointF(
@@ -110,12 +121,22 @@ void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
 }
 
 void WavePick::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
-  qreal newX = QPointF(_chart->mapToValue(mapToParent(event->pos()) -
-                                          event->buttonDownPos(Qt::LeftButton)))
-                   .x();
-  _anchor = QPointF(newX, _anchor.y());
+  if (_isEditable) {
+    qreal newX =
+        QPointF(_chart->mapToValue(mapToParent(event->pos()) -
+                                   event->buttonDownPos(Qt::LeftButton)))
+            .x();
+    _anchor = QPointF(newX, _anchor.y());
+    emit changed();
+  }
+}
 
-  emit changed();
+void WavePick::mouseDoubleClickEvent(
+    QGraphicsSceneMouseEvent *) // second variant delete pick
+{
+  if (_isEditable) {
+    emit needDelete();
+  }
 }
 
 void WavePick::updateBorders() {

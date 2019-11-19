@@ -40,6 +40,9 @@ GraphicController::GraphicController(QWidget *parent)
             emit sendPicksInfo(type, componentAmount, leftBorderPos, pickPos,
                                rightBorderPos);
           });
+  connect(_view, &GraphicView::removePick, [this](Data::SeismWavePick::Type type, int componentAmount) {
+        emit removePick(type, componentAmount);
+  });
 
   // _allView setting`s
   _allView = new QWidget();
@@ -130,11 +133,10 @@ void GraphicController::update(const std::unique_ptr<SeismEvent> &event) {
 
   // setting event-name on title
   _view->chart()->setTitle(event->getName());
-
   _view->chart()->removeAllSeries();
   _allSeries.clear();
   _view->clearPicks();
-  _view->setDefaultScale();
+//  _view->setDefaultScale();
   _rangeAxisX = 0;
   getRangeX(event);
   _view->setCountOfComponents(event->getComponentAmount());
@@ -209,8 +211,6 @@ void GraphicController::clear() {
   _hideAxisY = false;
   _hideAxisZ = false;
   _event = nullptr;
-  //  _gain = 1.0f;
-  //  _clipping = 10.0f;
   _allView->hide();
 }
 
@@ -230,20 +230,11 @@ void GraphicController::hideAxisZ(bool hide) {
 }
 
 void GraphicController::addWaveArrival(Data::SeismWavePick pick, int index) {
-  QSizeF size(2, 40);
-  QColor color;
-  if (pick.getType() == Data::SeismWavePick::PWAVE) {
-    color = Qt::darkRed;
-  } else {
-    color = Qt::darkBlue;
-  }
-
   _view->addPick(
       pick.getType(),
       QPointF(static_cast<double>(pick.getArrival()) / MICROSECONDS_IN_SECOND -
                   500.0 / MICROSECONDS_IN_SECOND,
-              index),
-      size, color, _rangeAxisX,
+              index), _rangeAxisX,
       static_cast<double>(pick.getPolarizationLeftBorder()) /
           MICROSECONDS_IN_SECOND,
       static_cast<double>(pick.getPolarizationRightBorder()) /
@@ -263,8 +254,6 @@ void GraphicController::addTraceSeries(
     const std::unique_ptr<Data::SeismComponent> &component, int index) {
   const float intervalAxisX =
       component->getSampleInterval() / MICROSECONDS_IN_SECOND;
-  const QColor color[] = {QColor(220, 20, 60), QColor(50, 205, 50),
-                          QColor(65, 105, 225)};
   int idx = -1;
   for (unsigned j = 0; j < component->getTraces().size(); ++j, ++idx) {
     _norm = component->getMaxValue() /* NORMED*/;
@@ -282,7 +271,7 @@ void GraphicController::addTraceSeries(
     _chart->addSeries(series);
     connect(series, &QLineSeries::clicked,
             [this](const QPointF &pos) { _view->mouseEvent(pos); });
-    series->setColor(color[j]);
+    series->setColor(_view->getAxisColor(j));
     series->attachAxis(_axisX);
     series->attachAxis(_axisY);
     _allSeries.push_back(series);
@@ -351,6 +340,10 @@ void GraphicController::addWiggle(bool flag) {
       }
     }
     QAreaSeries *upperArea = new QAreaSeries();
+    QColor upperAreaColor = series->color();
+    upperAreaColor.setAlpha(100);
+    upperArea->setPen(upperAreaColor);
+    upperArea->setBrush(QBrush(upperAreaColor)); // TODO: delete
     upperArea->setUpperSeries(newSeries);
     upperArea->setLowerSeries(medianSeries);
     upperArea->setUseOpenGL(true);
@@ -375,8 +368,9 @@ void GraphicController::settingAreaSeries(QAreaSeries *series) {
   QPen pen(0x059605);
   pen.setWidth(1);
   series->setPen(pen);
-  QBrush brush(Qt::black);
-  series->setBrush(brush);
+//  QBrush brush(Qt::black);
+//  series->setBrush(brush);
+  series->setBorderColor(Qt::white);
 }
 
 void GraphicController::setAxesY(int componentNumber) {
@@ -408,9 +402,6 @@ void GraphicController::updateSeries() {
   QList<QLineSeries *>::iterator seriesIterator = _allSeries.begin();
   int componentNumber = 0;
   float currentGain = _gain;
-  /* if (_clipping < _gain) {
-     currentGain = _clipping;
-   }*/
   for (auto &component : _event->getComponents()) {
     _norm = component->getMaxValue() /* currentGain NORMED*/;
     int index = -1;
@@ -448,6 +439,7 @@ void GraphicController::updateSeries() {
     deleteAllWiggle();
     setWiggle(2);
   }
+
 }
 
 } // namespace EventOperation

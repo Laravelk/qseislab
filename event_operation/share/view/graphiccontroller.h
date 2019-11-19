@@ -21,17 +21,17 @@ class GraphicController : public QFrame {
   Q_OBJECT
 public:
   explicit GraphicController(QWidget *parent = nullptr);
-
   QWidget *getView() const { return _allView; }
   ChartGesture *getModel() const { return _chart; }
   void setChart(ChartGesture *chart) { _chart = chart; }
-  void setView(GraphicView *view) { _view = view; }
-
   void update(const std::unique_ptr<Data::SeismEvent> &);
   void updateEventName(const QString &);
   void setGainCoefficient(const float gainCoefficient);
   void setClippingValue(const float clippingValue);
   void setWiggle(const int status);
+  void setAddPolarizationWindowButtonEnable(bool enable) {
+          _polarizationEventButton->setEnabled(enable);
+  }
   void clear();
 
   void hideAxisX(bool);
@@ -40,7 +40,7 @@ public:
 
 private:
   QWidget *_allView;
-
+  GraphicView *_view;
   Data::SeismEvent *_event;
   float _norm;
   float _interval;
@@ -54,7 +54,6 @@ private:
   bool _hideAxisZ = false;
   bool _isPositiveWiggleSet = false;
   bool _isNegativeWiggleSet = false;
-  GraphicView *_view;
   ChartGesture *_chart;
   QValueAxis *_axisX = new QValueAxis;
   QValueAxis *_axisY = new QValueAxis;
@@ -74,8 +73,10 @@ private:
   double findPointAroundZero(int, int, QPointF &, QPointF &);
   void deleteAllWiggle();
 
+
 signals:
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
+  void removePick(Data::SeismWavePick::Type, int);
   void createPolarizationAnalysisWindowClicked();
 
 private:
@@ -91,33 +92,16 @@ private:
   void showToolsMenu();
   void hideToolsMenu();
 
-  //  void settingGraphicMenu();
-  //  void showGraphicMenu();
-  //  void hideGraphicMenu();
-  //  void settingWiggleButton();
-  //  void insertRowInComponentsHideTable(const QString &, int);
-
   WiggleWidget *_wiggleWidget;
   HideComponentWidget *_hideComponentWidget;
   ClippingWidget *_clippingWidget;
   GainWidget *_gainWidget;
-
-  //  QSlider *_clippingSlider;
-  //  QSlider *_gainSlider;
-  //  QLabel *_clippintSliderLabel;
-  //  QLabel *_gainSliderLabel;
-
-  //  QTableWidget *_hideComponentsTable;
 
   QPushButton *_addWaveButton;
   QAction *_addPWave;
   QAction *_addSWave;
 
   QPushButton *_polarizationEventButton;
-
-  //  QRadioButton *_noneWiggle;
-  //  QRadioButton *_positiveWiggle;
-  //  QRadioButton *_negativeWiggle;
 };
 
 } // namespace EventOperation

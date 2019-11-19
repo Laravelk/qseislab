@@ -7,6 +7,8 @@
 #include <QtWidgets/QGraphicsItem>
 
 #include <variant>
+#include <iostream>
+
 
 QT_BEGIN_NAMESPACE
 class QGraphicsSceneEvent;
@@ -27,8 +29,7 @@ public:
            QSizeF, QBrush, std::variant<WavePick *, qreal>,
            std::variant<WavePick *, qreal>);
   WavePick(Data::SeismWavePick::Type, QGraphicsItem *, QChart *, qreal, qreal,
-           int, int, QBrush, WavePick *);
-
+           int, int, QBrush, WavePick * );
   void setAnchor(const QPointF);
 
   void updateGeometry();
@@ -38,7 +39,7 @@ public:
   void setRightBorder(std::variant<WavePick *, qreal>);
   void setBorders(std::variant<WavePick *, qreal>,
                   std::variant<WavePick *, qreal>);
-
+  QSizeF scallByAxis(QSizeF scaleS);
   Data::SeismWavePick::Type getType() { return _type; }
   int getComponentAmount() { return static_cast<int>(_anchor.y()); }
 
@@ -48,17 +49,23 @@ public:
   void emitChanged() {
       emit changed();
   }
+  void setEditable(bool status) {_isEditable = status; }
 
 signals:
   void changed();
+  void needDelete();
 
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *);
   void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
+  void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *);
 
 private:
   const qreal DEFAULT_OFFSET_TO_BORDER = 10000;
+  const qreal MAX_WIDTH;
+  const QSizeF DEFAULT_SIZE;
+  bool _isEditable = false;
   Data::SeismWavePick::Type _type;
   QChart *_chart;
   QPointF _pos;

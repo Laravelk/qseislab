@@ -2,6 +2,7 @@
 
 #include <QtCharts/QChart>
 #include <vector>
+#include <QDebug>
 
 QT_BEGIN_NAMESPACE
 class QGestureEvent;
@@ -21,6 +22,8 @@ public:
   int getReceiverCount() { return receiverCount; }
 
   QList<WavePick *> *getWavePicks() { return _wavePicks; }
+  void zoom(qreal);
+  void zoomIn(const QRectF &rect);
 
 protected:
   bool sceneEvent(QEvent *) override;

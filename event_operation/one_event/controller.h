@@ -44,7 +44,7 @@ private:
   std::unique_ptr<Data::SeismEvent> _event;
   std::map<QUuid, QString> _eventNameContainer;
 
-  PolarizationAnalysisWindow *_polarizationWindow;
+  PolarizationAnalysisWindow *_polarizationWindow = nullptr;
 };
 
 } // namespace OneEvent

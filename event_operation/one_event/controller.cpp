@@ -56,6 +56,11 @@ Controller::Controller(
   connect(_view.get(), &View::createPolarizationAnalysisWindow, [this]() {
     _polarizationWindow = new PolarizationAnalysisWindow(_event);
     _polarizationWindow->show();
+    _view->setAddPolarizationWindowButtonEnableOneEvent(false);
+    connect (_polarizationWindow, &QDialog::finished, [this](int) {
+        _polarizationWindow = nullptr;
+        _view->setAddPolarizationWindowButtonEnableOneEvent(true);
+    });
   });
 
   connect(_view.get(), &View::sendWellUuidForRemove,
@@ -73,6 +78,9 @@ Controller::Controller(
           [this](const auto type, const auto num, const auto l_val,
                  const auto pick_val, const auto r_val) {
             int idx = 0;
+            if (_polarizationWindow) {
+                _polarizationWindow->setDefault();
+            }
             for (auto &component : this->_event->getComponents()) {
               if (num == idx) {
                 Data::SeismWavePick wavePick =
@@ -86,6 +94,17 @@ Controller::Controller(
               ++idx;
             }
           });
+  connect(_view.get(), &View::removePick,
+          [this](const auto type, const auto num) {
+      int idx = 0;
+      for (auto &component : this->_event->getComponents()) {
+          if (num == idx) {
+            component->removeWavePick(type);
+            break;
+          }
+          idx++;
+      }
+  });
 
   connect(_view.get(), &View::dataToEBasisClicked,
           [this]() { EventTools::dataToEBasis(_event); });

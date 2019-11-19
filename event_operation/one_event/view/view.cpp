@@ -230,6 +230,10 @@ void View::commonSetting() {
           [this](auto type, auto num, auto l_val, auto pick_val, auto r_val) {
             emit sendPicksInfo(type, num, l_val, pick_val, r_val);
           });
+  connect(_graphicEvent, &EventOperation::GraphicController::removePick,
+          [this](auto type, auto num){
+            emit removePick(type, num);
+  });
   connect(_graphicEvent,
           &EventOperation::GraphicController::
               createPolarizationAnalysisWindowClicked,
@@ -244,6 +248,11 @@ void View::commonSetting() {
   connect(_cancelButton, &QPushButton::clicked, this, &View::reject);
 
   // Connecting end
+}
+
+void View::setAddPolarizationWindowButtonEnableOneEvent(bool enable)
+{
+    _graphicEvent->setAddPolarizationWindowButtonEnable(enable);
 }
 
 void View::updateRepetition(const QString &name) {

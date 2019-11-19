@@ -39,13 +39,16 @@ public:
               const QString &);
   void setNotification(const QString &);
   void settingEventInfo(const std::unique_ptr<Data::SeismEvent> &) const;
+  void setAddPolarizationWindowButtonEnableOneEvent(bool enable);
   ChartGesture *getChartGesture();
 
 signals:
   void sendWellUuidAndFilePath(const QUuid &, const QString &) const;
   void sendWellUuidForRemove(const QUuid &) const;
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
+  void removePick(Data::SeismWavePick::Type, int);
   void createPolarizationAnalysisWindow();
+
 
   // tool-signals
   void dataToEBasisClicked() const;

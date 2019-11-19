@@ -21,6 +21,7 @@ class PolarizationAnalysisWindow : public QDialog {
 public:
   PolarizationAnalysisWindow(const std::unique_ptr<Data::SeismEvent> &,
                              QDialog *parent = nullptr);
+  void setDefault();
 
 protected:
 private:
