@@ -3,7 +3,7 @@
 namespace Data {
 class SeismPolarizationAnalysisData {
 public:
-  SeismPolarizationAnalysisData(double maxSingularValue, double pAzimutInRadian,
+  explicit SeismPolarizationAnalysisData(double maxSingularValue, double pAzimutInRadian,
                                 double pIncidenceInRadian,
                                 double pAzimutDegrees,
                                 double pIncidenceDegrees);
@@ -23,12 +23,12 @@ public:
   double getIncidenceDegrees() const;
 
 private:
-  bool _isValid = false;
-  double _maxSingularValue = 0;
-  double _pAzimutInRadian = 0;
-  double _pIncidenceInRadian = 0;
-  double _pAzimutDegrees = 0;
-  double _pIncidenceDegrees = 0;
+  bool _isValid;
+  double _maxSingularValue;
+  double _pAzimutInRadian;
+  double _pIncidenceInRadian;
+  double _pAzimutDegrees;
+  double _pIncidenceDegrees;
 
   const double DEGREES_COEFFICIENT = 180;
 };

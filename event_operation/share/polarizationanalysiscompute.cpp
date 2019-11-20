@@ -1,20 +1,20 @@
-#include "polarizationanalysisdata.h"
+#include "polarizationanalysiscompute.h"
 #include "data/seismevent.h"
 
 #include <QtMath>
 
 namespace EventOperation {
 
-PolarizationAnalysisData::PolarizationAnalysisData(
+PolarizationAnalysisCompute::PolarizationAnalysisCompute(
     std::unique_ptr<Data::SeismEvent> &event)
     : _event(event.get()) {}
 
-bool PolarizationAnalysisData::calculatePolarizationData() {
-  if (!_isValid) {
-    int index = 0;
+void PolarizationAnalysisCompute::calculate() {
+    int numberOfComponent = 0;
     for (auto &component : _event->getComponents()) {
-      if (_numberComponent == index) {
-        Data::SeismWavePick pick = component->getWavePick(_type);
+        for (auto &mapsWithPickElement : component->getWavePicks()) {
+            Data::SeismWavePick pick = mapsWithPickElement.second;
+        _oldDataMap[std::make_pair(numberOfComponent, pick.getType())] = pick.getPolarizationAnalysisData();
         const int FIRST_NUMBER_OF_ELEMENT_IN_ARRAY = static_cast<const int>(
             pick.getPolarizationLeftBorder() / component->getSampleInterval());
         const int LAST_NUMBER_OF_ELEMENT_IN_ARRAY =
@@ -23,15 +23,33 @@ bool PolarizationAnalysisData::calculatePolarizationData() {
         Eigen::MatrixXf *matrix =
             getPointMatrix(component, FIRST_NUMBER_OF_ELEMENT_IN_ARRAY,
                            LAST_NUMBER_OF_ELEMENT_IN_ARRAY);
-        calculateSVD(*matrix);
-        return true;
+        Data::SeismPolarizationAnalysisData *data = calculatePolarizationData(*matrix);
+        pick.setPolarizationAnalysisData(*data);
+        }
+        numberOfComponent++;
       }
-    }
-  }
-  return false;
 }
 
-Eigen::MatrixXf *PolarizationAnalysisData::getPointMatrix(
+void PolarizationAnalysisCompute::undo()
+{
+    int componentNumber = 0;
+    for (auto &component : _event->getComponents()) {
+        for (auto &mapsWithPickElement : component->getWavePicks()) {
+            Data::SeismWavePick pick = mapsWithPickElement.second;
+            std::optional<Data::SeismPolarizationAnalysisData*> optionalData =
+                    _oldDataMap.at(std::make_pair(componentNumber, pick.getType()));
+            pick.setPolarizationAnalysisData(optionalData);
+        }
+        componentNumber++;
+    }
+}
+
+void PolarizationAnalysisCompute::redo()
+{
+    calculate();
+}
+
+Eigen::MatrixXf *PolarizationAnalysisCompute::getPointMatrix(
     const std::unique_ptr<Data::SeismComponent> &component, int firstIndex,
     int lastIndex) {
   const float MAX_VALUE = component->getMaxValue();
@@ -52,7 +70,7 @@ Eigen::MatrixXf *PolarizationAnalysisData::getPointMatrix(
   return pointMatrix;
 }
 
-void PolarizationAnalysisData::calculateSVD(const Eigen::MatrixXf &matrix) {
+Data::SeismPolarizationAnalysisData *PolarizationAnalysisCompute::calculatePolarizationData(const Eigen::MatrixXf &matrix) {
   Eigen::BDCSVD<Eigen::MatrixXf> *svd = new Eigen::BDCSVD<Eigen::MatrixXf>(
       matrix, Eigen::ComputeFullV | Eigen::ComputeFullU);
   Eigen::Vector3f column1, column2, column3;
@@ -60,12 +78,16 @@ void PolarizationAnalysisData::calculateSVD(const Eigen::MatrixXf &matrix) {
   column2 = svd->matrixU().col(1);
   column3 = svd->matrixU().col(2);
 
-  _pAzimutInRadian = std::atan((column1[1] * sgn(column1[0])) /
+  const double maxSingularValue = static_cast<double> (svd->singularValues()[0]);
+  const double pAzimutInRadian = static_cast<double> (std::atan((column1[1] * sgn(column1[0]))) /
                                (column1[2] * sgn(column1[0])));
-  _pIncidenceInRadian = std::acos(qAbs(column1[0]));
+  const double pIncidenceInRadian = static_cast<double> (std::acos(qAbs(column1[0])));
 
-  _pAzimutDegrees = _pAzimutInRadian * 180 / M_PI;
-  _pIncidenceDegrees = _pIncidenceInRadian * 180 / M_PI;
+  const double pAzimutDegrees = pAzimutInRadian * DEGREES_COEFFICIENT / M_PI;
+  const double pIncidenceDegrees = pIncidenceInRadian * DEGREES_COEFFICIENT / M_PI;
+
+  return new Data::SeismPolarizationAnalysisData(maxSingularValue, pAzimutInRadian,
+                                                        pIncidenceInRadian, pAzimutDegrees, pIncidenceDegrees);
 }
 
 } // namespace EventOperation

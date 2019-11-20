@@ -4,6 +4,12 @@
 
 namespace Data {
 
+SeismPolarizationAnalysisData::SeismPolarizationAnalysisData(double maxSingularValue, double pAzimutInRadian,
+                                                             double pIncidenceInRadian, double pAzimutDegrees,
+                                                             double pIncidenceDegrees)
+    : _maxSingularValue(maxSingularValue), _pAzimutInRadian(pAzimutInRadian), _pIncidenceInRadian(pIncidenceInRadian),
+            _pAzimutDegrees(pAzimutDegrees), _pIncidenceDegrees(pIncidenceDegrees) {}
+
 void SeismPolarizationAnalysisData::setValid(const bool validStatus) {
   _isValid = validStatus;
 }

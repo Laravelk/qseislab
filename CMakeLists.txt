@@ -37,7 +37,7 @@ endif()
 
 find_package(segyio REQUIRED)
 
-#find_package(Eigen3 REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 
 set(SOURCES
@@ -244,4 +244,4 @@ qt5_use_modules(qseislab ${_Q_MODULES})
 
 target_link_libraries(qseislab segyio::segyio)
 
-#target_link_libraries(qseislab Eigen3::Eigen)
+target_link_libraries(qseislab Eigen3::Eigen)

@@ -93,12 +93,12 @@ std::optional<SeismPolarizationAnalysisData*> SeismWavePick::getPolarizationAnal
     return std::nullopt;
 }
 
-void SeismWavePick::setPolarizationAlalysisData(SeismPolarizationAnalysisData &data)
+void SeismWavePick::setPolarizationAnalysisData(SeismPolarizationAnalysisData &data)
 {
     _polarizationData.emplace(&data);
 }
 
-void SeismWavePick::setPolarizationAlalysisData(std::optional<SeismPolarizationAnalysisData *> &optionalData)
+void SeismWavePick::setPolarizationAnalysisData(std::optional<SeismPolarizationAnalysisData *> &optionalData)
 {
     _polarizationData = optionalData;
 }
