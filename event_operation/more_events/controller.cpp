@@ -6,6 +6,7 @@
 #include "event_operation/share/view/3dscene/polarizationanalysiswindow.h"
 
 #include "event_operation/modification/testmultiplier.h"
+#include "undo_stack_work/event_modification/undocommandgetter.h"
 
 #include "data/io/segyreader.h"
 
@@ -20,8 +21,7 @@ Controller::Controller(
     const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &all_events,
     const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &wells_map,
     QObject *parent)
-    : QObject(parent), _model(new Model(new SegyReader(), this))
-{
+    : QObject(parent), _model(new Model(new SegyReader(), this)) {
 
   // prepare data for view
   std::map<QUuid, QString> wellNames_map;
@@ -57,7 +57,10 @@ Controller::Controller(
                 }
                 auto &uuid = event->getUuid();
                 _events_map[uuid] = std::move(event);
-                _stacks_map[uuid] = std::make_unique<QUndoStack>();
+                //                _stacks_map[uuid] =
+                //                std::make_unique<QUndoStack>();
+                _stacks_map[uuid] =
+                    std::make_unique<CustomIndividualUndoStack>();
               }
             }
             _view->update(_events_map);
@@ -70,25 +73,21 @@ Controller::Controller(
 
   connect(_view.get(), &View::changeCurrentEvent, [this](auto &uuid) {
     if (!_currentEventUuid.isNull()) {
-        _view->settingEventInfo(_events_map[_currentEventUuid].get());
+      _view->settingEventInfo(_events_map[_currentEventUuid].get());
     }
 
     _currentEventUuid = uuid;
     _view->loadEvent(_events_map[_currentEventUuid].get(),
                      _stacks_map[_currentEventUuid].get());
-
-    //    _appliedOperations->clear();
   });
 
   connect(_view.get(), &View::hideCurrentEvent, [this]() {
     if (!_currentEventUuid.isNull()) {
-        _view->settingEventInfo(_events_map[_currentEventUuid].get());
+      _view->settingEventInfo(_events_map[_currentEventUuid].get());
     }
 
     _view->unloadEvent(_stacks_map[_currentEventUuid].get());
     _currentEventUuid = QUuid();
-
-    //    _appliedOperations->clear();
   });
 
   connect(_view.get(), &View::removeEvent,
@@ -115,7 +114,6 @@ Controller::Controller(
 
   connect(_view.get(), &View::undoClicked, [this]() {
     if (!_currentEventUuid.isNull()) {
-      //      _appliedOperations->undo();
       _stacks_map[_currentEventUuid]->undo();
       _view->update(_events_map[_currentEventUuid].get());
     }
@@ -128,26 +126,32 @@ Controller::Controller(
     }
   });
 
-  connect(
-      _view.get(), &View::eventTransformClicked, [this, &wells_map](auto oper) {
-        if (!_currentEventUuid.isNull()) {
-          auto &event = _events_map[_currentEventUuid];
-          switch (oper) {
-          case SeismEvent::RotateDataToEBasis:
-            //            _appliedOperations->push(
-            //                new
-            //                Modefication::RotateDataToEBasis(event.get(),
-            //                wells_map));
-            _stacks_map[_currentEventUuid]->push(
-                new Modefication::RotateDataToEBasis(event.get(), wells_map));
-          case SeismEvent::TestMultiplier:
-            _stacks_map[_currentEventUuid]->push(
-                new Modefication::TestMultiplier(event.get(), 5.0));
-          }
+  connect(_view.get(), &View::eventTransformClicked,
+          [this, &wells_map](auto oper) {
+            if (!_currentEventUuid.isNull()) {
+              auto &event = _events_map[_currentEventUuid];
+              //          switch (oper) {
+              //          case SeismEvent::RotateDataToEBasis:
+              //            //            _appliedOperations->push(
+              //            //                new
+              //            // Modefication::RotateDataToEBasis(event.get(),
+              //            //                wells_map));
+              //            _stacks_map[_currentEventUuid]->push(
+              //                new
+              //                Modefication::RotateDataToEBasis(event.get(),
+              //                wells_map));
+              //          case SeismEvent::TestMultiplier:
+              //            _stacks_map[_currentEventUuid]->push(
+              //                new
+              //                Modefication::TestMultiplier(event.get(), 5.0));
+              //          }
 
-          _view->update(event.get());
-        }
-      });
+              auto command = UndoCommandGetter::get(oper, QUuid(), event.get());
+              _stacks_map[_currentEventUuid]->push(command);
+
+              _view->update(event.get());
+            }
+          });
 
   connect(_view.get(), &View::finished, this, &Controller::finish);
 }
@@ -160,7 +164,7 @@ void Controller::start() {
 void Controller::finish(int result) {
   if (QDialog::Accepted == result) {
     if (!_currentEventUuid.isNull()) {
-        _view->settingEventInfo(_events_map[_currentEventUuid].get());
+      _view->settingEventInfo(_events_map[_currentEventUuid].get());
     }
     emit sendEventsAndStacks(_events_map, _stacks_map);
   }

@@ -17,7 +17,7 @@ public:
 
   void viewAboutProject(const std::unique_ptr<Data::SeismProject> &);
 
-  void updateUndoStack(const std::shared_ptr<QUndoStack> &);
+  void updateUndoStack(QUndoStack const *const);
 
   void loadProject(const std::unique_ptr<Data::SeismProject> &);
   void addEvent(const std::shared_ptr<Data::SeismEvent> &);

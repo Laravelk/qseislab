@@ -49,6 +49,9 @@ WorkPage::WorkPage(QWidget *parent)
   // Setting`s end
 
   // Connecting
+  connect(_eventsTable, &FilteringTableAssistant::objectSelectionChanged,
+          [this](auto &select) { emit eventSelectionChanged(select); });
+
   connect(_eventsTable, &FilteringTableAssistant::viewClicked,
           [this](auto &uuid) { emit viewEventClicked(uuid); });
   connect(_eventsTable, &FilteringTableAssistant::removeClicked,
@@ -111,7 +114,7 @@ void WorkPage::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
   //  _surface->setProject(project);
   _oilFieldScene->setProject(project);
   //  _eventsTable->setAll<SeismEvent>(project->getAllMap<SeismEvent>());
-  _eventsTable->setAll<SeismEvent>(project->getAllEventMap());
+  _eventsTable->setAll<SeismEvent>(project->getAllMap<SeismEvent>());
 }
 
 const QUuid WorkPage::getFocusEvent() const {

@@ -116,7 +116,7 @@ bool OilFieldScene::showEvent(const QUuid &uid) {
 
 void OilFieldScene::setProject(
     const std::unique_ptr<Data::SeismProject> &project) {
-  for (auto &uuid_event : project->getAllEventMap()) {
+  for (auto &uuid_event : project->getAllMap<SeismEvent>()) {
     addEvent(uuid_event.second);
   }
   for (auto &uuid_horizon : project->getAllMap<SeismHorizon>()) {

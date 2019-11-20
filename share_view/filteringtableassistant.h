@@ -4,6 +4,7 @@
 #include <QTableWidget>
 
 #include <memory>
+#include <set>
 
 class FilteringTableAssistant : public QFrame {
   Q_OBJECT
@@ -22,6 +23,8 @@ public:
   void setAll(const std::map<QUuid, std::shared_ptr<T>> &);
 
 signals:
+  void objectSelectionChanged(const std::set<QUuid> &) const;
+
   void viewClicked(const QUuid &);
   void hide(const QUuid &);
   void show(const QUuid &);

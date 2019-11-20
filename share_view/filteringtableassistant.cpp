@@ -29,10 +29,29 @@ FilteringTableAssistant::FilteringTableAssistant(Mode mode, QWidget *parent)
     break;
   }
 
+  connect(_objectsTable, &QTableWidget::itemSelectionChanged, [this] {
+    std::set<QUuid> selectedObjects;
+
+    //    std::cout << "selected items : " << std::endl;
+    for (auto &item : _objectsTable->selectedItems()) {
+      //      std::cout << "   col == " << _objectsTable->column(item)
+      //                << "   row == " << _objectsTable->row(item) <<
+      //                std::endl;
+      // TODO: очень плохо!!!
+      if (2 == _objectsTable->column(item)) {
+        selectedObjects.insert(_objectsTable->item(_objectsTable->row(item), 0)
+                                   ->data(Qt::DisplayRole)
+                                   .toUuid());
+      }
+    }
+
+    emit objectSelectionChanged(selectedObjects);
+  });
+
   _objectsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
   _objectsTable->setSortingEnabled(true);
   _objectsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-  _objectsTable->setSelectionMode(QAbstractItemView::SingleSelection);
+  //  _objectsTable->setSelectionMode(QAbstractItemView::SingleSelection);
 
   // Double-clicking on object
   connect(_objectsTable, &QTableWidget::cellDoubleClicked,

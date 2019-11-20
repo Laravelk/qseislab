@@ -6,13 +6,14 @@
 
 class CustomIndividualUndoCommand : public QUndoCommand {
 public:
-  CustomIndividualUndoCommand(bool);
+  CustomIndividualUndoCommand(QUuid);
 
-  bool isShare() const;
+  const QUuid &getShareUuid() const;
+
   void makeIndividual();
 
   virtual bool is(Data::SeismEvent::TransformOperation) const = 0;
 
 private:
-  bool _isShare;
+  QUuid _shareUuid;
 };

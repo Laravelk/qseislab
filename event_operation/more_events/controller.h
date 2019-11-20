@@ -1,5 +1,6 @@
 #pragma once
 
+#include "undo_stack_work/customindividualundostack.h"
 #include "view/view.h"
 
 #include <QUndoCommand>
@@ -32,9 +33,9 @@ public:
 signals:
   //  void sendEvents(std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &)
   //  const;
-  void
-  sendEventsAndStacks(std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
-                      std::map<QUuid, std::shared_ptr<QUndoStack>> &) const;
+  void sendEventsAndStacks(
+      std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
+      std::map<QUuid, std::shared_ptr<CustomIndividualUndoStack>> &) const;
   void finished() const;
 
 private:
@@ -43,7 +44,7 @@ private:
   std::unique_ptr<View> _view;
 
   std::map<QUuid, std::shared_ptr<Data::SeismEvent>> _events_map;
-  std::map<QUuid, std::shared_ptr<QUndoStack>> _stacks_map;
+  std::map<QUuid, std::shared_ptr<CustomIndividualUndoStack>> _stacks_map;
 
   QUuid _currentEventUuid;
 

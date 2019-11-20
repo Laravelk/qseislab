@@ -4,20 +4,30 @@
 //#include "event_operation/modification/testmultiplier.h"
 #include "testindividualcommand.h"
 
+#include <iostream>
+
 class CustomIndividualUndoCommand;
 using TransformOperation = Data::SeismEvent::TransformOperation;
 
 namespace UndoCommandGetter {
 template <typename... Args>
 CustomIndividualUndoCommand *get(Data::SeismEvent::TransformOperation oper,
-                                 bool isShare, Data::SeismEvent *event,
-                                 Args... args) {
+                                 const QUuid &shareUuid,
+                                 Data::SeismEvent *event, Args... args) {
   switch (oper) {
   case TransformOperation::TestMultiplier:
-    return new TestIndividualCommand(isShare, event, args...);
+    return new TestIndividualCommand(shareUuid, event, args...);
     break;
   }
 
+  std::cerr << "UndoCommandGetter::get ::return nullptr" << std::endl;
   return nullptr;
 }
+
+// template <typename... Args>
+// CustomIndividualUndoCommand *get(Data::SeismEvent::TransformOperation oper,
+//                                 Data::SeismEvent *event, Args... args) {
+//  return get(oper, QUuid(), event, args...);
+//}
+
 } // namespace UndoCommandGetter

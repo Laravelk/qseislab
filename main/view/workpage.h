@@ -43,8 +43,10 @@ public:
   void removeReceiver(const QUuid &);                        // TODO: re-see
 
 signals:
-  void viewEventClicked(const QUuid) const;
-  void removeEventClicked(const QUuid) const;
+  void eventSelectionChanged(const std::set<QUuid> &) const;
+
+  void viewEventClicked(const QUuid &) const;
+  void removeEventClicked(const QUuid &) const;
 
 private:
   FilteringTableAssistant *_eventsTable;

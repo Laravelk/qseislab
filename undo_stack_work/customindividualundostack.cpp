@@ -5,48 +5,54 @@
 CustomIndividualUndoStack::CustomIndividualUndoStack(QObject *parent)
     : QUndoStack(parent) {}
 
-bool CustomIndividualUndoStack::tryUndo(
-    Data::SeismEvent::TransformOperation oper) {
+// void CustomIndividualUndoStack::push(CustomIndividualUndoCommand *command) {
+//  this->push(command);
+//}
+
+// void CustomIndividualUndoStack::undo() { this->undo(); }
+
+// void CustomIndividualUndoStack::redo() { this->redo(); }
+
+bool CustomIndividualUndoStack::tryUndo(const QUuid &sharedUuid) {
 
   auto current_command = dynamic_cast<const CustomIndividualUndoCommand *>(
       this->command(this->index()));
 
-  if (current_command->isShare() && current_command->is(oper)) {
+  if (sharedUuid == current_command->getShareUuid()) {
     this->undo();
     return true;
   } else {
     for (int i = count() - 1; i >= 0; --i) {
       auto command =
           dynamic_cast<const CustomIndividualUndoCommand *>(this->command(i));
-      if (command->isShare() && command->is(oper)) {
+      if (sharedUuid == command->getShareUuid()) {
         const_cast<CustomIndividualUndoCommand *>(command)->makeIndividual();
         break;
       }
     }
   }
+
   return false;
 }
 
-bool CustomIndividualUndoStack::tryRedo(
-    Data::SeismEvent::TransformOperation oper) {
+bool CustomIndividualUndoStack::tryRedo(const QUuid &sharedUuid) {
 
   auto current_command = dynamic_cast<const CustomIndividualUndoCommand *>(
       this->command(this->index()));
 
-  if (current_command->isShare() && current_command->is(oper)) {
+  if (sharedUuid == current_command->getShareUuid()) {
     this->redo();
     return true;
   } else {
-    // TODO: здесь корректно ли идти с конца стека?
-
     for (int i = count() - 1; i >= 0; --i) {
       auto command =
           dynamic_cast<const CustomIndividualUndoCommand *>(this->command(i));
-      if (command->isShare() && command->is(oper)) {
+      if (sharedUuid == command->getShareUuid()) {
         const_cast<CustomIndividualUndoCommand *>(command)->makeIndividual();
         break;
       }
     }
   }
+
   return false;
 }

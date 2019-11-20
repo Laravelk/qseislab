@@ -4,7 +4,8 @@
 
 class TestIndividualCommand : public CustomIndividualUndoCommand {
 public:
-  explicit TestIndividualCommand(bool, Data::SeismEvent *, float);
+  explicit TestIndividualCommand(const QUuid &, Data::SeismEvent *,
+                                 float m = 5);
 
   void undo() override;
 

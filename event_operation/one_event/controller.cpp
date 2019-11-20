@@ -8,6 +8,7 @@
 
 #include "event_operation/modification/rotatedatatoebasis.h"
 #include "event_operation/modification/testmultiplier.h"
+#include "undo_stack_work/event_modification/undocommandgetter.h"
 
 #include "data/io/segyreader.h"
 
@@ -26,7 +27,7 @@ Controller::Controller(
     QObject *parent)
     : QObject(parent), _model(new Model(new SegyReader(), this)),
       _event(std::make_shared<SeismEvent>()),
-      _undoStack(std::make_shared<QUndoStack>()) {
+      _undoStack(std::make_shared<CustomIndividualUndoStack>()) {
 
   // prepare data for view
   std::map<QUuid, QString> wellNames_map;
@@ -37,6 +38,7 @@ Controller::Controller(
   for (auto &uuid_event : all_events) {
     eventNames.insert(uuid_event.second->getName());
   }
+  // TODO: uncomment
   _view = std::make_unique<View>(eventNames, wellNames_map, _undoStack.get());
   // ...
 
@@ -99,36 +101,38 @@ Controller::Controller(
           });
 
   connect(_view.get(), &View::undoClicked, [this]() {
-    std::cout << "event-address == " << _event.get() << std::endl;
     _undoStack->undo();
-    //    _appliedOperations->undo();
     _view->update(_event.get());
   });
   connect(_view.get(), &View::redoClicked, [this]() {
-    //    _appliedOperations->redo();
-    std::cout << "event-address == " << _event.get() << std::endl;
     _undoStack->redo();
     _view->update(_event.get());
   });
 
-  connect(
-      _view.get(), &View::eventTransformClicked, [this, &wells_map](auto oper) {
-        switch (oper) {
-        case SeismEvent::RotateDataToEBasis:
-          //              _appliedOperations->push(
-          //                  new Modefication::RotateDataToEBasis(_event,
-          //                  wells_map));
-          _undoStack->push(
-              new Modefication::RotateDataToEBasis(_event.get(), wells_map));
-          break;
-        case SeismEvent::TestMultiplier:
-          std::cout << "event-address == " << _event.get() << std::endl;
-          _undoStack->push(new Modefication::TestMultiplier(_event.get(), 5.0));
-          break;
-        }
+  connect(_view.get(), &View::eventTransformClicked,
+          [this, &wells_map](auto oper) {
+            //        switch (oper) {
+            //        case SeismEvent::RotateDataToEBasis:
+            //          //              _appliedOperations->push(
+            //          //                  new
+            //          Modefication::RotateDataToEBasis(_event,
+            //          //                  wells_map));
+            //          _undoStack->push(
+            //              new Modefication::RotateDataToEBasis(_event.get(),
+            //              wells_map));
+            //          break;
+            //        case SeismEvent::TestMultiplier:
+            //          std::cout << "event-address == " << _event.get() <<
+            //          std::endl; _undoStack->push(new
+            //          Modefication::TestMultiplier(_event.get(), 5.0)); break;
+            //        }
 
-        _view->update(_event.get());
-      });
+            CustomIndividualUndoCommand *command =
+                UndoCommandGetter::get(oper, QUuid(), _event.get());
+            _undoStack->push(command);
+
+            _view->update(_event.get());
+          });
 
   connect(_view.get(), &View::finished, this, &Controller::finish);
 }
@@ -137,12 +141,9 @@ Controller::Controller(
     const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &all_events,
     const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &wells_map,
     const std::shared_ptr<Data::SeismEvent> &event,
-    const std::shared_ptr<QUndoStack> &undoStack, QObject *parent)
-    : QObject(parent), _model(nullptr), _event(event),
-      //      _event(std::make_unique<Data::SeismEvent>(*event)),
-      _undoStack(undoStack)
-//      _appliedOperations(new QUndoStack())
-{
+    const std::shared_ptr<CustomIndividualUndoStack> &undoStack,
+    QObject *parent)
+    : QObject(parent), _model(nullptr), _event(event), _undoStack(undoStack) {
 
   //    _eventNameContainer[QUuid()] = _event->getName(); // TODO: it`s OK?
 
@@ -157,6 +158,7 @@ Controller::Controller(
       eventNames.insert(uuid_event.second->getName());
     }
   }
+  // TODO: uncomment
   _view = std::make_unique<View>(eventNames, _event.get(), _undoStack.get());
   // ...
 
@@ -190,37 +192,39 @@ Controller::Controller(
   //          [this]() { EventTools::dataToEBasis(_event); });
 
   connect(_view.get(), &View::undoClicked, [this]() {
-    std::cout << "event-address == " << _event.get() << std::endl;
     _undoStack->undo();
-    //    _appliedOperations->undo();
     _view->update(_event.get());
   });
   connect(_view.get(), &View::redoClicked, [this]() {
-    //    _appliedOperations->redo();
-    std::cout << "event-address == " << _event.get() << std::endl;
     _undoStack->redo();
     _view->update(_event.get());
   });
 
-  connect(
-      _view.get(), &View::eventTransformClicked, [this, &wells_map](auto oper) {
-        switch (oper) {
-        case SeismEvent::RotateDataToEBasis:
-          //              _appliedOperations->push(
-          //                  new Modefication::RotateDataToEBasis(_event,
-          //                  wells_map));
-          std::cout << "here" << std::endl;
-          _undoStack->push(
-              new Modefication::RotateDataToEBasis(_event.get(), wells_map));
-          break;
-        case SeismEvent::TestMultiplier:
-          std::cout << "event-address == " << _event.get() << std::endl;
-          _undoStack->push(new Modefication::TestMultiplier(_event.get(), 5.0));
-          break;
-        }
+  connect(_view.get(), &View::eventTransformClicked,
+          [this, &wells_map](auto oper) {
+            //        switch (oper) {
+            //        case SeismEvent::RotateDataToEBasis:
+            //          //              _appliedOperations->push(
+            //          //                  new
+            //          Modefication::RotateDataToEBasis(_event,
+            //          //                  wells_map));
+            //          std::cout << "here" << std::endl;
+            //          _undoStack->push(
+            //              new Modefication::RotateDataToEBasis(_event.get(),
+            //              wells_map));
+            //          break;
+            //        case SeismEvent::TestMultiplier:
+            //          std::cout << "event-address == " << _event.get() <<
+            //          std::endl; _undoStack->push(new
+            //          Modefication::TestMultiplier(_event.get(), 5.0)); break;
+            //        }
 
-        _view->update(_event.get());
-      });
+            CustomIndividualUndoCommand *command =
+                UndoCommandGetter::get(oper, QUuid(), _event.get());
+            _undoStack->push(command);
+
+            _view->update(_event.get());
+          });
 
   connect(_view.get(), &View::finished, this, &Controller::finish);
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "undo_stack_work/customindividualundostack.h"
+
 #include "view/view.h"
 
 #include <QObject>
@@ -31,7 +33,8 @@ public:
       const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
       const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &,
       const std::shared_ptr<Data::SeismEvent> &,
-      const std::shared_ptr<QUndoStack> &, QObject *parent = nullptr);
+      const std::shared_ptr<CustomIndividualUndoStack> &,
+      QObject *parent = nullptr);
 
   void start();
   void finish(int);
@@ -39,7 +42,7 @@ public:
 signals:
   void sendEvent(std::shared_ptr<Data::SeismEvent> &) const;
   void sendEventAndStack(std::shared_ptr<Data::SeismEvent> &,
-                         std::shared_ptr<QUndoStack> &);
+                         std::shared_ptr<CustomIndividualUndoStack> &);
   void finished() const;
 
 private:
@@ -54,7 +57,7 @@ private:
   PolarizationAnalysisWindow *_polarizationWindow;
 
   std::shared_ptr<Data::SeismEvent> _event;
-  std::shared_ptr<QUndoStack> _undoStack;
+  std::shared_ptr<CustomIndividualUndoStack> _undoStack;
 };
 
 } // namespace OneEvent

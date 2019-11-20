@@ -1,8 +1,10 @@
 #include "customindividualundocommand.h"
 
-CustomIndividualUndoCommand::CustomIndividualUndoCommand(bool isShare)
-    : _isShare(isShare) {}
+CustomIndividualUndoCommand::CustomIndividualUndoCommand(QUuid shareUuid)
+    : _shareUuid(shareUuid) {}
 
-bool CustomIndividualUndoCommand::isShare() const { return _isShare; }
+const QUuid &CustomIndividualUndoCommand::getShareUuid() const {
+  return _shareUuid;
+}
 
-void CustomIndividualUndoCommand::makeIndividual() { _isShare = false; }
+void CustomIndividualUndoCommand::makeIndividual() { _shareUuid = QUuid(); }

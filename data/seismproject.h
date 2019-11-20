@@ -38,13 +38,6 @@ public:
   void setFileInfo(const QFileInfo &);
   const QFileInfo &getFileInfo();
 
-  void add(const std::shared_ptr<Data::SeismEvent> &);
-  //  void update(const std::unique_ptr<>)
-  //  bool remove(const QUuid& );
-  const std::shared_ptr<Data::SeismEvent> &atEvent(const QUuid) const;
-  const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &
-  getAllEventMap() const;
-
   template <typename T> void add(const std::shared_ptr<T> &);
   template <typename T> void update(const std::shared_ptr<T> &);
   template <typename T> bool remove(const QUuid &);
@@ -61,7 +54,6 @@ public:
   void removeAllReceivers();
 
 signals:
-  //  void addedEvent(const std::unique_ptr<Data::SeismEvent> &) const;
   void addedEvent(const std::shared_ptr<Data::SeismEvent> &) const;
   void updatedEvent(const std::shared_ptr<Data::SeismEvent> &) const;
   void removedEvent(const QUuid &) const;
