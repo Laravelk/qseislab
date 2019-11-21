@@ -2,6 +2,8 @@
 
 #include "customindividualundocommand.h"
 
+#include <iostream> // TODO: remove
+
 CustomIndividualUndoStack::CustomIndividualUndoStack(QObject *parent)
     : QUndoStack(parent) {}
 
@@ -15,18 +17,34 @@ CustomIndividualUndoStack::CustomIndividualUndoStack(QObject *parent)
 
 bool CustomIndividualUndoStack::tryUndo(const QUuid &sharedUuid) {
 
+//    std::cout << "1" << std::endl;
+
   auto current_command = dynamic_cast<const CustomIndividualUndoCommand *>(
-      this->command(this->index()));
+      this->command(this->index()-1));
+
+//  std::cout << "2" << std::endl;
+
+//  if (nullptr == current_command) {
+//      std::cerr << "index == " << this->index() << std::endl;
+//      std::cerr << "current_command == nullptr" <<std::endl;
+//      return false;
+//  }
 
   if (sharedUuid == current_command->getShareUuid()) {
-    this->undo();
+//      std::cout << "3" << std::endl;
+      this->undo();
+//    std::cout << "4" << std::endl;
     return true;
   } else {
     for (int i = count() - 1; i >= 0; --i) {
+//        std::cout << "5 : i == " << i << std::endl;
       auto command =
           dynamic_cast<const CustomIndividualUndoCommand *>(this->command(i));
+//      std::cout << "6 : i == " << i << std::endl;
       if (sharedUuid == command->getShareUuid()) {
+//          std::cout << "7 : i == " << i << std::endl;
         const_cast<CustomIndividualUndoCommand *>(command)->makeIndividual();
+//        std::cout << "8 : i == " << i << std::endl;
         break;
       }
     }

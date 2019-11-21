@@ -42,6 +42,8 @@ signals:
   void eventTransformClicked(Data::SeismEvent::TransformOperation) const;
 
   void changeEventFocus(const std::set<QUuid> &) const;
+  void changeEventFocusToOne(const QUuid& ) const;
+
   void undoClicked() const;
   void redoClicked() const;
 
@@ -67,6 +69,10 @@ signals:
 
 private:
   WorkPage *_workPage{nullptr}; // NOTE: правильно ли хранить этот указатель - ?
+
+  QUndoStack const * _currentUndoStack{nullptr};
+  QAction* _undoAction;
+  QAction* _redoAction;
 };
 
 } // namespace Main

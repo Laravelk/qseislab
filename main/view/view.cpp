@@ -46,8 +46,8 @@ View::View(QWidget *parent) : QMainWindow(parent) {
   QMenu *editMenu = new QMenu("&Edit");
   editMenu->setDisabled(true);
   connect(this, &View::projectPresence, editMenu, &QMenu::setEnabled);
-  act = editMenu->addAction("Undo", [this] { emit undoClicked(); });
-  act = editMenu->addAction("Redo", [this] { emit redoClicked(); });
+  _undoAction = editMenu->addAction("Undo", [this] { emit undoClicked(); });
+  _redoAction = editMenu->addAction("Redo", [this] { emit redoClicked(); });
 
   QMenu *actionMenu = new QMenu("Action");
   actionMenu->addAction("Process Events",
@@ -100,7 +100,15 @@ void View::viewAboutProject(
   infoProject->show();
 }
 
-void View::updateUndoStack(QUndoStack const *const) {}
+void View::updateUndoStack(QUndoStack const * const undoStack) {
+    if(nullptr != _currentUndoStack) {
+        disconnect(_currentUndoStack, &QUndoStack::canUndoChanged, _undoAction, &QAction::setEnabled);
+        disconnect(_currentUndoStack, &QUndoStack::canRedoChanged, _redoAction, &QAction::setEnabled);
+    }
+    _currentUndoStack = undoStack;
+    connect(_currentUndoStack, &QUndoStack::canUndoChanged, _undoAction, &QAction::setEnabled);
+    connect(_currentUndoStack, &QUndoStack::canRedoChanged, _redoAction, &QAction::setEnabled);
+}
 
 void View::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
   delete centralWidget();

@@ -59,6 +59,7 @@ private:
   //  std::map<QUuid, std::unique_ptr<CustomUndoStack>> _eventStacks;
   //  QUuid _currentEvent;
   std::set<QUuid> _eventFocus;
+  QUuid _currentOneEventFocus;
   std::map<QUuid, std::shared_ptr<CustomIndividualUndoStack>> _eventStacks;
   std::shared_ptr<QUndoStack> _shareEventStack;
   // TODO(stack): завести мапу со стеками для каждого ивента

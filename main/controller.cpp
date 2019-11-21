@@ -20,36 +20,53 @@ using namespace ProjectOperation;
 namespace Main {
 Controller::Controller(QObject *parent)
     : QObject(parent), _shareEventStack(std::make_unique<QUndoStack>()),
-      _mainWindow(std::make_unique<View>()) {
+    _mainWindow(std::make_unique<View>()) {
+
+    _mainWindow->updateUndoStack(_shareEventStack.get());
 
   // share-undo/redo connecting
   connect(_mainWindow.get(), &View::changeEventFocus, [this](auto &eventFocus) {
     _eventFocus = eventFocus;
-    if (1 == _eventFocus.size()) {
-      std::shared_ptr<CustomIndividualUndoStack> &stack =
-          _eventStacks[*_eventFocus.begin()];
-      _mainWindow->updateUndoStack(stack.get());
+//    if (1 == _eventFocus.size()) {
+//      std::shared_ptr<CustomIndividualUndoStack> &stack =
+//          _eventStacks[*_eventFocus.begin()];
+//      _mainWindow->updateUndoStack(stack.get());
       //            _mainWindow->updateUndoStack(_eventStacks[*_eventFocus.begin()]);
-    } else {
+//    } else {
       _mainWindow->updateUndoStack(_shareEventStack.get());
-    }
+//    }
   });
+  connect(_mainWindow.get(), &View::changeEventFocusToOne, [this](auto& eventUuid){
+      _currentOneEventFocus = eventUuid;
+      _mainWindow->updateUndoStack(_eventStacks[eventUuid].get());
+  });
+
   connect(_mainWindow.get(), &View::undoClicked, [this]() {
-    if (1 == _eventFocus.size()) {
-      _eventStacks[*_eventFocus.begin()]->undo();
-    } else {
-      _shareEventStack->undo();
-    }
+      if(!_currentOneEventFocus.isNull()) {
+          _eventStacks[_currentOneEventFocus]->undo();
+      } else {
+          _shareEventStack->undo();
+      }
+//    if (1 == _eventFocus.size()) {
+//      _eventStacks[*_eventFocus.begin()]->undo();
+//    } else {
+//      _shareEventStack->undo();
+//    }
   });
   connect(_mainWindow.get(), &View::redoClicked, [this]() {
-    if (1 == _eventFocus.size()) {
-      _eventStacks[*_eventFocus.begin()]->redo();
-    } else {
-      _shareEventStack->redo();
-    }
+      if(!_currentOneEventFocus.isNull()) {
+          _eventStacks[_currentOneEventFocus]->redo();
+      } else {
+          _shareEventStack->redo();
+      }
+//    if (1 == _eventFocus.size()) {
+//      _eventStacks[*_eventFocus.begin()]->redo();
+//    } else {
+//      _shareEventStack->redo();
+//    }
   });
   connect(_mainWindow.get(), &View::eventTransformClicked, [this](auto oper) {
-    std::cout << "here" << std::endl;
+//    std::cout << "here" << std::endl;
     if (!_eventFocus.empty()) {
       //      auto shareCommand = new ShareUndoCommand(_eventFocus, oper);
       auto shareCommand = new ShareUndoCommand(_eventFocus);
@@ -57,12 +74,12 @@ Controller::Controller(QObject *parent)
 
       auto shareUuid = shareCommand->getUuid();
 
-      std::cout << "here2" << std::endl;
+//      std::cout << "here2" << std::endl;
 
       // TODO: откуда здесь принимать аргументы и как их вставлять????
 
       for (auto &eventUuid : _eventFocus) {
-        std::cout << "create individual command" << std::endl;
+//        std::cout << "create individual command" << std::endl;
         auto command = UndoCommandGetter::get(
             oper, shareUuid, _project->get<SeismEvent>(eventUuid).get());
         _eventStacks[eventUuid]->push(command);
@@ -70,6 +87,8 @@ Controller::Controller(QObject *parent)
 
       connect(shareCommand, &ShareUndoCommand::applyUndo,
               [this](auto &shareUuid, auto &eventUuids) {
+//                  std::cout << "applyUndo" << std::endl;
+
                 std::set<QUuid> uuidsForRemove;
 
                 for (auto &eventUuid : eventUuids) {
