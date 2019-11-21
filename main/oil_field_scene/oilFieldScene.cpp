@@ -25,7 +25,7 @@ OilFieldScene::OilFieldScene(Q3DSurface *surface)
   surface->axisY()->setReversed(true);
 }
 
-void OilFieldScene::addEvent(const std::shared_ptr<Data::SeismEvent> &event) {
+void OilFieldScene::addEvent(Data::SeismEvent const * const event) {
   //  if (event->isProcessed()) {
   float x, y, z;
   std::tie(x, y, z) = event->getLocation();
@@ -42,8 +42,7 @@ void OilFieldScene::addEvent(const std::shared_ptr<Data::SeismEvent> &event) {
   //  }
 }
 
-void OilFieldScene::addHorizon(
-    const std::shared_ptr<Data::SeismHorizon> &horizon) {
+void OilFieldScene::addHorizon(Data::SeismHorizon const * const horizon) {
   _points = horizon->getPoints();
   unsigned long countElementInLine =
       static_cast<unsigned long>(horizon->getNx());
@@ -58,8 +57,7 @@ void OilFieldScene::addHorizon(
   _rows.clear();
 }
 
-void OilFieldScene::addReceiver(
-    const std::shared_ptr<Data::SeismReceiver> &receiver) {
+void OilFieldScene::addReceiver(Data::SeismReceiver const * const receiver) {
   float x, y, z;
   std::tie(x, y, z) = receiver->getLocation();
   QVector3D position(x, z, y);
@@ -75,7 +73,7 @@ void OilFieldScene::addReceiver(
       std::pair<Uuid, QCustom3DItem *>(receiver->getUuid(), item));
 }
 
-void OilFieldScene::addWell(const std::shared_ptr<Data::SeismWell> &well) {
+void OilFieldScene::addWell(Data::SeismWell const * const well) {
   float x = 0, y = 0, z = 0;
   float lx = 0, ly = 0, lz = 0;
   std::tie(lx, ly, lz) = well->getPoint(0);
@@ -114,18 +112,17 @@ bool OilFieldScene::showEvent(const QUuid &uid) {
 //  showEvent(event->getUuid());
 //}
 
-void OilFieldScene::setProject(
-    const std::unique_ptr<Data::SeismProject> &project) {
+void OilFieldScene::setProject(Data::SeismProject const * const project) {
   for (auto &uuid_event : project->getAllMap<SeismEvent>()) {
-    addEvent(uuid_event.second);
+    addEvent(uuid_event.second.get());
   }
   for (auto &uuid_horizon : project->getAllMap<SeismHorizon>()) {
-    addHorizon(uuid_horizon.second);
+    addHorizon(uuid_horizon.second.get());
   }
   for (auto &uuid_well : project->getAllMap<SeismWell>()) {
-    addWell(uuid_well.second);
+    addWell(uuid_well.second.get());
     for (auto &receiver : uuid_well.second->getReceivers()) {
-      addReceiver(receiver);
+      addReceiver(receiver.get());
     }
   }
 }

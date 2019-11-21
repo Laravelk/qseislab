@@ -307,8 +307,7 @@ void FilteringTableAssistant::enbledFilter(int enable,
 }
 
 template <>
-void FilteringTableAssistant::add<SeismEvent>(
-    const std::shared_ptr<SeismEvent> &event) {
+void FilteringTableAssistant::add<SeismEvent>(SeismEvent const * const event) {
   _objectsTable->setSortingEnabled(false);
   _objectsTable->insertRow(_objectsTable->rowCount());
 
@@ -373,8 +372,7 @@ void FilteringTableAssistant::add<SeismEvent>(
 }
 
 template <>
-void FilteringTableAssistant::update<SeismEvent>(
-    const std::shared_ptr<SeismEvent> &event) {
+void FilteringTableAssistant::update<SeismEvent>(SeismEvent const * const event) {
   _objectsTable->setSortingEnabled(false);
 
   const auto &uuid = event->getUuid();
@@ -419,6 +417,6 @@ void FilteringTableAssistant::setAll<SeismEvent>(
   clearObjectTable();
 
   for (auto &uuid_event : event_map) {
-    add<SeismEvent>(uuid_event.second);
+      add<SeismEvent>(uuid_event.second.get());
   }
 }

@@ -27,14 +27,14 @@ public:
   int getPointsAmount() const;
 
   void addPoint(Point);
-  const Point &getPoint(int);
-  const std::vector<Point> &getPoints();
+  const Point &getPoint(int) const ;
+  const std::vector<Point> &getPoints() const;
 
   void addReceiver(const std::shared_ptr<Data::SeismReceiver> &);
   bool removeReceiver(const QUuid &);
   int getReceiversAmount() const;
   const std::list<std::shared_ptr<Data::SeismReceiver>> &
-  getReceivers(); // TODO: re-see
+  getReceivers() const; // TODO: re-see
   void removeAllReceivers();
 
   QJsonObject &writeToJson(QJsonObject &, const QDir &) noexcept(false);

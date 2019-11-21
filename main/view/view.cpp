@@ -47,7 +47,9 @@ View::View(QWidget *parent) : QMainWindow(parent) {
   editMenu->setDisabled(true);
   connect(this, &View::projectPresence, editMenu, &QMenu::setEnabled);
   _undoAction = editMenu->addAction("Undo", [this] { emit undoClicked(); });
+  _undoAction->setDisabled(true);
   _redoAction = editMenu->addAction("Redo", [this] { emit redoClicked(); });
+  _redoAction->setDisabled(true);
 
   QMenu *actionMenu = new QMenu("Action");
   actionMenu->addAction("Process Events",
@@ -110,7 +112,7 @@ void View::updateUndoStack(QUndoStack const * const undoStack) {
     connect(_currentUndoStack, &QUndoStack::canRedoChanged, _redoAction, &QAction::setEnabled);
 }
 
-void View::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
+void View::loadProject(Data::SeismProject const * const project) {
   delete centralWidget();
   _workPage = new WorkPage(this);
   _workPage->loadProject(project);
@@ -126,7 +128,7 @@ void View::loadProject(const std::unique_ptr<Data::SeismProject> &project) {
   emit projectPresence(true);
 }
 
-void View::addEvent(const std::shared_ptr<Data::SeismEvent> &event) {
+void View::addEvent(Data::SeismEvent const * const event) {
   assert(nullptr != _workPage);
   _workPage->addEvent(event);
 }
@@ -137,7 +139,7 @@ void View::processedEvents(
   _workPage->processedEvents(events);
 }
 
-void View::updateEvent(const std::shared_ptr<Data::SeismEvent> &event) {
+void View::updateEvent(Data::SeismEvent const * const event) {
   assert(nullptr != _workPage);
   _workPage->updateEvent(event);
 }
@@ -147,7 +149,7 @@ void View::removeEvent(const QUuid &uuid) {
   _workPage->removeEvent(uuid);
 }
 
-void View::addHorizon(const std::shared_ptr<Data::SeismHorizon> &horizon) {
+void View::addHorizon(Data::SeismHorizon const * const horizon) {
   assert(nullptr != _workPage);
   _workPage->addHorizon(horizon);
 }
@@ -157,7 +159,7 @@ void View::removeHorizon(const QUuid &uuid) {
   _workPage->removeHorizon(uuid);
 }
 
-void View::addWell(const std::shared_ptr<Data::SeismWell> &well) {
+void View::addWell(Data::SeismWell const * const well) {
   assert(nullptr != _workPage);
   _workPage->addWell(well);
 }
@@ -167,7 +169,7 @@ void View::removeWell(const QUuid &uuid) {
   _workPage->removeWell(uuid);
 }
 
-void View::addReceiver(const std::shared_ptr<Data::SeismReceiver> &receiver) {
+void View::addReceiver(Data::SeismReceiver const * const receiver) {
   assert(nullptr != _workPage);
   _workPage->addReceiver(receiver);
 }

@@ -105,7 +105,7 @@ const Point &SeismHorizon::getPoint(int idx) {
   return _points[static_cast<unsigned>(idx)];
 }
 
-const std::vector<Point> &SeismHorizon::getPoints() { return _points; }
+const std::vector<Point> &SeismHorizon::getPoints() const { return _points; }
 
 void SeismHorizon::setNx(int Nx) { _Nx = Nx; }
 

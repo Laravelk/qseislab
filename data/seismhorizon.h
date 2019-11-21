@@ -27,7 +27,7 @@ public:
 
   void addPoint(Point);
   const Point &getPoint(int);
-  const std::vector<Point> &getPoints();
+  const std::vector<Point> &getPoints() const;
 
   void setNx(int);
   int getNx() const;

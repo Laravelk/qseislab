@@ -28,15 +28,15 @@ public:
   explicit OilFieldScene(Q3DSurface *);
   ~OilFieldScene() = default;
 
-  void addEvent(const std::shared_ptr<Data::SeismEvent> &);
-  void addHorizon(const std::shared_ptr<Data::SeismHorizon> &);
-  void addReceiver(const std::shared_ptr<Data::SeismReceiver> &);
-  void addWell(const std::shared_ptr<Data::SeismWell> &);
+  void addEvent(Data::SeismEvent const * const);
+  void addHorizon(Data::SeismHorizon const * const);
+  void addReceiver(Data::SeismReceiver const * const);
+  void addWell(Data::SeismWell const * const);
 
   bool showEvent(const QUuid &);
   //  bool showEvent(const std::unique_ptr<Data::SeismEvent> &);
 
-  void setProject(const std::unique_ptr<Data::SeismProject> &);
+  void setProject(Data::SeismProject const * const);
 
   //  bool removeEvent(const std::unique_ptr<Data::SeismEvent> &);
   bool removeEvent(const Uuid &);

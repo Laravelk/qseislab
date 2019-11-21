@@ -111,13 +111,13 @@ int SeismWell::getPointsAmount() const {
 
 void SeismWell::addPoint(Point point) { _points.push_back(point); }
 
-const Point &SeismWell::getPoint(int idx) {
+const Point &SeismWell::getPoint(int idx) const {
   assert(0 <= idx && idx < getPointsAmount());
 
   return _points[static_cast<unsigned>(idx)];
 }
 
-const std::vector<Point> &SeismWell::getPoints() { return _points; }
+const std::vector<Point> &SeismWell::getPoints() const { return _points; }
 
 void SeismWell::addReceiver(const std::shared_ptr<SeismReceiver> &receiver) {
   //  _isSaved = false;
@@ -156,7 +156,7 @@ int SeismWell::getReceiversAmount() const {
 //  return *(_receivers.begin());
 //}
 
-const std::list<std::shared_ptr<SeismReceiver>> &SeismWell::getReceivers() {
+const std::list<std::shared_ptr<SeismReceiver>> &SeismWell::getReceivers() const {
   return _receivers;
 }
 

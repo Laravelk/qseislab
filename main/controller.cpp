@@ -165,13 +165,15 @@ void Controller::recvProject(std::unique_ptr<SeismProject> &project) {
   connect(_project.get(), &SeismProject::addedEvent, [this](auto &event) {
     //    _eventStacks[event->getUuid()] =
     //    std::make_unique<CustomUndoStack>();
-    _mainWindow->addEvent(event);
+    _mainWindow->addEvent(event.get());
   });
   connect(_project.get(), &SeismProject::removedEvent, [this](auto &uuid) {
     //    _eventStacks.erase(uuid);
     _mainWindow->removeEvent(uuid);
   });
   connect(_project.get(), &SeismProject::processedEvents, [this] {
+      // TODO:
+      //  апдейтить каждый эвент, а не загружать каждый
     _mainWindow->processedEvents(_project->getAllMap<SeismEvent>());
   });
   //  connect(_project.get(), &SeismProject::updatedEvent,
@@ -179,23 +181,25 @@ void Controller::recvProject(std::unique_ptr<SeismProject> &project) {
 
   // Horizon`s connecting
   connect(_project.get(), &SeismProject::addedHorizon,
-          [this](auto &horizon) { _mainWindow->addHorizon(horizon); });
+          [this](auto &horizon) { _mainWindow->addHorizon(horizon.get()); });
   connect(_project.get(), &SeismProject::removedHorizon,
           [this](auto &uuid) { _mainWindow->removeHorizon(uuid); });
 
   // Well`s connecting
   connect(_project.get(), &SeismProject::addedWell,
-          [this](auto &well) { _mainWindow->addWell(well); });
+          [this](auto &well) { _mainWindow->addWell(well.get()); });
   connect(_project.get(), &SeismProject::removedWell,
           [this](auto &uuid) { _mainWindow->removeWell(uuid); });
 
   // Receiver`s connecting
   connect(_project.get(), &SeismProject::addedReceiver,
-          [this](auto &receiver) { _mainWindow->addReceiver(receiver); });
+          [this](auto &receiver) { _mainWindow->addReceiver(receiver.get()); });
   connect(_project.get(), &SeismProject::removedReceiver,
           [this](auto &uuid) { _mainWindow->removeReceiver(uuid); });
 
-  _mainWindow->loadProject(_project);
+  // TODO:
+  //  удалить метод loadProject - добавлять каждый элемент
+  _mainWindow->loadProject(_project.get());
 }
 
 void Controller::handleAddEventsClicked() {
