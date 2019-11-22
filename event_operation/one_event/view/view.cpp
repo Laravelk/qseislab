@@ -238,6 +238,10 @@ void View::commonSetting() {
           &EventOperation::GraphicController::
               createPolarizationAnalysisWindowClicked,
           [this]() { emit createPolarizationAnalysisWindow(); });
+  connect(_graphicEvent,
+          &EventOperation::GraphicController::
+          calculatePolarizationAnalysisDataClicked,
+          [this]() { emit calculatePolarizationAnalysisData(); });
   connect(_okButton, &QPushButton::clicked, [this]() {
     if (_isValid) {
       accept();

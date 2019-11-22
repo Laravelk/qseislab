@@ -82,20 +82,36 @@ int SeismWavePick::getPolarizationRightBorder() const {
 }
 
 void SeismWavePick::setPolarizationRightBorder(int polarizationRightBorder) {
-  _polarizationRightBorder = polarizationRightBorder;
+    _polarizationRightBorder = polarizationRightBorder;
+}
+
+void SeismWavePick::setValidDataStatus(bool valisStatus)
+{
+    if (_polarizationData != std::nullopt) {
+        _polarizationData.value()->setValid(valisStatus);
+    }
+}
+
+bool SeismWavePick::getValidDataStatus()
+{
+    if (_polarizationData != std::nullopt) {
+        return _polarizationData.value()->isValid();
+    }
+    return false;
 }
 
 std::optional<SeismPolarizationAnalysisData *>
 SeismWavePick::getPolarizationAnalysisData() const {
-  if ((*_polarizationData)->isValid()) {
-    return _polarizationData.value();
-  }
-  return std::nullopt;
+//  if ((*_polarizationData)->isValid()) {
+//    return _polarizationData.value();
+//  }
+//  return std::nullopt;
+    return _polarizationData;
 }
 
 void SeismWavePick::setPolarizationAnalysisData(
-    SeismPolarizationAnalysisData &data) {
-  _polarizationData.emplace(&data);
+    SeismPolarizationAnalysisData *data) {
+  _polarizationData = data;
 }
 
 void SeismWavePick::setPolarizationAnalysisData(

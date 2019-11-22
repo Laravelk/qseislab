@@ -18,13 +18,13 @@ class SeismWavePick;
 } // namespace Data
 
 namespace EventOperation {
-class PolarizationAnalysisCompute : QUndoCommand {
+class PolarizationAnalysisCompute /*: public QUndoCommand*/ {
 public:
   PolarizationAnalysisCompute(std::unique_ptr<Data::SeismEvent> &);
-  void calculate();
+  void calculate(std::unique_ptr<Data::SeismEvent> &event);
 
-  void undo() override;
-  void redo() override;
+//  void undo() override;
+//  void redo() override;
 
 private:
   Data::SeismEvent *_event;

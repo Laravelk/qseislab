@@ -20,6 +20,7 @@ class SeismWell;
 namespace EventOperation {
 class InfoEvent;
 class GraphicController;
+class PolarGraph;
 class ChartGesture;
 namespace MoreEvents {
 class View : public QDialog {
@@ -34,6 +35,7 @@ public:
   void setAddPolarizationWindowButtonEnable(bool enable);
 
   void update(const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &);
+  PolarGraph *getPolarGraph() { return _polarGraph; }
 
   void setNotification(const QString &);
   void settingEventInfo(const std::unique_ptr<Data::SeismEvent> &) const;
@@ -49,6 +51,7 @@ signals:
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
   void removePick(Data::SeismWavePick::Type, int);
   void createPolarizationAnalysisWindow();
+  void calculatePolarizationAnalysisData();
 
 private slots:
   void recvFilesPath(const QStringList &);
@@ -68,6 +71,7 @@ private:
   QListWidget *_eventList;
 
   GraphicController *_graphicEvent;
+  PolarGraph *_polarGraph;
   QPushButton *_okButton;
   QPushButton *_cancelButton;
 

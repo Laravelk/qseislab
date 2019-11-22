@@ -22,6 +22,8 @@ public:
   double getAzimutDegrees() const;
   double getIncidenceDegrees() const;
 
+  void print();
+
 private:
   bool _isValid;
   double _maxSingularValue;

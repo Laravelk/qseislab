@@ -26,7 +26,7 @@ void ChartGesture::zoom(qreal factor) { QChart::zoom(factor); }
 
 void ChartGesture::zoomIn(const QRectF &rect) { QChart::zoomIn(rect); }
 
-bool ChartGesture::gestureEvent(QGestureEvent *event) {
+bool ChartGesture::gestureEvent(QGestureEvent *) {
   /*if (QGesture *gesture = event->gesture(Qt::PanGesture)) {
     QPanGesture *pan = static_cast<QPanGesture *>(gesture);
     QChart::scroll(-(pan->delta().x()), pan->delta().y());
@@ -45,7 +45,7 @@ bool ChartGesture::gestureEvent(QGestureEvent *event) {
       }
     }
   }
-  return tr*/
-  ue;
+  return tr
+  ue;*/
 }
 } // namespace EventOperation

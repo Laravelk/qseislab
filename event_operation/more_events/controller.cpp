@@ -4,6 +4,8 @@
 #include "data/seismwell.h"
 #include "event_operation/share/model.h"
 #include "event_operation/share/view/3dscene/polarizationanalysiswindow.h"
+#include "event_operation/share/polarizationanalysiscompute.h"
+#include "event_operation/share/view/polar_graph/polargraph.h"
 
 #include "data/io/segyreader.h"
 
@@ -68,6 +70,22 @@ Controller::Controller(
     });
   });
 
+  connect(_view.get(), &View::calculatePolarizationAnalysisData, [this]() {
+        if (_calculatePolarization == nullptr) {
+            _calculatePolarization = new PolarizationAnalysisCompute(_events_map.at(_currentEventUuid));
+        }
+        _calculatePolarization->calculate(_events_map.at(_currentEventUuid));
+        _view->getPolarGraph()->update(_events_map.at(_currentEventUuid));
+        for (auto &component : _events_map[_currentEventUuid].get()->getComponents()) {
+            for (auto &pick : component.get()->getWavePicks()) {
+                if (pick.second.getPolarizationAnalysisData() != std::nullopt) {
+                    pick.second.getPolarizationAnalysisData().value()->print();
+                    std::cerr << std::endl << std::endl;
+                }
+            }
+        }
+  });
+
   connect(_view.get(), &View::changeCurrentEvent, [this](auto &uuid) {
     if (!_currentEventUuid.isNull()) {
       _view->settingEventInfo(_events_map[_currentEventUuid]);
@@ -75,6 +93,14 @@ Controller::Controller(
     }
     _currentEventUuid = uuid;
     _view->loadEvent(_events_map[_currentEventUuid]);
+    for (auto &component : _events_map[_currentEventUuid].get()->getComponents()) {
+        for (auto &pick : component.get()->getWavePicks()) {
+            std::cerr << "H" << std::endl;
+            if (pick.second.getPolarizationAnalysisData() != std::nullopt) {
+                pick.second.getPolarizationAnalysisData().value()->print();
+            }
+        }
+    }
   });
 
   connect(_view.get(), &View::hideCurrentEvent, [this]() {
@@ -100,7 +126,6 @@ Controller::Controller(
                     Data::SeismWavePick(type, pick_val);
                 wavePick.setPolarizationLeftBorder(l_val);
                 wavePick.setPolarizationRightBorder(r_val);
-
                 component->addWavePick(wavePick);
                 break;
               }

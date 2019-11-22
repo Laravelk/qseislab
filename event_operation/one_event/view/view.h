@@ -48,6 +48,7 @@ signals:
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
   void removePick(Data::SeismWavePick::Type, int);
   void createPolarizationAnalysisWindow();
+  void calculatePolarizationAnalysisData();
 
 
   // tool-signals

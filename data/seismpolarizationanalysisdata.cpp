@@ -1,6 +1,7 @@
 #include "seismpolarizationanalysisdata.h"
 
 #include <QtMath>
+#include <iostream> // TODO: delete
 
 namespace Data {
 
@@ -57,7 +58,15 @@ double SeismPolarizationAnalysisData::getAzimutDegrees() const {
 }
 
 double SeismPolarizationAnalysisData::getIncidenceDegrees() const {
-  return _pIncidenceDegrees;
+    return _pIncidenceDegrees;
+}
+
+void SeismPolarizationAnalysisData::print()
+{
+    std::cerr << "maxSing " << _maxSingularValue << " AzimputInRadian " << _pAzimutInRadian << " IncendceInRadian " <<
+                 _pIncidenceInRadian << " AzimutInDegrees " << _pAzimutDegrees << " IncencdeInDegree "
+                        << _pIncidenceDegrees << std::endl;
+
 }
 
 } // namespace Data

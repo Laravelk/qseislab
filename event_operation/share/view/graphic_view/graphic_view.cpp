@@ -31,7 +31,6 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, qreal ax, qreal ay, qr
 
 void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos, qreal rangeX,
                           qreal leftBorderPos, qreal rightBorderPos) {
-    std::cerr << "CREATE ITEM WITH SIZE " <<_sizeWaveItem.width() << " " << _sizeWaveItem.height() << std::endl;
   WavePick *pick = new WavePick(type, rect, chart(), pos, _sizeWaveItem, _colorData->getPickColor(type), 2, 4);
   WavePick *leftBorder =
       new WavePick(type, rect, chart(), QPointF(leftBorderPos, pos.y()), _sizeWaveItem,

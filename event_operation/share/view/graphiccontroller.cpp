@@ -24,7 +24,8 @@ GraphicController::GraphicController(QWidget *parent)
       _hideComponentWidget(new HideComponentWidget()),
       _clippingWidget(new ClippingWidget()), _gainWidget(new GainWidget()),
       _addWaveButton(new QPushButton("+")),
-      _polarizationEventButton(new QPushButton("Polarization Analysis")) {
+      _polarizationEventButton(new QPushButton("Polarization Analysis")),
+      _calculatePolarizationAnalysisDataButton(new QPushButton("Calculate")) {
 
   _view = new GraphicView(_chart);
   _view->addModel(_chart);
@@ -58,6 +59,9 @@ GraphicController::GraphicController(QWidget *parent)
   // conect`s
   connect(_polarizationEventButton, &QPushButton::clicked,
           [this]() { emit createPolarizationAnalysisWindowClicked(); });
+  connect(_calculatePolarizationAnalysisDataButton, &QPushButton::clicked,
+          [this]() { emit calculatePolarizationAnalysisDataClicked(); });
+
   connect(_addPWave, &QAction::triggered, [this]() {
     _view->setWaveAddTriggerFlag(Data::SeismWavePick::PWAVE);
   });
@@ -118,13 +122,13 @@ GraphicController::GraphicController(QWidget *parent)
   editGraphicMenuLayout->addWidget(_gainWidget);
   editGraphicMenuLayout->addWidget(_addWaveButton);
   editGraphicMenuLayout->addWidget(_polarizationEventButton);
+  editGraphicMenuLayout->addWidget(_calculatePolarizationAnalysisDataButton);
   editGraphicMenuLayout->addStretch(1);
 
   QHBoxLayout *mainLayout = new QHBoxLayout();
   mainLayout->addWidget(_view, 1);
   mainLayout->addLayout(editGraphicMenuLayout);
   _allView->setLayout(mainLayout);
-
   _allView->hide();
 }
 
@@ -136,7 +140,6 @@ void GraphicController::update(const std::unique_ptr<SeismEvent> &event) {
   _view->chart()->removeAllSeries();
   _allSeries.clear();
   _view->clearPicks();
-//  _view->setDefaultScale();
   _rangeAxisX = 0;
   getRangeX(event);
   _view->setCountOfComponents(event->getComponentAmount());
@@ -154,8 +157,6 @@ void GraphicController::update(const std::unique_ptr<SeismEvent> &event) {
   }
   _chart->addPicks(_view->getPickcs());
   updateSeries();
-
-  _allView->show();
 }
 
 void GraphicController::updateEventName(const QString &name) {

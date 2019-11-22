@@ -16,6 +16,7 @@ class SeismWell;
 namespace EventOperation {
 class Model;
 class PolarizationAnalysisWindow;
+class PolarizationAnalysisCompute;
 namespace MoreEvents {
 class Controller : public QObject {
   Q_OBJECT
@@ -43,6 +44,7 @@ private:
   QUuid _currentEventUuid;
 
   PolarizationAnalysisWindow *_polarizationWindow = nullptr;
+  PolarizationAnalysisCompute *_calculatePolarization = nullptr; // TODO: delete
 };
 
 } // namespace MoreEvents

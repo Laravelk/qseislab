@@ -3,13 +3,16 @@
 
 #include <QtMath>
 
+#include <iostream> // TODO: delete
+
 namespace EventOperation {
 
 PolarizationAnalysisCompute::PolarizationAnalysisCompute(
     std::unique_ptr<Data::SeismEvent> &event)
     : _event(event.get()) {}
 
-void PolarizationAnalysisCompute::calculate() {
+void PolarizationAnalysisCompute::calculate(std::unique_ptr<Data::SeismEvent> &event) {
+    _event = event.get();
     int numberOfComponent = 0;
     for (auto &component : _event->getComponents()) {
         for (auto &mapsWithPickElement : component->getWavePicks()) {
@@ -18,36 +21,39 @@ void PolarizationAnalysisCompute::calculate() {
         const int FIRST_NUMBER_OF_ELEMENT_IN_ARRAY = static_cast<const int>(
             pick.getPolarizationLeftBorder() / component->getSampleInterval());
         const int LAST_NUMBER_OF_ELEMENT_IN_ARRAY =
-            static_cast<const int>(pick.getPolarizationRightBorder() +
-                                   0.99f / component->getSampleInterval());
+            static_cast<const int>((pick.getPolarizationRightBorder() +
+                                   0.99f) / component->getSampleInterval());
         Eigen::MatrixXf *matrix =
             getPointMatrix(component, FIRST_NUMBER_OF_ELEMENT_IN_ARRAY,
                            LAST_NUMBER_OF_ELEMENT_IN_ARRAY);
         Data::SeismPolarizationAnalysisData *data = calculatePolarizationData(*matrix);
-        pick.setPolarizationAnalysisData(*data);
+        data->setValid(true);
+        component->removeWavePick(pick.getType());
+        pick.setPolarizationAnalysisData(data);
+        component->addWavePick(pick);
         }
         numberOfComponent++;
       }
 }
 
-void PolarizationAnalysisCompute::undo()
-{
-    int componentNumber = 0;
-    for (auto &component : _event->getComponents()) {
-        for (auto &mapsWithPickElement : component->getWavePicks()) {
-            Data::SeismWavePick pick = mapsWithPickElement.second;
-            std::optional<Data::SeismPolarizationAnalysisData*> optionalData =
-                    _oldDataMap.at(std::make_pair(componentNumber, pick.getType()));
-            pick.setPolarizationAnalysisData(optionalData);
-        }
-        componentNumber++;
-    }
-}
+//void PolarizationAnalysisCompute::undo()
+//{
+//    int componentNumber = 0;
+//    for (auto &component : _event->getComponents()) {
+//        for (auto &mapsWithPickElement : component->getWavePicks()) {
+//            Data::SeismWavePick pick = mapsWithPickElement.second;
+//            std::optional<Data::SeismPolarizationAnalysisData*> optionalData =
+//                    _oldDataMap.at(std::make_pair(componentNumber, pick.getType()));
+//            pick.setPolarizationAnalysisData(optionalData);
+//        }
+//        componentNumber++;
+//    }
+//}
 
-void PolarizationAnalysisCompute::redo()
-{
-    calculate();
-}
+//void PolarizationAnalysisCompute::redo()
+//{
+//    calculate();
+//}
 
 Eigen::MatrixXf *PolarizationAnalysisCompute::getPointMatrix(
     const std::unique_ptr<Data::SeismComponent> &component, int firstIndex,
@@ -60,7 +66,6 @@ Eigen::MatrixXf *PolarizationAnalysisCompute::getPointMatrix(
       component->getTraces().at(1)->getBuffer();
   const std::unique_ptr<float[]> &bufferZ =
       component->getTraces().at(2)->getBuffer();
-
   for (unsigned long i = static_cast<unsigned long>(firstIndex), rowNumber = 0;
        i < static_cast<unsigned long>(lastIndex); i++, rowNumber++) {
     (*pointMatrix)(0, static_cast<long>(rowNumber)) = bufferX[i] / MAX_VALUE;
@@ -85,6 +90,7 @@ Data::SeismPolarizationAnalysisData *PolarizationAnalysisCompute::calculatePolar
 
   const double pAzimutDegrees = pAzimutInRadian * DEGREES_COEFFICIENT / M_PI;
   const double pIncidenceDegrees = pIncidenceInRadian * DEGREES_COEFFICIENT / M_PI;
+
 
   return new Data::SeismPolarizationAnalysisData(maxSingularValue, pAzimutInRadian,
                                                         pIncidenceInRadian, pAzimutDegrees, pIncidenceDegrees);

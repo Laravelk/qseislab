@@ -1,6 +1,7 @@
 #include "view.h"
 
 #include "event_operation/share/view/graphiccontroller.h"
+#include "event_operation/share/view/polar_graph/polargraph.h"
 #include "event_operation/share/view/infoevent.h"
 
 #include <QLabel>
@@ -20,11 +21,9 @@ View::View(const std::set<QString> &globalEventNames,
            const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
       _infoEvent(new InfoEvent()), _wellNames(new QComboBox()),
-      _fileDialog(new QFileDialog(this)), _eventList(new QListWidget()),
-      _graphicEvent(new GraphicController(this)),
-      _okButton(new QPushButton("Ok")),
-      _cancelButton(new QPushButton("Cancel")),
-      _globalEventNames(globalEventNames), _tabWidget(new QTabWidget()) {
+      _fileDialog(new QFileDialog(this)), _tabWidget(new QTabWidget()), _eventList(new QListWidget()),
+      _graphicEvent(new GraphicController(this)), _polarGraph(new PolarGraph()), _okButton(new QPushButton("Ok")),
+       _cancelButton(new QPushButton("Cancel")), _globalEventNames(globalEventNames) {
 
   // Setting`s
   setWindowTitle("SeismWindow");
@@ -130,6 +129,10 @@ View::View(const std::set<QString> &globalEventNames,
           &EventOperation::GraphicController::
               createPolarizationAnalysisWindowClicked,
           [this]() { emit createPolarizationAnalysisWindow(); });
+  connect(_graphicEvent,
+          &EventOperation::GraphicController::
+          calculatePolarizationAnalysisDataClicked,
+          [this]() { emit calculatePolarizationAnalysisData(); });
   connect(_graphicEvent, &EventOperation::GraphicController::removePick, [this](auto type, auto num) {
       emit removePick(type, num);
   });
@@ -162,7 +165,7 @@ View::View(const std::set<QString> &globalEventNames,
   buttonsLayout->addWidget(_cancelButton);
 
   _tabWidget->addTab(_graphicEvent->getView(), "graphic");
-  _tabWidget->addTab(new QWidget(), "IN PROGRESS");
+  _tabWidget->addTab(_polarGraph->getView(), "polar");
   QPalette paletteTabWidget = _tabWidget->palette();
   paletteTabWidget.setColor(_tabWidget->backgroundRole(), Qt::white);
   _tabWidget->setPalette(paletteTabWidget);
@@ -184,12 +187,13 @@ void View::loadEvent(const std::unique_ptr<Data::SeismEvent> &event) {
   _infoEvent->setEnabled(true);
   _infoEvent->update(event);
   _graphicEvent->update(event);
+  _polarGraph->update(event);
+//  emit calculatePolarizationAnalysisData(); // TODO: delete
 }
 
 void View::unloadEvent() {
   _infoEvent->clear();
   _graphicEvent->clear();
-
   _infoEvent->setDisabled(true);
 }
 
