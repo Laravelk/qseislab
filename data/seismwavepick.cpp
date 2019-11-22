@@ -82,25 +82,25 @@ int SeismWavePick::getPolarizationRightBorder() const {
 }
 
 void SeismWavePick::setPolarizationRightBorder(int polarizationRightBorder) {
-    _polarizationRightBorder = polarizationRightBorder;
+  _polarizationRightBorder = polarizationRightBorder;
 }
 
-std::optional<SeismPolarizationAnalysisData*> SeismWavePick::getPolarizationAnalysisData() const
-{
-    if((*_polarizationData)->isValid()) {
-        return _polarizationData.value();
-    }
-    return std::nullopt;
+std::optional<SeismPolarizationAnalysisData *>
+SeismWavePick::getPolarizationAnalysisData() const {
+  if ((*_polarizationData)->isValid()) {
+    return _polarizationData.value();
+  }
+  return std::nullopt;
 }
 
-void SeismWavePick::setPolarizationAlalysisData(SeismPolarizationAnalysisData &data)
-{
-    _polarizationData.emplace(&data);
+void SeismWavePick::setPolarizationAnalysisData(
+    SeismPolarizationAnalysisData &data) {
+  _polarizationData.emplace(&data);
 }
 
-void SeismWavePick::setPolarizationAlalysisData(std::optional<SeismPolarizationAnalysisData *> &optionalData)
-{
-    _polarizationData = optionalData;
+void SeismWavePick::setPolarizationAnalysisData(
+    std::optional<SeismPolarizationAnalysisData *> &optionalData) {
+  _polarizationData = optionalData;
 }
 
 QJsonObject &SeismWavePick::writeToJson(QJsonObject &json) const {
