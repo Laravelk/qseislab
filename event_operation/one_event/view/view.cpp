@@ -19,65 +19,66 @@ typedef Data::SeismEvent SeismEvent;
 
 namespace EventOperation {
 namespace OneEvent {
-View::View(const std::set<QString> &eventNames, SeismEvent const *const event,
-           QUndoStack const *const undoStack, QWidget *parent)
-    : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
-      _eventNames(eventNames) {
+// View::View(const std::set<QString> &eventNames, SeismEvent const *const
+// event,
+//           QUndoStack const *const undoStack, QWidget *parent)
+//    : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
+//      _eventNames(eventNames) {
 
-  commonSetting();
-  //  _toolsWidget->update(event);
-  //  _toolsWidget->setEnabled(true);
-  _infoEvent->setEnabled(true);
-  //  _infoEvent->update(event);
-  //  _graphicEvent->update(event);
-  _okButton->setEnabled(true);
-  update(event);
+//  commonSetting();
+//  //  _toolsWidget->update(event);
+//  //  _toolsWidget->setEnabled(true);
+//  _infoEvent->setEnabled(true);
+//  //  _infoEvent->update(event);
+//  //  _graphicEvent->update(event);
+//  _okButton->setEnabled(true);
+//  update(event);
 
-  // Layout`s
-  QVBoxLayout *leftLayout = new QVBoxLayout();
-  leftLayout->addWidget(_infoEvent);
-  leftLayout->addStretch(1);
+//  // Layout`s
+//  QVBoxLayout *leftLayout = new QVBoxLayout();
+//  leftLayout->addWidget(_infoEvent);
+//  leftLayout->addStretch(1);
 
-  QHBoxLayout *buttonsLayout = new QHBoxLayout();
-  //  buttonsLayout->addWidget(new QUndoView(undoStack)); // NOTE: undo/redo -
-  //  view TODO: re-build
-  auto undoButton = new QPushButton("Undo");
-  auto redoButton = new QPushButton("Redo");
-  undoButton->setEnabled(undoStack->canUndo());
-  redoButton->setEnabled(undoStack->canRedo());
-  //  undoButton->setDisabled(true);
-  //  redoButton->setDisabled(true);
-  connect(undoStack, &QUndoStack::canUndoChanged, undoButton,
-          &QPushButton::setEnabled);
-  connect(undoStack, &QUndoStack::canRedoChanged, redoButton,
-          &QPushButton::setEnabled);
-  connect(undoButton, &QPushButton::clicked, [this]() { emit undoClicked(); });
-  connect(redoButton, &QPushButton::clicked, [this]() { emit redoClicked(); });
-  buttonsLayout->addWidget(undoButton);
-  buttonsLayout->addWidget(redoButton);
+//  QHBoxLayout *buttonsLayout = new QHBoxLayout();
+//  //  buttonsLayout->addWidget(new QUndoView(undoStack)); // NOTE: undo/redo -
+//  //  view TODO: re-build
+//  auto undoButton = new QPushButton("Undo");
+//  auto redoButton = new QPushButton("Redo");
+//  undoButton->setEnabled(undoStack->canUndo());
+//  redoButton->setEnabled(undoStack->canRedo());
+//  //  undoButton->setDisabled(true);
+//  //  redoButton->setDisabled(true);
+//  connect(undoStack, &QUndoStack::canUndoChanged, undoButton,
+//          &QPushButton::setEnabled);
+//  connect(undoStack, &QUndoStack::canRedoChanged, redoButton,
+//          &QPushButton::setEnabled);
+//  connect(undoButton, &QPushButton::clicked, [this]() { emit undoClicked();
+//  }); connect(redoButton, &QPushButton::clicked, [this]() { emit
+//  redoClicked(); }); buttonsLayout->addWidget(undoButton);
+//  buttonsLayout->addWidget(redoButton);
 
-  buttonsLayout->addWidget(_toolsWidget);
-  buttonsLayout->addStretch(1);
-  buttonsLayout->addWidget(_okButton);
-  buttonsLayout->addWidget(_cancelButton);
+//  buttonsLayout->addWidget(_toolsWidget);
+//  buttonsLayout->addStretch(1);
+//  buttonsLayout->addWidget(_okButton);
+//  buttonsLayout->addWidget(_cancelButton);
 
-  //  QVBoxLayout *graphicLayout = new QVBoxLayout();
-  //  graphicLayout->addWidget(_graphicEvent->getView(), 10);
-  //  graphicLayout->addStretch(1);
-  //  graphicLayout->addLayout(buttonsLayout);
+//  //  QVBoxLayout *graphicLayout = new QVBoxLayout();
+//  //  graphicLayout->addWidget(_graphicEvent->getView(), 10);
+//  //  graphicLayout->addStretch(1);
+//  //  graphicLayout->addLayout(buttonsLayout);
 
-  QHBoxLayout *mainLayout = new QHBoxLayout();
-  mainLayout->addLayout(leftLayout);
-  mainLayout->addWidget(_graphicEvent->getView(), 10);
+//  QHBoxLayout *mainLayout = new QHBoxLayout();
+//  mainLayout->addLayout(leftLayout);
+//  mainLayout->addWidget(_graphicEvent->getView(), 10);
 
-  QVBoxLayout *mainButtonLayout = new QVBoxLayout();
-  mainButtonLayout->addLayout(mainLayout);
-  mainButtonLayout->addStretch(1);
-  mainButtonLayout->addLayout(buttonsLayout);
+//  QVBoxLayout *mainButtonLayout = new QVBoxLayout();
+//  mainButtonLayout->addLayout(mainLayout);
+//  mainButtonLayout->addStretch(1);
+//  mainButtonLayout->addLayout(buttonsLayout);
 
-  setLayout(mainButtonLayout);
-  // Layout`s end
-}
+//  setLayout(mainButtonLayout);
+//  // Layout`s end
+//}
 
 View::View(const std::set<QString> &eventNames,
            const std::map<QUuid, QString> &wellNames_map,

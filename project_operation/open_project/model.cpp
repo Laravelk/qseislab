@@ -10,9 +10,9 @@ namespace ProjectOperation {
 namespace OpenProject {
 Model::Model(QObject *parent) : QObject(parent) {}
 
-std::unique_ptr<Data::SeismProject>
+std::shared_ptr<Data::SeismProject>
 Model::getSeismProjectFrom(const QString &path) {
-  std::unique_ptr<SeismProject> project;
+  std::shared_ptr<SeismProject> project;
 
   QFile readFile(path);
   if (!readFile.open(QIODevice::ReadOnly)) {
@@ -26,7 +26,7 @@ Model::getSeismProjectFrom(const QString &path) {
   QJsonObject jsonObj = jsonDoc.object();
 
   try {
-    project = std::make_unique<SeismProject>(jsonObj, path);
+    project = std::make_shared<SeismProject>(jsonObj, path);
   } catch (const std::runtime_error &err) {
     project.reset();
     emit notify(err.what());

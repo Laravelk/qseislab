@@ -20,9 +20,9 @@ public:
   void setDisabled(bool);
   void setEnabled(bool);
 
-  void update(const std::unique_ptr<Data::SeismProject> &);
+  void update(Data::SeismProject const *const);
 
-  void settingProjectInfo(const std::unique_ptr<Data::SeismProject> &);
+  void settingProjectInfo(Data::SeismProject *const);
 
   void clear();
 

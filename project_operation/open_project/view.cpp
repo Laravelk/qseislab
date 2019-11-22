@@ -49,7 +49,7 @@ View::View(QWidget *parent)
   // Layout`s end
 }
 
-void View::update(const std::unique_ptr<Data::SeismProject> &project) {
+void View::update(Data::SeismProject const *const project) {
   if (!project) {
     _fileManager->clear();
     _infoProject->clear();
@@ -67,8 +67,7 @@ void View::setNotification(const QString &text) {
   msg->show();
 }
 
-void View::settingProjectInfo(
-    const std::unique_ptr<Data::SeismProject> &project) {
+void View::settingProjectInfo(Data::SeismProject *const project) {
   _infoProject->settingProjectInfo(project);
 }
 

@@ -30,8 +30,8 @@ class View : public QDialog {
   Q_OBJECT
 
 public:
-  explicit View(const std::set<QString> &, Data::SeismEvent const *const,
-                QUndoStack const *const, QWidget *parent = nullptr);
+  //  explicit View(const std::set<QString> &, Data::SeismEvent const *const,
+  //                QUndoStack const *const, QWidget *parent = nullptr);
   explicit View(const std::set<QString> &, const std::map<QUuid, QString> &,
                 QUndoStack const *const, QWidget *parent = nullptr);
 
@@ -63,7 +63,7 @@ signals:
   void eventTransformClicked(Data::SeismEvent::TransformOperation) const;
 
 private:
-  void commonSetting();
+  void commonSetting(); // TODO: перетащить в конструктор
   void updateRepetition(const QString &);
 
   EventToolsWidget *_toolsWidget;

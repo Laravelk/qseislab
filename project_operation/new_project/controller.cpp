@@ -9,7 +9,7 @@ namespace ProjectOperation {
 namespace NewProject {
 Controller::Controller(QObject *parent)
     : QObject(parent), _view(std::make_unique<View>()),
-      _project(std::make_unique<SeismProject>()) {
+      _project(std::make_shared<SeismProject>()) {
 
   connect(_view.get(), &View::finished, this, &Controller::finish);
 }
@@ -21,7 +21,7 @@ void Controller::start() {
 
 void Controller::finish(int result) {
   if (QDialog::Accepted == result) {
-    _view->settingProjectInfo(_project);
+    _view->settingProjectInfo(_project.get());
     emit sendProject(_project);
   }
 

@@ -12,8 +12,7 @@ class SeismProject;
 namespace Main {
 class InfoProject : public QDialog {
 public:
-  InfoProject(const std::unique_ptr<Data::SeismProject> &,
-              QWidget *parent = nullptr);
+  InfoProject(Data::SeismProject const *const, QWidget *parent = nullptr);
 };
 
 } // namespace Main

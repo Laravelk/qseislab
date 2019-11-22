@@ -94,25 +94,38 @@ View::View(QWidget *parent) : QMainWindow(parent) {
   setCentralWidget(startPage);
 }
 
-void View::viewAboutProject(
-    const std::unique_ptr<Data::SeismProject> &project) {
+void View::viewAboutProject(Data::SeismProject const *const project) {
 
   InfoProject *infoProject = new InfoProject(project, this);
   infoProject->setModal(true);
   infoProject->show();
 }
 
-void View::updateUndoStack(QUndoStack const * const undoStack) {
-    if(nullptr != _currentUndoStack) {
-        disconnect(_currentUndoStack, &QUndoStack::canUndoChanged, _undoAction, &QAction::setEnabled);
-        disconnect(_currentUndoStack, &QUndoStack::canRedoChanged, _redoAction, &QAction::setEnabled);
-    }
-    _currentUndoStack = undoStack;
-    connect(_currentUndoStack, &QUndoStack::canUndoChanged, _undoAction, &QAction::setEnabled);
-    connect(_currentUndoStack, &QUndoStack::canRedoChanged, _redoAction, &QAction::setEnabled);
+void View::updateUndoStack(QUndoStack const *const undoStack) {
+  if (nullptr != _currentUndoStack) {
+    disconnect(_currentUndoStack, &QUndoStack::canUndoChanged, _undoAction,
+               &QAction::setEnabled);
+    disconnect(_currentUndoStack, &QUndoStack::canRedoChanged, _redoAction,
+               &QAction::setEnabled);
+  }
+  _currentUndoStack = undoStack;
+  connect(_currentUndoStack, &QUndoStack::canUndoChanged, _undoAction,
+          &QAction::setEnabled);
+  connect(_currentUndoStack, &QUndoStack::canRedoChanged, _redoAction,
+          &QAction::setEnabled);
 }
 
-void View::loadProject(Data::SeismProject const * const project) {
+void View::addEventPage(QWidget *eventPage, SeismEvent const *const event) {
+  assert(nullptr != _workPage);
+
+  _workPage->addEventPage(eventPage, event);
+}
+
+void View::setFocusEventPage(QWidget *page) {
+  _workPage->setFocusEventPage(page);
+}
+
+void View::loadProject(Data::SeismProject const *const project) {
   delete centralWidget();
   _workPage = new WorkPage(this);
   _workPage->loadProject(project);
@@ -124,11 +137,13 @@ void View::loadProject(Data::SeismProject const * const project) {
           [this](const QUuid uuid) { emit removeEventClicked(uuid); });
   connect(_workPage, &WorkPage::viewEventClicked,
           [this](const QUuid uuid) { emit viewEventClicked(uuid); });
+  connect(_workPage, &WorkPage::eventPageClosed,
+          [this](auto &uuid) { emit eventPageClosed(uuid); });
 
   emit projectPresence(true);
 }
 
-void View::addEvent(Data::SeismEvent const * const event) {
+void View::addEvent(Data::SeismEvent const *const event) {
   assert(nullptr != _workPage);
   _workPage->addEvent(event);
 }
@@ -139,7 +154,7 @@ void View::processedEvents(
   _workPage->processedEvents(events);
 }
 
-void View::updateEvent(Data::SeismEvent const * const event) {
+void View::updateEvent(Data::SeismEvent const *const event) {
   assert(nullptr != _workPage);
   _workPage->updateEvent(event);
 }
@@ -149,7 +164,7 @@ void View::removeEvent(const QUuid &uuid) {
   _workPage->removeEvent(uuid);
 }
 
-void View::addHorizon(Data::SeismHorizon const * const horizon) {
+void View::addHorizon(Data::SeismHorizon const *const horizon) {
   assert(nullptr != _workPage);
   _workPage->addHorizon(horizon);
 }
@@ -159,7 +174,7 @@ void View::removeHorizon(const QUuid &uuid) {
   _workPage->removeHorizon(uuid);
 }
 
-void View::addWell(Data::SeismWell const * const well) {
+void View::addWell(Data::SeismWell const *const well) {
   assert(nullptr != _workPage);
   _workPage->addWell(well);
 }
@@ -169,7 +184,7 @@ void View::removeWell(const QUuid &uuid) {
   _workPage->removeWell(uuid);
 }
 
-void View::addReceiver(Data::SeismReceiver const * const receiver) {
+void View::addReceiver(Data::SeismReceiver const *const receiver) {
   assert(nullptr != _workPage);
   _workPage->addReceiver(receiver);
 }

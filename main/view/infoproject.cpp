@@ -7,7 +7,7 @@
 #include <QString>
 
 namespace Main {
-InfoProject::InfoProject(const std::unique_ptr<Data::SeismProject> &project,
+InfoProject::InfoProject(Data::SeismProject const *const project,
                          QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint) {
 

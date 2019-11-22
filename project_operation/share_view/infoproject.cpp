@@ -45,7 +45,7 @@ void InfoProject::setEnabled(bool b) {
   _timeEdit->setEnabled(b);
 }
 
-void InfoProject::update(const std::unique_ptr<Data::SeismProject> &project) {
+void InfoProject::update(Data::SeismProject const *const project) {
   if (!project) {
     setDisabled(true);
   } else {
@@ -56,8 +56,7 @@ void InfoProject::update(const std::unique_ptr<Data::SeismProject> &project) {
   }
 }
 
-void InfoProject::settingProjectInfo(
-    const std::unique_ptr<Data::SeismProject> &project) {
+void InfoProject::settingProjectInfo(Data::SeismProject *const project) {
   project->setName(_nameLineEdit->text());
   project->setDate(_dateEdit->date());
   project->setTime(_timeEdit->time());

@@ -20,105 +20,116 @@ using namespace ProjectOperation;
 namespace Main {
 Controller::Controller(QObject *parent)
     : QObject(parent), _shareEventStack(std::make_unique<QUndoStack>()),
-    _mainWindow(std::make_unique<View>()) {
+      _mainWindow(std::make_unique<View>()) {
 
-    _mainWindow->updateUndoStack(_shareEventStack.get());
+  _mainWindow->updateUndoStack(_shareEventStack.get());
 
   // share-undo/redo connecting
   connect(_mainWindow.get(), &View::changeEventFocus, [this](auto &eventFocus) {
+    _currentOneEventFocus = QUuid();
     _eventFocus = eventFocus;
-//    if (1 == _eventFocus.size()) {
-//      std::shared_ptr<CustomIndividualUndoStack> &stack =
-//          _eventStacks[*_eventFocus.begin()];
-//      _mainWindow->updateUndoStack(stack.get());
-      //            _mainWindow->updateUndoStack(_eventStacks[*_eventFocus.begin()]);
-//    } else {
-      _mainWindow->updateUndoStack(_shareEventStack.get());
-//    }
+    //    if (1 == _eventFocus.size()) {
+    //      std::shared_ptr<CustomIndividualUndoStack> &stack =
+    //          _eventStacks[*_eventFocus.begin()];
+    //      _mainWindow->updateUndoStack(stack.get());
+    //            _mainWindow->updateUndoStack(_eventStacks[*_eventFocus.begin()]);
+    //    } else {
+    _mainWindow->updateUndoStack(_shareEventStack.get());
+    //    }
   });
-  connect(_mainWindow.get(), &View::changeEventFocusToOne, [this](auto& eventUuid){
-      _currentOneEventFocus = eventUuid;
-      _mainWindow->updateUndoStack(_eventStacks[eventUuid].get());
-  });
+  connect(_mainWindow.get(), &View::changeEventFocusToOne,
+          [this](auto &eventUuid) {
+            _currentOneEventFocus = eventUuid;
+            _mainWindow->updateUndoStack(_eventStacks[eventUuid].get());
+          });
 
   connect(_mainWindow.get(), &View::undoClicked, [this]() {
-      if(!_currentOneEventFocus.isNull()) {
-          _eventStacks[_currentOneEventFocus]->undo();
-      } else {
-          _shareEventStack->undo();
-      }
-//    if (1 == _eventFocus.size()) {
-//      _eventStacks[*_eventFocus.begin()]->undo();
-//    } else {
-//      _shareEventStack->undo();
-//    }
+    if (!_currentOneEventFocus.isNull()) {
+      _eventStacks[_currentOneEventFocus]->undo();
+    } else {
+      _shareEventStack->undo();
+    }
+    //    if (1 == _eventFocus.size()) {
+    //      _eventStacks[*_eventFocus.begin()]->undo();
+    //    } else {
+    //      _shareEventStack->undo();
+    //    }
   });
   connect(_mainWindow.get(), &View::redoClicked, [this]() {
-      if(!_currentOneEventFocus.isNull()) {
-          _eventStacks[_currentOneEventFocus]->redo();
-      } else {
-          _shareEventStack->redo();
-      }
-//    if (1 == _eventFocus.size()) {
-//      _eventStacks[*_eventFocus.begin()]->redo();
-//    } else {
-//      _shareEventStack->redo();
-//    }
+    if (!_currentOneEventFocus.isNull()) {
+      _eventStacks[_currentOneEventFocus]->redo();
+    } else {
+      _shareEventStack->redo();
+    }
+    //    if (1 == _eventFocus.size()) {
+    //      _eventStacks[*_eventFocus.begin()]->redo();
+    //    } else {
+    //      _shareEventStack->redo();
+    //    }
   });
   connect(_mainWindow.get(), &View::eventTransformClicked, [this](auto oper) {
-//    std::cout << "here" << std::endl;
-    if (!_eventFocus.empty()) {
-      //      auto shareCommand = new ShareUndoCommand(_eventFocus, oper);
-      auto shareCommand = new ShareUndoCommand(_eventFocus);
-      _shareEventStack->push(shareCommand);
+    //    std::cout << "here" << std::endl;
 
-      auto shareUuid = shareCommand->getUuid();
+    if (!_currentOneEventFocus.isNull()) {
+      auto command = UndoCommandGetter::get(
+          oper, QUuid(),
+          _project->get<SeismEvent>(_currentOneEventFocus).get());
+      _eventStacks[_currentOneEventFocus]->push(command);
+    } else {
 
-//      std::cout << "here2" << std::endl;
+      if (!_eventFocus.empty()) {
+        //      auto shareCommand = new ShareUndoCommand(_eventFocus, oper);
+        auto shareCommand = new ShareUndoCommand(_eventFocus);
+        _shareEventStack->push(shareCommand);
 
-      // TODO: откуда здесь принимать аргументы и как их вставлять????
+        auto shareUuid = shareCommand->getUuid();
 
-      for (auto &eventUuid : _eventFocus) {
-//        std::cout << "create individual command" << std::endl;
-        auto command = UndoCommandGetter::get(
-            oper, shareUuid, _project->get<SeismEvent>(eventUuid).get());
-        _eventStacks[eventUuid]->push(command);
+        //      std::cout << "here2" << std::endl;
+
+        // TODO: откуда здесь принимать аргументы и как их вставлять????
+
+        for (auto &eventUuid : _eventFocus) {
+          //        std::cout << "create individual command" << std::endl;
+          auto command = UndoCommandGetter::get(
+              oper, shareUuid, _project->get<SeismEvent>(eventUuid).get());
+          _eventStacks[eventUuid]->push(command);
+        }
+
+        connect(shareCommand, &ShareUndoCommand::applyUndo,
+                [this](auto &shareUuid, auto &eventUuids) {
+                  //                  std::cout << "applyUndo" << std::endl;
+
+                  std::set<QUuid> uuidsForRemove;
+
+                  for (auto &eventUuid : eventUuids) {
+                    auto &stack = _eventStacks[eventUuid];
+                    bool undoApplied = stack->tryUndo(shareUuid);
+                    if (!undoApplied) {
+                      uuidsForRemove.insert(eventUuid);
+                    }
+                  }
+
+                  for (auto uuid : uuidsForRemove) {
+                    eventUuids.erase(uuid);
+                  }
+                });
+        connect(shareCommand, &ShareUndoCommand::applyRedo,
+                [this](auto &shareUuid, auto &eventUuids) {
+                  std::set<QUuid> uuidsForRemove;
+
+                  for (auto &eventUuid : eventUuids) {
+                    auto &stack = _eventStacks[eventUuid];
+                    bool redoApplied = stack->tryRedo(shareUuid);
+                    if (!redoApplied) {
+                      uuidsForRemove.insert(eventUuid);
+                    }
+                  }
+
+                  for (auto uuid : uuidsForRemove) {
+                    eventUuids.erase(uuid);
+                  }
+                });
       }
-
-      connect(shareCommand, &ShareUndoCommand::applyUndo,
-              [this](auto &shareUuid, auto &eventUuids) {
-//                  std::cout << "applyUndo" << std::endl;
-
-                std::set<QUuid> uuidsForRemove;
-
-                for (auto &eventUuid : eventUuids) {
-                  auto &stack = _eventStacks[eventUuid];
-                  bool undoApplied = stack->tryUndo(shareUuid);
-                  if (!undoApplied) {
-                    uuidsForRemove.insert(eventUuid);
-                  }
-                }
-
-                for (auto uuid : uuidsForRemove) {
-                  eventUuids.erase(uuid);
-                }
-              });
-      connect(shareCommand, &ShareUndoCommand::applyRedo,
-              [this](auto &shareUuid, auto &eventUuids) {
-                std::set<QUuid> uuidsForRemove;
-
-                for (auto &eventUuid : eventUuids) {
-                  auto &stack = _eventStacks[eventUuid];
-                  bool redoApplied = stack->tryRedo(shareUuid);
-                  if (!redoApplied) {
-                    uuidsForRemove.insert(eventUuid);
-                  }
-                }
-
-                for (auto uuid : uuidsForRemove) {
-                  eventUuids.erase(uuid);
-                }
-              });
     }
   });
 
@@ -126,6 +137,10 @@ Controller::Controller(QObject *parent)
           &Controller::handleAddEventsClicked);
   connect(_mainWindow.get(), &View::addEventClicked, this,
           &Controller::handleAddEventClicked);
+
+  connect(_mainWindow.get(), &View::eventPageClosed,
+          [this](auto &uuid) { _oneViewEventControllers.erase(uuid); });
+
   connect(_mainWindow.get(), &View::viewEventClicked, this,
           &Controller::handleViewEventClicked);
   connect(_mainWindow.get(), &View::removeEventClicked,
@@ -151,15 +166,15 @@ Controller::Controller(QObject *parent)
   connect(_mainWindow.get(), &View::closeProjectClicked, this,
           &Controller::handleCloseProjectClicked);
   connect(_mainWindow.get(), &View::aboutProjectClicked,
-          [this]() { _mainWindow->viewAboutProject(_project); });
+          [this]() { _mainWindow->viewAboutProject(_project.get()); });
 
   _mainWindow->show();
 }
 
-void Controller::recvProject(std::unique_ptr<SeismProject> &project) {
+void Controller::recvProject(const std::shared_ptr<SeismProject> &project) {
   assert(project);
 
-  _project = std::move(project);
+  _project = project;
 
   // Event`s connecting
   connect(_project.get(), &SeismProject::addedEvent, [this](auto &event) {
@@ -172,8 +187,8 @@ void Controller::recvProject(std::unique_ptr<SeismProject> &project) {
     _mainWindow->removeEvent(uuid);
   });
   connect(_project.get(), &SeismProject::processedEvents, [this] {
-      // TODO:
-      //  апдейтить каждый эвент, а не загружать каждый
+    // TODO:
+    //  апдейтить каждый эвент, а не загружать каждый
     _mainWindow->processedEvents(_project->getAllMap<SeismEvent>());
   });
   //  connect(_project.get(), &SeismProject::updatedEvent,
@@ -229,11 +244,11 @@ void Controller::handleAddEventsClicked() {
 }
 
 void Controller::handleAddEventClicked() {
-  if (!_oneEventController) {
+  if (!_oneAddEventController) {
     //    _oneEventController = std::make_unique<OneEvent::Controller>(
     //        _project->getAllMap<SeismEvent>(),
     //        _project->getAllMap<SeismWell>(), this);
-    _oneEventController = std::make_unique<OneEvent::Controller>(
+    _oneAddEventController = std::make_unique<OneEvent::Controller>(
         _project->getAllMap<SeismEvent>(), _project->getAllMap<SeismWell>(),
         this);
 
@@ -242,7 +257,8 @@ void Controller::handleAddEventClicked() {
     //        [this](auto &event) {
     //        _project->add<SeismEvent>(std::move(event));
     //        });
-    connect(_oneEventController.get(), &OneEvent::Controller::sendEventAndStack,
+    connect(_oneAddEventController.get(),
+            &OneEvent::Controller::sendEventAndStack,
             [this](auto &event, auto &undoStack) {
               //              _eventStacks[event->getUuid()] =
               //              std::move(undoStack);
@@ -250,41 +266,25 @@ void Controller::handleAddEventClicked() {
               _eventStacks[event->getUuid()] = undoStack;
               _project->add(event);
             });
-    connect(_oneEventController.get(), &OneEvent::Controller::finished,
-            [this] { _oneEventController.reset(); });
+    connect(_oneAddEventController.get(), &OneEvent::Controller::finished,
+            [this] { _oneAddEventController.reset(); });
 
-    _oneEventController->start();
+    _oneAddEventController->start();
   }
 }
 
-void Controller::handleViewEventClicked(const QUuid uuid) {
-  if (!_oneEventController) {
-    //    _oneEventController = std::make_unique<OneEvent::Controller>(
-    //        _project->getAllMap<SeismEvent>(),
-    //        _project->getAllMap<SeismWell>(),
-    //        _project->get<SeismEvent>(uuid), _eventStacks[uuid], this);
-    _oneEventController = std::make_unique<OneEvent::Controller>(
+void Controller::handleViewEventClicked(const QUuid &uuid) {
+  if (_oneViewEventControllers.find(uuid) == _oneViewEventControllers.end()) {
+    auto &event = _project->get<SeismEvent>(uuid);
+
+    _oneViewEventControllers[uuid] = std::make_unique<ViewEvent::Controller>(
         _project->getAllMap<SeismEvent>(), _project->getAllMap<SeismWell>(),
-        _project->get<SeismEvent>(uuid), _eventStacks.at(uuid), this);
+        event, this);
 
-    //    connect(_oneEventController.get(), &OneEvent::Controller::sendEvent,
-    //            [this](auto &event) {
-    //              _project->update<SeismEvent>(std::move(event));
-    //            });
-    //    connect(_oneEventController.get(), &OneEvent::Controller::sendEvent,
-    //            [this](auto &event) {
-    //              // _project->update<SeismEvent>(std::move(event));
-    //              // _project->update<SeismEvent>(std::move(event));
-    //            });
-    //    connect(_oneEventController.get(), &OneEvent::Controller::sendStack,
-    //            [this](auto &uuid, auto &undoStack) {
-    //              _eventStacks[uuid] = std::move(undoStack);
-    //            });
-
-    connect(_oneEventController.get(), &OneEvent::Controller::finished,
-            [this] { _oneEventController.reset(); });
-
-    _oneEventController->start();
+    auto &viewEventController = _oneViewEventControllers[uuid];
+    _mainWindow->addEventPage(viewEventController->getView(), event.get());
+  } else {
+    _mainWindow->setFocusEventPage(_oneViewEventControllers[uuid]->getView());
   }
 }
 
@@ -430,12 +430,12 @@ void Controller::handleSaveProjectClicked() {
 
     connect(_saveProjectController.get(), &SaveProject::Controller::finished,
             [this](bool saved) {
-              _project = _saveProjectController->getProject();
+              //              _project = _saveProjectController->getProject();
               _saveProjectController.reset();
               emit savedProject(saved);
             });
 
-    _saveProjectController->saveProject(std::move(_project));
+    _saveProjectController->saveProject(_project);
   }
 }
 

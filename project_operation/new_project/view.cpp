@@ -37,8 +37,7 @@ View::View(QWidget *parent)
   // Layout`s end
 }
 
-void View::settingProjectInfo(
-    const std::unique_ptr<Data::SeismProject> &project) {
+void View::settingProjectInfo(Data::SeismProject *const project) {
   _infoProject->settingProjectInfo(project);
 }
 

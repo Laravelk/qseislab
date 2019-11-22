@@ -23,7 +23,7 @@ public:
 
   void finish(int);
 signals:
-  void sendProject(std::unique_ptr<Data::SeismProject> &) const;
+  void sendProject(const std::shared_ptr<Data::SeismProject> &) const;
   void finished() const;
 
 private:
@@ -31,7 +31,7 @@ private:
 
   std::unique_ptr<View> _view;
 
-  std::unique_ptr<Data::SeismProject> _project;
+  std::shared_ptr<Data::SeismProject> _project;
 };
 
 } // namespace OpenProject

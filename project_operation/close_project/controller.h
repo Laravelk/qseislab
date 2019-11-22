@@ -4,29 +4,27 @@
 
 #include <memory>
 
-
 namespace Data {
-    class SeismProject;
+class SeismProject;
 }
 
 namespace ProjectOperation {
 namespace CloseProject {
 class Controller : public QObject {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit Controller(QObject* parent = nullptr);
+  explicit Controller(QObject *parent = nullptr);
 
-    void closeProject(const std::unique_ptr<Data::SeismProject>& ) const;
+  void closeProject(const std::shared_ptr<Data::SeismProject> &) const;
 
 public slots:
-    void finish(bool);
+  void finish(bool);
 
 signals:
-    void needSaveProject() const;
-    void finished(bool) const;
+  void needSaveProject() const;
+  void finished(bool) const;
 };
-
 
 } // namespace CloseProject
 } // namespace ProjectOperation

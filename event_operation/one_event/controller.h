@@ -29,18 +29,21 @@ public:
       const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &,
       QObject *parent = nullptr);
 
-  explicit Controller(
-      const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
-      const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &,
-      const std::shared_ptr<Data::SeismEvent> &,
-      const std::shared_ptr<CustomIndividualUndoStack> &,
-      QObject *parent = nullptr);
+  //  explicit Controller(
+  //      const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
+  //      const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &,
+  //      const std::shared_ptr<Data::SeismEvent> &,
+  //      const std::shared_ptr<CustomIndividualUndoStack> &,
+  //      QObject *parent = nullptr);
+
+  // TODO: is correct?
+  //  QWidget *getView();
 
   void start();
   void finish(int);
 
 signals:
-  void sendEvent(std::shared_ptr<Data::SeismEvent> &) const;
+  //  void sendEvent(std::shared_ptr<Data::SeismEvent> &) const;
   void sendEventAndStack(std::shared_ptr<Data::SeismEvent> &,
                          std::shared_ptr<CustomIndividualUndoStack> &);
   void finished() const;

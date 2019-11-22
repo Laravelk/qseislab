@@ -13,7 +13,7 @@ namespace CloseProject {
 Controller::Controller(QObject *parent) : QObject(parent) {}
 
 void Controller::closeProject(
-    const std::unique_ptr<SeismProject> &project) const {
+    const std::shared_ptr<SeismProject> &project) const {
   assert(project);
 
   QMessageBox *view = new QMessageBox();

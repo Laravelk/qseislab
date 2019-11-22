@@ -15,34 +15,38 @@ class View : public QMainWindow {
 public:
   explicit View(QWidget *parent = nullptr);
 
-  void viewAboutProject(const std::unique_ptr<Data::SeismProject> &);
+  void viewAboutProject(Data::SeismProject const *const);
 
   void updateUndoStack(QUndoStack const *const);
 
-  void loadProject(Data::SeismProject const * const);
-  void addEvent(Data::SeismEvent const * const);
+  void addEventPage(QWidget *, Data::SeismEvent const *const);
+  void setFocusEventPage(QWidget *);
+
+  void loadProject(Data::SeismProject const *const);
+  void addEvent(Data::SeismEvent const *const);
   void
   processedEvents(const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &);
-  void updateEvent(Data::SeismEvent const * const);
+  void updateEvent(Data::SeismEvent const *const);
   void removeEvent(const QUuid &);
 
-  void addHorizon(Data::SeismHorizon const * const);
+  void addHorizon(Data::SeismHorizon const *const);
   void removeHorizon(const QUuid &);
 
-  void addWell(Data::SeismWell const * const);
+  void addWell(Data::SeismWell const *const);
   void removeWell(const QUuid &);
 
-  void
-  addReceiver(Data::SeismReceiver const * const); // TODO: re-see
-  void removeReceiver(const QUuid &);                        // TODO: re-see
+  void addReceiver(Data::SeismReceiver const *const); // TODO: re-see
+  void removeReceiver(const QUuid &);                 // TODO: re-see
 
   void closeProject();
 
 signals:
   void eventTransformClicked(Data::SeismEvent::TransformOperation) const;
 
+  void eventPageClosed(const QUuid &);
+
   void changeEventFocus(const std::set<QUuid> &) const;
-  void changeEventFocusToOne(const QUuid& ) const;
+  void changeEventFocusToOne(const QUuid &) const;
 
   void undoClicked() const;
   void redoClicked() const;
@@ -70,9 +74,9 @@ signals:
 private:
   WorkPage *_workPage{nullptr}; // NOTE: правильно ли хранить этот указатель - ?
 
-  QUndoStack const * _currentUndoStack{nullptr};
-  QAction* _undoAction;
-  QAction* _redoAction;
+  QUndoStack const *_currentUndoStack{nullptr};
+  QAction *_undoAction;
+  QAction *_redoAction;
 };
 
 } // namespace Main

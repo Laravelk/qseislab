@@ -18,10 +18,10 @@ class View : public QDialog {
 public:
   explicit View(QWidget *parent = nullptr);
 
-  void update(const std::unique_ptr<Data::SeismProject> &);
+  void update(Data::SeismProject const *const);
   void setNotification(const QString &);
 
-  void settingProjectInfo(const std::unique_ptr<Data::SeismProject> &);
+  void settingProjectInfo(Data::SeismProject *const);
 
 signals:
   void sendFilePath(const QString &) const;

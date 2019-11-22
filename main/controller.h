@@ -7,6 +7,7 @@
 
 #include "event_operation/more_events/controller.h"
 #include "event_operation/one_event/controller.h"
+#include "event_operation/view_event/controller.h"
 
 #include "horizon_operation/controller.h"
 
@@ -34,11 +35,11 @@ signals:
   void savedProject(bool) const;
 
 private slots:
-  void recvProject(std::unique_ptr<Data::SeismProject> &);
+  void recvProject(const std::shared_ptr<Data::SeismProject> &);
 
   void handleAddEventsClicked();
   void handleAddEventClicked();
-  void handleViewEventClicked(const QUuid);
+  void handleViewEventClicked(const QUuid &);
 
   void handleHorizonsClicked();
 
@@ -54,21 +55,20 @@ private slots:
   void deleteCloseProjectController(bool);
 
 private:
-  std::unique_ptr<Data::SeismProject> _project;
+  std::shared_ptr<Data::SeismProject> _project;
 
-  //  std::map<QUuid, std::unique_ptr<CustomUndoStack>> _eventStacks;
-  //  QUuid _currentEvent;
   std::set<QUuid> _eventFocus;
   QUuid _currentOneEventFocus;
   std::map<QUuid, std::shared_ptr<CustomIndividualUndoStack>> _eventStacks;
   std::shared_ptr<QUndoStack> _shareEventStack;
-  // TODO(stack): завести мапу со стеками для каждого ивента
-  //        (uuid-стек(кастомный))
-  // TODO(stack): завести общтй стек операций над ивентами (стендартный)
 
   std::unique_ptr<View> _mainWindow;
 
-  std::unique_ptr<EventOperation::OneEvent::Controller> _oneEventController;
+  std::unique_ptr<EventOperation::OneEvent::Controller> _oneAddEventController;
+
+  std::map<QUuid, std::unique_ptr<EventOperation::ViewEvent::Controller>>
+      _oneViewEventControllers;
+
   std::unique_ptr<EventOperation::MoreEvents::Controller> _moreEventsController;
 
   std::unique_ptr<HorizonOperation::Controller> _horizonController;

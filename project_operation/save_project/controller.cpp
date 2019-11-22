@@ -11,10 +11,11 @@ namespace ProjectOperation {
 namespace SaveProject {
 Controller::Controller(QObject *parent) : QObject(parent) {}
 
-void Controller::saveProject(std::unique_ptr<Data::SeismProject> project) {
+void Controller::saveProject(
+    const std::shared_ptr<Data::SeismProject> &project) {
   assert(project);
 
-  _project = std::move(project);
+  _project = project;
 
   if (_project->exist()) {
     QDir dir = _project->getFileInfo().absoluteDir();
@@ -27,13 +28,14 @@ void Controller::saveProject(std::unique_ptr<Data::SeismProject> project) {
     return;
   }
 
-  saveAsProject(std::move(_project));
+  saveAsProject(_project);
 }
 
-void Controller::saveAsProject(std::unique_ptr<Data::SeismProject> project) {
+void Controller::saveAsProject(
+    const std::shared_ptr<Data::SeismProject> &project) {
   assert(project);
 
-  _project = std::move(project);
+  _project = project;
 
   QFileDialog *fileDialog = new QFileDialog();
   fileDialog->setFileMode(QFileDialog::Directory);
@@ -45,9 +47,9 @@ void Controller::saveAsProject(std::unique_ptr<Data::SeismProject> project) {
   fileDialog->open();
 }
 
-std::unique_ptr<Data::SeismProject> Controller::getProject() {
-  return std::move(_project);
-}
+// std::unique_ptr<Data::SeismProject> Controller::getProject() {
+//  return std::move(_project);
+//}
 
 void Controller::finish(int result) {
   if (QDialog::Rejected == result) {

@@ -16,7 +16,7 @@ Controller::Controller(QObject *parent)
 
   connect(_view.get(), &View::sendFilePath, [this](auto &path) {
     _project = _model->getSeismProjectFrom(path);
-    _view->update(_project);
+    _view->update(_project.get());
   });
 
   connect(_view.get(), &View::finished, this, &Controller::finish);
@@ -29,7 +29,7 @@ void Controller::start() {
 
 void Controller::finish(int result) {
   if (QDialog::Accepted == result) {
-    _view->settingProjectInfo(_project);
+    _view->settingProjectInfo(_project.get());
     emit sendProject(_project);
   }
 

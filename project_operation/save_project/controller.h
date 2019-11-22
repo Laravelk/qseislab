@@ -16,10 +16,10 @@ class Controller : public QObject {
 public:
   explicit Controller(QObject *parent = nullptr);
 
-  void saveProject(std::unique_ptr<Data::SeismProject>);
-  void saveAsProject(std::unique_ptr<Data::SeismProject>);
+  void saveProject(const std::shared_ptr<Data::SeismProject> &);
+  void saveAsProject(const std::shared_ptr<Data::SeismProject> &);
 
-  std::unique_ptr<Data::SeismProject> getProject();
+  //  std::unique_ptr<Data::SeismProject> getProject();
 
   void finish(int);
 
@@ -34,7 +34,7 @@ private:
   static void setNotification(const QString &,
                               QMessageBox::Icon icon = QMessageBox::Critical);
 
-  std::unique_ptr<Data::SeismProject> _project;
+  std::shared_ptr<Data::SeismProject> _project;
 };
 
 } // namespace SaveProject

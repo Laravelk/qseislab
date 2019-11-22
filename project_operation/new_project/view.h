@@ -19,7 +19,7 @@ class View : public QDialog {
 public:
   explicit View(QWidget *parent = nullptr);
 
-  void settingProjectInfo(const std::unique_ptr<Data::SeismProject> &);
+  void settingProjectInfo(Data::SeismProject *const);
 
 private:
   InfoProject *_infoProject;

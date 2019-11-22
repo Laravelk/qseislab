@@ -53,6 +53,9 @@ set(SOURCES
         event_operation/more_events/controller.cpp
         event_operation/more_events/view/view.cpp
 
+        event_operation/view_event/controller.cpp
+        event_operation/view_event/view.cpp
+
         event_operation/share/model.cpp
         event_operation/share/view/graphic_view/graphic_view.cpp
         event_operation/share/view/graphic_view/wavepick.cpp
@@ -122,6 +125,7 @@ set(SOURCES
         main/view/infoproject.cpp
 
         main/oil_field_scene/oilfieldscene.cpp
+        main/oil_field_scene/oilfieldwidget.cpp
 
         share_view/tableassistant.cpp
         share_view/filteringtableassistant.cpp
@@ -154,6 +158,9 @@ set(HEADERS
 
         event_operation/more_events/controller.h
         event_operation/more_events/view/view.h
+
+        event_operation/view_event/controller.h
+        event_operation/view_event/view.h
 
         event_operation/share/model.h
         event_operation/share/view/graphic_view/graphic_view.h
@@ -228,6 +235,7 @@ set(HEADERS
 #        main/surface_view/surface.h
 
         main/oil_field_scene/oilfieldscene.h
+        main/oil_field_scene/oilfieldwidget.h
 
         share_view/tableassistant.h
         share_view/filteringtableassistant.h
