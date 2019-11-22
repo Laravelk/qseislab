@@ -42,8 +42,8 @@ GraphicController::GraphicController(QWidget *parent)
           });
 
   // _allView setting`s
-  _allView = new QWidget();
-  _allView->setMinimumWidth(900);
+  //  _allView = new QWidget();
+  //  _allView->setMinimumWidth(900);
 
   QMenu *addWaveButtonMenu = new QMenu(_addWaveButton);
   _addPWave = new QAction("PWAVE", _addWaveButton);
@@ -120,9 +120,10 @@ GraphicController::GraphicController(QWidget *parent)
   QHBoxLayout *mainLayout = new QHBoxLayout();
   mainLayout->addWidget(_view, 1);
   mainLayout->addLayout(editGraphicMenuLayout);
-  _allView->setLayout(mainLayout);
+  //  _allView->setLayout(mainLayout);
+  setLayout(mainLayout);
 
-  _allView->hide();
+  //  _allView->hide();
 }
 
 void GraphicController::update(SeismEvent const *const event) {
@@ -153,7 +154,7 @@ void GraphicController::update(SeismEvent const *const event) {
   _chart->addPicks(_view->getPickcs());
   updateSeries();
 
-  _allView->show();
+  //  _allView->show(); // TODO: need to catch
 }
 
 void GraphicController::updateEventName(const QString &name) {
@@ -211,7 +212,7 @@ void GraphicController::clear() {
   _event = nullptr;
   //  _gain = 1.0f;
   //  _clipping = 10.0f;
-  _allView->hide();
+  //  _allView->hide();
 }
 
 void GraphicController::hideAxisX(bool hide) {

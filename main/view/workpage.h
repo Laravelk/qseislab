@@ -28,7 +28,7 @@ public:
   void addEventPage(QWidget *, Data::SeismEvent const *const);
   void setFocusEventPage(QWidget *);
 
-  const QUuid getFocusEvent() const;
+  //  const QUuid getFocusEvent() const;
 
   void addEvent(Data::SeismEvent const *const);
   void
@@ -48,6 +48,7 @@ public:
 signals:
   void eventSelectionChanged(const std::set<QUuid> &) const;
 
+  void eventPageChanged(const QUuid &) const;
   void eventPageClosed(const QUuid &);
 
   void viewEventClicked(const QUuid &) const;

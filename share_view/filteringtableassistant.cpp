@@ -30,19 +30,14 @@ FilteringTableAssistant::FilteringTableAssistant(Mode mode, QWidget *parent)
   }
 
   connect(_objectsTable, &QTableWidget::itemSelectionChanged, [this] {
+    auto selectedModel = _objectsTable->selectionModel();
+
     std::set<QUuid> selectedObjects;
 
-    //    std::cout << "selected items : " << std::endl;
-    for (auto &item : _objectsTable->selectedItems()) {
-      //      std::cout << "   col == " << _objectsTable->column(item)
-      //                << "   row == " << _objectsTable->row(item) <<
-      //                std::endl;
-      // TODO: очень плохо!!!
-      if (2 == _objectsTable->column(item)) {
-        selectedObjects.insert(_objectsTable->item(_objectsTable->row(item), 0)
-                                   ->data(Qt::DisplayRole)
-                                   .toUuid());
-      }
+    for (auto &modelItem : selectedModel->selectedRows()) {
+      int row = modelItem.row();
+      selectedObjects.insert(
+          _objectsTable->item(row, 0)->data(Qt::DisplayRole).toUuid());
     }
 
     emit objectSelectionChanged(selectedObjects);
@@ -105,14 +100,18 @@ FilteringTableAssistant::FilteringTableAssistant(Mode mode, QWidget *parent)
   // Layouts end
 }
 
-const QUuid FilteringTableAssistant::getFocusObject() const {
-  // TODO: придумать как доставать uuid  у выделенной строки или нулевой uuid
-  // возвращать
-  auto selectedItems = _objectsTable->selectedItems();
-  if (1 != selectedItems.size()) {
-    return QUuid();
+const std::set<QUuid> FilteringTableAssistant::objectSelection() const {
+  auto selectedModel = _objectsTable->selectionModel();
+
+  std::set<QUuid> selectedObjects;
+
+  for (auto &modelItem : selectedModel->selectedRows()) {
+    int row = modelItem.row();
+    selectedObjects.insert(
+        _objectsTable->item(row, 0)->data(Qt::DisplayRole).toUuid());
   }
-  return QUuid();
+
+  return selectedObjects;
 }
 
 bool FilteringTableAssistant::remove(const QUuid &uuid) {
@@ -307,7 +306,7 @@ void FilteringTableAssistant::enbledFilter(int enable,
 }
 
 template <>
-void FilteringTableAssistant::add<SeismEvent>(SeismEvent const * const event) {
+void FilteringTableAssistant::add<SeismEvent>(SeismEvent const *const event) {
   _objectsTable->setSortingEnabled(false);
   _objectsTable->insertRow(_objectsTable->rowCount());
 
@@ -372,7 +371,8 @@ void FilteringTableAssistant::add<SeismEvent>(SeismEvent const * const event) {
 }
 
 template <>
-void FilteringTableAssistant::update<SeismEvent>(SeismEvent const * const event) {
+void FilteringTableAssistant::update<SeismEvent>(
+    SeismEvent const *const event) {
   _objectsTable->setSortingEnabled(false);
 
   const auto &uuid = event->getUuid();
@@ -417,6 +417,6 @@ void FilteringTableAssistant::setAll<SeismEvent>(
   clearObjectTable();
 
   for (auto &uuid_event : event_map) {
-      add<SeismEvent>(uuid_event.second.get());
+    add<SeismEvent>(uuid_event.second.get());
   }
 }

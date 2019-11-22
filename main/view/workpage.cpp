@@ -69,6 +69,14 @@ WorkPage::WorkPage(QWidget *parent)
   // Setting`s end
 
   // Connecting
+  connect(_workPages, &QTabWidget::currentChanged, [this](auto index) {
+    if (0 == index) {
+      emit eventSelectionChanged(_eventsTable->objectSelection());
+    } else {
+      emit eventPageChanged(_pages_uuids_map[_workPages->widget(index)]);
+    }
+  });
+
   connect(_eventsTable, &FilteringTableAssistant::objectSelectionChanged,
           [this](auto &select) { emit eventSelectionChanged(select); });
 
@@ -153,9 +161,9 @@ void WorkPage::setFocusEventPage(QWidget *page) {
   _workPages->setCurrentWidget(page);
 }
 
-const QUuid WorkPage::getFocusEvent() const {
-  return _eventsTable->getFocusObject();
-}
+// const QUuid WorkPage::getFocusEvent() const {
+//  return _eventsTable->getFocusObject();
+//}
 
 void WorkPage::addEvent(Data::SeismEvent const *const event) {
   //  _oilFieldScene->addEvent(event);

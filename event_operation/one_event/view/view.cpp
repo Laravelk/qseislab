@@ -174,7 +174,7 @@ View::View(const std::set<QString> &eventNames,
   QHBoxLayout *mainLayout = new QHBoxLayout();
   mainLayout->addLayout(leftLayout);
   mainLayout->addStretch(1);
-  mainLayout->addWidget(_graphicEvent->getView(), 10);
+  mainLayout->addWidget(_graphicEvent, 10);
 
   // setting tool-bar
   //  QToolBar* toolBar = new QToolBar();

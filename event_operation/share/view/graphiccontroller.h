@@ -22,7 +22,7 @@ class GraphicController : public QFrame {
 public:
   explicit GraphicController(QWidget *parent = nullptr);
 
-  QWidget *getView() const { return _allView; }
+  //  QWidget *getView() const { return _allView; }
   ChartGesture *getModel() const { return _chart; }
   void setChart(ChartGesture *chart) { _chart = chart; }
   void setView(GraphicView *view) { _view = view; }
@@ -39,7 +39,7 @@ public:
   void hideAxisZ(bool);
 
 private:
-  QWidget *_allView;
+  //  QWidget *_allView;
 
   Data::SeismEvent const *_event;
   float _norm;

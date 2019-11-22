@@ -43,6 +43,7 @@ public:
 signals:
   void eventTransformClicked(Data::SeismEvent::TransformOperation) const;
 
+  void eventPageChanged(const QUuid &) const;
   void eventPageClosed(const QUuid &);
 
   void changeEventFocus(const std::set<QUuid> &) const;

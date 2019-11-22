@@ -13,14 +13,15 @@ public:
 
   FilteringTableAssistant(Mode, QWidget *parent = nullptr);
 
-  const QUuid getFocusObject() const;
+  const std::set<QUuid> objectSelection() const;
 
   bool remove(const QUuid &);
 
-  template <typename T> void add(T const * const);
-  template <typename T> void update(T const * const);
+  template <typename T> void add(T const *const);
+  template <typename T> void update(T const *const);
 
-  // TODO: setAll не такой должен (другая сигнатура) быть или вообще его не должно быть
+  // TODO: setAll не такой должен (другая сигнатура) быть или вообще его не
+  // должно быть
   template <typename T>
   void setAll(const std::map<QUuid, std::shared_ptr<T>> &);
 

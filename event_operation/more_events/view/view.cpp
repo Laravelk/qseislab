@@ -28,6 +28,8 @@ View::View(const std::set<QString> &globalEventNames,
       _globalEventNames(globalEventNames) {
 
   // Setting`s
+  _graphicEvent->hide();
+
   setWindowTitle("SeismWindow");
   setMinimumSize(1300, 590);
 
@@ -180,7 +182,7 @@ View::View(const std::set<QString> &globalEventNames,
   buttonsLayout->addWidget(_cancelButton);
 
   QVBoxLayout *graphicLayout = new QVBoxLayout();
-  graphicLayout->addWidget(_graphicEvent->getView(), 10);
+  graphicLayout->addWidget(_graphicEvent, 10);
   graphicLayout->addStretch(1);
   //  graphicLayout->addLayout(buttonsLayout);
 
@@ -197,7 +199,8 @@ View::View(const std::set<QString> &globalEventNames,
   // Layout`s end
 }
 
-void View::loadEvent(SeismEvent const * const event, QUndoStack const * const undoStack) {
+void View::loadEvent(SeismEvent const *const event,
+                     QUndoStack const *const undoStack) {
   connect(undoStack, &QUndoStack::canUndoChanged, _undoButton,
           &QPushButton::setEnabled);
   connect(undoStack, &QUndoStack::canRedoChanged, _redoButton,
@@ -211,9 +214,10 @@ void View::loadEvent(SeismEvent const * const event, QUndoStack const * const un
   _infoEvent->setEnabled(true);
   _infoEvent->update(event);
   _graphicEvent->update(event);
+  _graphicEvent->show();
 }
 
-void View::unloadEvent(QUndoStack const * const undoStack) {
+void View::unloadEvent(QUndoStack const *const undoStack) {
   disconnect(undoStack, &QUndoStack::canUndoChanged, _undoButton,
              &QPushButton::setEnabled);
   disconnect(undoStack, &QUndoStack::canRedoChanged, _redoButton,
@@ -226,17 +230,19 @@ void View::unloadEvent(QUndoStack const * const undoStack) {
 
   _infoEvent->clear();
   _graphicEvent->clear();
+  _graphicEvent->hide();
 
   _infoEvent->setDisabled(true);
 }
 
-void View::update(SeismEvent const * const event) {
+void View::update(SeismEvent const *const event) {
   _toolsWidget->update(event);
   _graphicEvent->update(event);
   // NOTE: надо _eventList обновлять?
 }
 
-void View::update(const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &events_map) {
+void View::update(
+    const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &events_map) {
   _wellNames->setDisabled(true);
   _okButton->setEnabled(true);
   _okButton->setFocus();
@@ -265,7 +271,7 @@ void View::setNotification(const QString &text) {
   msg->show();
 }
 
-void View::settingEventInfo(SeismEvent * const event) const {
+void View::settingEventInfo(SeismEvent *const event) const {
   _infoEvent->settingEventInfo(event);
 }
 

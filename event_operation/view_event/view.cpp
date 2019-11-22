@@ -46,7 +46,7 @@ View::View(const std::set<QString> &eventNames, SeismEvent const *const event,
 
   QHBoxLayout *mainLayout = new QHBoxLayout();
   mainLayout->addLayout(leftLayout);
-  mainLayout->addWidget(_graphicEvent->getView(), 10);
+  mainLayout->addWidget(_graphicEvent, 10);
 
   QVBoxLayout *mainButtonLayout = new QVBoxLayout();
   mainButtonLayout->addLayout(mainLayout);
@@ -66,8 +66,6 @@ void View::settingEventInfo(SeismEvent *const event) const {
 }
 
 ChartGesture *View::getChartGesture() { return _graphicEvent->getModel(); }
-
-void View::finish() const { emit finished(); }
 
 void View::updateRepetition(const QString &name) {
   for (auto &globalName : _eventNames) {

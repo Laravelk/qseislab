@@ -131,14 +131,16 @@ void View::loadProject(Data::SeismProject const *const project) {
   _workPage->loadProject(project);
   setCentralWidget(_workPage);
 
-  connect(_workPage, &WorkPage::eventSelectionChanged,
-          [this](auto &select) { emit changeEventFocus(select); });
   connect(_workPage, &WorkPage::removeEventClicked,
           [this](const QUuid uuid) { emit removeEventClicked(uuid); });
   connect(_workPage, &WorkPage::viewEventClicked,
           [this](const QUuid uuid) { emit viewEventClicked(uuid); });
+  connect(_workPage, &WorkPage::eventPageChanged,
+          [this](auto &uuid) { emit eventPageChanged(uuid); });
   connect(_workPage, &WorkPage::eventPageClosed,
           [this](auto &uuid) { emit eventPageClosed(uuid); });
+  connect(_workPage, &WorkPage::eventSelectionChanged,
+          [this](auto &select) { emit changeEventFocus(select); });
 
   emit projectPresence(true);
 }

@@ -26,7 +26,9 @@ Controller::Controller(QObject *parent)
 
   // share-undo/redo connecting
   connect(_mainWindow.get(), &View::changeEventFocus, [this](auto &eventFocus) {
-    _currentOneEventFocus = QUuid();
+    if (!_currentOneEventFocus.isNull()) {
+      _currentOneEventFocus = QUuid();
+    }
     _eventFocus = eventFocus;
     //    if (1 == _eventFocus.size()) {
     //      std::shared_ptr<CustomIndividualUndoStack> &stack =
@@ -49,11 +51,6 @@ Controller::Controller(QObject *parent)
     } else {
       _shareEventStack->undo();
     }
-    //    if (1 == _eventFocus.size()) {
-    //      _eventStacks[*_eventFocus.begin()]->undo();
-    //    } else {
-    //      _shareEventStack->undo();
-    //    }
   });
   connect(_mainWindow.get(), &View::redoClicked, [this]() {
     if (!_currentOneEventFocus.isNull()) {
@@ -61,11 +58,6 @@ Controller::Controller(QObject *parent)
     } else {
       _shareEventStack->redo();
     }
-    //    if (1 == _eventFocus.size()) {
-    //      _eventStacks[*_eventFocus.begin()]->redo();
-    //    } else {
-    //      _shareEventStack->redo();
-    //    }
   });
   connect(_mainWindow.get(), &View::eventTransformClicked, [this](auto oper) {
     //    std::cout << "here" << std::endl;
@@ -138,6 +130,8 @@ Controller::Controller(QObject *parent)
   connect(_mainWindow.get(), &View::addEventClicked, this,
           &Controller::handleAddEventClicked);
 
+  connect(_mainWindow.get(), &View::eventPageChanged,
+          [this](auto &uuid) { _currentOneEventFocus = uuid; });
   connect(_mainWindow.get(), &View::eventPageClosed,
           [this](auto &uuid) { _oneViewEventControllers.erase(uuid); });
 

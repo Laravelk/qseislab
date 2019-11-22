@@ -30,8 +30,6 @@ public:
   void settingEventInfo(Data::SeismEvent *const) const;
   ChartGesture *getChartGesture();
 
-  void finish() const;
-
 signals:
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
   void createPolarizationAnalysisWindow();
