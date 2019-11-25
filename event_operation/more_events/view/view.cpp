@@ -61,6 +61,8 @@ View::View(const std::set<QString> &globalEventNames,
   // Setting`s end
 
   // Connecting
+  connect(_infoEvent, &InfoEvent::changed, [this] { emit infoChanged(); });
+
   connect(_toolsWidget, &EventToolsWidget::eventTransformClicked,
           [this](auto oper) { emit eventTransformClicked(oper); });
   connect(addEventsButton, &QPushButton::clicked, [this]() {
@@ -201,6 +203,10 @@ View::View(const std::set<QString> &globalEventNames,
 
 void View::loadEvent(SeismEvent const *const event,
                      QUndoStack const *const undoStack) {
+  connect(event, &SeismEvent::infoChanged, this, &View::infoEventUpdate);
+
+  //  connect(event, &SeismEvent::dataChanged, [this] { _ });
+
   connect(undoStack, &QUndoStack::canUndoChanged, _undoButton,
           &QPushButton::setEnabled);
   connect(undoStack, &QUndoStack::canRedoChanged, _redoButton,
@@ -217,7 +223,10 @@ void View::loadEvent(SeismEvent const *const event,
   _graphicEvent->show();
 }
 
-void View::unloadEvent(QUndoStack const *const undoStack) {
+void View::unloadEvent(SeismEvent const *const event,
+                       QUndoStack const *const undoStack) {
+  disconnect(event, &SeismEvent::infoChanged, this, &View::infoEventUpdate);
+
   disconnect(undoStack, &QUndoStack::canUndoChanged, _undoButton,
              &QPushButton::setEnabled);
   disconnect(undoStack, &QUndoStack::canRedoChanged, _redoButton,
@@ -254,7 +263,7 @@ void View::update(
   for (auto &uuid_event : events_map) {
     auto &uuid = uuid_event.first;
     if (existingUuid.end() == existingUuid.find(uuid)) {
-        auto &name = uuid_event.second->getInfo().getName();
+      auto &name = uuid_event.second->getInfo()->getName();
       QListWidgetItem *item = new QListWidgetItem(name);
       item->setData(Qt::DecorationRole, uuid);
       _eventList->addItem(item);
@@ -279,6 +288,21 @@ ChartGesture *View::getChartGesture() { return _graphicEvent->getModel(); }
 
 void View::recvFilesPath(const QStringList &paths) {
   emit sendWellUuidAndFilePaths(_wellUuid, paths);
+}
+
+void View::infoEventUpdate(Data::EventInfo const *const info) {
+  auto &name = info->getName();
+
+  auto item = _eventList->selectedItems()[0];
+  auto oldName = item->text();
+  removeLocal(oldName);
+  updateRepetition(oldName);
+
+  addLocal(name);
+  item->setText(name);
+  _infoEvent->setBrush(updateRepetition(name));
+
+  _graphicEvent->updateEventName(name);
 }
 
 void View::addLocal(const QString &name) {

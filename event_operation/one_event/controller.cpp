@@ -36,20 +36,20 @@ Controller::Controller(
   }
   std::set<QString> eventNames;
   for (auto &uuid_event : all_events) {
-      eventNames.insert(uuid_event.second->getInfo().getName());
+    eventNames.insert(uuid_event.second->getInfo()->getName());
   }
   // TODO: uncomment
   _view = std::make_unique<View>(eventNames, wellNames_map, _undoStack.get());
   // ...
 
   connect(_event.get(), &Data::SeismEvent::infoChanged, [this]() {
-     _view->update(_event.get());
-                  std::cout << "event info changed" << std::endl;
+    _view->update(_event.get());
+    std::cout << "event info changed" << std::endl;
   });
 
   connect(_event.get(), &Data::SeismEvent::dataChanged, [this]() {
-      _view->update(_event.get());
-      std::cout << "event info changed" << std::endl;
+    _view->update(_event.get());
+    std::cout << "event info changed" << std::endl;
   });
 
   connect(_model, &Model::notify,
@@ -84,7 +84,7 @@ Controller::Controller(
             }
             _eventNameContainer.erase(uuid);
             // TODO: implement!
-//            _event->setName(generateEventName());
+            //            _event->setName(generateEventName());
 
             _view->update(_event.get(), uuid, well->getName());
           });

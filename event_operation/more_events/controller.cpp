@@ -30,7 +30,7 @@ Controller::Controller(
   }
   std::set<QString> eventNames;
   for (auto &uuid_event : all_events) {
-      eventNames.insert(uuid_event.second->getInfo().getName());
+    eventNames.insert(uuid_event.second->getInfo()->getName());
   }
   _view = std::make_unique<View>(eventNames, wellNames_map);
   //                                 , _appliedOperations);
@@ -39,31 +39,37 @@ Controller::Controller(
   connect(_model, &Model::notify,
           [this](auto &msg) { _view->setNotification(msg); });
 
+  connect(_view.get(), &View::infoChanged, [this] {
+    if (!_currentEventUuid.isNull()) {
+      _view->settingEventInfo(_events_map[_currentEventUuid].get());
+    }
+  });
+
   connect(_view.get(), &View::sendWellUuidAndFilePaths,
           [this, &wells_map](auto &wellUuid, auto &filePaths) {
             for (auto &path : filePaths) {
               auto components =
                   _model->getSeismComponents(wells_map.at(wellUuid), path);
               if (!components.empty()) {
-                std::unique_ptr<SeismEvent> event =
-                    std::make_unique<SeismEvent>();
-                connect(event.get(), &Data::SeismEvent::infoChanged, []() {
-                                              std::cout << "event info changed" <<std::endl;
-                });
-                connect(event.get(), &Data::SeismEvent::dataChanged, []() {
-                    std::cout << "event info changed" <<std::endl;
-                });
+                std::shared_ptr<SeismEvent> event =
+                    std::make_shared<SeismEvent>();
+                //            connect(event.get(),
+                //            &Data::SeismEvent::infoChanged,
+                //                    []() { std::cout << "event info changed"
+                //                    << std::endl; });
+                //            connect(event.get(),
+                //            &Data::SeismEvent::dataChanged,
+                //                    []() { std::cout << "event info changed"
+                //                    << std::endl; });
                 // TODO: implement!
-//                event->setName(QFileInfo(path).baseName());
+                event->setName(QFileInfo(path).baseName());
                 for (auto &component : components) {
                   event->addComponent(std::move(component));
                 }
                 auto &uuid = event->getUuid();
-                _events_map[uuid] = std::move(event);
-                //                _stacks_map[uuid] =
-                //                std::make_unique<QUndoStack>();
+                _events_map[uuid] = event;
                 _stacks_map[uuid] =
-                    std::make_unique<CustomIndividualUndoStack>();
+                    std::make_shared<CustomIndividualUndoStack>();
               }
             }
             _view->update(_events_map);
@@ -75,9 +81,9 @@ Controller::Controller(
   });
 
   connect(_view.get(), &View::changeCurrentEvent, [this](auto &uuid) {
-    if (!_currentEventUuid.isNull()) {
-      _view->settingEventInfo(_events_map[_currentEventUuid].get());
-    }
+    //    if (!_currentEventUuid.isNull()) {
+    //      _view->settingEventInfo(_events_map[_currentEventUuid].get());
+    //    }
 
     _currentEventUuid = uuid;
     _view->loadEvent(_events_map[_currentEventUuid].get(),
@@ -85,11 +91,12 @@ Controller::Controller(
   });
 
   connect(_view.get(), &View::hideCurrentEvent, [this]() {
-    if (!_currentEventUuid.isNull()) {
-      _view->settingEventInfo(_events_map[_currentEventUuid].get());
-    }
+    //    if (!_currentEventUuid.isNull()) {
+    //      _view->settingEventInfo(_events_map[_currentEventUuid].get());
+    //    }
 
-    _view->unloadEvent(_stacks_map[_currentEventUuid].get());
+    _view->unloadEvent(_events_map[_currentEventUuid].get(),
+                       _stacks_map[_currentEventUuid].get());
     _currentEventUuid = QUuid();
   });
 
@@ -123,7 +130,6 @@ Controller::Controller(
   });
   connect(_view.get(), &View::redoClicked, [this]() {
     if (!_currentEventUuid.isNull()) {
-      //      _appliedOperations->redo();
       _stacks_map[_currentEventUuid]->redo();
       _view->update(_events_map[_currentEventUuid].get());
     }
@@ -166,9 +172,9 @@ void Controller::start() {
 
 void Controller::finish(int result) {
   if (QDialog::Accepted == result) {
-    if (!_currentEventUuid.isNull()) {
-      _view->settingEventInfo(_events_map[_currentEventUuid].get());
-    }
+    //    if (!_currentEventUuid.isNull()) {
+    //      _view->settingEventInfo(_events_map[_currentEventUuid].get());
+    //    }
     emit sendEventsAndStacks(_events_map, _stacks_map);
   }
 

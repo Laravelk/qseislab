@@ -153,7 +153,7 @@ void WorkPage::loadProject(Data::SeismProject const *const project) {
 
 void WorkPage::addEventPage(QWidget *eventPage, SeismEvent const *const event) {
   _pages_uuids_map[eventPage] = event->getUuid();
-  _workPages->addTab(eventPage, event->getInfo().getName());
+  _workPages->addTab(eventPage, event->getInfo()->getName());
   _workPages->setCurrentWidget(eventPage);
 }
 

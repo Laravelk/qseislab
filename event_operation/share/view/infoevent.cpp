@@ -26,9 +26,12 @@ InfoEvent::InfoEvent(QWidget *parent)
 
   connect(_nameEdit, &QLineEdit::textChanged, [this](auto &text) {
     if (0 != text.count()) {
-      emit nameChanged(text);
+      //      emit nameChanged(text);
+      emit changed();
     }
   });
+  connect(_stampDateEdit, &QDateEdit::dateChanged, [this] { emit changed(); });
+  connect(_stampTimeEdit, &QTimeEdit::timeChanged, [this] { emit changed(); });
 
   QFormLayout *formLayout = new QFormLayout;
   formLayout->addRow("Name:", _nameEdit);
@@ -66,19 +69,19 @@ void InfoEvent::setEnabled(bool b) {
 
 void InfoEvent::update(SeismEvent const *const event) {
   if (event) {
-      auto& eventInfo = event->getInfo();
-    _nameEdit->setText(eventInfo.getName());
-    _stampDateEdit->setDate(eventInfo.getStampDateTime().date());
-    _stampTimeEdit->setTime(eventInfo.getStampDateTime().time());
+    auto eventInfo = event->getInfo();
+    _nameEdit->setText(eventInfo->getName());
+    _stampDateEdit->setDate(eventInfo->getStampDateTime().date());
+    _stampTimeEdit->setTime(eventInfo->getStampDateTime().time());
     _receiverAmountLabel->setText(QString::number(event->getComponentAmount()));
     _pWavePickAmountLabel->setText(QString::number(
         event->getPickAmountByType(Data::SeismWavePick::Type::PWAVE)));
     _sWavePickAmountLabel->setText(QString::number(
         event->getPickAmountByType(Data::SeismWavePick::Type::SWAVE)));
     _addedDateLabel->setText(
-        eventInfo.getAddedDateTime().date().toString("dd.MM.yy"));
+        eventInfo->getAddedDateTime().date().toString("dd.MM.yy"));
     _addedTimeLabel->setText(
-        eventInfo.getAddedDateTime().time().toString("hh:mm"));
+        eventInfo->getAddedDateTime().time().toString("hh:mm"));
   }
 }
 
@@ -96,11 +99,11 @@ void InfoEvent::clear() {
 }
 
 void InfoEvent::settingEventInfo(SeismEvent *const event) const {
-    auto& info = event->getInfo();
-  info.setName(_nameEdit->text());
-  info.setStampDateTime({_stampDateEdit->date(), _stampTimeEdit->time()});
+  auto info = event->getInfo();
+  info->setName(_nameEdit->text());
+  info->setStampDateTime({_stampDateEdit->date(), _stampTimeEdit->time()});
 
-  event->setInfo(info);
+  //  event->setInfo(info);
 }
 
 } // namespace EventOperation

@@ -31,6 +31,8 @@ public:
 signals:
   void nameChanged(const QString &);
 
+  void changed() const;
+
 private:
   QLineEdit *_nameEdit;
   QDateEdit *_stampDateEdit;

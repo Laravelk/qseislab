@@ -317,12 +317,12 @@ void FilteringTableAssistant::add<SeismEvent>(SeismEvent const *const event) {
 
   _objectsTable->setItem(row, 1, new QTableWidgetItem());
 
-  auto& info = event->getInfo();
+  auto info = event->getInfo();
 
-  _objectsTable->setItem(row, 2, new QTableWidgetItem(info.getName()));
+  _objectsTable->setItem(row, 2, new QTableWidgetItem(info->getName()));
 
   _objectsTable->setItem(
-      row, 3, new QTableWidgetItem(QString::number(info.getType())));
+      row, 3, new QTableWidgetItem(QString::number(info->getType())));
 
   _objectsTable->setItem(
       row, 4,
@@ -353,12 +353,12 @@ void FilteringTableAssistant::add<SeismEvent>(SeismEvent const *const event) {
   _objectsTable->setItem(
       row, 10,
       new QTableWidgetItem(
-          info.getStampDateTime().date().toString("dd.MM.yy")));
+          info->getStampDateTime().date().toString("dd.MM.yy")));
 
   _objectsTable->setItem(
       row, 11,
       new QTableWidgetItem(
-          info.getStampDateTime().time().toString("hh:mm:zzz")));
+          info->getStampDateTime().time().toString("hh:mm:zzz")));
 
   QPushButton *removeButton = new QPushButton();
   QIcon icon(":/remove_button.png");
@@ -378,11 +378,11 @@ void FilteringTableAssistant::update<SeismEvent>(
   _objectsTable->setSortingEnabled(false);
 
   auto &uuid = event->getUuid();
-  auto& info = event->getInfo();
+  auto info = event->getInfo();
   for (int row = 0; row < _objectsTable->rowCount(); ++row) {
     if (uuid == _objectsTable->item(row, 0)->data(Qt::DisplayRole).toUuid()) {
-      _objectsTable->item(row, 2)->setData(Qt::DisplayRole, info.getName());
-      _objectsTable->item(row, 3)->setData(Qt::DisplayRole, info.getType());
+      _objectsTable->item(row, 2)->setData(Qt::DisplayRole, info->getName());
+      _objectsTable->item(row, 3)->setData(Qt::DisplayRole, info->getType());
       _objectsTable->item(row, 4)->setData(Qt::DisplayRole,
                                            event->getComponentAmount());
       _objectsTable->item(row, 5)->setData(
@@ -402,10 +402,10 @@ void FilteringTableAssistant::update<SeismEvent>(
       }
       _objectsTable->item(row, 10)->setData(
           Qt::DisplayRole,
-          info.getStampDateTime().date().toString("dd.MM.yyyy"));
+          info->getStampDateTime().date().toString("dd.MM.yyyy"));
       _objectsTable->item(row, 11)->setData(
           Qt::DisplayRole,
-          info.getStampDateTime().time().toString("hh:mm:zzz"));
+          info->getStampDateTime().time().toString("hh:mm:zzz"));
       break;
     }
   }

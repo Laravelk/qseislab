@@ -36,20 +36,22 @@ public:
   //                QWidget *parent = nullptr);
 
   //  void loadEvent(const std::unique_ptr<Data::SeismEvent> &);
-//  void loadEvent(const std::unique_ptr<Data::SeismEvent> &,
-//                 const std::unique_ptr<QUndoStack> &);
-  void loadEvent(Data::SeismEvent const * const, QUndoStack const * const);
-  void unloadEvent(QUndoStack const * const);
+  //  void loadEvent(const std::unique_ptr<Data::SeismEvent> &,
+  //                 const std::unique_ptr<QUndoStack> &);
+  void loadEvent(Data::SeismEvent const *const, QUndoStack const *const);
+  void unloadEvent(Data::SeismEvent const *const, QUndoStack const *const);
 
-  void update(Data::SeismEvent const * const);
+  void update(Data::SeismEvent const *const);
 
   void update(const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &);
 
   void setNotification(const QString &);
-  void settingEventInfo(Data::SeismEvent * const) const;
+  void settingEventInfo(Data::SeismEvent *const) const;
   ChartGesture *getChartGesture();
 
 signals:
+  void infoChanged() const;
+
   void hideCurrentEvent();
   void changeCurrentEvent(const QUuid &);
   void removeEvent(const QUuid &);
@@ -67,6 +69,8 @@ signals:
 
 private slots:
   void recvFilesPath(const QStringList &);
+
+  void infoEventUpdate(Data::EventInfo const *const);
 
 private:
   void addLocal(const QString &);
