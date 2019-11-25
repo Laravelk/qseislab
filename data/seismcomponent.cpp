@@ -24,7 +24,7 @@ SeismComponent::SeismComponent(const QJsonObject &json) {
   //  }
 
   if (json.contains("sampleInterval")) {
-    _sampleInterval = static_cast<float>(json["sampleInterval"].toDouble());
+    _info.sampleInterval = static_cast<float>(json["sampleInterval"].toDouble());
   } else {
     err_msg += "::sampleInterval : not found\n";
   }
@@ -102,28 +102,44 @@ SeismComponent::SeismComponent(const QJsonObject &json) {
 
 SeismComponent::SeismComponent(const SeismComponent &other)
     : _receiverUuid(other._receiverUuid),
-      _sampleInterval(other._sampleInterval), _maxValue(other._maxValue),
-      _wavePicks_map(other._wavePicks_map) {
-  for (auto &trace : other._traces) {
-    _traces.push_back(std::make_unique<SeismTrace>(*trace));
-  }
+//      _sampleInterval(other._sampleInterval),
+    _info(other._info),
+    _maxValue(other._maxValue), _traces(other._traces), _wavePicks_map(other._wavePicks_map) {
+
 }
 
 const QUuid &SeismComponent::getReceiverUuid() const { return _receiverUuid; }
 
-const QDateTime &SeismComponent::getStampDateTime() const {
-  return _stampDateTime;
+void SeismComponent::setInfo(const SeismComponent::Info &info)
+{
+    _info = info;
+    emit infoChanged();
 }
 
-void SeismComponent::setStampDateTime(const QDateTime &dateTime) {
-  _stampDateTime = dateTime;
+const SeismComponent::Info &SeismComponent::getInfo() const
+{
+    return _info;
 }
 
-float SeismComponent::getSampleInterval() const { return _sampleInterval; }
 
-void SeismComponent::setSampleInterval(float sampleInterval) {
-  _sampleInterval = sampleInterval;
+SeismComponent::Info &SeismComponent::getInfo()
+{
+    return _info;
 }
+
+//const QDateTime &SeismComponent::getStampDateTime() const {
+//  return _stampDateTime;
+//}
+
+//void SeismComponent::setStampDateTime(const QDateTime &dateTime) {
+//  _stampDateTime = dateTime;
+//}
+
+//float SeismComponent::getSampleInterval() const { return _sampleInterval; }
+
+//void SeismComponent::setSampleInterval(float sampleInterval) {
+//  _sampleInterval = sampleInterval;
+//}
 
 float SeismComponent::getMaxValue() const { return _maxValue; }
 
@@ -155,6 +171,8 @@ void SeismComponent::addTrace(const std::shared_ptr<SeismTrace> &trace) {
   }
 
   _traces.push_back(trace);
+
+  emit dataChanged();
 }
 
 int SeismComponent::getTraceSize() const { return _tracesSize; }
@@ -170,12 +188,12 @@ SeismComponent::getTraces() const {
 
 void SeismComponent::addWavePick(const SeismWavePick wavePick) {
   _wavePicks_map[wavePick.getType()] = wavePick;
-  emit changed();
+  emit dataChanged();
 }
 
 void SeismComponent::removeWavePick(const SeismWavePick::Type type) {
   _wavePicks_map.erase(type);
-  emit changed();
+  emit dataChanged();
 }
 
 bool SeismComponent::containsWavePickBy(const SeismWavePick::Type type) const {
@@ -195,7 +213,7 @@ SeismComponent::getWavePicks() const {
 QJsonObject &SeismComponent::writeToJson(QJsonObject &json) const {
   json["receiverUuid"] = _receiverUuid.toString();
   //  json["stampTime"] = _stampTime.toString("dd.MM.yyyy hh:mm:ss:zzz");
-  json["sampleInterval"] = static_cast<double>(_sampleInterval);
+  json["sampleInterval"] = static_cast<double>(_info.sampleInterval);
 
   QJsonArray wavesArray;
   QJsonObject waveObj;
@@ -206,6 +224,22 @@ QJsonObject &SeismComponent::writeToJson(QJsonObject &json) const {
   json["Waves"] = wavesArray;
 
   return json;
+}
+
+SeismComponent::Info::Info() {}
+
+const QDateTime &SeismComponent::Info::getStampDateTime() const {
+    return stampDateTime;
+}
+
+void SeismComponent::Info::setStampDateTime(const QDateTime &dateTime) {
+    this->stampDateTime = dateTime;
+}
+
+float SeismComponent::Info::getSampleInterval() const { return sampleInterval; }
+
+void SeismComponent::Info::setSampleInterval(float sampleInterval) {
+    this->sampleInterval = sampleInterval;
 }
 
 } // namespace Data

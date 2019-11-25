@@ -130,7 +130,7 @@ void GraphicController::update(SeismEvent const *const event) {
   _event = event;
 
   // setting event-name on title
-  _view->chart()->setTitle(event->getName());
+  _view->chart()->setTitle(event->getInfo().getName());
 
   _view->chart()->removeAllSeries();
   _allSeries.clear();
@@ -263,7 +263,7 @@ void GraphicController::setInterval(SeismEvent const *const event) {
 void GraphicController::addTraceSeries(
     const std::shared_ptr<Data::SeismComponent> &component, int index) {
   const float intervalAxisX =
-      component->getSampleInterval() / MICROSECONDS_IN_SECOND;
+        component->getInfo().getSampleInterval() / MICROSECONDS_IN_SECOND;
   const QColor color[] = {QColor(220, 20, 60), QColor(50, 205, 50),
                           QColor(65, 105, 225)};
   int idx = -1;
@@ -397,7 +397,7 @@ void GraphicController::getRangeX(SeismEvent const *const event) {
       if (trace->getBufferSize() > _rangeAxisX) {
         maxCountElementInTrace = trace->getBufferSize();
         sampleInterval =
-            component->getSampleInterval() / MICROSECONDS_IN_SECOND;
+            component->getInfo().getSampleInterval() / MICROSECONDS_IN_SECOND;
       }
     }
   }

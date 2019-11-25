@@ -13,7 +13,9 @@ namespace Data {
 const QString SeismEvent::_default_path = "data/events/";
 
 SeismEvent::SeismEvent()
-    : _uuid(QUuid::createUuid()), _addedDateTime(QDateTime::currentDateTime()) {
+    : _uuid(QUuid::createUuid())
+//    , _addedDateTime(QDateTime::currentDateTime())
+{
 }
 
 SeismEvent::SeismEvent(const QJsonObject &json,
@@ -24,26 +26,26 @@ SeismEvent::SeismEvent(const QJsonObject &json,
   std::string err_msg;
 
   if (json.contains("type")) {
-    _type = json["type"].toInt();
+    _info.type = json["type"].toInt();
   } else {
     err_msg += "::type : not found\n";
   }
 
   if (json.contains("name")) {
-    _name = json["name"].toString();
+    _info.name = json["name"].toString();
   } else {
     err_msg += "::name : not found\n";
   }
 
   if (json.contains("addedDateTime")) {
-    _addedDateTime = QDateTime::fromString(json["addedDateTime"].toString(),
+    _info.addedDateTime = QDateTime::fromString(json["addedDateTime"].toString(),
                                            "dd.MM.yy hh:mm:ss");
   } else {
     err_msg += "::addedDateTime : not found\n";
   }
 
   if (json.contains("stampDateTime")) {
-    _stampDateTime = QDateTime::fromString(json["stampDateTime"].toString(),
+    _info.stampDateTime = QDateTime::fromString(json["stampDateTime"].toString(),
                                            "dd.MM.yy hh:mm:ss:zzz");
   } else {
     err_msg += "::stampDateTime : not found\n";
@@ -136,9 +138,12 @@ SeismEvent::SeismEvent(const QJsonObject &json,
 }
 
 SeismEvent::SeismEvent(const SeismEvent &other)
-    : _uuid(other._uuid), _path(other._path), _name(other._name),
-      _addedDateTime(other._addedDateTime), _type(other._type),
-      _stampDateTime(other._stampDateTime), _isProcessed(other._isProcessed),
+    : _uuid(other._uuid), _path(other._path),
+//    _name(other._name),
+//      _addedDateTime(other._addedDateTime), _type(other._type),
+//      _stampDateTime(other._stampDateTime),
+    _info(other._info),
+    _isProcessed(other._isProcessed),
       _location(other._location) {
 
   for (auto &component : other._components) {
@@ -148,21 +153,37 @@ SeismEvent::SeismEvent(const SeismEvent &other)
 
 const QUuid &SeismEvent::getUuid() const { return _uuid; }
 
-void SeismEvent::setName(const QString &name) { _name = name; }
-
-const QString &SeismEvent::getName() const { return _name; }
-
-const QDateTime &SeismEvent::getAddedDateTime() const { return _addedDateTime; }
-
-void SeismEvent::setType(int type) { _type = type; }
-
-int SeismEvent::getType() const { return _type; }
-
-void SeismEvent::setStampDateTime(const QDateTime &dateTime) {
-  _stampDateTime = dateTime;
+void SeismEvent::setInfo(SeismEvent::Info info)
+{
+    _info = info;
+    emit infoChanged();
 }
 
-const QDateTime &SeismEvent::getStampDateTime() const { return _stampDateTime; }
+const SeismEvent::Info &SeismEvent::getInfo() const
+{
+    return _info;
+}
+
+SeismEvent::Info &SeismEvent::getInfo()
+{
+    return _info;
+}
+
+//void SeismEvent::setName(const QString &name) { _name = name; }
+
+//const QString &SeismEvent::getName() const { return _name; }
+
+//const QDateTime &SeismEvent::getAddedDateTime() const { return _addedDateTime; }
+
+//void SeismEvent::setType(int type) { _type = type; }
+
+//int SeismEvent::getType() const { return _type; }
+
+//void SeismEvent::setStampDateTime(const QDateTime &dateTime) {
+//  _stampDateTime = dateTime;
+//}
+
+//const QDateTime &SeismEvent::getStampDateTime() const { return _stampDateTime; }
 
 int SeismEvent::getPickAmountByType(const SeismWavePick::Type type) const {
   int amount = 0;
@@ -178,21 +199,41 @@ int SeismEvent::getComponentAmount() const {
 
 void SeismEvent::addComponent(
     const std::shared_ptr<SeismComponent> &component) {
-  const auto &componentStampDateTime = component->getStampDateTime();
-  if (!_stampDateTime.isValid()) {
-    _stampDateTime = componentStampDateTime;
-  } else if (_stampDateTime > componentStampDateTime) {
-    _stampDateTime = componentStampDateTime;
+    auto &componentStampDateTime = component->getInfo().getStampDateTime();
+  if (!_info.stampDateTime.isValid()) {
+    _info.stampDateTime = componentStampDateTime;
+    emit infoChanged();
+  } else if (_info.stampDateTime > componentStampDateTime) {
+    _info.stampDateTime = componentStampDateTime;
+    emit infoChanged();
   }
+
+  // TODO: проверить правильно ли?
+  connect(component.get(), &SeismComponent::infoChanged,
+            [this, &component]() {
+              auto &componentStampDateTime = component->getInfo().getStampDateTime();
+              if (!_info.stampDateTime.isValid()) {
+                  _info.stampDateTime = componentStampDateTime;
+                  emit infoChanged();
+              } else if (_info.stampDateTime > componentStampDateTime) {
+                  _info.stampDateTime = componentStampDateTime;
+                  emit infoChanged();
+              }
+          });
+
+  connect(component.get(), &SeismComponent::dataChanged,
+          [this]() { emit dataChanged(); });
+
   _components.push_back(component);
-  connect(_components.back().get(), &SeismComponent::changed,
-          [this]() { emit changed(); });
+
+  emit dataChanged();
 }
 
 bool SeismEvent::removeComponentByReceiverUuid(const QUuid &receiverUuid) {
   for (auto itr = _components.begin(); itr != _components.end(); ++itr) {
     if (receiverUuid == (*itr)->getReceiverUuid()) {
       _components.erase(itr);
+      emit dataChanged();
       return true;
     }
   }
@@ -209,8 +250,9 @@ bool SeismEvent::isTransformBy(TransformOperation oper) const {
 }
 
 void SeismEvent::process() {
-  _location = {1.67, 1.113, 1.13}; // TODO: realize!
+  _location = {1.67, 1.113, 1.13}; // TODO: implement!
   _isProcessed = true;
+  emit dataChanged();
 }
 
 bool SeismEvent::isProcessed() const { return _isProcessed; }
@@ -224,11 +266,11 @@ QJsonObject &SeismEvent::writeToJson(QJsonObject &json, const QDir &dir) {
     _path += ".bin";
   }
 
-  json["name"] = _name;
-  json["type"] = _type;
+  json["name"] = _info.name;
+  json["type"] = _info.type;
   json["path"] = _path;
-  json["addedDateTime"] = _addedDateTime.toString("dd.MM.yy hh:mm:ss");
-  json["stampDateTime"] = _stampDateTime.toString("dd.MM.yy hh:mm:ss:zzz");
+  json["addedDateTime"] = _info.addedDateTime.toString("dd.MM.yy hh:mm:ss");
+  json["stampDateTime"] = _info.stampDateTime.toString("dd.MM.yy hh:mm:ss:zzz");
   json["isProcessed"] = _isProcessed;
   if (_isProcessed) {
     QJsonArray locationArray;
@@ -254,10 +296,54 @@ QJsonObject &SeismEvent::writeToJson(QJsonObject &json, const QDir &dir) {
 
 void SeismEvent::addTransformOperation(TransformOperation oper) {
   _appliedOperations.insert(oper);
+//  emit dataChanged();
 }
 
 void SeismEvent::removeTransformOperation(TransformOperation oper) {
-  _appliedOperations.erase(oper);
+   _appliedOperations.erase(oper);
+//   emit dataChanged();
+}
+
+SeismEvent::Info::Info() : addedDateTime(QDateTime::currentDateTime()) {}
+
+void SeismEvent::Info::setName(const QString &name)
+{
+    this->name = name;
+}
+
+const QString &SeismEvent::Info::getName() const
+{
+    return name;
+}
+
+void SeismEvent::Info::setType(int type)
+{
+    this->type = type;
+}
+
+int SeismEvent::Info::getType() const
+{
+    return type;
+}
+
+void SeismEvent::Info::setAddedDateTime(const QDateTime & addedDateTime)
+{
+    this->addedDateTime = addedDateTime;
+}
+
+const QDateTime &SeismEvent::Info::getAddedDateTime() const
+{
+    return addedDateTime;
+}
+
+void SeismEvent::Info::setStampDateTime(const QDateTime & stampDateTime)
+{
+    this->stampDateTime = stampDateTime;
+}
+
+const QDateTime &SeismEvent::Info::getStampDateTime() const
+{
+    return stampDateTime;
 }
 
 } // namespace Data

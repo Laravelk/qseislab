@@ -103,7 +103,7 @@ PolarizationAnalysisWindow::PolarizationAnalysisWindow(
           &PolarizationAnalysisWindow::close);
   connect(_cancelButton, &QPushButton::clicked, this,
           &PolarizationAnalysisWindow::accept);
-  connect(event.get(), &Data::SeismEvent::changed, [this]() { update(); });
+  connect(event.get(), &Data::SeismEvent::dataChanged, [this]() { update(); });
   connect(_receiverBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
           [=](int index) {
             _receiverIndex = index - 1;
@@ -335,9 +335,9 @@ void PolarizationAnalysisWindow::drawTraces(
   }
 
   firstElement = static_cast<int>(pick.getPolarizationLeftBorder() /
-                                  component->getSampleInterval());
+                                  component->getInfo().getSampleInterval());
   lastElement = static_cast<int>(pick.getPolarizationRightBorder() /
-                                 component->getSampleInterval());
+                                 component->getInfo().getSampleInterval());
 
   drawCurve(component->getTraces().at(0), component->getTraces().at(1),
             component->getTraces().at(2), Qt::black, _scene, firstElement,

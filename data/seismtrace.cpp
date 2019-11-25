@@ -5,41 +5,6 @@
 namespace Data {
 SeismTrace::SeismTrace() {}
 
-// SeismTrace::SeismTrace(const QJsonObject &json,
-//                       std::pair<uint32_t, std::unique_ptr<float[]>> &data) {
-//  std::string err_msg;
-//  if (json.contains("sampleInterval")) {
-//    _sampleInterval = static_cast<float>(json["sampleInterval"].toDouble());
-//  } else {
-//    err_msg += "::sampleInterval : not found\n";
-//  }
-
-//  _bufferSize = data.first;
-//  _buffer = std::move(data.second);
-
-//  if (json.contains("sampleAmount")) {
-//    int jsize = json["sampleAmount"].toInt();
-//    if (jsize != static_cast<int>(_bufferSize)) {
-//      err_msg += "::data : data-size in json-file doesn`t match data-size in "
-//                 "bin-file\n";
-//    }
-//  } else {
-//    err_msg += "::sampleAmount : not found\n";
-//  }
-
-//  if (!err_msg.empty()) {
-//    err_msg += "\n";
-//    throw std::runtime_error(err_msg);
-//  }
-
-//  // calc _maxValue
-//  for (uint32_t i = 0; i < _bufferSize; ++i) {
-//    if (_buffer[i] > _maxValue) {
-//      _maxValue = _buffer[i];
-//    }
-//  }
-//}
-
 SeismTrace::SeismTrace(const SeismTrace &other)
     : _maxValue(other._maxValue), _bufferSize(other._bufferSize),
       _buffer(std::make_unique<float[]>(_bufferSize)) {
@@ -69,10 +34,11 @@ void SeismTrace::setBuffer(uint32_t size, float *buffer) {
       _maxValue = buffer[i];
     }
   }
+
+  emit changed();
 }
 
 QJsonObject &SeismTrace::writeToJson(QJsonObject &json) const {
-  //  json["sampleInterval"] = static_cast<double>(_sampleInterval);
   json["sampleAmount"] = static_cast<int>(_bufferSize);
   return json;
 }

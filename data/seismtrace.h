@@ -3,14 +3,13 @@
 #include <memory>
 
 #include <QJsonObject>
+#include <QObject>
 
 namespace Data {
-class SeismTrace {
+class SeismTrace : public QObject {
+    Q_OBJECT
 public:
   explicit SeismTrace();
-  //  explicit SeismTrace(
-  //      const QJsonObject &,
-  //      std::pair<uint32_t, std::unique_ptr<float[]>> &) noexcept(false);
 
   explicit SeismTrace(const SeismTrace &);
 
@@ -23,14 +22,18 @@ public:
 
   QJsonObject &writeToJson(QJsonObject &) const;
 
-private:
-  //  float _sampleInterval{0.0};
+  signals:
+      void changed() const;
 
+private:
   float _maxValue{-1.0};
 
   //    int _dataFormat; // NOTE: use later
 
   uint32_t _bufferSize{0};
+
+  // NOTE:
+  //  может просто хранить указатель, без умного укащателя?
   std::unique_ptr<float[]> _buffer;
 };
 

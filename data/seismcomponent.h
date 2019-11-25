@@ -17,6 +17,22 @@ namespace Data {
 class SeismComponent : public QObject {
   Q_OBJECT
 public:
+    class Info {
+    public:
+        Info();
+
+        void setStampDateTime(const QDateTime &);
+        const QDateTime &getStampDateTime() const;
+
+        void setSampleInterval(float);
+        float getSampleInterval() const;
+
+    private:
+        QDateTime stampDateTime;
+        float sampleInterval{0.0};
+
+        friend class SeismComponent;
+    };
   explicit SeismComponent(const QUuid &);
 
   explicit SeismComponent(const QJsonObject &json) noexcept(false);
@@ -25,11 +41,15 @@ public:
 
   const QUuid &getReceiverUuid() const;
 
-  const QDateTime &getStampDateTime() const;
-  void setStampDateTime(const QDateTime &);
+//  const QDateTime &getStampDateTime() const;
+//  void setStampDateTime(const QDateTime &);
 
-  float getSampleInterval() const;
-  void setSampleInterval(float);
+//  float getSampleInterval() const;
+//  void setSampleInterval(float);
+
+  void setInfo(const Info&);
+  const Info& getInfo() const;
+  Info& getInfo();
 
   float getMaxValue() const;
 
@@ -48,15 +68,20 @@ public:
   QJsonObject &writeToJson(QJsonObject &) const;
 
 signals:
-  void changed();
+  void infoChanged() const;
+  void dataChanged() const;
 
 private:
   QUuid _receiverUuid;
-  QDateTime _stampDateTime;
-  float _sampleInterval{0.0};
+
+  Info _info;
+//  QDateTime _stampDateTime;
+//  float _sampleInterval{0.0};
+
   float _maxValue{-1.0};
   int _tracesSize{-1};
   std::vector<std::shared_ptr<SeismTrace>> _traces;
+
   std::map<SeismWavePick::Type, SeismWavePick> _wavePicks_map;
 };
 

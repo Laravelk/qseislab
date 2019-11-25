@@ -268,6 +268,10 @@ void SeismProject::removeAllReceivers() {
 template <>
 void SeismProject::add<SeismEvent>(const std::shared_ptr<SeismEvent> &event) {
   _isSaved = false;
+
+  connect(event.get(), &SeismEvent::infoChanged, [this, &event]{emit updatedEvent(event);});
+  connect(event.get(), &SeismEvent::dataChanged, [this, &event]{emit updatedEvent(event);});
+
   auto &uuid = event->getUuid();
   _events_map[uuid] = event;
 

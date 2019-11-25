@@ -30,7 +30,7 @@ Controller::Controller(
   }
   std::set<QString> eventNames;
   for (auto &uuid_event : all_events) {
-    eventNames.insert(uuid_event.second->getName());
+      eventNames.insert(uuid_event.second->getInfo().getName());
   }
   _view = std::make_unique<View>(eventNames, wellNames_map);
   //                                 , _appliedOperations);
@@ -47,11 +47,14 @@ Controller::Controller(
               if (!components.empty()) {
                 std::unique_ptr<SeismEvent> event =
                     std::make_unique<SeismEvent>();
-                connect(event.get(), &Data::SeismEvent::changed, []() {
-                  //                            std::cout << "event changed" <<
-                  //                            std::endl;
+                connect(event.get(), &Data::SeismEvent::infoChanged, []() {
+                                              std::cout << "event info changed" <<std::endl;
                 });
-                event->setName(QFileInfo(path).baseName());
+                connect(event.get(), &Data::SeismEvent::dataChanged, []() {
+                    std::cout << "event info changed" <<std::endl;
+                });
+                // TODO: implement!
+//                event->setName(QFileInfo(path).baseName());
                 for (auto &component : components) {
                   event->addComponent(std::move(component));
                 }

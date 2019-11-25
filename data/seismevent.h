@@ -18,6 +18,31 @@ class SeismWell;
 class SeismEvent : public QObject {
   Q_OBJECT
 public:
+    class Info {
+    public:
+        Info();
+
+        void setName(const QString &);
+        const QString &getName() const;
+
+        void setType(int);
+        int getType() const;
+
+        void setAddedDateTime(const QDateTime &);
+        const QDateTime &getAddedDateTime() const;
+
+        void setStampDateTime(const QDateTime &);
+        const QDateTime &getStampDateTime() const;
+
+    private:
+        QString name;
+        int type = 0;
+        QDateTime addedDateTime;
+        QDateTime stampDateTime;
+
+        friend class SeismEvent;
+    };
+
   static const QString _default_path;
 
   enum TransformOperation { RotateDataToEBasis, TestMultiplier };
@@ -31,17 +56,21 @@ public:
 
   const QUuid &getUuid() const;
 
-  void setName(const QString &);
-  const QString &getName() const;
+  void setInfo(Info);
+  const Info& getInfo() const;
+  Info& getInfo();
+
+//  void setName(const QString &);
+//  const QString &getName() const;
 
   //  void setAddedDateTime(const QDateTime &);
-  const QDateTime &getAddedDateTime() const;
+//  const QDateTime &getAddedDateTime() const;
 
-  void setType(int);   // TODO: remove
-  int getType() const; // TODO: remove
+//  void setType(int);   // TODO: remove
+//  int getType() const; // TODO: remove
 
-  void setStampDateTime(const QDateTime &);
-  const QDateTime &getStampDateTime() const;
+//  void setStampDateTime(const QDateTime &);
+//  const QDateTime &getStampDateTime() const;
 
   int getPickAmountByType(const SeismWavePick::Type) const;
   int getReceiverAmount() const;
@@ -60,20 +89,25 @@ public:
   QJsonObject &writeToJson(QJsonObject &, const QDir &) noexcept(false);
 
 signals:
-  void changed();
+  void infoChanged() const;
+  void dataChanged() const;
 
 private:
   QUuid _uuid;
   QString _path;
 
-  QString _name;
-  QDateTime _addedDateTime;
+  Info _info;
 
-  int _type = 0; // TODO: remove
+//  QString _name;
+//  QDateTime _addedDateTime;
 
-  QDateTime _stampDateTime;
+//  int _type = 0; // TODO: remove
+
+//  QDateTime _stampDateTime;
+
   bool _isProcessed{false};
   Point _location{0, 0, 0};
+
   std::list<std::shared_ptr<SeismComponent>> _components;
 
   std::set<TransformOperation>

@@ -66,18 +66,19 @@ void InfoEvent::setEnabled(bool b) {
 
 void InfoEvent::update(SeismEvent const *const event) {
   if (event) {
-    _nameEdit->setText(event->getName());
-    _stampDateEdit->setDate(event->getStampDateTime().date());
-    _stampTimeEdit->setTime(event->getStampDateTime().time());
+      auto& eventInfo = event->getInfo();
+    _nameEdit->setText(eventInfo.getName());
+    _stampDateEdit->setDate(eventInfo.getStampDateTime().date());
+    _stampTimeEdit->setTime(eventInfo.getStampDateTime().time());
     _receiverAmountLabel->setText(QString::number(event->getComponentAmount()));
     _pWavePickAmountLabel->setText(QString::number(
         event->getPickAmountByType(Data::SeismWavePick::Type::PWAVE)));
     _sWavePickAmountLabel->setText(QString::number(
         event->getPickAmountByType(Data::SeismWavePick::Type::SWAVE)));
     _addedDateLabel->setText(
-        event->getAddedDateTime().date().toString("dd.MM.yy"));
+        eventInfo.getAddedDateTime().date().toString("dd.MM.yy"));
     _addedTimeLabel->setText(
-        event->getAddedDateTime().time().toString("hh:mm"));
+        eventInfo.getAddedDateTime().time().toString("hh:mm"));
   }
 }
 
@@ -95,8 +96,11 @@ void InfoEvent::clear() {
 }
 
 void InfoEvent::settingEventInfo(SeismEvent *const event) const {
-  event->setName(_nameEdit->text());
-  event->setStampDateTime({_stampDateEdit->date(), _stampTimeEdit->time()});
+    auto& info = event->getInfo();
+  info.setName(_nameEdit->text());
+  info.setStampDateTime({_stampDateEdit->date(), _stampTimeEdit->time()});
+
+  event->setInfo(info);
 }
 
 } // namespace EventOperation

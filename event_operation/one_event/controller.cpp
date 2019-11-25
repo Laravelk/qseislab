@@ -36,15 +36,20 @@ Controller::Controller(
   }
   std::set<QString> eventNames;
   for (auto &uuid_event : all_events) {
-    eventNames.insert(uuid_event.second->getName());
+      eventNames.insert(uuid_event.second->getInfo().getName());
   }
   // TODO: uncomment
   _view = std::make_unique<View>(eventNames, wellNames_map, _undoStack.get());
   // ...
 
-  connect(_event.get(), &Data::SeismEvent::changed, []() {
-    // _view->update(_event.get());
-    //              std::cout << "event changed" << std::endl;
+  connect(_event.get(), &Data::SeismEvent::infoChanged, [this]() {
+     _view->update(_event.get());
+                  std::cout << "event info changed" << std::endl;
+  });
+
+  connect(_event.get(), &Data::SeismEvent::dataChanged, [this]() {
+      _view->update(_event.get());
+      std::cout << "event info changed" << std::endl;
   });
 
   connect(_model, &Model::notify,
@@ -59,7 +64,8 @@ Controller::Controller(
                 _event->addComponent(std::move(component));
               }
               _eventNameContainer[wellUuid] = QFileInfo(filePath).baseName();
-              _event->setName(generateEventName());
+              // TODO: implement!
+              //              _event->setName(generateEventName());
 
               _view->update(_event.get(), wellUuid);
             }
@@ -77,7 +83,8 @@ Controller::Controller(
               _event->removeComponentByReceiverUuid(reciever->getUuid());
             }
             _eventNameContainer.erase(uuid);
-            _event->setName(generateEventName());
+            // TODO: implement!
+//            _event->setName(generateEventName());
 
             _view->update(_event.get(), uuid, well->getName());
           });

@@ -254,7 +254,7 @@ void View::update(
   for (auto &uuid_event : events_map) {
     auto &uuid = uuid_event.first;
     if (existingUuid.end() == existingUuid.find(uuid)) {
-      auto &name = uuid_event.second->getName();
+        auto &name = uuid_event.second->getInfo().getName();
       QListWidgetItem *item = new QListWidgetItem(name);
       item->setData(Qt::DecorationRole, uuid);
       _eventList->addItem(item);
