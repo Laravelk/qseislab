@@ -76,15 +76,7 @@ Controller::Controller(
         }
         _calculatePolarization->calculate(_events_map.at(_currentEventUuid));
         _view->getPolarGraph()->update(_events_map.at(_currentEventUuid));
-        for (auto &component : _events_map[_currentEventUuid].get()->getComponents()) {
-            for (auto &pick : component.get()->getWavePicks()) {
-                if (pick.second.getPolarizationAnalysisData() != std::nullopt) {
-                    pick.second.getPolarizationAnalysisData().value()->print();
-                    std::cerr << std::endl << std::endl;
-                }
-            }
-        }
-  });
+});
 
   connect(_view.get(), &View::changeCurrentEvent, [this](auto &uuid) {
     if (!_currentEventUuid.isNull()) {
@@ -93,14 +85,21 @@ Controller::Controller(
     }
     _currentEventUuid = uuid;
     _view->loadEvent(_events_map[_currentEventUuid]);
-    for (auto &component : _events_map[_currentEventUuid].get()->getComponents()) {
-        for (auto &pick : component.get()->getWavePicks()) {
-            std::cerr << "H" << std::endl;
-            if (pick.second.getPolarizationAnalysisData() != std::nullopt) {
-                pick.second.getPolarizationAnalysisData().value()->print();
-            }
-        }
-    }
+//    static int d = 0;
+//    int c = 0;
+//    std::cerr << "NEW DATATATATA " << d << "\n";
+//    d++;
+//    for (auto &component : _events_map[_currentEventUuid].get()->getComponents()) {
+//        c++;
+//        for (auto &pick : component.get()->getWavePicks()) {
+//            if (pick.second.getPolarizationAnalysisData() != std::nullopt) {
+////                pick.second.getPolarizationAnalysisData().value()->print();
+//                std::cerr << pick.second.getPolarizationAnalysisData().value()->isValid() <<std::endl << std::endl;
+//            } else {
+////                std::cerr << "n ";
+//            }
+//        }
+//    }
   });
 
   connect(_view.get(), &View::hideCurrentEvent, [this]() {
@@ -124,8 +123,18 @@ Controller::Controller(
               if (num == idx) {
                 Data::SeismWavePick wavePick =
                     Data::SeismWavePick(type, pick_val);
+                Data::SeismWavePick oldWavePick = component.get()->getWavePick(type);
+                wavePick.setPolarizationAnalysisData(oldWavePick.getPolarizationAnalysisData());
                 wavePick.setPolarizationLeftBorder(l_val);
                 wavePick.setPolarizationRightBorder(r_val);
+                if (oldWavePick.getPolarizationLeftBorder() != wavePick.getPolarizationLeftBorder()
+                        || oldWavePick.getPolarizationRightBorder() != wavePick.getPolarizationRightBorder() ||
+                        oldWavePick.getArrival() != wavePick.getArrival()) {
+//                    std::cerr << oldWavePick.getPolarizationLeftBorder() << " != " << wavePick.getPolarizationLeftBorder() << std::endl <<
+//                                 oldWavePick.getPolarizationRightBorder() << " != " << wavePick.getPolarizationRightBorder() << std::endl <<
+//                                 oldWavePick.getArrival() << " != " << wavePick.getArrival() << std::endl;
+                    wavePick.setValidDataStatus(false);
+                }
                 component->addWavePick(wavePick);
                 break;
               }

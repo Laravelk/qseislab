@@ -325,14 +325,14 @@ void GraphicView::scaleContentsBy(qreal factor) {
 
 QPointF GraphicView::calculatePickPosition(QPointF pointByMouse) {
   if (pointByMouse.y() > _countOfComponents - 1) {
-    return QPointF(pointByMouse.x() - 500 / MICROSECONDS_IN_SECOND, _countOfComponents - 1);
+    return QPointF(pointByMouse.x(), _countOfComponents - 1);
   }
 
   if (pointByMouse.y() < 0) {
-    return QPointF(pointByMouse.x() - 500 / MICROSECONDS_IN_SECOND, 0);
+    return QPointF(pointByMouse.x(), 0);
   }
 
-  return QPointF(pointByMouse.x() - 500 / MICROSECONDS_IN_SECOND, round(pointByMouse.y()));
+  return QPointF(pointByMouse.x(), round(pointByMouse.y()));
 }
 
 bool GraphicView::checkAvailability(Data::SeismWavePick::Type type, int index) {

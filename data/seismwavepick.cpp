@@ -100,7 +100,7 @@ bool SeismWavePick::getValidDataStatus()
     return false;
 }
 
-std::optional<SeismPolarizationAnalysisData *>
+const std::optional<SeismPolarizationAnalysisData *>
 SeismWavePick::getPolarizationAnalysisData() const {
 //  if ((*_polarizationData)->isValid()) {
 //    return _polarizationData.value();
@@ -111,11 +111,11 @@ SeismWavePick::getPolarizationAnalysisData() const {
 
 void SeismWavePick::setPolarizationAnalysisData(
     SeismPolarizationAnalysisData *data) {
-  _polarizationData = data;
+  _polarizationData.emplace(data);
 }
 
 void SeismWavePick::setPolarizationAnalysisData(
-    std::optional<SeismPolarizationAnalysisData *> &optionalData) {
+    const std::optional<SeismPolarizationAnalysisData *> &optionalData) {
   _polarizationData = optionalData;
 }
 

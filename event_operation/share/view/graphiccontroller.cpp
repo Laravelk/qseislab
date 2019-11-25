@@ -233,8 +233,7 @@ void GraphicController::hideAxisZ(bool hide) {
 void GraphicController::addWaveArrival(Data::SeismWavePick pick, int index) {
   _view->addPick(
       pick.getType(),
-      QPointF(static_cast<double>(pick.getArrival()) / MICROSECONDS_IN_SECOND -
-                  500.0 / MICROSECONDS_IN_SECOND,
+      QPointF(static_cast<double>(pick.getArrival()) / MICROSECONDS_IN_SECOND,
               index), _rangeAxisX,
       static_cast<double>(pick.getPolarizationLeftBorder()) /
           MICROSECONDS_IN_SECOND,

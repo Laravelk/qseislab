@@ -33,11 +33,11 @@ public:
   void setValidDataStatus(bool);
   bool getValidDataStatus();
 
-  std::optional<SeismPolarizationAnalysisData*>
+  const std::optional<SeismPolarizationAnalysisData*>
   getPolarizationAnalysisData() const;
 
   void setPolarizationAnalysisData(SeismPolarizationAnalysisData *);
-  void setPolarizationAnalysisData(std::optional<SeismPolarizationAnalysisData*> &);
+  void setPolarizationAnalysisData(const std::optional<SeismPolarizationAnalysisData*> &);
 
   QJsonObject &writeToJson(QJsonObject &) const noexcept(false);
 

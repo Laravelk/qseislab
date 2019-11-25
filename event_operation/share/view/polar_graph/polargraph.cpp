@@ -53,7 +53,7 @@ void PolarGraph::update(const std::unique_ptr<Data::SeismEvent> &event)
                         pick.second.getPolarizationAnalysisData().value();
                 double polarAngle = std::fmod(data->getAzimutDegrees(), 360) > 0
                         ? std::fmod(data->getAzimutDegrees(), 360) : 360 + std::fmod(data->getAzimutDegrees(), 360);
-                std::cerr << polarAngle << " " << data->getIncidenceInRadian() << std::endl;
+//                std::cerr << polarAngle << " " << data->getIncidenceInRadian() << std::endl;
                 series->append(polarAngle, data->getIncidenceInRadian());
             }
         }
