@@ -15,71 +15,33 @@
 
 namespace Data {
 class SeismWell;
-
-class EventInfo : public QObject {
-  Q_OBJECT
-public:
-  explicit EventInfo(QObject *parent = nullptr);
-
-  explicit EventInfo(const EventInfo &);
-
-  void setName(const QString &);
-  const QString &getName() const;
-
-  void setType(int);
-  int getType() const;
-
-  void setAddedDateTime(const QDateTime &);
-  const QDateTime &getAddedDateTime() const;
-
-  void setStampDateTime(const QDateTime &);
-  const QDateTime &getStampDateTime() const;
-
-signals:
-  void changed() const;
-
-private:
-  QString name;
-  int type = 0;
-  QDateTime addedDateTime;
-  QDateTime stampDateTime;
-
-  friend class SeismEvent;
-};
-
 class SeismEvent : public QObject {
   Q_OBJECT
 public:
-  //  class Info : public QObject {
-  //    Q_OBJECT
-  //  public:
-  //    explicit Info(QObject *parent = nullptr);
+  class Info {
+  public:
+    explicit Info();
 
-  //    explicit Info(const Info &);
+    void setName(const QString &);
+    const QString &getName() const;
 
-  //    void setName(const QString &);
-  //    const QString &getName() const;
+    void setType(int);
+    int getType() const;
 
-  //    void setType(int);
-  //    int getType() const;
+    void setAddedDateTime(const QDateTime &);
+    const QDateTime &getAddedDateTime() const;
 
-  //    void setAddedDateTime(const QDateTime &);
-  //    const QDateTime &getAddedDateTime() const;
+    void setStampDateTime(const QDateTime &);
+    const QDateTime &getStampDateTime() const;
 
-  //    void setStampDateTime(const QDateTime &);
-  //    const QDateTime &getStampDateTime() const;
+  private:
+    QString name;
+    int type = 0;
+    QDateTime addedDateTime;
+    QDateTime stampDateTime;
 
-  //  signals:
-  //    void changed() const;
-
-  //  private:
-  //    QString name;
-  //    int type = 0;
-  //    QDateTime addedDateTime;
-  //    QDateTime stampDateTime;
-
-  //    friend class SeismEvent;
-  //  };
+    friend class SeismEvent;
+  };
 
   static const QString _default_path;
 
@@ -94,21 +56,15 @@ public:
 
   const QUuid &getUuid() const;
 
+  void changeTrigger() const;
+
   /////// all-info
-  //  void setInfo(EventInfo);
-  EventInfo const *getInfo() const;
-  EventInfo *getInfo();
+  void setInfo(const Info &);
+  const Info &getInfo() const;
 
-  void setName(const QString &);
   const QString &getName() const;
-
-  void setAddedDateTime(const QDateTime &);
   const QDateTime &getAddedDateTime() const;
-
-  void setType(int);   // TODO: remove
   int getType() const; // TODO: remove
-
-  void setStampDateTime(const QDateTime &);
   const QDateTime &getStampDateTime() const;
   /////// all-info end
 
@@ -129,22 +85,14 @@ public:
   QJsonObject &writeToJson(QJsonObject &, const QDir &) noexcept(false);
 
 signals:
-  void infoChanged(EventInfo const *) const;
-  void dataChanged() const;
+  void infoChanged(SeismEvent const *) const;
+  void dataChanged(SeismEvent const *) const;
 
 private:
   QUuid _uuid;
   QString _path;
 
-  //  Info _info;
-  std::shared_ptr<EventInfo> _info;
-
-  //  QString _name;
-  //  QDateTime _addedDateTime;
-
-  //  int _type = 0; // TODO: remove
-
-  //  QDateTime _stampDateTime;
+  Info _info;
 
   bool _isProcessed{false};
   Point _location{0, 0, 0};

@@ -25,12 +25,18 @@ public:
   explicit View(const std::set<QString> &, Data::SeismEvent const *const,
                 QWidget *parent = nullptr);
 
-  void update(Data::SeismEvent const *const);
+  //  void update(Data::SeismEvent const *const);
+  bool allValid() const;
+
+  void updateInfoEvent(Data::SeismEvent const *const);
+  void updateDataEvent(Data::SeismEvent const *const);
 
   void settingEventInfo(Data::SeismEvent *const) const;
   ChartGesture *getChartGesture();
 
 signals:
+  void infoChanged() const;
+
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
   void createPolarizationAnalysisWindow();
 

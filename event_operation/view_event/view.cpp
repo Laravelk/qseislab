@@ -23,10 +23,12 @@ View::View(const std::set<QString> &eventNames, SeismEvent const *const event,
   // Setting`s end
 
   // Connecting
-  connect(_infoEvent, &InfoEvent::nameChanged, [this](auto &name) {
-    updateRepetition(name);
-    _graphicEvent->updateEventName(name);
-  });
+  //  connect(_infoEvent, &InfoEvent::nameChanged, [this](auto &name) {
+  //    updateRepetition(name);
+  //    _graphicEvent->updateEventName(name);
+  //  });
+  connect(_infoEvent, &InfoEvent::changed, [this]() { emit infoChanged(); });
+
   connect(_graphicEvent, &EventOperation::GraphicController::sendPicksInfo,
           [this](auto type, auto num, auto l_val, auto pick_val, auto r_val) {
             emit sendPicksInfo(type, num, l_val, pick_val, r_val);
@@ -37,7 +39,8 @@ View::View(const std::set<QString> &eventNames, SeismEvent const *const event,
           [this]() { emit createPolarizationAnalysisWindow(); });
   // Connecting end
 
-  update(event);
+  updateInfoEvent(event);
+  updateDataEvent(event);
 
   // Layout`s
   QVBoxLayout *leftLayout = new QVBoxLayout();
@@ -56,7 +59,22 @@ View::View(const std::set<QString> &eventNames, SeismEvent const *const event,
   // Layout`s end
 }
 
-void View::update(SeismEvent const *const event) {
+bool View::allValid() const { return _isValid; }
+
+// void View::update(SeismEvent const *const event) {
+//  _infoEvent->update(event);
+//  _graphicEvent->update(event);
+//}
+
+void View::updateInfoEvent(Data::SeismEvent const *const event) {
+  auto &name = event->getName();
+  updateRepetition(name);
+  _infoEvent->update(event);
+  _graphicEvent->updateEventName(name);
+}
+
+void View::updateDataEvent(Data::SeismEvent const *const event) {
+  //  _toolsWidget->update(event);
   _infoEvent->update(event);
   _graphicEvent->update(event);
 }

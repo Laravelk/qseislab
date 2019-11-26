@@ -31,17 +31,12 @@ class View : public QDialog {
 public:
   explicit View(const std::set<QString> &, const std::map<QUuid, QString> &,
                 QWidget *parent = nullptr);
-  //  explicit View(const std::set<QString> &, const std::map<QUuid, QString> &,
-  //  QUndoStack*,
-  //                QWidget *parent = nullptr);
 
-  //  void loadEvent(const std::unique_ptr<Data::SeismEvent> &);
-  //  void loadEvent(const std::unique_ptr<Data::SeismEvent> &,
-  //                 const std::unique_ptr<QUndoStack> &);
   void loadEvent(Data::SeismEvent const *const, QUndoStack const *const);
-  void unloadEvent(Data::SeismEvent const *const, QUndoStack const *const);
+  void unloadEvent(QUndoStack const *const);
 
-  void update(Data::SeismEvent const *const);
+  void updateInfoEvent(Data::SeismEvent const *const);
+  void updateDataEvent(Data::SeismEvent const *const);
 
   void update(const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &);
 
@@ -69,8 +64,6 @@ signals:
 
 private slots:
   void recvFilesPath(const QStringList &);
-
-  void infoEventUpdate(Data::EventInfo const *const);
 
 private:
   void addLocal(const QString &);

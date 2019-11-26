@@ -29,8 +29,6 @@ public:
   void settingEventInfo(Data::SeismEvent *const) const;
 
 signals:
-  void nameChanged(const QString &);
-
   void changed() const;
 
 private:
@@ -44,6 +42,8 @@ private:
 
   QLabel *_addedDateLabel;
   QLabel *_addedTimeLabel;
+
+  bool _allInfoUpdate{false};
 };
 
 } // namespace EventOperation

@@ -130,7 +130,9 @@ void GraphicController::update(SeismEvent const *const event) {
   _event = event;
 
   // setting event-name on title
-  _view->chart()->setTitle(event->getInfo()->getName());
+  //  _view->chart()->setTitle(event->getInfo().getName());
+
+  std::cout << "call here" << std::endl;
 
   _view->chart()->removeAllSeries();
   _allSeries.clear();

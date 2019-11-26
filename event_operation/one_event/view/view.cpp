@@ -19,66 +19,6 @@ typedef Data::SeismEvent SeismEvent;
 
 namespace EventOperation {
 namespace OneEvent {
-// View::View(const std::set<QString> &eventNames, SeismEvent const *const
-// event,
-//           QUndoStack const *const undoStack, QWidget *parent)
-//    : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
-//      _eventNames(eventNames) {
-
-//  commonSetting();
-//  //  _toolsWidget->update(event);
-//  //  _toolsWidget->setEnabled(true);
-//  _infoEvent->setEnabled(true);
-//  //  _infoEvent->update(event);
-//  //  _graphicEvent->update(event);
-//  _okButton->setEnabled(true);
-//  update(event);
-
-//  // Layout`s
-//  QVBoxLayout *leftLayout = new QVBoxLayout();
-//  leftLayout->addWidget(_infoEvent);
-//  leftLayout->addStretch(1);
-
-//  QHBoxLayout *buttonsLayout = new QHBoxLayout();
-//  //  buttonsLayout->addWidget(new QUndoView(undoStack)); // NOTE: undo/redo -
-//  //  view TODO: re-build
-//  auto undoButton = new QPushButton("Undo");
-//  auto redoButton = new QPushButton("Redo");
-//  undoButton->setEnabled(undoStack->canUndo());
-//  redoButton->setEnabled(undoStack->canRedo());
-//  //  undoButton->setDisabled(true);
-//  //  redoButton->setDisabled(true);
-//  connect(undoStack, &QUndoStack::canUndoChanged, undoButton,
-//          &QPushButton::setEnabled);
-//  connect(undoStack, &QUndoStack::canRedoChanged, redoButton,
-//          &QPushButton::setEnabled);
-//  connect(undoButton, &QPushButton::clicked, [this]() { emit undoClicked();
-//  }); connect(redoButton, &QPushButton::clicked, [this]() { emit
-//  redoClicked(); }); buttonsLayout->addWidget(undoButton);
-//  buttonsLayout->addWidget(redoButton);
-
-//  buttonsLayout->addWidget(_toolsWidget);
-//  buttonsLayout->addStretch(1);
-//  buttonsLayout->addWidget(_okButton);
-//  buttonsLayout->addWidget(_cancelButton);
-
-//  //  QVBoxLayout *graphicLayout = new QVBoxLayout();
-//  //  graphicLayout->addWidget(_graphicEvent->getView(), 10);
-//  //  graphicLayout->addStretch(1);
-//  //  graphicLayout->addLayout(buttonsLayout);
-
-//  QHBoxLayout *mainLayout = new QHBoxLayout();
-//  mainLayout->addLayout(leftLayout);
-//  mainLayout->addWidget(_graphicEvent->getView(), 10);
-
-//  QVBoxLayout *mainButtonLayout = new QVBoxLayout();
-//  mainButtonLayout->addLayout(mainLayout);
-//  mainButtonLayout->addStretch(1);
-//  mainButtonLayout->addLayout(buttonsLayout);
-
-//  setLayout(mainButtonLayout);
-//  // Layout`s end
-//}
 
 View::View(const std::set<QString> &eventNames,
            const std::map<QUuid, QString> &wellNames_map,
@@ -128,6 +68,8 @@ View::View(const std::set<QString> &eventNames,
     _wellManagersLayout->insertWidget(_wellManagersLayout->count() - 1,
                                       wellManager);
   });
+
+  connect(_infoEvent, &InfoEvent::changed, [this]() { emit infoChanged(); });
 
   QHBoxLayout *buttonLayoutManagers = new QHBoxLayout();
   buttonLayoutManagers->addStretch(1);
@@ -193,7 +135,21 @@ View::View(const std::set<QString> &eventNames,
   // Layout`s end
 }
 
-void View::update(SeismEvent const *const event) {
+// void View::update(SeismEvent const *const event) {
+//  _toolsWidget->update(event);
+//  _infoEvent->update(event);
+//  _graphicEvent->update(event);
+//}
+
+void View::updateInfoEvent(Data::SeismEvent const *const event) {
+  //  _toolsWidget->update(event);
+  auto &name = event->getName();
+  updateRepetition(name);
+  _infoEvent->update(event);
+  _graphicEvent->updateEventName(name);
+}
+
+void View::updateDataEvent(Data::SeismEvent const *const event) {
   _toolsWidget->update(event);
   _infoEvent->update(event);
   _graphicEvent->update(event);
@@ -275,8 +231,6 @@ void View::commonSetting() {
   setWindowTitle("SeismWindow");
   setMinimumSize(1300, 590);
 
-  //  _toolsWidget->setDisabled(true);
-
   _infoEvent->setDisabled(true);
 
   _okButton->setDisabled(true);
@@ -286,10 +240,7 @@ void View::commonSetting() {
   // Connecting
   connect(_toolsWidget, &EventToolsWidget::eventTransformClicked,
           [this](auto oper) { emit eventTransformClicked(oper); });
-  connect(_infoEvent, &InfoEvent::nameChanged, [this](auto &name) {
-    updateRepetition(name);
-    _graphicEvent->updateEventName(name);
-  });
+
   connect(_graphicEvent, &EventOperation::GraphicController::sendPicksInfo,
           [this](auto type, auto num, auto l_val, auto pick_val, auto r_val) {
             emit sendPicksInfo(type, num, l_val, pick_val, r_val);

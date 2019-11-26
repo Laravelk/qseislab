@@ -30,11 +30,9 @@ Controller::Controller(
   }
   std::set<QString> eventNames;
   for (auto &uuid_event : all_events) {
-    eventNames.insert(uuid_event.second->getInfo()->getName());
+    eventNames.insert(uuid_event.second->getInfo().getName());
   }
   _view = std::make_unique<View>(eventNames, wellNames_map);
-  //                                 , _appliedOperations);
-  // ...
 
   connect(_model, &Model::notify,
           [this](auto &msg) { _view->setNotification(msg); });
@@ -53,16 +51,25 @@ Controller::Controller(
               if (!components.empty()) {
                 std::shared_ptr<SeismEvent> event =
                     std::make_shared<SeismEvent>();
-                //            connect(event.get(),
-                //            &Data::SeismEvent::infoChanged,
-                //                    []() { std::cout << "event info changed"
-                //                    << std::endl; });
-                //            connect(event.get(),
-                //            &Data::SeismEvent::dataChanged,
-                //                    []() { std::cout << "event info changed"
-                //                    << std::endl; });
-                // TODO: implement!
-                event->setName(QFileInfo(path).baseName());
+
+                connect(event.get(), &Data::SeismEvent::infoChanged,
+                        [this](auto event) {
+                          if (event->getUuid() == _currentEventUuid) {
+                            _view->updateInfoEvent(event);
+                          }
+                        });
+
+                connect(event.get(), &Data::SeismEvent::dataChanged,
+                        [this](auto event) {
+                          if (event->getUuid() == _currentEventUuid) {
+                            _view->updateDataEvent(event);
+                          }
+                        });
+
+                auto info = event->getInfo();
+                info.setName(QFileInfo(path).baseName());
+                event->setInfo(info);
+
                 for (auto &component : components) {
                   event->addComponent(std::move(component));
                 }
@@ -81,22 +88,13 @@ Controller::Controller(
   });
 
   connect(_view.get(), &View::changeCurrentEvent, [this](auto &uuid) {
-    //    if (!_currentEventUuid.isNull()) {
-    //      _view->settingEventInfo(_events_map[_currentEventUuid].get());
-    //    }
-
     _currentEventUuid = uuid;
     _view->loadEvent(_events_map[_currentEventUuid].get(),
                      _stacks_map[_currentEventUuid].get());
   });
 
   connect(_view.get(), &View::hideCurrentEvent, [this]() {
-    //    if (!_currentEventUuid.isNull()) {
-    //      _view->settingEventInfo(_events_map[_currentEventUuid].get());
-    //    }
-
-    _view->unloadEvent(_events_map[_currentEventUuid].get(),
-                       _stacks_map[_currentEventUuid].get());
+    _view->unloadEvent(_stacks_map[_currentEventUuid].get());
     _currentEventUuid = QUuid();
   });
 
@@ -125,13 +123,11 @@ Controller::Controller(
   connect(_view.get(), &View::undoClicked, [this]() {
     if (!_currentEventUuid.isNull()) {
       _stacks_map[_currentEventUuid]->undo();
-      _view->update(_events_map[_currentEventUuid].get());
     }
   });
   connect(_view.get(), &View::redoClicked, [this]() {
     if (!_currentEventUuid.isNull()) {
       _stacks_map[_currentEventUuid]->redo();
-      _view->update(_events_map[_currentEventUuid].get());
     }
   });
 
@@ -157,8 +153,6 @@ Controller::Controller(
 
               auto command = UndoCommandGetter::get(oper, QUuid(), event.get());
               _stacks_map[_currentEventUuid]->push(command);
-
-              _view->update(event.get());
             }
           });
 
@@ -172,9 +166,6 @@ void Controller::start() {
 
 void Controller::finish(int result) {
   if (QDialog::Accepted == result) {
-    //    if (!_currentEventUuid.isNull()) {
-    //      _view->settingEventInfo(_events_map[_currentEventUuid].get());
-    //    }
     emit sendEventsAndStacks(_events_map, _stacks_map);
   }
 

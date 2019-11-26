@@ -31,8 +31,6 @@ public:
   void finish(int);
 
 signals:
-  //  void sendEvents(std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &)
-  //  const;
   void sendEventsAndStacks(
       std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
       std::map<QUuid, std::shared_ptr<CustomIndividualUndoStack>> &) const;
@@ -49,8 +47,6 @@ private:
   QUuid _currentEventUuid;
 
   PolarizationAnalysisWindow *_polarizationWindow;
-
-  //  QUndoStack* _appliedOperations;
 };
 
 } // namespace MoreEvents

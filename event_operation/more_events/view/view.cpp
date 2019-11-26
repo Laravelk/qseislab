@@ -121,18 +121,7 @@ View::View(const std::set<QString> &globalEventNames,
     }
   });
 
-  connect(_infoEvent, &InfoEvent::nameChanged, [this](auto &name) {
-    auto item = _eventList->selectedItems()[0];
-    auto oldName = item->text();
-    removeLocal(oldName);
-    updateRepetition(oldName);
-
-    addLocal(name);
-    item->setText(name);
-    _infoEvent->setBrush(updateRepetition(name));
-
-    _graphicEvent->updateEventName(name);
-  });
+  connect(_infoEvent, &InfoEvent::changed, [this]() { emit infoChanged(); });
 
   connect(_graphicEvent, &EventOperation::GraphicController::sendPicksInfo,
           [this](auto type, auto num, auto l_val, auto pick_val, auto r_val) {
@@ -170,9 +159,7 @@ View::View(const std::set<QString> &globalEventNames,
   _redoButton = new QPushButton("Redo");
   _undoButton->setDisabled(true);
   _redoButton->setDisabled(true);
-  //  connect(undoStack, &QUndoStack::canUndoChanged, undoButton,
-  //  &QPushButton::setEnabled); connect(undoStack, &QUndoStack::canRedoChanged,
-  //  redoButton, &QPushButton::setEnabled);
+
   connect(_undoButton, &QPushButton::clicked, [this]() { emit undoClicked(); });
   connect(_redoButton, &QPushButton::clicked, [this]() { emit redoClicked(); });
   buttonsLayout->addWidget(_undoButton);
@@ -203,10 +190,6 @@ View::View(const std::set<QString> &globalEventNames,
 
 void View::loadEvent(SeismEvent const *const event,
                      QUndoStack const *const undoStack) {
-  connect(event, &SeismEvent::infoChanged, this, &View::infoEventUpdate);
-
-  //  connect(event, &SeismEvent::dataChanged, [this] { _ });
-
   connect(undoStack, &QUndoStack::canUndoChanged, _undoButton,
           &QPushButton::setEnabled);
   connect(undoStack, &QUndoStack::canRedoChanged, _redoButton,
@@ -223,10 +206,7 @@ void View::loadEvent(SeismEvent const *const event,
   _graphicEvent->show();
 }
 
-void View::unloadEvent(SeismEvent const *const event,
-                       QUndoStack const *const undoStack) {
-  disconnect(event, &SeismEvent::infoChanged, this, &View::infoEventUpdate);
-
+void View::unloadEvent(QUndoStack const *const undoStack) {
   disconnect(undoStack, &QUndoStack::canUndoChanged, _undoButton,
              &QPushButton::setEnabled);
   disconnect(undoStack, &QUndoStack::canRedoChanged, _redoButton,
@@ -244,10 +224,27 @@ void View::unloadEvent(SeismEvent const *const event,
   _infoEvent->setDisabled(true);
 }
 
-void View::update(SeismEvent const *const event) {
+void View::updateInfoEvent(Data::SeismEvent const *const event) {
+  _infoEvent->update(event);
+  auto &name = event->getName();
+  _graphicEvent->updateEventName(name);
+
+  // Updating _eventList and repetition
+  auto item = _eventList->selectedItems()[0];
+  auto oldName = item->text();
+  removeLocal(oldName);
+  updateRepetition(oldName);
+
+  addLocal(name);
+  item->setText(name);
+  _infoEvent->setBrush(updateRepetition(name));
+  // Updating _eventList and repetition end
+}
+
+void View::updateDataEvent(Data::SeismEvent const *const event) {
   _toolsWidget->update(event);
+  _infoEvent->update(event);
   _graphicEvent->update(event);
-  // NOTE: надо _eventList обновлять?
 }
 
 void View::update(
@@ -263,7 +260,7 @@ void View::update(
   for (auto &uuid_event : events_map) {
     auto &uuid = uuid_event.first;
     if (existingUuid.end() == existingUuid.find(uuid)) {
-      auto &name = uuid_event.second->getInfo()->getName();
+      auto &name = uuid_event.second->getInfo().getName();
       QListWidgetItem *item = new QListWidgetItem(name);
       item->setData(Qt::DecorationRole, uuid);
       _eventList->addItem(item);
@@ -288,21 +285,6 @@ ChartGesture *View::getChartGesture() { return _graphicEvent->getModel(); }
 
 void View::recvFilesPath(const QStringList &paths) {
   emit sendWellUuidAndFilePaths(_wellUuid, paths);
-}
-
-void View::infoEventUpdate(Data::EventInfo const *const info) {
-  auto &name = info->getName();
-
-  auto item = _eventList->selectedItems()[0];
-  auto oldName = item->text();
-  removeLocal(oldName);
-  updateRepetition(oldName);
-
-  addLocal(name);
-  item->setText(name);
-  _infoEvent->setBrush(updateRepetition(name));
-
-  _graphicEvent->updateEventName(name);
 }
 
 void View::addLocal(const QString &name) {

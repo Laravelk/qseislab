@@ -29,19 +29,29 @@ Controller::Controller(
     if (_event->getUuid() == uuid_event.first) {
       continue;
     }
-    const auto &name = uuid_event.second->getInfo()->getName();
-    if (name != _event->getInfo()->getName()) {
+    const auto &name = uuid_event.second->getInfo().getName();
+    if (name != _event->getName()) {
 
-      eventNames.insert(uuid_event.second->getInfo()->getName());
+      eventNames.insert(uuid_event.second->getName());
     }
   }
   _view = new View(eventNames, _event.get());
 
+  connect(_view, &View::infoChanged,
+          [this] { _view->settingEventInfo(_event.get()); });
+
   connect(_event.get(), &Data::SeismEvent::infoChanged,
-          []() { std::cout << "event info changed" << std::endl; });
+          [this](auto event) { _view->updateInfoEvent(event); });
 
   connect(_event.get(), &Data::SeismEvent::dataChanged,
-          []() { std::cout << "event data changed" << std::endl; });
+          [this](auto event) { _view->updateDataEvent(event); });
+
+  //  connect(_event.get(), &Data::SeismEvent::infoChanged,
+  //          [this](auto event) { std::cout << "event info changed" <<
+  //          std::endl; });
+
+  //  connect(_event.get(), &Data::SeismEvent::dataChanged,
+  //          []() { std::cout << "event data changed" << std::endl; });
 
   connect(_view, &View::createPolarizationAnalysisWindow, [this]() {
     _polarizationWindow = new PolarizationAnalysisWindow(_event);

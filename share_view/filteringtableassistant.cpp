@@ -306,9 +306,54 @@ void FilteringTableAssistant::enbledFilter(int enable,
 }
 
 template <>
+void FilteringTableAssistant::update<SeismEvent>(
+    SeismEvent const *const event) {
+  _objectsTable->setSortingEnabled(false);
+
+  auto &uuid = event->getUuid();
+  //  auto info = event->getInfo();
+  for (int row = 0; row < _objectsTable->rowCount(); ++row) {
+    if (uuid == _objectsTable->item(row, 0)->data(Qt::DisplayRole).toUuid()) {
+      _objectsTable->item(row, 2)->setData(Qt::DisplayRole, event->getName());
+      _objectsTable->item(row, 3)->setData(Qt::DisplayRole, event->getType());
+      _objectsTable->item(row, 4)->setData(Qt::DisplayRole,
+                                           event->getComponentAmount());
+      _objectsTable->item(row, 5)->setData(
+          Qt::DisplayRole,
+          event->getPickAmountByType(Data::SeismWavePick::Type::PWAVE));
+      _objectsTable->item(row, 6)->setData(
+          Qt::DisplayRole,
+          event->getPickAmountByType(Data::SeismWavePick::Type::SWAVE));
+      if (event->isProcessed()) {
+        auto &location = event->getLocation();
+        _objectsTable->item(row, 7)->setData(
+            Qt::DisplayRole, static_cast<double>(std::get<0>(location)));
+        _objectsTable->item(row, 8)->setData(
+            Qt::DisplayRole, static_cast<double>(std::get<1>(location)));
+        _objectsTable->item(row, 9)->setData(
+            Qt::DisplayRole, static_cast<double>(std::get<2>(location)));
+      }
+      _objectsTable->item(row, 10)->setData(
+          Qt::DisplayRole,
+          event->getStampDateTime().date().toString("dd.MM.yyyy"));
+      _objectsTable->item(row, 11)->setData(
+          Qt::DisplayRole,
+          event->getStampDateTime().time().toString("hh:mm:zzz"));
+      break;
+    }
+  }
+
+  _objectsTable->resizeColumnsToContents();
+  _objectsTable->setSortingEnabled(true);
+}
+
+template <>
 void FilteringTableAssistant::add<SeismEvent>(SeismEvent const *const event) {
   _objectsTable->setSortingEnabled(false);
   _objectsTable->insertRow(_objectsTable->rowCount());
+
+  connect(event, &SeismEvent::infoChanged, this,
+          &FilteringTableAssistant::update<SeismEvent>);
 
   int row = _objectsTable->rowCount() - 1;
 
@@ -317,12 +362,12 @@ void FilteringTableAssistant::add<SeismEvent>(SeismEvent const *const event) {
 
   _objectsTable->setItem(row, 1, new QTableWidgetItem());
 
-  auto info = event->getInfo();
+  //  auto info = event->getInfo();
 
-  _objectsTable->setItem(row, 2, new QTableWidgetItem(info->getName()));
+  _objectsTable->setItem(row, 2, new QTableWidgetItem(event->getName()));
 
   _objectsTable->setItem(
-      row, 3, new QTableWidgetItem(QString::number(info->getType())));
+      row, 3, new QTableWidgetItem(QString::number(event->getType())));
 
   _objectsTable->setItem(
       row, 4,
@@ -353,12 +398,12 @@ void FilteringTableAssistant::add<SeismEvent>(SeismEvent const *const event) {
   _objectsTable->setItem(
       row, 10,
       new QTableWidgetItem(
-          info->getStampDateTime().date().toString("dd.MM.yy")));
+          event->getStampDateTime().date().toString("dd.MM.yy")));
 
   _objectsTable->setItem(
       row, 11,
       new QTableWidgetItem(
-          info->getStampDateTime().time().toString("hh:mm:zzz")));
+          event->getStampDateTime().time().toString("hh:mm:zzz")));
 
   QPushButton *removeButton = new QPushButton();
   QIcon icon(":/remove_button.png");
@@ -367,48 +412,6 @@ void FilteringTableAssistant::add<SeismEvent>(SeismEvent const *const event) {
   _objectsTable->setCellWidget(row, 13, removeButton);
   connect(removeButton, &QPushButton::clicked,
           [this, uuid]() { emit removeClicked(uuid); });
-
-  _objectsTable->resizeColumnsToContents();
-  _objectsTable->setSortingEnabled(true);
-}
-
-template <>
-void FilteringTableAssistant::update<SeismEvent>(
-    SeismEvent const *const event) {
-  _objectsTable->setSortingEnabled(false);
-
-  auto &uuid = event->getUuid();
-  auto info = event->getInfo();
-  for (int row = 0; row < _objectsTable->rowCount(); ++row) {
-    if (uuid == _objectsTable->item(row, 0)->data(Qt::DisplayRole).toUuid()) {
-      _objectsTable->item(row, 2)->setData(Qt::DisplayRole, info->getName());
-      _objectsTable->item(row, 3)->setData(Qt::DisplayRole, info->getType());
-      _objectsTable->item(row, 4)->setData(Qt::DisplayRole,
-                                           event->getComponentAmount());
-      _objectsTable->item(row, 5)->setData(
-          Qt::DisplayRole,
-          event->getPickAmountByType(Data::SeismWavePick::Type::PWAVE));
-      _objectsTable->item(row, 6)->setData(
-          Qt::DisplayRole,
-          event->getPickAmountByType(Data::SeismWavePick::Type::SWAVE));
-      if (event->isProcessed()) {
-        auto &location = event->getLocation();
-        _objectsTable->item(row, 7)->setData(
-            Qt::DisplayRole, static_cast<double>(std::get<0>(location)));
-        _objectsTable->item(row, 8)->setData(
-            Qt::DisplayRole, static_cast<double>(std::get<1>(location)));
-        _objectsTable->item(row, 9)->setData(
-            Qt::DisplayRole, static_cast<double>(std::get<2>(location)));
-      }
-      _objectsTable->item(row, 10)->setData(
-          Qt::DisplayRole,
-          info->getStampDateTime().date().toString("dd.MM.yyyy"));
-      _objectsTable->item(row, 11)->setData(
-          Qt::DisplayRole,
-          info->getStampDateTime().time().toString("hh:mm:zzz"));
-      break;
-    }
-  }
 
   _objectsTable->resizeColumnsToContents();
   _objectsTable->setSortingEnabled(true);

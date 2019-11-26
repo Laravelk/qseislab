@@ -24,7 +24,8 @@ SeismComponent::SeismComponent(const QJsonObject &json) {
   //  }
 
   if (json.contains("sampleInterval")) {
-    _info.sampleInterval = static_cast<float>(json["sampleInterval"].toDouble());
+    _info.sampleInterval =
+        static_cast<float>(json["sampleInterval"].toDouble());
   } else {
     err_msg += "::sampleInterval : not found\n";
   }
@@ -102,42 +103,32 @@ SeismComponent::SeismComponent(const QJsonObject &json) {
 
 SeismComponent::SeismComponent(const SeismComponent &other)
     : _receiverUuid(other._receiverUuid),
-//      _sampleInterval(other._sampleInterval),
-    _info(other._info),
-    _maxValue(other._maxValue), _traces(other._traces), _wavePicks_map(other._wavePicks_map) {
-
-}
+      //      _sampleInterval(other._sampleInterval),
+      _info(other._info), _maxValue(other._maxValue), _traces(other._traces),
+      _wavePicks_map(other._wavePicks_map) {}
 
 const QUuid &SeismComponent::getReceiverUuid() const { return _receiverUuid; }
 
-void SeismComponent::setInfo(const SeismComponent::Info &info)
-{
-    _info = info;
-    emit infoChanged();
+void SeismComponent::setInfo(const SeismComponent::Info &info) {
+  _info = info;
+  emit infoChanged();
 }
 
-const SeismComponent::Info &SeismComponent::getInfo() const
-{
-    return _info;
-}
+const SeismComponent::Info &SeismComponent::getInfo() const { return _info; }
 
+SeismComponent::Info &SeismComponent::getInfo() { return _info; }
 
-SeismComponent::Info &SeismComponent::getInfo()
-{
-    return _info;
-}
-
-//const QDateTime &SeismComponent::getStampDateTime() const {
+// const QDateTime &SeismComponent::getStampDateTime() const {
 //  return _stampDateTime;
 //}
 
-//void SeismComponent::setStampDateTime(const QDateTime &dateTime) {
+// void SeismComponent::setStampDateTime(const QDateTime &dateTime) {
 //  _stampDateTime = dateTime;
 //}
 
-//float SeismComponent::getSampleInterval() const { return _sampleInterval; }
+// float SeismComponent::getSampleInterval() const { return _sampleInterval; }
 
-//void SeismComponent::setSampleInterval(float sampleInterval) {
+// void SeismComponent::setSampleInterval(float sampleInterval) {
 //  _sampleInterval = sampleInterval;
 //}
 
@@ -147,6 +138,8 @@ void SeismComponent::addTrace(const std::shared_ptr<SeismTrace> &trace) {
   if (_maxValue < trace->getMaxValue()) {
     _maxValue = trace->getMaxValue();
   }
+
+  connect(trace.get(), &SeismTrace::changed, [this] { emit dataChanged(); });
 
   // TODO: добавление трасс разного размера
   // NOTE: пока что берется наибольщий размер, а другие добиваются нулями
@@ -229,17 +222,17 @@ QJsonObject &SeismComponent::writeToJson(QJsonObject &json) const {
 SeismComponent::Info::Info() {}
 
 const QDateTime &SeismComponent::Info::getStampDateTime() const {
-    return stampDateTime;
+  return stampDateTime;
 }
 
 void SeismComponent::Info::setStampDateTime(const QDateTime &dateTime) {
-    this->stampDateTime = dateTime;
+  this->stampDateTime = dateTime;
 }
 
 float SeismComponent::Info::getSampleInterval() const { return sampleInterval; }
 
 void SeismComponent::Info::setSampleInterval(float sampleInterval) {
-    this->sampleInterval = sampleInterval;
+  this->sampleInterval = sampleInterval;
 }
 
 } // namespace Data

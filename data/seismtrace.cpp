@@ -13,6 +13,8 @@ SeismTrace::SeismTrace(const SeismTrace &other)
   }
 }
 
+// void SeismTrace::triggerChange() const { emit changed(); }
+
 float SeismTrace::getMaxValue() const { return _maxValue; }
 
 int SeismTrace::getBufferSize() const { return static_cast<int>(_bufferSize); }

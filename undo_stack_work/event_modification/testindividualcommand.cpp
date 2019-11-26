@@ -1,6 +1,6 @@
 #include "testindividualcommand.h"
 
-#include <iostream>
+#include <iostream> // TODO: remove
 
 TestIndividualCommand::TestIndividualCommand(const QUuid &shareUuid,
                                              Data::SeismEvent *event,
@@ -21,6 +21,7 @@ void TestIndividualCommand::undo() {
       }
     }
   }
+  _event->changeTrigger();
 }
 
 void TestIndividualCommand::redo() {
@@ -34,6 +35,7 @@ void TestIndividualCommand::redo() {
       }
     }
   }
+  _event->changeTrigger();
 }
 
 bool TestIndividualCommand::is(

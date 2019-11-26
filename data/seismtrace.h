@@ -7,11 +7,13 @@
 
 namespace Data {
 class SeismTrace : public QObject {
-    Q_OBJECT
+  Q_OBJECT
 public:
   explicit SeismTrace();
 
   explicit SeismTrace(const SeismTrace &);
+
+  //  void triggerChange() const;
 
   float getMaxValue() const;
 
@@ -22,8 +24,8 @@ public:
 
   QJsonObject &writeToJson(QJsonObject &) const;
 
-  signals:
-      void changed() const;
+signals:
+  void changed() const;
 
 private:
   float _maxValue{-1.0};

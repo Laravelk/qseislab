@@ -16,6 +16,8 @@
 #include <QMessageBox>
 #include <QPushButton>
 
+#include "event_operation/view_event/view.h" // TODO: не должно быть этого!!
+
 typedef Data::SeismProject SeismProject;
 typedef Data::SeismEvent SeismEvent;
 typedef Data::SeismHorizon SeismHorizon;
@@ -41,8 +43,11 @@ WorkPage::WorkPage(QWidget *parent)
   connect(_workPages, &QTabWidget::tabCloseRequested, [this](auto index) {
     if (0 != index) {
       auto page = _workPages->widget(index);
-      _workPages->removeTab(index);
-      emit eventPageClosed(_pages_uuids_map.at(page));
+      // TODO: очень плохо - не надо так!
+      if (static_cast<EventOperation::ViewEvent::View *>(page)->allValid()) {
+        _workPages->removeTab(index);
+        emit eventPageClosed(_pages_uuids_map.at(page));
+      }
     }
   });
 
@@ -153,7 +158,12 @@ void WorkPage::loadProject(Data::SeismProject const *const project) {
 
 void WorkPage::addEventPage(QWidget *eventPage, SeismEvent const *const event) {
   _pages_uuids_map[eventPage] = event->getUuid();
-  _workPages->addTab(eventPage, event->getInfo()->getName());
+  _workPages->addTab(eventPage, event->getName());
+  connect(event, &SeismEvent::infoChanged, [this, eventPage](auto event) {
+    auto index = _workPages->indexOf(eventPage);
+    auto &name = event->getName();
+    _workPages->setTabText(index, name);
+  });
   _workPages->setCurrentWidget(eventPage);
 }
 

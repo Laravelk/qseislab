@@ -4,6 +4,8 @@
 
 #include <QFormLayout>
 
+#include <iostream> // TODO: remove
+
 typedef Data::SeismEvent SeismEvent;
 
 namespace EventOperation {
@@ -17,8 +19,8 @@ InfoEvent::InfoEvent(QWidget *parent)
   //  setFixedWidth(250);
   setFrameStyle(1);
 
-  _stampDateEdit->setMinimumDate(QDate::currentDate().addDays(-365));
-  _stampDateEdit->setMaximumDate(QDate::currentDate().addDays(365));
+  _nameEdit->setMaxLength(60);
+
   _stampDateEdit->setDisplayFormat("dd.MM.yy");
   _stampDateEdit->setCalendarPopup(true);
 
@@ -26,12 +28,21 @@ InfoEvent::InfoEvent(QWidget *parent)
 
   connect(_nameEdit, &QLineEdit::textChanged, [this](auto &text) {
     if (0 != text.count()) {
-      //      emit nameChanged(text);
+      if (_allInfoUpdate) {
+        emit changed();
+      }
+    }
+  });
+  connect(_stampDateEdit, &QDateEdit::dateChanged, [this] {
+    if (_allInfoUpdate) {
       emit changed();
     }
   });
-  connect(_stampDateEdit, &QDateEdit::dateChanged, [this] { emit changed(); });
-  connect(_stampTimeEdit, &QTimeEdit::timeChanged, [this] { emit changed(); });
+  connect(_stampTimeEdit, &QTimeEdit::timeChanged, [this] {
+    if (_allInfoUpdate) {
+      emit changed();
+    }
+  });
 
   QFormLayout *formLayout = new QFormLayout;
   formLayout->addRow("Name:", _nameEdit);
@@ -68,24 +79,26 @@ void InfoEvent::setEnabled(bool b) {
 }
 
 void InfoEvent::update(SeismEvent const *const event) {
-  if (event) {
-    auto eventInfo = event->getInfo();
-    _nameEdit->setText(eventInfo->getName());
-    _stampDateEdit->setDate(eventInfo->getStampDateTime().date());
-    _stampTimeEdit->setTime(eventInfo->getStampDateTime().time());
-    _receiverAmountLabel->setText(QString::number(event->getComponentAmount()));
-    _pWavePickAmountLabel->setText(QString::number(
-        event->getPickAmountByType(Data::SeismWavePick::Type::PWAVE)));
-    _sWavePickAmountLabel->setText(QString::number(
-        event->getPickAmountByType(Data::SeismWavePick::Type::SWAVE)));
-    _addedDateLabel->setText(
-        eventInfo->getAddedDateTime().date().toString("dd.MM.yy"));
-    _addedTimeLabel->setText(
-        eventInfo->getAddedDateTime().time().toString("hh:mm"));
-  }
+  _allInfoUpdate = false;
+
+  _nameEdit->setText(event->getName());
+  _stampDateEdit->setDate(event->getStampDateTime().date());
+
+  _stampTimeEdit->setTime(event->getStampDateTime().time());
+  _receiverAmountLabel->setText(QString::number(event->getComponentAmount()));
+  _pWavePickAmountLabel->setText(QString::number(
+      event->getPickAmountByType(Data::SeismWavePick::Type::PWAVE)));
+  _sWavePickAmountLabel->setText(QString::number(
+      event->getPickAmountByType(Data::SeismWavePick::Type::SWAVE)));
+  _addedDateLabel->setText(
+      event->getAddedDateTime().date().toString("dd.MM.yy"));
+  _addedTimeLabel->setText(event->getAddedDateTime().time().toString("hh:mm"));
+
+  _allInfoUpdate = true;
 }
 
 void InfoEvent::clear() {
+  _allInfoUpdate = false;
   _nameEdit->clear();
   QPalette palette;
   palette.setBrush(QPalette::Base, Qt::white);
@@ -100,10 +113,9 @@ void InfoEvent::clear() {
 
 void InfoEvent::settingEventInfo(SeismEvent *const event) const {
   auto info = event->getInfo();
-  info->setName(_nameEdit->text());
-  info->setStampDateTime({_stampDateEdit->date(), _stampTimeEdit->time()});
-
-  //  event->setInfo(info);
+  info.setName(_nameEdit->text());
+  info.setStampDateTime({_stampDateEdit->date(), _stampTimeEdit->time()});
+  event->setInfo(info);
 }
 
 } // namespace EventOperation
