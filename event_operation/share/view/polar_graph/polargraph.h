@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QHBoxLayout>
+#include <QList>
 #include <QtCharts/QAreaSeries>
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
@@ -7,8 +9,6 @@
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QSplineSeries>
 #include <QtCharts/QValueAxis>
-#include <QHBoxLayout>
-#include <QList>
 #include <QtMath>
 #include <memory>
 
@@ -21,22 +21,21 @@ class SeismTrace;
 QT_CHARTS_USE_NAMESPACE;
 
 namespace EventOperation {
-class PolarGraph : public QFrame
-{
-    Q_OBJECT
+class PolarGraph : public QFrame {
+  Q_OBJECT
 public:
-    PolarGraph(QWidget *parent = nullptr);
-    QWidget *getView() const;
+  PolarGraph(QWidget *parent = nullptr);
+  QWidget *getView() const;
 
-    void update(const std::unique_ptr<Data::SeismEvent> &);
+  void update(const std::shared_ptr<Data::SeismEvent> &);
 
 private:
-    QPolarChart *_polarChart;
-    QChartView *_polarView;
-    QValueAxis *_angularAxis;
-    QValueAxis *_radialAxis;
-    QWidget *_allView;
-    QList<QScatterSeries *> _seriesList;
+  QPolarChart *_polarChart;
+  QChartView *_polarView;
+  QValueAxis *_angularAxis;
+  QValueAxis *_radialAxis;
+  QWidget *_allView;
+  QList<QScatterSeries *> _seriesList;
 };
 
-}
+} // namespace EventOperation

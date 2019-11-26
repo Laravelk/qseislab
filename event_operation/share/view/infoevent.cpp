@@ -28,18 +28,18 @@ InfoEvent::InfoEvent(QWidget *parent)
 
   connect(_nameEdit, &QLineEdit::textChanged, [this](auto &text) {
     if (0 != text.count()) {
-      if (_allInfoUpdated) {
+      if (_allInfoUpdate) {
         emit changed();
       }
     }
   });
   connect(_stampDateEdit, &QDateEdit::dateChanged, [this] {
-    if (_allInfoUpdated) {
+    if (_allInfoUpdate) {
       emit changed();
     }
   });
   connect(_stampTimeEdit, &QTimeEdit::timeChanged, [this] {
-    if (_allInfoUpdated) {
+    if (_allInfoUpdate) {
       emit changed();
     }
   });
@@ -78,7 +78,6 @@ void InfoEvent::setEnabled(bool b) {
   _stampTimeEdit->setEnabled(b);
 }
 
-<<<<<<< HEAD
 void InfoEvent::update(SeismEvent const *const event) {
   _allInfoUpdate = false;
 
@@ -100,26 +99,6 @@ void InfoEvent::update(SeismEvent const *const event) {
 
 void InfoEvent::clear() {
   _allInfoUpdate = false;
-=======
-void InfoEvent::update(const std::unique_ptr<Data::SeismEvent> &event) {
-  if (event) {
-    _nameEdit->setText(event->getName());
-    _stampDateEdit->setDate(event->getStampDateTime().date());
-    _stampTimeEdit->setTime(event->getStampDateTime().time());
-    _receiverAmountLabel->setText(QString::number(event->getComponentAmount()));
-    _pWavePickAmountLabel->setText(QString::number(
-        event->getPickAmountByType(Data::SeismWavePick::Type::PWAVE)));
-    _sWavePickAmountLabel->setText(QString::number(
-        event->getPickAmountByType(Data::SeismWavePick::Type::SWAVE)));
-    _addedDateLabel->setText(
-        event->getAddedDateTime().date().toString("dd.MM.yy"));
-    _addedTimeLabel->setText(
-        event->getAddedDateTime().time().toString("hh:mm"));
-  }
-}
-
-void InfoEvent::clear() {
->>>>>>> test
   _nameEdit->clear();
   QPalette palette;
   palette.setBrush(QPalette::Base, Qt::white);
@@ -132,18 +111,11 @@ void InfoEvent::clear() {
   _addedTimeLabel->clear();
 }
 
-<<<<<<< HEAD
 void InfoEvent::settingEventInfo(SeismEvent *const event) const {
   auto info = event->getInfo();
   info.setName(_nameEdit->text());
   info.setStampDateTime({_stampDateEdit->date(), _stampTimeEdit->time()});
   event->setInfo(info);
-=======
-void InfoEvent::settingEventInfo(
-    const std::unique_ptr<Data::SeismEvent> &event) const {
-  event->setName(_nameEdit->text());
-  event->setStampDateTime({_stampDateEdit->date(), _stampTimeEdit->time()});
->>>>>>> test
 }
 
 } // namespace EventOperation

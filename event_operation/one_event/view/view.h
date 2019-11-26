@@ -1,5 +1,6 @@
 #pragma once
 
+#include "data/seismevent.h"
 #include "data/seismwavepick.h"
 
 #include <QBoxLayout>
@@ -12,9 +13,10 @@
 #include <QRadioButton>
 #include <QSlider>
 #include <QTableWidget>
+#include <QUndoStack>
 
 namespace Data {
-class SeismEvent;
+// class SeismEvent;
 class SeismWell;
 } // namespace Data
 
@@ -28,34 +30,44 @@ class View : public QDialog {
   Q_OBJECT
 
 public:
-  explicit View(const std::set<QString> &,
-                const std::unique_ptr<Data::SeismEvent> &,
-                QWidget *parent = nullptr);
+  //  explicit View(const std::set<QString> &, Data::SeismEvent const *const,
+  //                QUndoStack const *const, QWidget *parent = nullptr);
   explicit View(const std::set<QString> &, const std::map<QUuid, QString> &,
-                QWidget *parent = nullptr);
+                QUndoStack const *const, QWidget *parent = nullptr);
 
-  void update(const std::unique_ptr<Data::SeismEvent> &, const QUuid &);
-  void update(const std::unique_ptr<Data::SeismEvent> &, const QUuid &,
-              const QString &);
+  //  void update(const std::shared_ptr<Data::SeismEvent> &);
+
+  //  void update(const std::shared_ptr<Data::SeismEvent> &, const QUuid &);
+  //  void update(const std::shared_ptr<Data::SeismEvent> &, const QUuid &,
+  //              const QString &);
+
+  //  void update(Data::SeismEvent const *const);
+  void updateInfoEvent(Data::SeismEvent const *const);
+  void updateDataEvent(Data::SeismEvent const *const);
+
+  void update(Data::SeismEvent const *const, const QUuid &);
+  void update(Data::SeismEvent const *const, const QUuid &, const QString &);
+
   void setNotification(const QString &);
-  void settingEventInfo(const std::unique_ptr<Data::SeismEvent> &) const;
-  void setAddPolarizationWindowButtonEnableOneEvent(bool enable);
+  void settingEventInfo(Data::SeismEvent *const) const;
   ChartGesture *getChartGesture();
 
 signals:
+  void infoChanged() const;
+
   void sendWellUuidAndFilePath(const QUuid &, const QString &) const;
   void sendWellUuidForRemove(const QUuid &) const;
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
-  void removePick(Data::SeismWavePick::Type, int);
   void createPolarizationAnalysisWindow();
-  void calculatePolarizationAnalysisData();
 
+  void undoClicked() const;
+  void redoClicked() const;
 
   // tool-signals
-  void dataToEBasisClicked() const;
+  void eventTransformClicked(Data::SeismEvent::TransformOperation) const;
 
 private:
-  void commonSetting();
+  void commonSetting(); // TODO: перетащить в конструктор
   void updateRepetition(const QString &);
 
   EventToolsWidget *_toolsWidget;

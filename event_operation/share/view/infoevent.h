@@ -23,13 +23,12 @@ public:
   void setDisabled(bool);
   void setEnabled(bool);
 
-  void update(const std::unique_ptr<Data::SeismEvent> &);
+  void update(Data::SeismEvent const *const);
   void clear();
 
-  void settingEventInfo(const std::unique_ptr<Data::SeismEvent> &) const;
+  void settingEventInfo(Data::SeismEvent *const) const;
 
 signals:
-  //  void nameChanged(const QString &);
   void changed() const;
 
 private:
@@ -44,7 +43,7 @@ private:
   QLabel *_addedDateLabel;
   QLabel *_addedTimeLabel;
 
-  bool _allInfoUpdated{false};
+  bool _allInfoUpdate{false};
 };
 
 } // namespace EventOperation
