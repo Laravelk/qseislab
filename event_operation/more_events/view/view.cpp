@@ -194,7 +194,7 @@ View::View(const std::set<QString> &globalEventNames,
   QVBoxLayout *graphicLayout = new QVBoxLayout();
   graphicLayout->addWidget(_tabWidget);
   graphicLayout->addStretch(1);
-  graphicLayout->addLayout(buttonsLayout);
+  //  graphicLayout->addLayout(buttonsLayout);
 
   QHBoxLayout *mainLayout = new QHBoxLayout();
   mainLayout->addLayout(leftLayout);
