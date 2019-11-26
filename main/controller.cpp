@@ -213,9 +213,6 @@ void Controller::recvProject(const std::shared_ptr<SeismProject> &project) {
 
 void Controller::handleAddEventsClicked() {
   if (!_moreEventsController) {
-    //    _moreEventsController = std::make_unique<MoreEvents::Controller>(
-    //        _project->getAllMap<SeismEvent>(),
-    //        _project->getAllMap<SeismWell>(), this);
     _moreEventsController = std::make_unique<MoreEvents::Controller>(
         _project->getAllMap<SeismEvent>(), _project->getAllMap<SeismWell>(),
         this);

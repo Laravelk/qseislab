@@ -1,6 +1,7 @@
 #pragma once
 
 #include "addhorizonmanager.h"
+#include "share_view/tableassistant.h"
 
 #include <QDialog>
 
@@ -22,6 +23,7 @@ public:
 
   void addHorizon(Data::SeismHorizon const *const);
   void updateHorizon(Data::SeismHorizon const *const);
+
   void removeHorizon(const QUuid &);
 
   void settingHorizonInfo(Data::SeismHorizon *const);

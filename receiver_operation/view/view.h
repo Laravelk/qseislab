@@ -1,6 +1,7 @@
 #pragma once
 
 #include "addreceivermanager.h"
+#include "share_view/tableassistant.h"
 
 #include <QDialog>
 

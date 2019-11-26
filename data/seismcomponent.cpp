@@ -205,7 +205,6 @@ SeismComponent::getWavePicks() const {
 
 QJsonObject &SeismComponent::writeToJson(QJsonObject &json) const {
   json["receiverUuid"] = _receiverUuid.toString();
-  //  json["stampTime"] = _stampTime.toString("dd.MM.yyyy hh:mm:ss:zzz");
   json["sampleInterval"] = static_cast<double>(_info.sampleInterval);
 
   QJsonArray wavesArray;

@@ -7,6 +7,7 @@
 #include <QBoxLayout>
 #include <QHeaderView>
 #include <QPushButton>
+
 #include <QTableWidget>
 
 #include <assert.h>
@@ -62,25 +63,6 @@ bool TableAssistant::remove(const QUuid &uuid) {
   return false;
 }
 
-// void TableAssistant::requestRemoveAll() {
-//  QList<QUuid> list;
-//  for (int row = 0; row < _table->rowCount(); ++row) {
-//    list.append(_table->item(row, 0)->data(Qt::DisplayRole).toUuid());
-//  }
-
-//  for (auto &uuid : list) {
-//    emit removeClicked(uuid);
-//  }
-//}
-
-// template <typename T>
-// void TableAssistant::setAll(const std::map<QUuid, std::unique_ptr<T>> &map) {
-//   clearTable();
-//   for (auto &uuid_obj : map) {
-//     add<T>(uuid_obj.second);
-//   }
-// }
-
 void TableAssistant::clearTable() {
   const int end = _table->rowCount();
   for (int i = 0; i < end; ++i) {
@@ -123,6 +105,7 @@ void TableAssistant::add<SeismHorizon>(SeismHorizon const *const horizon) {
   int row = _table->rowCount() - 1;
 
   auto &uuid = horizon->getUuid();
+
   _table->setItem(row, 0, new QTableWidgetItem(uuid.toString()));
 
   _table->setItem(row, 1, new QTableWidgetItem(horizon->getName()));

@@ -4,11 +4,13 @@
 #include "data/seismreceiver.h"
 #include "inforeceiver.h"
 #include "share_view/tableassistant.h"
+
 #include "totalchannelcounter.h"
 
 #include <QBoxLayout>
 #include <QFileDialog>
 #include <QLabel>
+
 #include <QMessageBox>
 #include <QPushButton>
 
@@ -107,6 +109,7 @@ void View::setNotification(const QString &text) {
 
 void View::handleFromCsvClicked() {
   // TODO: если есть хотя бы один приемник, тогда выдавать это сообщение
+
   QMessageBox *msgBox = new QMessageBox(this);
   msgBox->setText("There are receivers in the project");
   msgBox->setInformativeText("Delete receivers?");

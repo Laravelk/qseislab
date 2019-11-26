@@ -1,7 +1,12 @@
 #include "view.h"
 
+<<<<<<< HEAD
 #include "event_operation/share/view/eventtoolswidget.h"
 #include "event_operation/share/view/graphiccontroller.h"
+=======
+#include "event_operation/share/view/graphiccontroller.h"
+#include "event_operation/share/view/polar_graph/polargraph.h"
+>>>>>>> test
 #include "event_operation/share/view/infoevent.h"
 
 #include <QLabel>
@@ -20,6 +25,7 @@ namespace MoreEvents {
 View::View(const std::set<QString> &globalEventNames,
            const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
+<<<<<<< HEAD
       _toolsWidget(new EventToolsWidget()), _infoEvent(new InfoEvent()),
       _wellNames(new QComboBox()), _fileDialog(new QFileDialog(this)),
       _eventList(new QListWidget()), _graphicEvent(new GraphicController(this)),
@@ -35,6 +41,17 @@ View::View(const std::set<QString> &globalEventNames,
 
   _toolsWidget->setDisabled(true);
 
+=======
+      _infoEvent(new InfoEvent()), _wellNames(new QComboBox()),
+      _fileDialog(new QFileDialog(this)), _tabWidget(new QTabWidget()), _eventList(new QListWidget()),
+      _graphicEvent(new GraphicController(this)), _polarGraph(new PolarGraph()), _okButton(new QPushButton("Ok")),
+       _cancelButton(new QPushButton("Cancel")), _globalEventNames(globalEventNames) {
+
+  // Setting`s
+  setWindowTitle("SeismWindow");
+  setMinimumSize(1300, 590);
+
+>>>>>>> test
   _fileDialog->setFileMode(QFileDialog::ExistingFiles);
   _fileDialog->setOption(QFileDialog::DontResolveSymlinks);
   _fileDialog->setNameFilter("*.segy *.sgy");
@@ -51,6 +68,7 @@ View::View(const std::set<QString> &globalEventNames,
 
   _infoEvent->setDisabled(true);
   _okButton->setDisabled(true);
+<<<<<<< HEAD
   _cancelButton->setFocus();
 
   QPushButton *addEventsButton = new QPushButton("+");
@@ -65,6 +83,16 @@ View::View(const std::set<QString> &globalEventNames,
 
   connect(_toolsWidget, &EventToolsWidget::eventTransformClicked,
           [this](auto oper) { emit eventTransformClicked(oper); });
+=======
+
+  QPushButton *addEventsButton = new QPushButton("+");
+  addEventsButton->setFixedWidth(25);
+  QPushButton *removeEventsButton = new QPushButton("-");
+  removeEventsButton->setFixedWidth(25);
+  // Setting`s end
+
+  // Connecting
+>>>>>>> test
   connect(addEventsButton, &QPushButton::clicked, [this]() {
     _fileDialog->open(this, SLOT(recvFilesPath(const QStringList &)));
   });
@@ -73,7 +101,10 @@ View::View(const std::set<QString> &globalEventNames,
     if (selectedEvents.size() == _eventList->count()) {
       _wellNames->setEnabled(true);
       _okButton->setDisabled(true);
+<<<<<<< HEAD
       _cancelButton->setFocus();
+=======
+>>>>>>> test
     }
 
     int nextFocusRow = 0;
@@ -121,7 +152,22 @@ View::View(const std::set<QString> &globalEventNames,
     }
   });
 
+<<<<<<< HEAD
   connect(_infoEvent, &InfoEvent::changed, [this]() { emit infoChanged(); });
+=======
+  connect(_infoEvent, &InfoEvent::nameChanged, [this](auto &name) {
+    auto item = _eventList->selectedItems()[0];
+    auto oldName = item->text();
+    removeLocal(oldName);
+    updateRepetition(oldName);
+
+    addLocal(name);
+    item->setText(name);
+    _infoEvent->setBrush(updateRepetition(name));
+
+    _graphicEvent->updateEventName(name);
+  });
+>>>>>>> test
 
   connect(_graphicEvent, &EventOperation::GraphicController::sendPicksInfo,
           [this](auto type, auto num, auto l_val, auto pick_val, auto r_val) {
@@ -131,6 +177,16 @@ View::View(const std::set<QString> &globalEventNames,
           &EventOperation::GraphicController::
               createPolarizationAnalysisWindowClicked,
           [this]() { emit createPolarizationAnalysisWindow(); });
+<<<<<<< HEAD
+=======
+  connect(_graphicEvent,
+          &EventOperation::GraphicController::
+          calculatePolarizationAnalysisDataClicked,
+          [this]() { emit calculatePolarizationAnalysisData(); });
+  connect(_graphicEvent, &EventOperation::GraphicController::removePick, [this](auto type, auto num) {
+      emit removePick(type, num);
+  });
+>>>>>>> test
   connect(_okButton, &QPushButton::clicked, [this]() {
     if (allValid()) {
       accept();
@@ -155,6 +211,7 @@ View::View(const std::set<QString> &globalEventNames,
   leftLayout->addStretch(1);
 
   QHBoxLayout *buttonsLayout = new QHBoxLayout();
+<<<<<<< HEAD
   _undoButton = new QPushButton("Undo");
   _redoButton = new QPushButton("Redo");
   _undoButton->setDisabled(true);
@@ -166,19 +223,35 @@ View::View(const std::set<QString> &globalEventNames,
   buttonsLayout->addWidget(_redoButton);
 
   buttonsLayout->addWidget(_toolsWidget);
+=======
+>>>>>>> test
   buttonsLayout->addStretch(1);
   buttonsLayout->addWidget(_okButton);
   buttonsLayout->addWidget(_cancelButton);
 
+<<<<<<< HEAD
   QVBoxLayout *graphicLayout = new QVBoxLayout();
   graphicLayout->addWidget(_graphicEvent, 10);
   graphicLayout->addStretch(1);
   //  graphicLayout->addLayout(buttonsLayout);
+=======
+  _tabWidget->addTab(_graphicEvent->getView(), "graphic");
+  _tabWidget->addTab(_polarGraph->getView(), "polar");
+  QPalette paletteTabWidget = _tabWidget->palette();
+  paletteTabWidget.setColor(_tabWidget->backgroundRole(), Qt::white);
+  _tabWidget->setPalette(paletteTabWidget);
+
+  QVBoxLayout *graphicLayout = new QVBoxLayout();
+  graphicLayout->addWidget(_tabWidget);
+  graphicLayout->addStretch(1);
+  graphicLayout->addLayout(buttonsLayout);
+>>>>>>> test
 
   QHBoxLayout *mainLayout = new QHBoxLayout();
   mainLayout->addLayout(leftLayout);
   mainLayout->addLayout(graphicLayout, 10);
 
+<<<<<<< HEAD
   QVBoxLayout *mainButtonLayout = new QVBoxLayout();
   mainButtonLayout->addLayout(mainLayout);
   mainButtonLayout->addStretch(1);
@@ -252,6 +325,35 @@ void View::update(
   _wellNames->setDisabled(true);
   _okButton->setEnabled(true);
   _okButton->setFocus();
+=======
+  setLayout(mainLayout);
+  // Layout`s end
+}
+
+void View::loadEvent(const std::unique_ptr<Data::SeismEvent> &event) {
+  _infoEvent->setEnabled(true);
+  _infoEvent->update(event);
+  _graphicEvent->update(event);
+  _polarGraph->update(event);
+//  emit calculatePolarizationAnalysisData(); // TODO: delete
+}
+
+void View::unloadEvent() {
+  _infoEvent->clear();
+  _graphicEvent->clear();
+  _infoEvent->setDisabled(true);
+}
+
+void View::setAddPolarizationWindowButtonEnable(bool enable)
+{
+    _graphicEvent->setAddPolarizationWindowButtonEnable(enable);
+}
+
+void View::update(
+    const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &events_map) {
+  _wellNames->setDisabled(true);
+  _okButton->setEnabled(true);
+>>>>>>> test
 
   std::set<QUuid> existingUuid;
   for (int i = 0; i < _eventList->count(); ++i) {
@@ -260,7 +362,11 @@ void View::update(
   for (auto &uuid_event : events_map) {
     auto &uuid = uuid_event.first;
     if (existingUuid.end() == existingUuid.find(uuid)) {
+<<<<<<< HEAD
       auto &name = uuid_event.second->getInfo().getName();
+=======
+      auto &name = uuid_event.second->getName();
+>>>>>>> test
       QListWidgetItem *item = new QListWidgetItem(name);
       item->setData(Qt::DecorationRole, uuid);
       _eventList->addItem(item);
@@ -277,7 +383,12 @@ void View::setNotification(const QString &text) {
   msg->show();
 }
 
+<<<<<<< HEAD
 void View::settingEventInfo(SeismEvent *const event) const {
+=======
+void View::settingEventInfo(
+    const std::unique_ptr<Data::SeismEvent> &event) const {
+>>>>>>> test
   _infoEvent->settingEventInfo(event);
 }
 

@@ -76,11 +76,6 @@ void View::setNotification(const QString &text) {
   msg->show();
 }
 
-// void View::changed(bool b) {
-//   _saveButton->setEnabled(b);
-//   _saveButton->setFocus();
-// }
-
 void View::handleAddHorizonClicked() {
   _addHorizonManager = std::make_unique<AddHorizonManager>(this);
 
@@ -104,5 +99,4 @@ void View::isChanged(bool b) {
   if (b)
     _saveButton->setFocus();
 }
-
 } // namespace HorizonOperation

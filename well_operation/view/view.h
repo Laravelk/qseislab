@@ -1,6 +1,7 @@
 #pragma once
 
 #include "addwellmanager.h"
+#include "share_view/tableassistant.h"
 
 #include <QDialog>
 

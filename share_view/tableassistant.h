@@ -14,9 +14,6 @@ public:
   explicit TableAssistant(Mode, QWidget *parent = nullptr);
 
   bool remove(const QUuid &);
-  //  void requestRemoveAll();
-  // template <typename T>
-  // void setAll(const std::map<QUuid, std::unique_ptr<T>> &);
 
   template <typename T> void add(T const *const);
   template <typename T> void update(T const *const);

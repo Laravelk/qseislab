@@ -156,7 +156,8 @@ int SeismWell::getReceiversAmount() const {
 //  return *(_receivers.begin());
 //}
 
-const std::list<std::shared_ptr<SeismReceiver>> &SeismWell::getReceivers() const {
+const std::list<std::shared_ptr<SeismReceiver>> &
+SeismWell::getReceivers() const {
   return _receivers;
 }
 

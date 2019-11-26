@@ -4,9 +4,14 @@
 #include "data/seismwell.h"
 #include "event_operation/share/model.h"
 #include "event_operation/share/view/3dscene/polarizationanalysiswindow.h"
+<<<<<<< HEAD
 
 #include "event_operation/modification/testmultiplier.h"
 #include "undo_stack_work/event_modification/undocommandgetter.h"
+=======
+#include "event_operation/share/polarizationanalysiscompute.h"
+#include "event_operation/share/view/polar_graph/polargraph.h"
+>>>>>>> test
 
 #include "data/io/segyreader.h"
 
@@ -18,8 +23,13 @@ typedef Data::SeismEvent SeismEvent;
 namespace EventOperation {
 namespace MoreEvents {
 Controller::Controller(
+<<<<<<< HEAD
     const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &all_events,
     const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &wells_map,
+=======
+    const std::map<QUuid, std::unique_ptr<Data::SeismEvent>> &all_events,
+    const std::map<QUuid, std::unique_ptr<Data::SeismWell>> &wells_map,
+>>>>>>> test
     QObject *parent)
     : QObject(parent), _model(new Model(new SegyReader(), this)) {
 
@@ -30,25 +40,36 @@ Controller::Controller(
   }
   std::set<QString> eventNames;
   for (auto &uuid_event : all_events) {
+<<<<<<< HEAD
     eventNames.insert(uuid_event.second->getInfo().getName());
   }
   _view = std::make_unique<View>(eventNames, wellNames_map);
+=======
+    eventNames.insert(uuid_event.second->getName());
+  }
+  _view = std::make_unique<View>(eventNames, wellNames_map);
+  // ...
+>>>>>>> test
 
   connect(_model, &Model::notify,
           [this](auto &msg) { _view->setNotification(msg); });
 
+<<<<<<< HEAD
   connect(_view.get(), &View::infoChanged, [this] {
     if (!_currentEventUuid.isNull()) {
       _view->settingEventInfo(_events_map[_currentEventUuid].get());
     }
   });
 
+=======
+>>>>>>> test
   connect(_view.get(), &View::sendWellUuidAndFilePaths,
           [this, &wells_map](auto &wellUuid, auto &filePaths) {
             for (auto &path : filePaths) {
               auto components =
                   _model->getSeismComponents(wells_map.at(wellUuid), path);
               if (!components.empty()) {
+<<<<<<< HEAD
                 std::shared_ptr<SeismEvent> event =
                     std::make_shared<SeismEvent>();
 
@@ -70,13 +91,26 @@ Controller::Controller(
                 info.setName(QFileInfo(path).baseName());
                 event->setInfo(info);
 
+=======
+                std::unique_ptr<SeismEvent> event =
+                    std::make_unique<SeismEvent>();
+                connect(event.get(), &Data::SeismEvent::changed, []() {
+                  //                            std::cout << "event changed" <<
+                  //                            std::endl;
+                });
+                event->setName(QFileInfo(path).baseName());
+>>>>>>> test
                 for (auto &component : components) {
                   event->addComponent(std::move(component));
                 }
                 auto &uuid = event->getUuid();
+<<<<<<< HEAD
                 _events_map[uuid] = event;
                 _stacks_map[uuid] =
                     std::make_shared<CustomIndividualUndoStack>();
+=======
+                _events_map[uuid] = std::move(event);
+>>>>>>> test
               }
             }
             _view->update(_events_map);
@@ -85,6 +119,7 @@ Controller::Controller(
     _polarizationWindow =
         new PolarizationAnalysisWindow(_events_map.at(_currentEventUuid));
     _polarizationWindow->show();
+<<<<<<< HEAD
   });
 
   connect(_view.get(), &View::changeCurrentEvent, [this](auto &uuid) {
@@ -96,6 +131,54 @@ Controller::Controller(
   connect(_view.get(), &View::hideCurrentEvent, [this]() {
     _view->unloadEvent(_stacks_map[_currentEventUuid].get());
     _currentEventUuid = QUuid();
+=======
+    _view->setAddPolarizationWindowButtonEnable(false);
+    connect (_polarizationWindow, &QDialog::finished, [this](int status) {
+        _polarizationWindow = nullptr;
+        _view->setAddPolarizationWindowButtonEnable(true);
+    });
+  });
+
+  connect(_view.get(), &View::calculatePolarizationAnalysisData, [this]() {
+        if (_calculatePolarization == nullptr) {
+            _calculatePolarization = new PolarizationAnalysisCompute(_events_map.at(_currentEventUuid));
+        }
+        _calculatePolarization->calculate(_events_map.at(_currentEventUuid));
+        _view->getPolarGraph()->update(_events_map.at(_currentEventUuid));
+});
+
+  connect(_view.get(), &View::changeCurrentEvent, [this](auto &uuid) {
+    if (!_currentEventUuid.isNull()) {
+      _view->settingEventInfo(_events_map[_currentEventUuid]);
+    } else {
+    }
+    _currentEventUuid = uuid;
+    _view->loadEvent(_events_map[_currentEventUuid]);
+//    static int d = 0;
+//    int c = 0;
+//    std::cerr << "NEW DATATATATA " << d << "\n";
+//    d++;
+//    for (auto &component : _events_map[_currentEventUuid].get()->getComponents()) {
+//        c++;
+//        for (auto &pick : component.get()->getWavePicks()) {
+//            if (pick.second.getPolarizationAnalysisData() != std::nullopt) {
+////                pick.second.getPolarizationAnalysisData().value()->print();
+//                std::cerr << pick.second.getPolarizationAnalysisData().value()->isValid() <<std::endl << std::endl;
+//            } else {
+////                std::cerr << "n ";
+//            }
+//        }
+//    }
+  });
+
+  connect(_view.get(), &View::hideCurrentEvent, [this]() {
+    if (!_currentEventUuid.isNull()) {
+      _view->settingEventInfo(_events_map[_currentEventUuid]);
+    } else {
+    }
+    _currentEventUuid = QUuid();
+    _view->unloadEvent();
+>>>>>>> test
   });
 
   connect(_view.get(), &View::removeEvent,
@@ -110,9 +193,24 @@ Controller::Controller(
               if (num == idx) {
                 Data::SeismWavePick wavePick =
                     Data::SeismWavePick(type, pick_val);
+<<<<<<< HEAD
                 wavePick.setPolarizationLeftBorder(l_val);
                 wavePick.setPolarizationRightBorder(r_val);
 
+=======
+                Data::SeismWavePick oldWavePick = component.get()->getWavePick(type);
+                wavePick.setPolarizationAnalysisData(oldWavePick.getPolarizationAnalysisData());
+                wavePick.setPolarizationLeftBorder(l_val);
+                wavePick.setPolarizationRightBorder(r_val);
+                if (oldWavePick.getPolarizationLeftBorder() != wavePick.getPolarizationLeftBorder()
+                        || oldWavePick.getPolarizationRightBorder() != wavePick.getPolarizationRightBorder() ||
+                        oldWavePick.getArrival() != wavePick.getArrival()) {
+//                    std::cerr << oldWavePick.getPolarizationLeftBorder() << " != " << wavePick.getPolarizationLeftBorder() << std::endl <<
+//                                 oldWavePick.getPolarizationRightBorder() << " != " << wavePick.getPolarizationRightBorder() << std::endl <<
+//                                 oldWavePick.getArrival() << " != " << wavePick.getArrival() << std::endl;
+                    wavePick.setValidDataStatus(false);
+                }
+>>>>>>> test
                 component->addWavePick(wavePick);
                 break;
               }
@@ -120,6 +218,7 @@ Controller::Controller(
             }
           });
 
+<<<<<<< HEAD
   connect(_view.get(), &View::undoClicked, [this]() {
     if (!_currentEventUuid.isNull()) {
       _stacks_map[_currentEventUuid]->undo();
@@ -156,6 +255,22 @@ Controller::Controller(
             }
           });
 
+=======
+  connect(_view.get(), &View::removePick, [this](const auto type, const auto num) {
+      int idx = 0;
+      if (_polarizationWindow) {
+          _polarizationWindow->setDefault();
+      }
+      for (auto &component : _events_map.at(_currentEventUuid)->getComponents()) {
+          if (num == idx) {
+              component->removeWavePick(type);
+              break;
+          }
+          idx++;
+      }
+  });
+
+>>>>>>> test
   connect(_view.get(), &View::finished, this, &Controller::finish);
 }
 
@@ -166,7 +281,14 @@ void Controller::start() {
 
 void Controller::finish(int result) {
   if (QDialog::Accepted == result) {
+<<<<<<< HEAD
     emit sendEventsAndStacks(_events_map, _stacks_map);
+=======
+    if (!_currentEventUuid.isNull()) {
+      _view->settingEventInfo(_events_map[_currentEventUuid]);
+    }
+    emit sendEvents(_events_map);
+>>>>>>> test
   }
 
   emit finished();

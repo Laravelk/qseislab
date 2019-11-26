@@ -21,6 +21,7 @@ class PolarizationAnalysisWindow : public QDialog {
 public:
   PolarizationAnalysisWindow(const std::shared_ptr<Data::SeismEvent> &,
                              QDialog *parent = nullptr);
+  void setDefault();
 
 protected:
 private:
@@ -32,8 +33,8 @@ private:
   QWidget *_container;
   Qt3DCore::QEntity *_scene;
   const Data::SeismEvent *_event;
-  int _receiverIndex;
-  int _waveTypeIndex;
+  QString _currentWaveTypeString;
+  QString _currentReceiverNumberString;
 
 private:
   void drawArrows();
@@ -47,9 +48,15 @@ private:
   void drawTraces(const std::shared_ptr<Data::SeismComponent> &);
   int lastElementNumber(const std::shared_ptr<Data::SeismComponent> &);
   void update();
+  void changeWaveBox();
+  void changeReceiverNumberBox();
   Qt3DCore::QEntity *createTestScene();
   void clearScene();
   QList<Qt3DCore::QEntity *> _curves;
   QList<Qt3DCore::QEntity *> _arrows;
+  const QString P_WAVE_STRING = "PWAVE";
+  const QString S_WAVE_STRING = "SWAVE";
+  const QString DEFAULT_WAVE_STRING = "Type Wave...";
+  const QString DEFAULT_RECEIVER_STRING = "Type Receiver...";
 };
 } // namespace EventOperation

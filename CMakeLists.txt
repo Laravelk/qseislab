@@ -40,7 +40,8 @@ find_package(segyio REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 
-set(SOURCES
+
+set(SOURCES    
         event_operation/modification/share_functions.cpp
         event_operation/modification/rotatedatatoebasis.cpp
         event_operation/modification/testmultiplier.cpp
@@ -56,6 +57,8 @@ set(SOURCES
         event_operation/view_event/controller.cpp
         event_operation/view_event/view.cpp
 
+        event_operation/share/polarizationanalysiscompute.cpp # test
+
         event_operation/share/model.cpp
         event_operation/share/view/graphic_view/graphic_view.cpp
         event_operation/share/view/graphic_view/wavepick.cpp
@@ -65,6 +68,9 @@ set(SOURCES
         event_operation/share/view/eventtoolswidget.cpp
         event_operation/share/view/graphic_view/pipes2dname.cpp
         event_operation/share/view/3dscene/polarizationanalysiswindow.cpp
+
+
+        event_operation/share/view/polar_graph/polargraph.cpp # test
 
         event_operation/share/view/tools_view/wigglewidget.cpp
         event_operation/share/view/tools_view/hidecomponentwidget.cpp
@@ -95,6 +101,7 @@ set(SOURCES
         well_operation/view/filemanager.cpp
 
 
+        data/seismpolarizationanalysisdata.cpp
         data/seismproject.cpp
         data/seismcomponent.cpp
         data/seismwavepick.cpp
@@ -151,16 +158,22 @@ set(HEADERS
         event_operation/modification/rotatedatatoebasis.h
         event_operation/modification/testmultiplier.h
 
+
+
         event_operation/one_event/controller.h
         event_operation/one_event/view/filemanager.h
         event_operation/one_event/view/wellmanager.h
         event_operation/one_event/view/view.h
+
 
         event_operation/more_events/controller.h
         event_operation/more_events/view/view.h
 
         event_operation/view_event/controller.h
         event_operation/view_event/view.h
+
+
+        event_operation/share/polarizationanalysiscompute.h # test
 
         event_operation/share/model.h
         event_operation/share/view/graphic_view/graphic_view.h
@@ -171,6 +184,9 @@ set(HEADERS
         event_operation/share/view/eventtoolswidget.h
         event_operation/share/view/graphic_view/pipes2dname.h
         event_operation/share/view/3dscene/polarizationanalysiswindow.h
+
+        event_operation/share/view/polar_graph/polargraph.h # test
+
 
         event_operation/share/view/tools_view/wigglewidget.h
         event_operation/share/view/tools_view/hidecomponentwidget.h
@@ -200,7 +216,7 @@ set(HEADERS
         well_operation/view/addwellmanager.h
         well_operation/view/filemanager.h
 
-
+        data/seismpolarizationanalysisdata.h
         data/seism_data_type.h
         data/seismproject.h
         data/seismcomponent.h
@@ -220,11 +236,13 @@ set(HEADERS
         data/io/pointwriter.h
         data/io/horizonreadergrd.h
 
+
         undo_stack_work/customindividualundostack.h #Note: где должен лежать?
         undo_stack_work/customindividualundocommand.h
         undo_stack_work/shareundocommand.h
         undo_stack_work/event_modification/undocommandgetter.h
         undo_stack_work/event_modification/testindividualcommand.h
+
 
         main/controller.h
         main/view/view.h

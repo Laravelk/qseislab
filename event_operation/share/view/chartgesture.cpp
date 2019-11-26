@@ -4,7 +4,7 @@
 #include <QtWidgets/QGraphicsScene>
 #include <QtWidgets/QGraphicsView>
 
-//#include <iostream> // TODO: delete
+#include <iostream> // TODO: delete
 
 #include "graphic_view/wavepick.h"
 
@@ -22,8 +22,12 @@ bool ChartGesture::sceneEvent(QEvent *event) {
   return QChart::event(event);
 }
 
-bool ChartGesture::gestureEvent(QGestureEvent *event) {
-  if (QGesture *gesture = event->gesture(Qt::PanGesture)) {
+void ChartGesture::zoom(qreal factor) { QChart::zoom(factor); }
+
+void ChartGesture::zoomIn(const QRectF &rect) { QChart::zoomIn(rect); }
+
+bool ChartGesture::gestureEvent(QGestureEvent *) {
+  /*if (QGesture *gesture = event->gesture(Qt::PanGesture)) {
     QPanGesture *pan = static_cast<QPanGesture *>(gesture);
     QChart::scroll(-(pan->delta().x()), pan->delta().y());
     for (auto &it : *_wavePicks) {
@@ -41,6 +45,7 @@ bool ChartGesture::gestureEvent(QGestureEvent *event) {
       }
     }
   }
-  return true;
+  return tr
+  ue;*/
 }
 } // namespace EventOperation

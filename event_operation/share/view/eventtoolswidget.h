@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 #include "data/seismevent.h"
 
 #include <QWidget>
@@ -7,6 +8,10 @@
 #include <QPushButton>
 #include <memory>
 
+=======
+#include <QWidget>
+
+>>>>>>> test
 namespace EventOperation {
 class EventToolsWidget : public QWidget {
   Q_OBJECT
@@ -14,6 +19,7 @@ class EventToolsWidget : public QWidget {
 public:
   explicit EventToolsWidget(QWidget *parent = nullptr);
 
+<<<<<<< HEAD
   void update(Data::SeismEvent const *const);
 
 signals:
@@ -23,5 +29,9 @@ signals:
 private:
   QPushButton *_dataToEBasisButton;
   QPushButton *_testMultButton;
+=======
+signals:
+  void dataToEBasisClicked() const;
+>>>>>>> test
 };
 } // namespace EventOperation

@@ -25,7 +25,7 @@ OilFieldScene::OilFieldScene(Q3DSurface *surface)
   surface->axisY()->setReversed(true);
 }
 
-void OilFieldScene::addEvent(Data::SeismEvent const * const event) {
+void OilFieldScene::addEvent(Data::SeismEvent const *const event) {
   //  if (event->isProcessed()) {
   float x, y, z;
   std::tie(x, y, z) = event->getLocation();
@@ -42,7 +42,7 @@ void OilFieldScene::addEvent(Data::SeismEvent const * const event) {
   //  }
 }
 
-void OilFieldScene::addHorizon(Data::SeismHorizon const * const horizon) {
+void OilFieldScene::addHorizon(Data::SeismHorizon const *const horizon) {
   _points = horizon->getPoints();
   unsigned long countElementInLine =
       static_cast<unsigned long>(horizon->getNx());
@@ -57,7 +57,7 @@ void OilFieldScene::addHorizon(Data::SeismHorizon const * const horizon) {
   _rows.clear();
 }
 
-void OilFieldScene::addReceiver(Data::SeismReceiver const * const receiver) {
+void OilFieldScene::addReceiver(Data::SeismReceiver const *const receiver) {
   float x, y, z;
   std::tie(x, y, z) = receiver->getLocation();
   QVector3D position(x, z, y);
@@ -73,7 +73,7 @@ void OilFieldScene::addReceiver(Data::SeismReceiver const * const receiver) {
       std::pair<Uuid, QCustom3DItem *>(receiver->getUuid(), item));
 }
 
-void OilFieldScene::addWell(Data::SeismWell const * const well) {
+void OilFieldScene::addWell(Data::SeismWell const *const well) {
   float x = 0, y = 0, z = 0;
   float lx = 0, ly = 0, lz = 0;
   std::tie(lx, ly, lz) = well->getPoint(0);
@@ -112,7 +112,7 @@ bool OilFieldScene::showEvent(const QUuid &uid) {
 //  showEvent(event->getUuid());
 //}
 
-void OilFieldScene::setProject(Data::SeismProject const * const project) {
+void OilFieldScene::setProject(Data::SeismProject const *const project) {
   for (auto &uuid_event : project->getAllMap<SeismEvent>()) {
     addEvent(uuid_event.second.get());
   }

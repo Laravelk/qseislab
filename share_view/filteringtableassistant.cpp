@@ -362,8 +362,6 @@ void FilteringTableAssistant::add<SeismEvent>(SeismEvent const *const event) {
 
   _objectsTable->setItem(row, 1, new QTableWidgetItem());
 
-  //  auto info = event->getInfo();
-
   _objectsTable->setItem(row, 2, new QTableWidgetItem(event->getName()));
 
   _objectsTable->setItem(

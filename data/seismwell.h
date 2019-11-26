@@ -27,7 +27,7 @@ public:
   int getPointsAmount() const;
 
   void addPoint(Point);
-  const Point &getPoint(int) const ;
+  const Point &getPoint(int) const;
   const std::vector<Point> &getPoints() const;
 
   void addReceiver(const std::shared_ptr<Data::SeismReceiver> &);
