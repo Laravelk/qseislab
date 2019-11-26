@@ -4,11 +4,8 @@
 
 #include <QFormLayout>
 
-<<<<<<< HEAD
 #include <iostream> // TODO: remove
 
-=======
->>>>>>> test
 typedef Data::SeismEvent SeismEvent;
 
 namespace EventOperation {
@@ -22,13 +19,8 @@ InfoEvent::InfoEvent(QWidget *parent)
   //  setFixedWidth(250);
   setFrameStyle(1);
 
-<<<<<<< HEAD
   _nameEdit->setMaxLength(60);
 
-=======
-  _stampDateEdit->setMinimumDate(QDate::currentDate().addDays(-365));
-  _stampDateEdit->setMaximumDate(QDate::currentDate().addDays(365));
->>>>>>> test
   _stampDateEdit->setDisplayFormat("dd.MM.yy");
   _stampDateEdit->setCalendarPopup(true);
 
@@ -36,23 +28,19 @@ InfoEvent::InfoEvent(QWidget *parent)
 
   connect(_nameEdit, &QLineEdit::textChanged, [this](auto &text) {
     if (0 != text.count()) {
-<<<<<<< HEAD
-      if (_allInfoUpdate) {
+      if (_allInfoUpdated) {
         emit changed();
       }
     }
   });
   connect(_stampDateEdit, &QDateEdit::dateChanged, [this] {
-    if (_allInfoUpdate) {
+    if (_allInfoUpdated) {
       emit changed();
     }
   });
   connect(_stampTimeEdit, &QTimeEdit::timeChanged, [this] {
-    if (_allInfoUpdate) {
+    if (_allInfoUpdated) {
       emit changed();
-=======
-      emit nameChanged(text);
->>>>>>> test
     }
   });
 

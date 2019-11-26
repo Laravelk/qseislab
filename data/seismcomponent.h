@@ -40,10 +40,10 @@ public:
   explicit SeismComponent(const SeismComponent &);
 
   const QUuid &getReceiverUuid() const;
-  //  const QDateTime &getStampDateTime() const;
+  const QDateTime &getStampDateTime() const;
   //  void setStampDateTime(const QDateTime &);
 
-  //  float getSampleInterval() const;
+  float getSampleInterval() const;
   //  void setSampleInterval(float);
 
   void setInfo(const Info &);

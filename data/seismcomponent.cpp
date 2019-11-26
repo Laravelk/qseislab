@@ -118,15 +118,15 @@ const SeismComponent::Info &SeismComponent::getInfo() const { return _info; }
 
 SeismComponent::Info &SeismComponent::getInfo() { return _info; }
 
-// const QDateTime &SeismComponent::getStampDateTime() const {
-//  return _stampDateTime;
-//}
+const QDateTime &SeismComponent::getStampDateTime() const {
+  return _info.stampDateTime;
+}
 
 // void SeismComponent::setStampDateTime(const QDateTime &dateTime) {
 //  _stampDateTime = dateTime;
 //}
 
-// float SeismComponent::getSampleInterval() const { return _sampleInterval; }
+float SeismComponent::getSampleInterval() const { return _info.sampleInterval; }
 
 // void SeismComponent::setSampleInterval(float sampleInterval) {
 //  _sampleInterval = sampleInterval;
