@@ -34,6 +34,7 @@ void PolarizationAnalysisCompute::calculate(
       component->removeWavePick(pick.getType());
       pick.setPolarizationAnalysisData(data);
       component->addWavePick(pick);
+      delete matrix;
     }
     numberOfComponent++;
   }

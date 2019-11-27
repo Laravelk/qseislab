@@ -26,8 +26,8 @@ View::View(const std::set<QString> &globalEventNames,
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
       _toolsWidget(new EventToolsWidget()), _infoEvent(new InfoEvent()),
       _wellNames(new QComboBox()), _fileDialog(new QFileDialog(this)),
-      _tabWidget(new QTabWidget()), _eventList(new QListWidget()),
-      _graphicEvent(new GraphicController(this)), _polarGraph(new PolarGraph()),
+      _eventList(new QListWidget()),
+      _graphicEvent(new GraphicController(this)),
       _okButton(new QPushButton("Ok")),
       _cancelButton(new QPushButton("Cancel")),
       _globalEventNames(globalEventNames) {
@@ -122,12 +122,6 @@ View::View(const std::set<QString> &globalEventNames,
     }
   });
 
-  connect(_tabWidget, &QTabWidget::tabBarClicked, [this](int index) {
-    if (POLAR_ANALYSIS_INDEX_IN_TAB == index) {
-      emit clickOnPolarAnalysisInGraph();
-    }
-  });
-
   connect(_infoEvent, &InfoEvent::changed, [this]() { emit infoChanged(); });
 
   connect(_graphicEvent, &EventOperation::GraphicController::sendPicksInfo,
@@ -185,15 +179,9 @@ View::View(const std::set<QString> &globalEventNames,
   buttonsLayout->addWidget(_okButton);
   buttonsLayout->addWidget(_cancelButton);
 
-  _tabWidget->addTab(_graphicEvent, "graphic");
-  _tabWidget->addTab(_polarGraph->getView(), "polar");
-  QPalette paletteTabWidget = _tabWidget->palette();
-  paletteTabWidget.setColor(_tabWidget->backgroundRole(), Qt::white);
-  _tabWidget->setPalette(paletteTabWidget);
-
   QVBoxLayout *graphicLayout = new QVBoxLayout();
-  graphicLayout->addWidget(_tabWidget);
   graphicLayout->addStretch(1);
+  graphicLayout->addWidget(_graphicEvent);
   //  graphicLayout->addLayout(buttonsLayout);
 
   QHBoxLayout *mainLayout = new QHBoxLayout();

@@ -24,8 +24,8 @@ GraphicController::GraphicController(QWidget *parent)
       _hideComponentWidget(new HideComponentWidget()),
       _clippingWidget(new ClippingWidget()), _gainWidget(new GainWidget()),
       _addWaveButton(new QPushButton("+")),
-      _polarizationEventButton(new QPushButton("Polarization Analysis")),
-      _calculatePolarizationAnalysisDataButton(new QPushButton("Calculate")) {
+      _polarizationEventButton(new QPushButton("Polarization Analysis")),  _tabWidget(new QTabWidget()),
+      _calculatePolarizationAnalysisDataButton(new QPushButton("Calculate")), _polarGraph(new PolarGraph()) {
 
   _view = new GraphicView(_chart);
   _view->addModel(_chart);
@@ -64,6 +64,12 @@ GraphicController::GraphicController(QWidget *parent)
 
   connect(_calculatePolarizationAnalysisDataButton, &QPushButton::clicked,
           [this]() { emit calculatePolarizationAnalysisDataClicked(); });
+
+  connect(_tabWidget, &QTabWidget::tabBarClicked, [this](int index) {
+    if (POLAR_ANALYSIS_INDEX_IN_TAB == index) {
+//      emit clickOnPolarAnalysisInGraph();
+    }
+  });
 
   connect(_addPWave, &QAction::triggered, [this]() {
     _view->setWaveAddTriggerFlag(Data::SeismWavePick::PWAVE);
@@ -128,12 +134,26 @@ GraphicController::GraphicController(QWidget *parent)
   editGraphicMenuLayout->addWidget(_calculatePolarizationAnalysisDataButton);
   editGraphicMenuLayout->addStretch(1);
 
+  QPalette paletteTabWidget = _tabWidget->palette();
+  paletteTabWidget.setColor(_tabWidget->backgroundRole(), Qt::white);
+  _tabWidget->setPalette(paletteTabWidget);
+
+  QHBoxLayout *graphLayout = new QHBoxLayout();
+  graphLayout->addWidget(_view, 1);
+  graphLayout->addLayout(editGraphicMenuLayout);
+
+  QWidget *graphWidget = new QWidget();
+  graphWidget->setLayout(graphLayout);
+
+  _tabWidget->addTab(graphWidget, "graphic");
+  _tabWidget->addTab(_polarGraph->getView(), "polar");
+
   QHBoxLayout *mainLayout = new QHBoxLayout();
-  mainLayout->addWidget(_view, 1);
-  mainLayout->addLayout(editGraphicMenuLayout);
+  mainLayout->addWidget(_tabWidget, 1);
+//  mainLayout->addLayout(editGraphicMenuLayout);
   //  _allView->setLayout(mainLayout);
   setLayout(mainLayout);
-
+  this->show();
   //  _allView->hide();
 }
 
@@ -142,7 +162,6 @@ void GraphicController::update(SeismEvent const *const event) {
 
   // setting event-name on title
   //  _view->chart()->setTitle(event->getInfo().getName());
-
   _view->chart()->removeAllSeries();
   _allSeries.clear();
   _view->clearPicks();
@@ -159,6 +178,8 @@ void GraphicController::update(SeismEvent const *const event) {
     for (auto &pick : component->getWavePicks()) {
       addWaveArrival(pick.second, componentAmount);
     }
+//    std::cerr << "H ";
+
     addTraceSeries(component, componentAmount);
     componentAmount++;
   }

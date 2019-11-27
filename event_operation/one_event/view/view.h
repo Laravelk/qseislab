@@ -12,7 +12,6 @@
 #include <QLabel>
 #include <QRadioButton>
 #include <QSlider>
-#include <QTableWidget>
 #include <QUndoStack>
 
 namespace Data {

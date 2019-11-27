@@ -46,7 +46,7 @@ public:
   ChartGesture *getChartGesture();
 
   void setAddPolarizationWindowButtonEnable(bool enable);
-  PolarGraph *getPolarGraph() { return _polarGraph; }
+//  PolarGraph *getPolarGraph() { return _polarGraph; }
   void showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
 
 signals:
@@ -90,22 +90,15 @@ private:
   QUuid _wellUuid;
   QFileDialog *_fileDialog;
 
-  QTabWidget *_tabWidget;
-
   QListWidget *_eventList;
 
   GraphicController *_graphicEvent;
-
-  PolarGraph *_polarGraph;
 
   QPushButton *_okButton;
   QPushButton *_cancelButton;
 
   std::set<QString> _globalEventNames;
   std::map<QString, int> _localEventNames;
-
-  const int GRAPH_INDEX_IN_TAB = 0;
-  const int POLAR_ANALYSIS_INDEX_IN_TAB = 1;
 };
 
 } // namespace MoreEvents

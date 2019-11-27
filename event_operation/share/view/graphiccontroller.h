@@ -3,6 +3,7 @@
 #include "chartgesture.h"
 #include "data/seismevent.h"
 #include "graphic_view/graphic_view.h"
+#include "polar_graph/polargraph.h"
 
 #include <QtCharts>
 
@@ -46,6 +47,8 @@ public:
 private:
   //  QWidget *_allView;
   GraphicView *_view;
+  PolarGraph *_polarGraph;
+  QTabWidget *_tabWidget;
   Data::SeismEvent const *_event;
 
   float _norm;
@@ -105,12 +108,16 @@ private:
   ClippingWidget *_clippingWidget;
   GainWidget *_gainWidget;
 
+
   QPushButton *_addWaveButton;
   QAction *_addPWave;
   QAction *_addSWave;
 
   QPushButton *_polarizationEventButton;
   QPushButton *_calculatePolarizationAnalysisDataButton;
+
+  const int GRAPH_INDEX_IN_TAB = 0;
+  const int POLAR_ANALYSIS_INDEX_IN_TAB = 1;
 };
 
 } // namespace EventOperation

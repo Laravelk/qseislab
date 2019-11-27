@@ -96,14 +96,14 @@ Controller::Controller(
     });
   });
 
-  connect(_view.get(), &View::calculatePolarizationAnalysisData, [this]() {
-    if (_calculatePolarization == nullptr) {
-      _calculatePolarization =
-          new PolarizationAnalysisCompute(_events_map.at(_currentEventUuid));
-    }
-    _calculatePolarization->calculate(_events_map.at(_currentEventUuid));
-    _view->getPolarGraph()->update(_events_map.at(_currentEventUuid));
-  });
+//  connect(_view.get(), &View::calculatePolarizationAnalysisData, [this]() {
+//    if (_calculatePolarization == nullptr) {
+//      _calculatePolarization =
+//          new PolarizationAnalysisCompute(_events_map.at(_currentEventUuid));
+//    }
+//    _calculatePolarization->calculate(_events_map.at(_currentEventUuid));
+//    _view->getPolarGraph()->update(_events_map.at(_currentEventUuid));
+//  });
 
   connect(_view.get(), &View::changeCurrentEvent, [this](auto &uuid) {
     _currentEventUuid = uuid;
@@ -143,19 +143,6 @@ Controller::Controller(
                     oldWavePick.getPolarizationRightBorder() !=
                         wavePick.getPolarizationRightBorder() ||
                     oldWavePick.getArrival() != wavePick.getArrival()) {
-                  //                    std::cerr <<
-                  //                    oldWavePick.getPolarizationLeftBorder()
-                  //                    << " != " <<
-                  //                    wavePick.getPolarizationLeftBorder() <<
-                  //                    std::endl <<
-                  //                                 oldWavePick.getPolarizationRightBorder()
-                  //                                 << " != " <<
-                  //                                 wavePick.getPolarizationRightBorder()
-                  //                                 << std::endl <<
-                  //                                 oldWavePick.getArrival() <<
-                  //                                 " != " <<
-                  //                                 wavePick.getArrival() <<
-                  //                                 std::endl;
                   wavePick.setValidDataStatus(false);
                 }
                 component->addWavePick(wavePick);
