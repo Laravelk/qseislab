@@ -61,16 +61,13 @@ void PolarizationAnalysisCompute::calculate(
 //}
 
 Eigen::MatrixXf *PolarizationAnalysisCompute::getPointMatrix(
-    const std::shared_ptr<Data::SeismComponent> &component, int firstIndex,
-    int lastIndex) {
+    Data::SeismComponent *const component, int firstIndex, int lastIndex) {
   const float MAX_VALUE = component->getMaxValue();
   Eigen::MatrixXf *pointMatrix = new Eigen::MatrixXf(3, lastIndex - firstIndex);
-  const std::unique_ptr<float[]> &bufferX =
-      component->getTraces().at(0)->getBuffer();
-  const std::unique_ptr<float[]> &bufferY =
-      component->getTraces().at(1)->getBuffer();
-  const std::unique_ptr<float[]> &bufferZ =
-      component->getTraces().at(2)->getBuffer();
+  auto bufferX = component->getTraces().at(0)->getBuffer();
+  auto bufferY = component->getTraces().at(1)->getBuffer();
+  auto bufferZ = component->getTraces().at(2)->getBuffer();
+
   for (unsigned long i = static_cast<unsigned long>(firstIndex), rowNumber = 0;
        i < static_cast<unsigned long>(lastIndex); i++, rowNumber++) {
     (*pointMatrix)(0, static_cast<long>(rowNumber)) = bufferX[i] / MAX_VALUE;

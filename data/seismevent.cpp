@@ -223,10 +223,28 @@ bool SeismEvent::removeComponentByReceiverUuid(const QUuid &receiverUuid) {
   return false;
 }
 
-const std::list<std::shared_ptr<SeismComponent>> &
-SeismEvent::getComponents() const {
-  return _components;
+const std::vector<const SeismComponent *> SeismEvent::getComponents() const {
+  std::vector<SeismComponent const *> vec;
+  for (auto &component : _components) {
+    vec.push_back(component.get());
+  }
+
+  return vec;
 }
+
+const std::vector<SeismComponent *> SeismEvent::getComponents() {
+  std::vector<SeismComponent *> vec;
+  for (auto &component : _components) {
+    vec.push_back(component.get());
+  }
+
+  return vec;
+}
+
+// const std::list<std::shared_ptr<SeismComponent>> &
+// SeismEvent::getComponents() const {
+//  return _components;
+//}
 
 bool SeismEvent::isTransformBy(TransformOperation oper) const {
   return _appliedOperations.end() != _appliedOperations.find(oper);
@@ -269,7 +287,7 @@ QJsonObject &SeismEvent::writeToJson(QJsonObject &json, const QDir &dir) {
   QJsonObject componentObj;
   for (auto &component : _components) {
     componentsArray.append(component->writeToJson(componentObj));
-    writer.writeComponent(component);
+    writer.writeComponent(component.get());
   }
 
   json["Components"] = componentsArray;

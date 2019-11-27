@@ -80,9 +80,9 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
     }
   });
   pick->setBorders(leftBorder, rightBorder);
-  pick->emitChanged();
-  leftBorder->emitChanged();
-  rightBorder->emitChanged();
+  //  pick->emitChanged();
+  //  leftBorder->emitChanged();
+  //    rightBorder->emitChanged();
   _wavePicks.push_back(leftBorder);
   _wavePicks.push_back(rightBorder);
   _wavePicks.push_back(pick);

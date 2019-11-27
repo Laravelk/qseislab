@@ -74,7 +74,9 @@ public:
   int getComponentAmount() const;
   void addComponent(const std::shared_ptr<SeismComponent> &);
   bool removeComponentByReceiverUuid(const QUuid &);
-  const std::list<std::shared_ptr<SeismComponent>> &getComponents() const;
+  //  const std::list<std::shared_ptr<SeismComponent>> &getComponents() const;
+  const std::vector<SeismComponent const *> getComponents() const;
+  const std::vector<SeismComponent *> getComponents();
 
   bool isTransformBy(TransformOperation) const;
 
@@ -97,7 +99,7 @@ private:
   bool _isProcessed{false};
   Point _location{0, 0, 0};
 
-  std::list<std::shared_ptr<SeismComponent>> _components;
+  std::vector<std::shared_ptr<SeismComponent>> _components;
 
   std::set<TransformOperation>
       _appliedOperations; // NOTE: уместно ли использовать set?

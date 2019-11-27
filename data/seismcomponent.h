@@ -56,13 +56,16 @@ public:
 
   int getTraceSize() const;
   int getTracesAmount() const;
-  const std::vector<std::shared_ptr<SeismTrace>> &getTraces() const;
+  //  const std::vector<std::shared_ptr<SeismTrace>> &getTraces() const;
+  const std::vector<SeismTrace const *> getTraces() const;
+  const std::vector<SeismTrace *> getTraces();
 
   void addWavePick(SeismWavePick);
   void removeWavePick(const SeismWavePick::Type);
   bool containsWavePickBy(const SeismWavePick::Type) const;
-  const SeismWavePick &getWavePick(SeismWavePick::Type) const;
+  //  const SeismWavePick &getWavePick(SeismWavePick::Type) const;
   const std::map<SeismWavePick::Type, SeismWavePick> &getWavePicks() const;
+  std::map<SeismWavePick::Type, SeismWavePick> &getWavePicks();
 
   QJsonObject &writeToJson(QJsonObject &) const;
 

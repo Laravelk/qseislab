@@ -24,8 +24,10 @@ GraphicController::GraphicController(QWidget *parent)
       _hideComponentWidget(new HideComponentWidget()),
       _clippingWidget(new ClippingWidget()), _gainWidget(new GainWidget()),
       _addWaveButton(new QPushButton("+")),
-      _polarizationEventButton(new QPushButton("Polarization Analysis")),  _tabWidget(new QTabWidget()),
-      _calculatePolarizationAnalysisDataButton(new QPushButton("Calculate")), _polarGraph(new PolarGraph()) {
+      _polarizationEventButton(new QPushButton("Polarization Analysis")),
+      _tabWidget(new QTabWidget()),
+      _calculatePolarizationAnalysisDataButton(new QPushButton("Calculate")),
+      _polarGraph(new PolarGraph()) {
 
   _view = new GraphicView(_chart);
   _view->addModel(_chart);
@@ -67,7 +69,7 @@ GraphicController::GraphicController(QWidget *parent)
 
   connect(_tabWidget, &QTabWidget::tabBarClicked, [this](int index) {
     if (POLAR_ANALYSIS_INDEX_IN_TAB == index) {
-//      emit clickOnPolarAnalysisInGraph();
+      //      emit clickOnPolarAnalysisInGraph();
     }
   });
 
@@ -150,7 +152,7 @@ GraphicController::GraphicController(QWidget *parent)
 
   QHBoxLayout *mainLayout = new QHBoxLayout();
   mainLayout->addWidget(_tabWidget, 1);
-//  mainLayout->addLayout(editGraphicMenuLayout);
+  //  mainLayout->addLayout(editGraphicMenuLayout);
   //  _allView->setLayout(mainLayout);
   setLayout(mainLayout);
   this->show();
@@ -178,7 +180,7 @@ void GraphicController::update(SeismEvent const *const event) {
     for (auto &pick : component->getWavePicks()) {
       addWaveArrival(pick.second, componentAmount);
     }
-//    std::cerr << "H ";
+    //    std::cerr << "H ";
 
     addTraceSeries(component, componentAmount);
     componentAmount++;
@@ -279,7 +281,7 @@ void GraphicController::setInterval(SeismEvent const *const event) {
 }
 
 void GraphicController::addTraceSeries(
-    const std::shared_ptr<Data::SeismComponent> &component, int index) {
+    Data::SeismComponent const *const component, int index) {
   const float intervalAxisX =
       component->getSampleInterval() / MICROSECONDS_IN_SECOND;
   int idx = -1;
@@ -287,7 +289,7 @@ void GraphicController::addTraceSeries(
     _norm = component->getMaxValue() /* NORMED*/;
     QLineSeries *series = new QLineSeries;
     series->setUseOpenGL(true); // NOTE: COMMENT FOR RELEASE
-    SeismTrace *trace = component->getTraces().at(j).get();
+    auto trace = component->getTraces().at(j);
     float tmp = 0;
     for (int k = 0; k < trace->getBufferSize(); k++) {
       series->append(

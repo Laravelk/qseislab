@@ -18,7 +18,7 @@ void TestMultiplier::undo() {
   std::cout << "call test-undo" << std::endl;
   for (auto &component : _event->getComponents()) {
     for (auto &trace : component->getTraces()) {
-      float *data = trace->getBuffer().get();
+      float *data = trace->getBuffer();
       int size = trace->getBufferSize();
       for (int i = 0; i < size; ++i) {
         data[i] = data[i] / _multiplier;
@@ -31,7 +31,7 @@ void TestMultiplier::redo() {
   std::cout << "call test-redo" << std::endl;
   for (auto &component : _event->getComponents()) {
     for (auto &trace : component->getTraces()) {
-      float *data = trace->getBuffer().get();
+      float *data = trace->getBuffer();
       int size = trace->getBufferSize();
       for (int i = 0; i < size; ++i) {
         data[i] = data[i] * _multiplier;

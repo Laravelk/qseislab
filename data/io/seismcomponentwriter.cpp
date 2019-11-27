@@ -12,20 +12,24 @@ SeismComponentWriter::SeismComponentWriter(const QFileInfo &fileInfo)
 }
 
 void SeismComponentWriter::writeComponent(
-    const std::shared_ptr<SeismComponent> &component) {
-  const std::vector<std::shared_ptr<SeismTrace>> &traces =
-      component->getTraces();
-  for (unsigned i = 0; i < traces.size(); ++i) {
-    writeTrace(traces[i]);
+    SeismComponent const *const component) {
+  //  const std::vector<std::shared_ptr<SeismTrace>> &traces =
+  //      component->getTraces();
+  //  for (unsigned i = 0; i < traces.size(); ++i) {
+  //    writeTrace(traces[i]);
+  //  }
+
+  for (auto trace : component->getTraces()) {
+    writeTrace(trace);
   }
 }
 
 SeismComponentWriter::~SeismComponentWriter() { _file.close(); }
 
-void SeismComponentWriter::writeTrace(
-    const std::shared_ptr<SeismTrace> &trace) {
+void SeismComponentWriter::writeTrace(SeismTrace const *const trace) {
   int bufferSize = trace->getBufferSize();
-  const std::unique_ptr<float[]> &buffer = trace->getBuffer();
+  //  const std::unique_ptr<float[]> &buffer = trace->getBuffer();
+  auto buffer = trace->getBuffer();
 
   _outstream << bufferSize;
   for (int i = 0; i < bufferSize; ++i) {

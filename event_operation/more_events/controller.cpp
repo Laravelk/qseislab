@@ -96,14 +96,15 @@ Controller::Controller(
     });
   });
 
-//  connect(_view.get(), &View::calculatePolarizationAnalysisData, [this]() {
-//    if (_calculatePolarization == nullptr) {
-//      _calculatePolarization =
-//          new PolarizationAnalysisCompute(_events_map.at(_currentEventUuid));
-//    }
-//    _calculatePolarization->calculate(_events_map.at(_currentEventUuid));
-//    _view->getPolarGraph()->update(_events_map.at(_currentEventUuid));
-//  });
+  //  connect(_view.get(), &View::calculatePolarizationAnalysisData, [this]() {
+  //    if (_calculatePolarization == nullptr) {
+  //      _calculatePolarization =
+  //          new
+  //          PolarizationAnalysisCompute(_events_map.at(_currentEventUuid));
+  //    }
+  //    _calculatePolarization->calculate(_events_map.at(_currentEventUuid));
+  //    _view->getPolarGraph()->update(_events_map.at(_currentEventUuid));
+  //  });
 
   connect(_view.get(), &View::changeCurrentEvent, [this](auto &uuid) {
     _currentEventUuid = uuid;
@@ -132,8 +133,16 @@ Controller::Controller(
                 //                wavePick.setPolarizationLeftBorder(l_val);
                 //                wavePick.setPolarizationRightBorder(r_val);
 
-                Data::SeismWavePick oldWavePick =
-                    component.get()->getWavePick(type);
+                Data::SeismWavePick oldWavePick;
+                for (auto &pick : component->getWavePicks()) {
+                  if (type == pick.first) {
+                    oldWavePick = pick.second;
+                    break;
+                  }
+                }
+
+                //                Data::SeismWavePick oldWavePick =
+                //                component->getWavePick(type);
                 wavePick.setPolarizationAnalysisData(
                     oldWavePick.getPolarizationAnalysisData());
                 wavePick.setPolarizationLeftBorder(l_val);

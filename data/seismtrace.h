@@ -19,8 +19,11 @@ public:
 
   int getBufferSize() const;
 
-  const std::unique_ptr<float[]> &getBuffer() const;
+  //  const std::unique_ptr<float[]> &getBuffer() const;
   void setBuffer(uint32_t, float *);
+
+  float const *getBuffer() const;
+  float *getBuffer();
 
   QJsonObject &writeToJson(QJsonObject &) const;
 

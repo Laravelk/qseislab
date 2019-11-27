@@ -257,9 +257,8 @@ PolarizationAnalysisWindow::drawLine(const QVector3D &start,
 }
 
 void PolarizationAnalysisWindow::drawCurve(
-    const std::shared_ptr<Data::SeismTrace> &traceX,
-    const std::shared_ptr<Data::SeismTrace> &traceY,
-    const std::shared_ptr<Data::SeismTrace> &traceZ, const QColor &color,
+    Data::SeismTrace const *const traceX, Data::SeismTrace const *const traceY,
+    Data::SeismTrace const *const traceZ, const QColor &color,
     Qt3DCore::QEntity *_rootEntity, const int firstPointIndex,
     const int lastPointIndex, const float maxValue) {
   auto *geometry = new Qt3DRender::QGeometry(_rootEntity);
@@ -273,9 +272,9 @@ void PolarizationAnalysisWindow::drawCurve(
           float)); // start.x, start.y, start.end + end.x, end.y, end.z / count
   float *positions = reinterpret_cast<float *>(bufferBytes.data());
 
-  const std::unique_ptr<float[]> &bufferX = traceX->getBuffer();
-  const std::unique_ptr<float[]> &bufferY = traceY->getBuffer();
-  const std::unique_ptr<float[]> &bufferZ = traceZ->getBuffer();
+  auto bufferX = traceX->getBuffer();
+  auto bufferY = traceY->getBuffer();
+  auto bufferZ = traceZ->getBuffer();
 
   for (unsigned long long i = firstPointIndex; i < lastPointIndex; i++) {
     *positions++ = bufferX[i] / maxValue;
@@ -333,7 +332,7 @@ void PolarizationAnalysisWindow::drawCurve(
 }
 
 void PolarizationAnalysisWindow::drawTraces(
-    const std::shared_ptr<Data::SeismComponent> &component) {
+    Data::SeismComponent const *const component) {
   int firstElement = 0;
   int lastElement = lastElementNumber(component);
   int pickIndex = 0;
@@ -344,12 +343,18 @@ void PolarizationAnalysisWindow::drawTraces(
   } else {
     pickIndex = 2;
   }
-  switch (pickIndex) {
-  case SeismWavePick::PWAVE:
-    pick = component->getWavePick(SeismWavePick::PWAVE);
-    break;
-  case Data::SeismWavePick::SWAVE:
-    pick = component->getWavePick(SeismWavePick::SWAVE);
+  //  switch (pickIndex) {
+  //  case SeismWavePick::PWAVE:
+  //    pick = component->getWavePick(SeismWavePick::PWAVE);
+  //    break;
+  //  case Data::SeismWavePick::SWAVE:
+  //    pick = component->getWavePick(SeismWavePick::SWAVE);
+  //  }
+
+  for (auto &type_pick : component->getWavePicks()) {
+    if (pickIndex == type_pick.first) {
+      pick = type_pick.second;
+    }
   }
 
   firstElement = static_cast<int>(pick.getPolarizationLeftBorder() /
@@ -363,7 +368,7 @@ void PolarizationAnalysisWindow::drawTraces(
 }
 
 int PolarizationAnalysisWindow::lastElementNumber(
-    const std::shared_ptr<Data::SeismComponent> &component) {
+    Data::SeismComponent const *const component) {
   int lastNumber = 0;
   for (auto &trace : component->getTraces()) {
     if (trace->getBufferSize() > lastNumber) {

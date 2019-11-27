@@ -35,7 +35,7 @@ private:
       _oldDataMap;
 
 private:
-  Eigen::MatrixXf *getPointMatrix(const std::shared_ptr<Data::SeismComponent> &,
+  Eigen::MatrixXf *getPointMatrix(Data::SeismComponent *const,
                                   const int firstIndex, const int lastIndex);
   Data::SeismPolarizationAnalysisData *
   calculatePolarizationData(const Eigen::MatrixXf &);

@@ -147,7 +147,7 @@ void SeismComponent::addTrace(const std::shared_ptr<SeismTrace> &trace) {
     _tracesSize = trace->getBufferSize();
     for (auto &_trace : _traces) {
       if (_trace->getBufferSize() < _tracesSize) {
-        float *old_buffer = trace->getBuffer().get();
+        float *old_buffer = trace->getBuffer();
         float *new_buffer = new float[static_cast<unsigned long>(_tracesSize)];
         for (int i = 0; _tracesSize; ++i) {
           if (_trace->getBufferSize() > i) {
@@ -174,10 +174,28 @@ int SeismComponent::getTracesAmount() const {
   return static_cast<int>(_traces.size());
 }
 
-const std::vector<std::shared_ptr<SeismTrace>> &
-SeismComponent::getTraces() const {
-  return _traces;
+const std::vector<const SeismTrace *> SeismComponent::getTraces() const {
+  std::vector<SeismTrace const *> vec;
+  for (auto &trace : _traces) {
+    vec.push_back(trace.get());
+  }
+
+  return vec;
 }
+
+const std::vector<SeismTrace *> SeismComponent::getTraces() {
+  std::vector<SeismTrace *> vec;
+  for (auto &trace : _traces) {
+    vec.push_back(trace.get());
+  }
+
+  return vec;
+}
+
+// const std::vector<std::shared_ptr<SeismTrace>> &
+// SeismComponent::getTraces() const {
+//  return _traces;
+//}
 
 void SeismComponent::addWavePick(const SeismWavePick wavePick) {
   _wavePicks_map[wavePick.getType()] = wavePick;
@@ -193,13 +211,17 @@ bool SeismComponent::containsWavePickBy(const SeismWavePick::Type type) const {
   return _wavePicks_map.end() != _wavePicks_map.find(type);
 }
 
-const SeismWavePick &
-SeismComponent::getWavePick(SeismWavePick::Type type) const {
-  return _wavePicks_map.at(type);
-}
+// const SeismWavePick &
+// SeismComponent::getWavePick(SeismWavePick::Type type) const {
+//  return _wavePicks_map.at(type);
+//}
 
 const std::map<SeismWavePick::Type, SeismWavePick> &
 SeismComponent::getWavePicks() const {
+  return _wavePicks_map;
+}
+
+std::map<SeismWavePick::Type, SeismWavePick> &SeismComponent::getWavePicks() {
   return _wavePicks_map;
 }
 

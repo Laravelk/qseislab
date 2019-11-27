@@ -74,7 +74,7 @@ private:
 
   void addWaveArrival(Data::SeismWavePick, int);
   void setInterval(Data::SeismEvent const *const);
-  void addTraceSeries(const std::shared_ptr<Data::SeismComponent> &, int);
+  void addTraceSeries(Data::SeismComponent const *const, int);
   void addWiggle(bool t); // true is positive, false is negative
   void settingAreaSeries(QAreaSeries *series);
   void setAxesY(int);
@@ -107,7 +107,6 @@ private:
   HideComponentWidget *_hideComponentWidget;
   ClippingWidget *_clippingWidget;
   GainWidget *_gainWidget;
-
 
   QPushButton *_addWaveButton;
   QAction *_addPWave;

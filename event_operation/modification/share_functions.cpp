@@ -4,9 +4,8 @@
 
 namespace EventOperation {
 namespace Modefication {
-bool rotateDataWithTransitionMatrix(
-    const std::shared_ptr<Data::SeismComponent> &component,
-    const Eigen::MatrixXf &transitionMatrix) {
+bool rotateDataWithTransitionMatrix(Data::SeismComponent *const component,
+                                    const Eigen::MatrixXf &transitionMatrix) {
   const int size = component->getTracesAmount();
   if (size != transitionMatrix.cols() && size != transitionMatrix.rows()) {
     return false;
@@ -17,8 +16,7 @@ bool rotateDataWithTransitionMatrix(
   Eigen::MatrixXf b_data(size, trace_size);
   int row = 0;
   for (auto &trace : component->getTraces()) {
-    Eigen::Map<Eigen::RowVectorXf> b_data_vec(trace->getBuffer().get(),
-                                              trace_size);
+    Eigen::Map<Eigen::RowVectorXf> b_data_vec(trace->getBuffer(), trace_size);
     b_data.row(row) = b_data_vec;
     ++row;
   }
@@ -26,7 +24,7 @@ bool rotateDataWithTransitionMatrix(
   auto e_data = transitionMatrix * b_data;
   row = 0;
   for (auto &trace : component->getTraces()) {
-    float *buffer = trace->getBuffer().get();
+    float *buffer = trace->getBuffer();
     for (int col = 0; col < trace->getBufferSize(); ++col) {
       buffer[col] = e_data(row, col);
     }

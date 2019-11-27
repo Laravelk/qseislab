@@ -19,9 +19,9 @@ float SeismTrace::getMaxValue() const { return _maxValue; }
 
 int SeismTrace::getBufferSize() const { return static_cast<int>(_bufferSize); }
 
-const std::unique_ptr<float[]> &SeismTrace::getBuffer() const {
-  return _buffer;
-}
+// const std::unique_ptr<float[]> &SeismTrace::getBuffer() const {
+//  return _buffer;
+//}
 
 void SeismTrace::setBuffer(uint32_t size, float *buffer) {
   assert(0 <= size);
@@ -39,6 +39,10 @@ void SeismTrace::setBuffer(uint32_t size, float *buffer) {
 
   emit changed();
 }
+
+const float *SeismTrace::getBuffer() const { return _buffer.get(); }
+
+float *SeismTrace::getBuffer() { return _buffer.get(); }
 
 QJsonObject &SeismTrace::writeToJson(QJsonObject &json) const {
   json["sampleAmount"] = static_cast<int>(_bufferSize);
