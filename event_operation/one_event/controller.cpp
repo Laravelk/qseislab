@@ -102,6 +102,12 @@ Controller::Controller(
     _view->updatePolarGraph(_event.get());
   });
 
+  connect(_view.get(), &View::clickOnPolarAnalysisInGraph, [this]() {
+        if (!checkPolarizationAnalysisDataValid() || _removedPickAndNeedUpdatePolarGraph) {
+          _view.get()->showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
+        }
+    });
+
   connect(_view.get(), &View::sendPicksInfo,
           [this](const auto type, const auto num, const auto l_val,
                  const auto pick_val, const auto r_val) {
@@ -160,6 +166,17 @@ void Controller::finish(int result) {
   }
 
   emit finished();
+}
+
+bool Controller::checkPolarizationAnalysisDataValid() {
+    for (auto &component : _event->getComponents()) {
+        for (auto &pick : component->getWavePicks()) {
+           if (!pick.second.getValidDataStatus()) {
+                return false;
+           }
+        }
+    }
+    return true;
 }
 
 QString Controller::generateEventName() const {

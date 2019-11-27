@@ -15,7 +15,6 @@ WavePick::WavePick(Data::SeismWavePick::Type type, QGraphicsItem *parent,
     : QGraphicsItem(parent), _chart(chart), _pos(pos), _size(size),
       _leftBorder(leftBorder), _rightBorder(rightBorder), _brush(brush),
       DEFAULT_SIZE(size), MAX_WIDTH(size.width()) {
-  setFlag(QGraphicsItem::ItemIgnoresTransformations);
   _type = type;
   _anchor = pos;
   setPos(_anchor);

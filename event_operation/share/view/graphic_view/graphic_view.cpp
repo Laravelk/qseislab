@@ -41,6 +41,8 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
       type, rect, chart(), QPointF(rightBorderPos, pos.y()), _sizeWaveItem,
       _colorData->getBorderPickColor(type), pick, rangeX);
   connect(pick, &WavePick::changed, [this, pick, leftBorder, rightBorder]() {
+      leftBorder->setRightBorderPos(pick->getXPos());
+      rightBorder->setLeftBorderPos(pick->getXPos());
     emit sendPicksInfo(
         pick->getType(), pick->getComponentAmount(),
         static_cast<int>(leftBorder->getXPos() * MICROSECONDS_IN_SECOND),
@@ -49,6 +51,7 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
   });
   connect(
       leftBorder, &WavePick::changed, [this, pick, leftBorder, rightBorder]() {
+      pick->setLeftBorderPos(leftBorder->getXPos());
         emit sendPicksInfo(
             pick->getType(), pick->getComponentAmount(),
             static_cast<int>(leftBorder->getXPos() * MICROSECONDS_IN_SECOND),
@@ -57,6 +60,7 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
       });
   connect(
       rightBorder, &WavePick::changed, [this, pick, leftBorder, rightBorder]() {
+      pick->setRightBorderPos(rightBorder->getXPos());
         emit sendPicksInfo(
             pick->getType(), pick->getComponentAmount(),
             static_cast<int>(leftBorder->getXPos() * MICROSECONDS_IN_SECOND),
@@ -154,12 +158,11 @@ void GraphicView::mousePressEvent(QMouseEvent *event) {
     _addWaveMode = false;
   }
 
-  if (event->button() == Qt::RightButton && _editMode) {
-    for (auto &wave : _wavePicks) {
-      wave->updateGeometry();
-    }
-  }
   QChartView::mousePressEvent(event);
+
+  for (auto &wave : _wavePicks) {
+    wave->updateGeometry();
+  }
 }
 
 void GraphicView::mouseMoveEvent(QMouseEvent *event) {
@@ -173,12 +176,12 @@ void GraphicView::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void GraphicView::mouseReleaseEvent(QMouseEvent *event) {
-  if (rubberBand && _zoomIsTouching && event->button() == Qt::LeftButton) {
+  if (rubberBand && _zoomIsTouching && event->button() == Qt::LeftButton && !isEdit()) {
     rubberBand->hide();
     QPoint point = rubberBand->pos();
     QSize size = rubberBand->size();
     delete rubberBand;
-    _chart->zoomIn(QRect(point, size));
+    chart()->zoomIn(QRect(point, size));
     rubberBand = nullptr;
     float scale = std::min(chart()->plotArea().width() / size.width(),
                            chart()->plotArea().height() / size.height());
@@ -197,12 +200,21 @@ void GraphicView::mouseReleaseEvent(QMouseEvent *event) {
     return;
   }
 
-  if (event->button() == Qt::RightButton) {
+  if ((event->buttons() == Qt::RightButton) && !isEdit()) {
     if (scene()) {
       scaleContentsBy(0.7);
       return;
     }
   }
+
+  if (_zoomIsTouching) {
+      _zoomIsTouching = false;
+    }
+
+  QChartView::mouseReleaseEvent(event);
+//  for (auto &wave : _wavePicks) {
+//    wave->updateGeometry();
+//  }
 }
 
 void GraphicView::keyPressEvent(QKeyEvent *event) {
@@ -267,7 +279,7 @@ void GraphicView::keyReleaseEvent(QKeyEvent *event) {
 }
 
 void GraphicView::mouseDoubleClickEvent(QMouseEvent *event) {
-//  QChartView::mouseDoubleClickEvent(event);
+  QChartView::mouseDoubleClickEvent(event);
 }
 
 void GraphicView::paintEvent(QPaintEvent *event) {
@@ -318,7 +330,7 @@ void GraphicView::wheelEvent(QWheelEvent *event) {
 
 void GraphicView::scaleContentsBy(qreal factor) {
   if (!_editMode) {
-    _chart->zoom(factor);
+    chart()->zoom(factor);
     if (scene()) {
       _sizeWaveItem =
           QSizeF(_sizeWaveItem.width(), _sizeWaveItem.height() * factor);
@@ -326,7 +338,6 @@ void GraphicView::scaleContentsBy(qreal factor) {
         _sizeWaveItem = wavePick->scallByAxis(QSizeF(factor, factor));
         wavePick->updateGeometry();
       }
-      std::cerr << std::endl << std::endl;
     }
   }
 }
