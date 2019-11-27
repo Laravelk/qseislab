@@ -27,7 +27,7 @@ public:
   PolarGraph(QWidget *parent = nullptr);
   QWidget *getView() const;
 
-  void update(const std::shared_ptr<Data::SeismEvent> &);
+  void update(const Data::SeismEvent * const);
 
 private:
   QPolarChart *_polarChart;

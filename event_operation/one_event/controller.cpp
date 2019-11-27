@@ -91,6 +91,17 @@ Controller::Controller(
             _view->update(_event.get(), uuid, well->getName());
           });
 
+  connect(_view.get(), &View::calculatePolarizationAnalysisData, [this]() {
+    if (_calculatePolarization == nullptr) {
+      _calculatePolarization =
+          new
+          PolarizationAnalysisCompute(_event.get());
+    }
+//      _calculatePolarization->calculate(_events_map.at(_currentEventUuid));
+    _calculatePolarization->calculate();
+    _view->updatePolarGraph(_event.get());
+  });
+
   connect(_view.get(), &View::sendPicksInfo,
           [this](const auto type, const auto num, const auto l_val,
                  const auto pick_val, const auto r_val) {

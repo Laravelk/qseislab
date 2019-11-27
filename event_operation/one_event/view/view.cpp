@@ -71,6 +71,11 @@ View::View(const std::set<QString> &eventNames,
 
   connect(_infoEvent, &InfoEvent::changed, [this]() { emit infoChanged(); });
 
+  connect(_graphicEvent,
+          &EventOperation::GraphicController::
+              calculatePolarizationAnalysisDataClicked,
+          [this]() { emit calculatePolarizationAnalysisData(); });
+
   QHBoxLayout *buttonLayoutManagers = new QHBoxLayout();
   buttonLayoutManagers->addStretch(1);
   buttonLayoutManagers->addWidget(_addButtonManagers);
@@ -147,6 +152,11 @@ void View::updateInfoEvent(Data::SeismEvent const *const event) {
   updateRepetition(name);
   _infoEvent->update(event);
   _graphicEvent->updateEventName(name);
+}
+
+void View::updatePolarGraph(const Data::SeismEvent * const event)
+{
+    _graphicEvent->updatePolarGraph(event);
 }
 
 void View::updateDataEvent(Data::SeismEvent const *const event) {

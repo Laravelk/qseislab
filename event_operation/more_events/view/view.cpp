@@ -140,6 +140,11 @@ View::View(const std::set<QString> &globalEventNames,
   connect(_graphicEvent, &EventOperation::GraphicController::removePick,
           [this](auto type, auto num) { emit removePick(type, num); });
 
+  connect(_graphicEvent, &EventOperation::GraphicController::clickOnPolarAnalysisInGraph,
+          [this](){
+      emit clickOnPolarAnalysisInGraph();
+  });
+
   connect(_okButton, &QPushButton::clicked, [this]() {
     if (allValid()) {
       accept();
@@ -278,6 +283,11 @@ void View::update(
       updateRepetition(name);
     }
   }
+}
+
+void View::updatePolarGraph(const Data::SeismEvent * const event)
+{
+    _graphicEvent->updatePolarGraph(event);
 }
 
 void View::setNotification(const QString &text) {

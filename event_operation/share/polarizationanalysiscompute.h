@@ -20,8 +20,8 @@ class SeismWavePick;
 namespace EventOperation {
 class PolarizationAnalysisCompute /*: public QUndoCommand*/ {
 public:
-  PolarizationAnalysisCompute(std::shared_ptr<Data::SeismEvent> &);
-  void calculate(std::shared_ptr<Data::SeismEvent> &event);
+  PolarizationAnalysisCompute(Data::SeismEvent * const);
+  void calculate();
 
   //  void undo() override;
   //  void redo() override;

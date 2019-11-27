@@ -40,6 +40,7 @@ public:
   void updateDataEvent(Data::SeismEvent const *const);
 
   void update(const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &);
+  void updatePolarGraph(Data::SeismEvent const *const);
 
   void setNotification(const QString &);
   void settingEventInfo(Data::SeismEvent *const) const;

@@ -29,6 +29,7 @@ public:
   void setView(GraphicView *view) { _view = view; }
 
   void update(Data::SeismEvent const *const);
+  void updatePolarGraph(Data::SeismEvent const *const);
 
   void updateEventName(const QString &);
   void setGainCoefficient(const float gainCoefficient);
@@ -89,6 +90,7 @@ signals:
   void removePick(Data::SeismWavePick::Type, int);
   void createPolarizationAnalysisWindowClicked();
   void calculatePolarizationAnalysisDataClicked();
+  void clickOnPolarAnalysisInGraph();
 
 private:
   const qreal AMPLITUDE_SCALAR = 0.1;

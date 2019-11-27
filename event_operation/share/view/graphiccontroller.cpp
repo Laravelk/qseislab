@@ -119,6 +119,12 @@ GraphicController::GraphicController(QWidget *parent)
             updateSeries();
           });
 
+  connect(_tabWidget, &QTabWidget::tabBarClicked, [this](int index){
+        if (POLAR_ANALYSIS_INDEX_IN_TAB == index) {
+            emit clickOnPolarAnalysisInGraph();
+        }
+    });
+
   connect(_gainWidget, &GainWidget::updateGain, [this](float gain) {
     _gain = gain;
     updateSeries();
@@ -187,6 +193,11 @@ void GraphicController::update(SeismEvent const *const event) {
   }
   _chart->addPicks(_view->getPickcs());
   updateSeries();
+}
+
+void GraphicController::updatePolarGraph(const Data::SeismEvent * const event)
+{
+    _polarGraph->update(event);
 }
 
 void GraphicController::updateEventName(const QString &name) {

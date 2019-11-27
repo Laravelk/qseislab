@@ -42,13 +42,18 @@ private:
 
   std::unique_ptr<View> _view;
 
+  bool checkPolarizationAnalysisDataValid();
+  bool _removedPickAndNeedUpdatePolarGraph = false;
+
+
   std::map<QUuid, std::shared_ptr<Data::SeismEvent>> _events_map;
   std::map<QUuid, std::shared_ptr<CustomIndividualUndoStack>> _stacks_map;
 
   QUuid _currentEventUuid;
 
   PolarizationAnalysisWindow *_polarizationWindow = nullptr;
-  PolarizationAnalysisCompute *_calculatePolarization = nullptr; // TODO: delete
+  PolarizationAnalysisCompute *_calculatePolarization = nullptr;
+
 };
 
 } // namespace MoreEvents

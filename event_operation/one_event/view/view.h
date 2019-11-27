@@ -43,6 +43,8 @@ public:
   //  void update(Data::SeismEvent const *const);
   void updateInfoEvent(Data::SeismEvent const *const);
   void updateDataEvent(Data::SeismEvent const *const);
+  void updatePolarGraph(Data::SeismEvent const *const);
+
 
   void update(Data::SeismEvent const *const, const QUuid &);
   void update(Data::SeismEvent const *const, const QUuid &, const QString &);
@@ -58,6 +60,7 @@ signals:
   void sendWellUuidForRemove(const QUuid &) const;
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
   void createPolarizationAnalysisWindow();
+  void calculatePolarizationAnalysisData();
 
   void undoClicked() const;
   void redoClicked() const;

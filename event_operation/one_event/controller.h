@@ -1,6 +1,7 @@
 #pragma once
 
 #include "undo_stack_work/customindividualundostack.h"
+#include "event_operation/share/polarizationanalysiscompute.h"
 
 #include "view/view.h"
 
@@ -47,6 +48,9 @@ private:
   std::map<QUuid, QString> _eventNameContainer;
 
   PolarizationAnalysisWindow *_polarizationWindow;
+
+  PolarizationAnalysisCompute *_calculatePolarization = nullptr;
+
 
   std::shared_ptr<Data::SeismEvent> _event;
   std::shared_ptr<CustomIndividualUndoStack> _undoStack;

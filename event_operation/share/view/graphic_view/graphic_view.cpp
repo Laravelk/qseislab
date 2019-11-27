@@ -267,7 +267,7 @@ void GraphicView::keyReleaseEvent(QKeyEvent *event) {
 }
 
 void GraphicView::mouseDoubleClickEvent(QMouseEvent *event) {
-  QChartView::mouseDoubleClickEvent(event);
+//  QChartView::mouseDoubleClickEvent(event);
 }
 
 void GraphicView::paintEvent(QPaintEvent *event) {

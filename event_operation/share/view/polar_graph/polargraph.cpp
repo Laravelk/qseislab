@@ -40,7 +40,7 @@ PolarGraph::PolarGraph(QWidget *parent)
 
 QWidget *PolarGraph::getView() const { return _allView; }
 
-void PolarGraph::update(const std::shared_ptr<Data::SeismEvent> &event) {
+void PolarGraph::update(Data::SeismEvent const * const event) {
   _polarChart->removeAllSeries();
   QScatterSeries *series = new QScatterSeries();
   for (auto &component : event->getComponents()) {

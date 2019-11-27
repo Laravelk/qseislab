@@ -7,17 +7,15 @@
 
 namespace EventOperation {
 
-PolarizationAnalysisCompute::PolarizationAnalysisCompute(
-    std::shared_ptr<Data::SeismEvent> &event)
-    : _event(event.get()) {}
+PolarizationAnalysisCompute::PolarizationAnalysisCompute(Data::SeismEvent * const event)
+    : _event(event) {}
 
-void PolarizationAnalysisCompute::calculate(
-    std::shared_ptr<Data::SeismEvent> &event) {
-  _event = event.get();
+void PolarizationAnalysisCompute::calculate() {
+//  _event = event.get();
   int numberOfComponent = 0;
   for (auto &component : _event->getComponents()) {
     for (auto &mapsWithPickElement : component->getWavePicks()) {
-      Data::SeismWavePick pick = mapsWithPickElement.second;
+      Data::SeismWavePick &pick = mapsWithPickElement.second;
       _oldDataMap[std::make_pair(numberOfComponent, pick.getType())] =
           pick.getPolarizationAnalysisData();
       const int FIRST_NUMBER_OF_ELEMENT_IN_ARRAY = static_cast<const int>(
@@ -31,12 +29,13 @@ void PolarizationAnalysisCompute::calculate(
       Data::SeismPolarizationAnalysisData *data =
           calculatePolarizationData(*matrix);
       data->setValid(true);
-      component->removeWavePick(pick.getType());
+//      component->removeWavePick(pick.getType());
       pick.setPolarizationAnalysisData(data);
-      component->addWavePick(pick);
-      delete matrix;
+      std::cerr << pick.getType();
+
+//      component->addWavePick(pick);
     }
-    numberOfComponent++;
+    ++numberOfComponent;
   }
 }
 

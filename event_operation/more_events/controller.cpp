@@ -96,15 +96,21 @@ Controller::Controller(
     });
   });
 
-  //  connect(_view.get(), &View::calculatePolarizationAnalysisData, [this]() {
-  //    if (_calculatePolarization == nullptr) {
-  //      _calculatePolarization =
-  //          new
-  //          PolarizationAnalysisCompute(_events_map.at(_currentEventUuid));
-  //    }
-  //    _calculatePolarization->calculate(_events_map.at(_currentEventUuid));
-  //    _view->getPolarGraph()->update(_events_map.at(_currentEventUuid));
-  //  });
+    connect(_view.get(), &View::calculatePolarizationAnalysisData, [this]() {
+      if (_calculatePolarization == nullptr) {
+        _calculatePolarization =
+            new
+            PolarizationAnalysisCompute(_events_map.at(_currentEventUuid).get());
+      }
+      _calculatePolarization->calculate();
+      _view->updatePolarGraph(_events_map.at(_currentEventUuid).get());
+    });
+
+    connect(_view.get(), &View::clickOnPolarAnalysisInGraph, [this]() {
+          if (!checkPolarizationAnalysisDataValid() || _removedPickAndNeedUpdatePolarGraph) {
+            _view.get()->showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
+          }
+      });
 
   connect(_view.get(), &View::changeCurrentEvent, [this](auto &uuid) {
     _currentEventUuid = uuid;
@@ -174,6 +180,7 @@ Controller::Controller(
 
   connect(_view.get(), &View::removePick,
           [this](const auto type, const auto num) {
+             _removedPickAndNeedUpdatePolarGraph = true;
             int idx = 0;
             if (_polarizationWindow) {
               _polarizationWindow->setDefault();
@@ -214,6 +221,17 @@ Controller::Controller(
           });
 
   connect(_view.get(), &View::finished, this, &Controller::finish);
+}
+
+bool Controller::checkPolarizationAnalysisDataValid() {
+    for (auto &component : _events_map[_currentEventUuid].get()->getComponents()) {
+        for (auto &pick : component->getWavePicks()) {
+           if (!pick.second.getValidDataStatus()) {
+                return false;
+           }
+        }
+    }
+    return true;
 }
 
 void Controller::start() {
