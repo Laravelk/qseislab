@@ -29,7 +29,7 @@ find_package(Qt5 COMPONENTS ${_Q_MODULES} REQUIRED)
 #add_subdirectory(parser_test)
 
 # Bad way
-set(Boost_INCLUDE_DIR "C:/Users/seismuser/all/boost_1_71_0/boost_1_71_0")
+set(Boost_INCLUDE_DIR "C:/Program Files/boost_1_71_0/boost_1_71_0")
 find_package(Boost REQUIRED)
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})

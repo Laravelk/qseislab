@@ -203,10 +203,6 @@ void GraphicView::mouseReleaseEvent(QMouseEvent *event) {
       return;
     }
   }
-  if (_zoomIsTouching) {
-    _zoomIsTouching = false;
-  }
-  QChartView::mouseReleaseEvent(event);
 }
 
 void GraphicView::keyPressEvent(QKeyEvent *event) {
