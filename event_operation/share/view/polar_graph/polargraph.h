@@ -9,6 +9,7 @@
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QSplineSeries>
 #include <QtCharts/QValueAxis>
+#include <QLabel>
 #include <QtMath>
 #include <memory>
 
@@ -21,13 +22,13 @@ class SeismTrace;
 QT_CHARTS_USE_NAMESPACE;
 
 namespace EventOperation {
-class PolarGraph : public QFrame {
+class PolarGraph : public QWidget {
   Q_OBJECT
 public:
   PolarGraph(QWidget *parent = nullptr);
   QWidget *getView() const;
-
   void update(const Data::SeismEvent * const);
+  void setGraphColor(const QBrush &);
 
 private:
   QPolarChart *_polarChart;
@@ -35,7 +36,11 @@ private:
   QValueAxis *_angularAxis;
   QValueAxis *_radialAxis;
   QWidget *_allView;
+  QGraphicsTextItem *_status;
+  QGraphicsRectItem *_statusRect;
   QList<QScatterSeries *> _seriesList;
+
+  const QString WARNING_STATUS = "WARNING. UNVALID DATA";
 };
 
 } // namespace EventOperation

@@ -35,6 +35,7 @@ public:
   void setGainCoefficient(const float gainCoefficient);
   void setClippingValue(const float clippingValue);
   void setWiggle(const int status);
+  void showWarningAboutUnvalidDataOnGraph(bool);
 
   void setAddPolarizationWindowButtonEnable(bool enable) {
     _polarizationEventButton->setEnabled(enable);

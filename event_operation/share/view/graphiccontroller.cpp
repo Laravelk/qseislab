@@ -69,7 +69,10 @@ GraphicController::GraphicController(QWidget *parent)
 
   connect(_tabWidget, &QTabWidget::tabBarClicked, [this](int index) {
     if (POLAR_ANALYSIS_INDEX_IN_TAB == index) {
-      //      emit clickOnPolarAnalysisInGraph();
+//            std::cerr << "HH ";
+            emit clickOnPolarAnalysisInGraph();
+    } else {
+        showWarningAboutUnvalidDataOnGraph(false);
     }
   });
 
@@ -119,12 +122,6 @@ GraphicController::GraphicController(QWidget *parent)
             updateSeries();
           });
 
-  connect(_tabWidget, &QTabWidget::tabBarClicked, [this](int index){
-        if (POLAR_ANALYSIS_INDEX_IN_TAB == index) {
-            emit clickOnPolarAnalysisInGraph();
-        }
-    });
-
   connect(_gainWidget, &GainWidget::updateGain, [this](float gain) {
     _gain = gain;
     updateSeries();
@@ -142,10 +139,6 @@ GraphicController::GraphicController(QWidget *parent)
   editGraphicMenuLayout->addWidget(_calculatePolarizationAnalysisDataButton);
   editGraphicMenuLayout->addStretch(1);
 
-  QPalette paletteTabWidget = _tabWidget->palette();
-  paletteTabWidget.setColor(_tabWidget->backgroundRole(), Qt::white);
-  _tabWidget->setPalette(paletteTabWidget);
-
   QHBoxLayout *graphLayout = new QHBoxLayout();
   graphLayout->addWidget(_view, 1);
   graphLayout->addLayout(editGraphicMenuLayout);
@@ -154,14 +147,13 @@ GraphicController::GraphicController(QWidget *parent)
   graphWidget->setLayout(graphLayout);
 
   _tabWidget->addTab(graphWidget, "graphic");
-  _tabWidget->addTab(_polarGraph->getView(), "polar");
+  _tabWidget->addTab(_polarGraph, "polar");
 
   QHBoxLayout *mainLayout = new QHBoxLayout();
   mainLayout->addWidget(_tabWidget, 1);
   //  mainLayout->addLayout(editGraphicMenuLayout);
   //  _allView->setLayout(mainLayout);
   setLayout(mainLayout);
-  this->show();
   //  _allView->hide();
 }
 
@@ -243,6 +235,25 @@ void GraphicController::setWiggle(const int status) {
     _isNegativeWiggleSet = true;
     addWiggle(false);
   }
+}
+
+void GraphicController::showWarningAboutUnvalidDataOnGraph(bool show)
+{
+    QPalette paletteTabWidget = _tabWidget->palette();
+    QPalette paletteGraph = _polarGraph->palette();
+    if (!show) {
+        paletteTabWidget.setColor(_tabWidget->backgroundRole(), Qt::white);
+        paletteGraph.setColor(_polarGraph->backgroundRole(), Qt::white);
+        _tabWidget->setPalette(paletteTabWidget);
+        _polarGraph->setGraphColor(Qt::white);
+        _polarGraph->setPalette(paletteGraph);
+    } else {
+        paletteTabWidget.setColor(_tabWidget->backgroundRole(), Qt::yellow);
+        paletteGraph.setColor(_polarGraph->backgroundRole(), Qt::gray);
+        _polarGraph->setGraphColor(Qt::gray);
+        _polarGraph->setPalette(Qt::yellow);
+        _tabWidget->setPalette(paletteTabWidget);
+   }
 }
 
 void GraphicController::clear() {

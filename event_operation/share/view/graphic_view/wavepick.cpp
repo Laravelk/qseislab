@@ -15,12 +15,12 @@ WavePick::WavePick(Data::SeismWavePick::Type type, QGraphicsItem *parent,
     : QGraphicsItem(parent), _chart(chart), _pos(pos), _size(size),
       _leftBorder(leftBorder), _rightBorder(rightBorder), _brush(brush),
       DEFAULT_SIZE(size), MAX_WIDTH(size.width()) {
+  setFlag(QGraphicsItem::ItemIgnoresTransformations);
   _type = type;
   _anchor = pos;
   setPos(_anchor);
   updateBorders();
   _rect = QRectF(0, 0, size.width(), size.height());
-
   updateGeometry();
 }
 
@@ -108,8 +108,6 @@ void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
                                  event->buttonDownPos(Qt::LeftButton))
                     .x(),
                 _anchor.y());
-    //    std::cerr << _valueLeftBorder << " " << newPosition.x() << " " <<
-    //    _valueRightBorder << std::endl;
     if (newPosition.x() < _valueRightBorder &&
         newPosition.x() > _valueLeftBorder) {
       setPos(QPointF(
@@ -129,7 +127,7 @@ void WavePick::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
                                    event->buttonDownPos(Qt::LeftButton)))
             .x();
     _anchor = QPointF(newX, _anchor.y());
-    emit changed();
+//    emit changed();
   }
 }
 

@@ -19,12 +19,13 @@ public:
 
   void addModel(ChartGesture *model) { _chart = model; }
   void addPick(WavePick *);
-  void addPick(Data::SeismWavePick::Type, qreal, qreal, qreal, qreal, qreal);
-  void addPick(Data::SeismWavePick::Type, QPointF, qreal, qreal, qreal);
+  void addPick(Data::SeismWavePick::Type, qreal, qreal, qreal,
+               qreal, qreal);
+  void addPick(Data::SeismWavePick::Type, QPointF, qreal, qreal,
+               qreal);
 
-  const QColor
-  getAxisColor(const unsigned int componentIndexInRecieverData) const {
-    return _colorData->getComponentColor(componentIndexInRecieverData);
+  const QColor getAxisColor(const unsigned int componentIndexInRecieverData) const {
+      return _colorData->getComponentColor(componentIndexInRecieverData);
   }
 
   void setWaveAddTriggerFlag(Data::SeismWavePick::Type);
@@ -42,10 +43,9 @@ public:
   }
 
   void mouseEvent(const QPointF &pos) {
-    QPointF localPos = QPointF(_chart->mapToPosition(pos));
-    this->mousePressEvent(new QMouseEvent(QEvent::MouseButtonPress, localPos,
-                                          Qt::LeftButton, Qt::LeftButton,
-                                          Qt::NoModifier));
+      QPointF localPos = QPointF(_chart->mapToPosition(pos));
+      this->mousePressEvent(new QMouseEvent(QEvent::MouseButtonPress, localPos, Qt::LeftButton, Qt::LeftButton,
+                                                  Qt::NoModifier));
   }
 
 protected:
@@ -79,7 +79,7 @@ private:
   QGraphicsTextItem *_status;
   QRubberBand *rubberBand = nullptr;
   QPoint _firstPoint;
-  QSizeF _sizeWaveItem = QSizeF(2, 40);
+  QSizeF _sizeWaveItem = QSizeF(2,40);
 
 signals:
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
@@ -95,39 +95,38 @@ private:
   const int MICROSECONDS_IN_MILISECOND = 1000;
 
 private:
+
   class ColorData {
   public:
-    explicit ColorData() {
-      fillPickColor();
-      fillBorderPickColor();
-    }
-    const QColor getPickColor(const Data::SeismWavePick::Type type) {
-      return _pickColor.at(type);
-    }
-    const QColor
-    getBorderPickColor(const Data::SeismWavePick::Type type) const {
-      return _borderColor.at(type);
-    }
-    const QColor
-    getComponentColor(const unsigned int componentIndexInRecieverData) const {
-      return _componentColors[componentIndexInRecieverData];
-    }
+      explicit ColorData() {
+            fillPickColor();
+            fillBorderPickColor();
+      }
+      const QColor getPickColor(const Data::SeismWavePick::Type type) {
+          return _pickColor.at(type);
+      }
+      const QColor getBorderPickColor(const Data::SeismWavePick::Type type) const {
+          return _borderColor.at(type);
+      }
+      const QColor getComponentColor(const unsigned int componentIndexInRecieverData) const {
+          return _componentColors[componentIndexInRecieverData];
+      }
 
   private:
-    std::map<Data::SeismWavePick::Type, QColor> _pickColor;
-    std::map<Data::SeismWavePick::Type, QColor> _borderColor;
-    const QColor _componentColors[3] = {
-        QColor(220, 20, 60), QColor(50, 205, 50), QColor(65, 105, 225)};
+      std::map<Data::SeismWavePick::Type, QColor> _pickColor;
+      std::map<Data::SeismWavePick::Type,  QColor> _borderColor;
+      const QColor _componentColors[3] = {QColor(220, 20, 60), QColor(50, 205, 50),
+                              QColor(65, 105, 225)};
 
-    void fillPickColor() {
-      _pickColor[Data::SeismWavePick::PWAVE] = Qt::darkRed;
-      _pickColor[Data::SeismWavePick::SWAVE] = Qt::darkBlue;
-    }
+      void fillPickColor() {
+          _pickColor[Data::SeismWavePick::PWAVE] = Qt::darkRed;
+          _pickColor[Data::SeismWavePick::SWAVE] = Qt::darkBlue;
+      }
 
-    void fillBorderPickColor() {
-      _borderColor[Data::SeismWavePick::PWAVE] = Qt::darkCyan;
-      _borderColor[Data::SeismWavePick::SWAVE] = Qt::darkGreen;
-    }
+      void fillBorderPickColor() {
+          _borderColor[Data::SeismWavePick::PWAVE] = Qt::darkCyan;
+          _borderColor[Data::SeismWavePick::SWAVE] = Qt::darkGreen;
+      }
   };
 
   ColorData *_colorData;

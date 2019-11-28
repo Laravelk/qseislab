@@ -7,7 +7,7 @@
 
 namespace EventOperation {
 PolarGraph::PolarGraph(QWidget *parent)
-    : QFrame(parent), _polarChart(new QPolarChart()),
+    : QWidget(parent), _polarChart(new QPolarChart()),
       _polarView(new QChartView()), _angularAxis(new QValueAxis()),
       _radialAxis(new QValueAxis) {
   const qreal angularMin = 0;
@@ -31,11 +31,16 @@ PolarGraph::PolarGraph(QWidget *parent)
   _polarView->setChart(_polarChart);
   _polarView->setRenderHint(QPainter::Antialiasing);
 
-  _allView = new QWidget();
+//  _status = new QLabel(WARNING_STATUS);
+//  _status->move(20, 450);
+  _statusRect = new QGraphicsRectItem(20, 447, 133, 20, _polarChart);
+  _status = new QGraphicsTextItem(WARNING_STATUS, _polarChart);
+  _status->setPos(20, 443);
+  _status->show();
 
   QHBoxLayout *mainLayout = new QHBoxLayout();
-  mainLayout->addWidget(_polarView, 1);
-  _allView->setLayout(mainLayout);
+  mainLayout->addWidget(_polarView);
+  setLayout(mainLayout);
 }
 
 QWidget *PolarGraph::getView() const { return _allView; }
@@ -61,5 +66,12 @@ void PolarGraph::update(Data::SeismEvent const * const event) {
   _polarChart->addSeries(series);
   series->attachAxis(_radialAxis);
   series->attachAxis(_angularAxis);
+}
+
+void PolarGraph::setGraphColor(const QBrush &color)
+{
+    _polarView->setAutoFillBackground(true);
+    _polarChart->setBackgroundBrush(color);
+    _polarChart->setBackgroundVisible(true);
 }
 } // namespace EventOperation
