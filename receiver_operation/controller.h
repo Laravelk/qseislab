@@ -24,21 +24,26 @@ public:
 
   explicit Controller(QObject *parent = nullptr);
 
-  void viewReceivers(const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &);
+  void viewReceivers(const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &,
+                     const std::list<std::shared_ptr<Data::SeismReceiver>> &);
   void finish(int);
 
 signals:
   void finished() const;
-  void removeAllReceivers() const;
-  void sendReciver(const QUuid &, const std::shared_ptr<Data::SeismReceiver> &);
+  //  void removeAllReceivers() const;
+  //  void sendReciver(const QUuid &, const std::shared_ptr<Data::SeismReceiver>
+  //  &);
 
-  void sendWells(std::map<QUuid, std::shared_ptr<Data::SeismWell>> &);
+  //  void sendWells(std::map<QUuid, std::shared_ptr<Data::SeismWell>> &);
+
+  void sendReceivers(std::list<std::shared_ptr<Data::SeismReceiver>> &);
 
 private:
   Model *_model;
   std::unique_ptr<View> _view;
 
   std::map<QUuid, std::shared_ptr<Data::SeismWell>> _wells_map;
+  std::list<std::shared_ptr<Data::SeismReceiver>> _receivers;
 };
 
 } // namespace ReceiverOperation

@@ -16,9 +16,16 @@ const QString SeismWell::_default_path = "data/wells/";
 SeismWell::SeismWell() : _uuid(QUuid::createUuid()) {}
 
 SeismWell::SeismWell(const QJsonObject &json, const QDir &dir)
-    : _uuid(QUuid::createUuid()) {
+//    : _uuid(QUuid::createUuid())
+{
 
   std::string err_msg;
+
+  if (json.contains("uuid")) {
+    _uuid = QUuid::fromString(json["uuid"].toString());
+  } else {
+    err_msg += "::uuid : not found\n";
+  }
 
   if (json.contains("name")) {
     _name = json["name"].toString();
@@ -32,23 +39,23 @@ SeismWell::SeismWell(const QJsonObject &json, const QDir &dir)
     err_msg += "::path : not found\n";
   }
 
-  if (json.contains("Receivers")) {
-    QJsonArray receiversArray(json["Receivers"].toArray());
-    int idx = 0;
-    for (auto objReceiver : receiversArray) {
-      try {
-        auto seismReceiver =
-            std::make_shared<SeismReceiver>(objReceiver.toObject());
-        _receivers.push_back(std::move(seismReceiver));
-      } catch (std::runtime_error &err) {
-        err_msg += "Receivers (idx: " + std::to_string(idx) + ")\n";
-        err_msg += err.what();
-      }
-      ++idx;
-    }
-  } else {
-    err_msg += "::Receivers : not found\n";
-  }
+  //  if (json.contains("Receivers")) {
+  //    QJsonArray receiversArray(json["Receivers"].toArray());
+  //    int idx = 0;
+  //    for (auto objReceiver : receiversArray) {
+  //      try {
+  //        auto seismReceiver =
+  //            std::make_shared<SeismReceiver>(objReceiver.toObject());
+  //        _receivers.push_back(std::move(seismReceiver));
+  //      } catch (std::runtime_error &err) {
+  //        err_msg += "Receivers (idx: " + std::to_string(idx) + ")\n";
+  //        err_msg += err.what();
+  //      }
+  //      ++idx;
+  //    }
+  //  } else {
+  //    err_msg += "::Receivers : not found\n";
+  //  }
 
   QFileInfo fileInfo(dir, _path);
   if (fileInfo.exists()) {
@@ -84,17 +91,14 @@ SeismWell::SeismWell(const QJsonObject &json, const QDir &dir)
 
 SeismWell::SeismWell(const SeismWell &other)
     : _uuid(other._uuid), _path(other._path), _name(other._name),
-      _points(other._points), _receivers(other._receivers) {
+      _points(other._points)
+//    ,_receivers(other._receivers)
+{
 
-  //  for (auto &pair : other._receivers_map) {
-  //    _receivers_map[pair.first] =
-  //        std::make_unique<SeismReceiver>(*(pair.second));
+  //  for (auto &receiver : other._receivers) {
+  //    _receivers.push_back(std::make_shared<SeismReceiver>(*receiver));
+  //    //    _receivers.push_back(receiver);
   //  }
-
-  for (auto &receiver : other._receivers) {
-    _receivers.push_back(std::make_shared<SeismReceiver>(*receiver));
-    //    _receivers.push_back(receiver);
-  }
 }
 
 // void SeismWell::setUuid(const QUuid &uuid) { _uuid = uuid; }
@@ -119,29 +123,29 @@ const Point &SeismWell::getPoint(int idx) const {
 
 const std::vector<Point> &SeismWell::getPoints() const { return _points; }
 
-void SeismWell::addReceiver(const std::shared_ptr<SeismReceiver> &receiver) {
-  //  _isSaved = false;
-  //  auto uuid = generateUuid();
-  //  receiver->setUuid(uuid);
-  _receivers.push_back(receiver);
+// void SeismWell::addReceiver(const std::shared_ptr<SeismReceiver> &receiver) {
+//  //  _isSaved = false;
+//  //  auto uuid = generateUuid();
+//  //  receiver->setUuid(uuid);
+//  _receivers.push_back(receiver);
 
-  //  emit addedReceiver(_receivers.back());
-}
+//  //  emit addedReceiver(_receivers.back());
+//}
 
-bool SeismWell::removeReceiver(const QUuid &uuid) {
-  for (auto itr = _receivers.begin(); itr != _receivers.end(); ++itr) {
-    if (uuid == (*itr)->getUuid()) {
-      _receivers.erase(itr);
-      //      emit removedReceiver(uuid);
-      return true;
-    }
-  }
-  return false;
-}
+// bool SeismWell::removeReceiver(const QUuid &uuid) {
+//  for (auto itr = _receivers.begin(); itr != _receivers.end(); ++itr) {
+//    if (uuid == (*itr)->getUuid()) {
+//      _receivers.erase(itr);
+//      //      emit removedReceiver(uuid);
+//      return true;
+//    }
+//  }
+//  return false;
+//}
 
-int SeismWell::getReceiversAmount() const {
-  return static_cast<int>(_receivers.size());
-}
+// int SeismWell::getReceiversAmount() const {
+//  return static_cast<int>(_receivers.size());
+//}
 
 // const std::unique_ptr<SeismReceiver> &
 // SeismWell::getReceiver(const QUuid &uuid) const {
@@ -156,12 +160,24 @@ int SeismWell::getReceiversAmount() const {
 //  return *(_receivers.begin());
 //}
 
-const std::list<std::shared_ptr<SeismReceiver>> &
-SeismWell::getReceivers() const {
-  return _receivers;
-}
+// const std::vector<SeismReceiver const *> SeismWell::getReceivers() const {
+//  //    return _receivers;
+//  std::vector<SeismReceiver const *> vec;
+//  for (auto &receiver : _receivers) {
+//    vec.push_back(receiver.get());
+//  }
+//  return vec;
+//}
 
-void SeismWell::removeAllReceivers() { _receivers.clear(); }
+// const std::vector<SeismReceiver *> SeismWell::getReceivers() {
+//  std::vector<SeismReceiver *> vec;
+//  for (auto &receiver : _receivers) {
+//    vec.push_back(receiver.get());
+//  }
+//  return vec;
+//}
+
+// void SeismWell::removeAllReceivers() { _receivers.clear(); }
 
 // void SeismWell::addReceiver(std::unique_ptr<SeismReceiver> receiver) {
 //  auto uuid = receiver->getUuid();
@@ -205,6 +221,7 @@ QJsonObject &SeismWell::writeToJson(QJsonObject &json, const QDir &dir) {
     _path += ".bin";
   }
 
+  json["uuid"] = _uuid.toString();
   json["name"] = _name;
   json["path"] = _path;
   json["pointAmount"] = getPointsAmount();
@@ -214,12 +231,12 @@ QJsonObject &SeismWell::writeToJson(QJsonObject &json, const QDir &dir) {
     writer.writePoint(point);
   }
 
-  QJsonArray receiversArray;
-  QJsonObject receiverObj;
-  for (auto &receiver : _receivers) {
-    receiversArray.append(receiver->writeToJson(receiverObj));
-  }
-  json["Receivers"] = receiversArray;
+  //  QJsonArray receiversArray;
+  //  QJsonObject receiverObj;
+  //  for (auto &receiver : _receivers) {
+  //    receiversArray.append(receiver->writeToJson(receiverObj));
+  //  }
+  //  json["Receivers"] = receiversArray;
 
   return json;
 }

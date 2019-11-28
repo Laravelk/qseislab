@@ -23,6 +23,7 @@ namespace MoreEvents {
 Controller::Controller(
     const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &all_events,
     const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &wells_map,
+    const std::list<std::shared_ptr<Data::SeismReceiver>> &receivers,
     QObject *parent)
     : QObject(parent), _model(new Model(new SegyReader(), this)) {
 
@@ -46,44 +47,53 @@ Controller::Controller(
     }
   });
 
-  connect(_view.get(), &View::sendWellUuidAndFilePaths,
-          [this, &wells_map](auto &wellUuid, auto &filePaths) {
-            for (auto &path : filePaths) {
-              auto components =
-                  _model->getSeismComponents(wells_map.at(wellUuid), path);
-              if (!components.empty()) {
-                std::shared_ptr<SeismEvent> event =
-                    std::make_shared<SeismEvent>();
-
-                connect(event.get(), &Data::SeismEvent::infoChanged,
-                        [this](auto event) {
-                          if (event->getUuid() == _currentEventUuid) {
-                            _view->updateInfoEvent(event);
-                          }
-                        });
-
-                connect(event.get(), &Data::SeismEvent::dataChanged,
-                        [this](auto event) {
-                          if (event->getUuid() == _currentEventUuid) {
-                            _view->updateDataEvent(event);
-                          }
-                        });
-
-                auto info = event->getInfo();
-                info.setName(QFileInfo(path).baseName());
-                event->setInfo(info);
-
-                for (auto &component : components) {
-                  event->addComponent(std::move(component));
-                }
-                auto &uuid = event->getUuid();
-                _events_map[uuid] = event;
-                _stacks_map[uuid] =
-                    std::make_shared<CustomIndividualUndoStack>();
-              }
+  connect(
+      _view.get(), &View::sendWellUuidAndFilePaths,
+      [this, &wells_map, &receivers](auto &wellUuid, auto &filePaths) {
+        for (auto &path : filePaths) {
+          std::list<std::shared_ptr<Data::SeismReceiver>> receiversByWell;
+          for (auto &receiver : receivers) {
+            if (wellUuid == receiver->getSourseWell()->getUuid()) {
+              receiversByWell.push_back(receiver);
             }
-            _view->update(_events_map);
-          });
+          }
+
+          auto components = _model->getSeismComponents(receiversByWell, path);
+
+          //              auto components =
+          //                  _model->getSeismComponents(wells_map.at(wellUuid),
+          //                  path);
+          if (!components.empty()) {
+            std::shared_ptr<SeismEvent> event = std::make_shared<SeismEvent>();
+
+            connect(event.get(), &Data::SeismEvent::infoChanged,
+                    [this](auto event) {
+                      if (event->getUuid() == _currentEventUuid) {
+                        _view->updateInfoEvent(event);
+                      }
+                    });
+
+            connect(event.get(), &Data::SeismEvent::dataChanged,
+                    [this](auto event) {
+                      if (event->getUuid() == _currentEventUuid) {
+                        _view->updateDataEvent(event);
+                      }
+                    });
+
+            auto info = event->getInfo();
+            info.setName(QFileInfo(path).baseName());
+            event->setInfo(info);
+
+            for (auto &component : components) {
+              event->addComponent(std::move(component));
+            }
+            auto &uuid = event->getUuid();
+            _events_map[uuid] = event;
+            _stacks_map[uuid] = std::make_shared<CustomIndividualUndoStack>();
+          }
+        }
+        _view->update(_events_map);
+      });
 
   connect(_view.get(), &View::createPolarizationAnalysisWindow, [this]() {
     _polarizationWindow =
@@ -96,21 +106,22 @@ Controller::Controller(
     });
   });
 
-    connect(_view.get(), &View::calculatePolarizationAnalysisData, [this]() {
-      if (_calculatePolarization == nullptr) {
-        _calculatePolarization =
-            new
-            PolarizationAnalysisCompute(_events_map.at(_currentEventUuid).get());
-      }
-      _calculatePolarization->calculate();
-      _view->updatePolarGraph(_events_map.at(_currentEventUuid).get());
-    });
+  connect(_view.get(), &View::calculatePolarizationAnalysisData, [this]() {
+    if (_calculatePolarization == nullptr) {
+      _calculatePolarization = new PolarizationAnalysisCompute(
+          _events_map.at(_currentEventUuid).get());
+    }
+    _calculatePolarization->calculate();
+    _view->updatePolarGraph(_events_map.at(_currentEventUuid).get());
+  });
 
-    connect(_view.get(), &View::clickOnPolarAnalysisInGraph, [this]() {
-          if (!checkPolarizationAnalysisDataValid() || _removedPickAndNeedUpdatePolarGraph) {
-            _view.get()->showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
-          }
-      });
+  connect(_view.get(), &View::clickOnPolarAnalysisInGraph, [this]() {
+    if (!checkPolarizationAnalysisDataValid() ||
+        _removedPickAndNeedUpdatePolarGraph) {
+      _view.get()
+          ->showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
+    }
+  });
 
   connect(_view.get(), &View::changeCurrentEvent, [this](auto &uuid) {
     _currentEventUuid = uuid;
@@ -119,7 +130,10 @@ Controller::Controller(
   });
 
   connect(_view.get(), &View::hideCurrentEvent, [this]() {
-    _view->unloadEvent(_stacks_map[_currentEventUuid].get());
+    auto &stack = _stacks_map[_currentEventUuid];
+    if (stack) {
+      _view->unloadEvent(stack.get());
+    }
     _currentEventUuid = QUuid();
   });
 
@@ -180,7 +194,7 @@ Controller::Controller(
 
   connect(_view.get(), &View::removePick,
           [this](const auto type, const auto num) {
-             _removedPickAndNeedUpdatePolarGraph = true;
+            _removedPickAndNeedUpdatePolarGraph = true;
             int idx = 0;
             if (_polarizationWindow) {
               _polarizationWindow->setDefault();
@@ -224,14 +238,15 @@ Controller::Controller(
 }
 
 bool Controller::checkPolarizationAnalysisDataValid() {
-    for (auto &component : _events_map[_currentEventUuid].get()->getComponents()) {
-        for (auto &pick : component->getWavePicks()) {
-           if (!pick.second.getValidDataStatus()) {
-                return false;
-           }
-        }
+  for (auto &component :
+       _events_map[_currentEventUuid].get()->getComponents()) {
+    for (auto &pick : component->getWavePicks()) {
+      if (!pick.second.getValidDataStatus()) {
+        return false;
+      }
     }
-    return true;
+  }
+  return true;
 }
 
 void Controller::start() {

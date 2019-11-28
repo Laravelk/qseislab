@@ -1,7 +1,7 @@
 #pragma once
 
-#include "undo_stack_work/customindividualundostack.h"
 #include "event_operation/share/polarizationanalysiscompute.h"
+#include "undo_stack_work/customindividualundostack.h"
 
 #include "view/view.h"
 
@@ -14,6 +14,7 @@ class QUndoStack;
 namespace Data {
 class SeismEvent;
 class SeismWell;
+class SeismReceiver;
 } // namespace Data
 
 namespace EventOperation {
@@ -28,6 +29,7 @@ public:
   explicit Controller(
       const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
       const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &,
+      const std::list<std::shared_ptr<Data::SeismReceiver>> &,
       QObject *parent = nullptr);
 
   void start();
@@ -52,8 +54,6 @@ private:
 
   bool checkPolarizationAnalysisDataValid();
   bool _removedPickAndNeedUpdatePolarGraph = false;
-
-
 
   std::shared_ptr<Data::SeismEvent> _event;
   std::shared_ptr<CustomIndividualUndoStack> _undoStack;

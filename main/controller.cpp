@@ -1,7 +1,7 @@
 #include "controller.h"
 
-#include "undo_stack_work/customindividualundocommand.h"
 #include "event_operation/modification/undocommandgetter.h"
+#include "undo_stack_work/customindividualundocommand.h"
 #include "undo_stack_work/shareundocommand.h"
 
 #include <assert.h>
@@ -25,9 +25,8 @@ Controller::Controller(QObject *parent)
   _mainWindow->updateUndoStack(_shareEventStack.get());
 
   // share-undo/redo connecting
-  connect(_mainWindow.get(), &View::changeEventFocus, [this](auto &eventFocus) {
-    _eventFocus = eventFocus;
-  });
+  connect(_mainWindow.get(), &View::changeEventFocus,
+          [this](auto &eventFocus) { _eventFocus = eventFocus; });
 
   connect(_mainWindow.get(), &View::undoClicked, [this]() {
     if (!_currentOneEventFocus.isNull()) {
@@ -112,15 +111,14 @@ Controller::Controller(QObject *parent)
   connect(_mainWindow.get(), &View::addEventClicked, this,
           &Controller::handleAddEventClicked);
 
-  connect(_mainWindow.get(), &View::eventPageChanged,
-          [this](auto &uuid) {
-              _currentOneEventFocus = uuid;
-              if(_currentOneEventFocus.isNull()) {
-                  _mainWindow->updateUndoStack(_shareEventStack.get());
-              } else {
-                  _mainWindow->updateUndoStack(_eventStacks[_currentOneEventFocus].get());
-              }
-          });
+  connect(_mainWindow.get(), &View::eventPageChanged, [this](auto &uuid) {
+    _currentOneEventFocus = uuid;
+    if (_currentOneEventFocus.isNull()) {
+      _mainWindow->updateUndoStack(_shareEventStack.get());
+    } else {
+      _mainWindow->updateUndoStack(_eventStacks[_currentOneEventFocus].get());
+    }
+  });
   connect(_mainWindow.get(), &View::eventPageClosed,
           [this](auto &uuid) { _oneViewEventControllers.erase(uuid); });
 
@@ -204,7 +202,7 @@ void Controller::handleAddEventsClicked() {
   if (!_moreEventsController) {
     _moreEventsController = std::make_unique<MoreEvents::Controller>(
         _project->getAllMap<SeismEvent>(), _project->getAllMap<SeismWell>(),
-        this);
+        _project->getAll<SeismReceiver>(), this);
 
     connect(_moreEventsController.get(),
             &MoreEvents::Controller::sendEventsAndStacks,
@@ -230,7 +228,7 @@ void Controller::handleAddEventClicked() {
     //        _project->getAllMap<SeismWell>(), this);
     _oneAddEventController = std::make_unique<OneEvent::Controller>(
         _project->getAllMap<SeismEvent>(), _project->getAllMap<SeismWell>(),
-        this);
+        _project->getAll<SeismReceiver>(), this);
 
     //    connect(
     //        _oneEventController.get(), &OneEvent::Controller::sendEvent,
@@ -288,20 +286,26 @@ void Controller::handleReceiversClicked() {
   if (!_receiverController) {
     _receiverController = std::make_unique<ReceiverOperation::Controller>(this);
 
-    connect(_receiverController.get(),
-            &ReceiverOperation::Controller::removeAllReceivers,
-            [this]() { _project->removeAllReceivers(); });
+    //    connect(_receiverController.get(),
+    //            &ReceiverOperation::Controller::removeAllReceivers,
+    //            [this]() { _project->removeAllReceivers(); });
 
+    //    connect(_receiverController.get(),
+    //            &ReceiverOperation::Controller::sendReciver,
+    //            [this](auto &wellUuid, auto &receiver) {
+    //              _project->addReceiver(wellUuid, receiver);
+    //            });
     connect(_receiverController.get(),
-            &ReceiverOperation::Controller::sendReciver,
-            [this](auto &wellUuid, auto &receiver) {
-              _project->addReceiver(wellUuid, receiver);
+            &ReceiverOperation::Controller::sendReceivers,
+            [this](auto &receivers) {
+              _project->setAll<SeismReceiver>(receivers);
             });
 
     connect(_receiverController.get(), &ReceiverOperation::Controller::finished,
             [this] { _receiverController.reset(); });
 
-    _receiverController->viewReceivers(_project->getAllMap<SeismWell>());
+    _receiverController->viewReceivers(_project->getAllMap<SeismWell>(),
+                                       _project->getAll<SeismReceiver>());
   }
 }
 

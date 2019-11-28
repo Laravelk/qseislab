@@ -76,8 +76,8 @@ WorkPage::WorkPage(QWidget *parent)
   // Connecting
   connect(_workPages, &QTabWidget::currentChanged, [this](auto index) {
     if (0 == index) {
-        emit eventPageChanged(QUuid());
-//      emit eventSelectionChanged(_eventsTable->objectSelection());
+      emit eventPageChanged(QUuid());
+      //      emit eventSelectionChanged(_eventsTable->objectSelection());
     } else {
       emit eventPageChanged(_pages_uuids_map[_workPages->widget(index)]);
     }
@@ -220,10 +220,10 @@ void WorkPage::addWell(Data::SeismWell const *const well) {
   //  _surface->addWell(well);
   //  _oilFieldScene->addWell(well);
   _oilFieldWidget->addWell(well);
-  for (auto &receiver : well->getReceivers()) {
-    //    _oilFieldScene->addReceiver(receiver);
-    _oilFieldWidget->addReceiver(receiver.get());
-  }
+  //  for (auto &receiver : well->getReceivers()) {
+  //    //    _oilFieldScene->addReceiver(receiver);
+  //    _oilFieldWidget->addReceiver(receiver.get());
+  //  }
 }
 
 void WorkPage::removeWell(const QUuid &uuid) {

@@ -10,14 +10,19 @@
 #include <vector>
 
 namespace Data {
+class SeismWell;
 class SeismReceiver {
 public:
-  explicit SeismReceiver();
-  explicit SeismReceiver(const QJsonObject &) noexcept(false);
+  explicit SeismReceiver(Data::SeismWell const *const well = nullptr);
+  explicit SeismReceiver(
+      const QJsonObject &,
+      Data::SeismWell const *const well = nullptr) noexcept(false);
 
   explicit SeismReceiver(const SeismReceiver &);
 
   const QUuid &getUuid() const;
+
+  Data::SeismWell const *getSourseWell() const;
 
   void setName(const QString &);
   const QString &getName() const;
@@ -61,6 +66,8 @@ public:
 
 private:
   QUuid _uuid;
+
+  Data::SeismWell const *const _soureWell;
 
   QString _name;
   int _receiverNum;

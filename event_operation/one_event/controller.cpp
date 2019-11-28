@@ -24,6 +24,7 @@ namespace OneEvent {
 Controller::Controller(
     const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &all_events,
     const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &wells_map,
+    const std::list<std::shared_ptr<Data::SeismReceiver>> &receivers,
     QObject *parent)
     : QObject(parent), _model(new Model(new SegyReader(), this)),
       _event(std::make_shared<SeismEvent>()),
@@ -54,9 +55,21 @@ Controller::Controller(
           [this](auto &msg) { _view->setNotification(msg); });
 
   connect(_view.get(), &View::sendWellUuidAndFilePath,
-          [this, &wells_map](auto &wellUuid, auto &filePath) {
+          [this, &wells_map, &receivers](auto &wellUuid, auto &filePath) {
+            //            auto components =
+            //                _model->getSeismComponents(wells_map.at(wellUuid),
+            //                filePath);
+
+            std::list<std::shared_ptr<Data::SeismReceiver>> receiversByWell;
+            for (auto &receiver : receivers) {
+              if (wellUuid == receiver->getSourseWell()->getUuid()) {
+                receiversByWell.push_back(receiver);
+              }
+            }
+
             auto components =
-                _model->getSeismComponents(wells_map.at(wellUuid), filePath);
+                _model->getSeismComponents(receiversByWell, filePath);
+
             if (!components.empty()) {
               for (auto &component : components) {
                 _event->addComponent(std::move(component));
@@ -77,10 +90,15 @@ Controller::Controller(
   });
 
   connect(_view.get(), &View::sendWellUuidForRemove,
-          [this, &wells_map](auto &uuid) {
-            auto &well = wells_map.at(uuid);
-            for (auto &reciever : well->getReceivers()) {
-              _event->removeComponentByReceiverUuid(reciever->getUuid());
+          [this, &wells_map, &receivers](auto &uuid) {
+            //            auto &well = wells_map.at(uuid);
+            //            for (auto &reciever : well->getReceivers()) {
+            //              _event->removeComponentByReceiverUuid(reciever->getUuid());
+            //            }
+            for (auto &receiver : receivers) {
+              if (uuid == receiver->getSourseWell()->getUuid()) {
+                _event->removeComponentByReceiverUuid(receiver->getUuid());
+              }
             }
             _eventNameContainer.erase(uuid);
 
@@ -88,25 +106,26 @@ Controller::Controller(
             info.setName(generateEventName());
             _event->setInfo(info);
 
+            auto &well = wells_map.at(uuid);
             _view->update(_event.get(), uuid, well->getName());
           });
 
   connect(_view.get(), &View::calculatePolarizationAnalysisData, [this]() {
     if (_calculatePolarization == nullptr) {
-      _calculatePolarization =
-          new
-          PolarizationAnalysisCompute(_event.get());
+      _calculatePolarization = new PolarizationAnalysisCompute(_event.get());
     }
-//      _calculatePolarization->calculate(_events_map.at(_currentEventUuid));
+    //      _calculatePolarization->calculate(_events_map.at(_currentEventUuid));
     _calculatePolarization->calculate();
     _view->updatePolarGraph(_event.get());
   });
 
   connect(_view.get(), &View::clickOnPolarAnalysisInGraph, [this]() {
-        if (!checkPolarizationAnalysisDataValid() || _removedPickAndNeedUpdatePolarGraph) {
-          _view.get()->showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
-        }
-    });
+    if (!checkPolarizationAnalysisDataValid() ||
+        _removedPickAndNeedUpdatePolarGraph) {
+      _view.get()
+          ->showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
+    }
+  });
 
   connect(_view.get(), &View::sendPicksInfo,
           [this](const auto type, const auto num, const auto l_val,
@@ -169,14 +188,14 @@ void Controller::finish(int result) {
 }
 
 bool Controller::checkPolarizationAnalysisDataValid() {
-    for (auto &component : _event->getComponents()) {
-        for (auto &pick : component->getWavePicks()) {
-           if (!pick.second.getValidDataStatus()) {
-                return false;
-           }
-        }
+  for (auto &component : _event->getComponents()) {
+    for (auto &pick : component->getWavePicks()) {
+      if (!pick.second.getValidDataStatus()) {
+        return false;
+      }
     }
-    return true;
+  }
+  return true;
 }
 
 QString Controller::generateEventName() const {

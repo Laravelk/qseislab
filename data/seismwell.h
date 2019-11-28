@@ -30,12 +30,13 @@ public:
   const Point &getPoint(int) const;
   const std::vector<Point> &getPoints() const;
 
-  void addReceiver(const std::shared_ptr<Data::SeismReceiver> &);
-  bool removeReceiver(const QUuid &);
-  int getReceiversAmount() const;
-  const std::list<std::shared_ptr<Data::SeismReceiver>> &
-  getReceivers() const; // TODO: re-see
-  void removeAllReceivers();
+  //  void addReceiver(const std::shared_ptr<Data::SeismReceiver> &);
+  //  bool removeReceiver(const QUuid &);
+  //  int getReceiversAmount() const;
+  //  const std::vector<Data::SeismReceiver const *>
+  //  getReceivers() const; // TODO: re-see
+  //  const std::vector<Data::SeismReceiver *> getReceivers();
+  //  void removeAllReceivers();
 
   QJsonObject &writeToJson(QJsonObject &, const QDir &) noexcept(false);
 
@@ -45,7 +46,7 @@ private:
   QString _path;
   QString _name;
   std::vector<Point> _points;
-  std::list<std::shared_ptr<Data::SeismReceiver>> _receivers;
+  //  std::vector<std::shared_ptr<Data::SeismReceiver>> _receivers;
   //  std::map<QUuid, std::unique_ptr<Data::SeismReceiver>> _receivers_map;
 };
 

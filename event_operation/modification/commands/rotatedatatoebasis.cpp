@@ -49,7 +49,7 @@ void RotateDataToEBasis::undo() {
     rotateDataWithTransitionMatrix(component, _originalTransitionMatrixs[i]);
     ++i;
   }
-//  _event->removeTransformOperation(SeismEvent::RotateDataToEBasis);
+  //  _event->removeTransformOperation(SeismEvent::RotateDataToEBasis);
 }
 
 void RotateDataToEBasis::redo() {
@@ -59,19 +59,19 @@ void RotateDataToEBasis::redo() {
                                    _originalTransitionMatrixs[i].transpose());
     ++i;
   }
-//  _event->addTransformOperation(SeismEvent::RotateDataToEBasis);
+  //  _event->addTransformOperation(SeismEvent::RotateDataToEBasis);
 }
 
 const std::shared_ptr<SeismReceiver> &RotateDataToEBasis::findReceiver(
     const std::map<QUuid, std::shared_ptr<SeismWell>> &wells_map,
     const QUuid &receiver_uuid) {
-  for (auto &uuid_well : wells_map) {
-    for (auto &receiver : uuid_well.second->getReceivers()) {
-      if (receiver_uuid == receiver->getUuid()) {
-        return receiver;
-      }
-    }
-  }
+  //  for (auto &uuid_well : wells_map) {
+  //    for (auto &receiver : uuid_well.second->getReceivers()) {
+  //      if (receiver_uuid == receiver->getUuid()) {
+  //        return receiver;
+  //      }
+  //    }
+  //  }
   assert(false); // NOTE: как обрабатывать такие случаи?
 }
 } // namespace Modefication

@@ -19,18 +19,12 @@ const unsigned Model::columnNum = 24;
 
 Model::Model(QObject *parent) : QObject(parent) {}
 
-std::map<QUuid, std::shared_ptr<SeismWell>> Model::getSeismReceiversFrom(
+std::list<std::shared_ptr<SeismReceiver>> Model::getSeismReceiversFrom(
     const QString &path,
-    const std::map<QUuid, std::shared_ptr<SeismWell>> &wells_map) {
+    const std::map<QUuid, std::shared_ptr<SeismWell>> &wells_map,
+    const std::list<std::shared_ptr<SeismReceiver>> &receivers) {
 
-  std::map<QUuid, std::shared_ptr<SeismWell>> new_well_map = wells_map;
-  for (auto &uuid_well : new_well_map) {
-    std::cout << "from model well_nmae == "
-              << uuid_well.second->getName().toStdString() << std::endl;
-  }
-  //  for (auto &pair : wells_map) {
-  //    new_well_map[pair.first] = std::make_shared<SeismWell>(*(pair.second));
-  //  }
+  std::list<std::shared_ptr<SeismReceiver>> new_receivers;
 
   try {
     csv::Parser file = csv::Parser(path.toStdString());
@@ -40,21 +34,31 @@ std::map<QUuid, std::shared_ptr<SeismWell>> Model::getSeismReceiversFrom(
       QString wellName =
           QString::fromStdString(file[row][21]); // Owner_Array-field
       const std::shared_ptr<SeismWell> &well =
-          findWellOfName(wellName, new_well_map);
+          findWellOfName(wellName, wells_map);
 
-      int receiverNum = std::stoi(file[row][0]); // Instrument_Number-field
-      bool isNewReceiver = true;
-      const auto &receiver = getReceiver(receiverNum, well, &isNewReceiver);
-      if (isNewReceiver) {
-        settingRecieverInfo(receiver, file[row]);
-      } else {
-        checkCorrect(receiver, file[row]);
+      const int receiverNum =
+          std::stoi(file[row][0]); // Instrument_Number-field
+                                   //      bool isNewReceiver = true;
+      //      const auto &receiver = getReceiver(receiverNum, well,
+      //      &isNewReceiver); if (isNewReceiver) {
+      //        settingReceiverInfo(receiver, file[row]);
+      //      } else {
+      //        checkCorrect(receiver, file[row]);
+      //      }
+      //      if (receiverExistInWell(receiver, well)) {
+      //        const auto &existReceiver = getExistReceiverFromWellOfWellNum(
+      //            well, receiver->getWellReceiverNum());
+      //        checkCorrect(receiver, existReceiver);
+      //      }
+      for (auto &receiver : receivers) {
+        if (receiverNum == receiver->getReceiverNum()) {
+          throw std::runtime_error("receiver with number already exists");
+        }
       }
-      if (receiverExistInWell(receiver, well)) {
-        const auto &existReceiver = getExistReceiverFromWellOfWellNum(
-            well, receiver->getWellReceiverNum());
-        checkCorrect(receiver, existReceiver);
-      }
+
+      //      auto &receiver = std::make_shared<SeismReceiver>(well.get());
+      auto &receiver = getReceiver(receiverNum, well.get(), new_receivers);
+      settingReceiverInfo(receiver, file[row]);
 
       auto newChannel = std::make_shared<SeismChannelReceiver>();
       settingChannelInfo(newChannel, file[row]);
@@ -63,12 +67,64 @@ std::map<QUuid, std::shared_ptr<SeismWell>> Model::getSeismReceiversFrom(
       receiver->addChannel(std::move(newChannel));
     }
   } catch (const std::runtime_error &err) {
-    new_well_map.clear();
+    new_receivers.clear();
     emit notify(err.what());
   }
 
-  return new_well_map;
+  return new_receivers;
 }
+
+// std::map<QUuid, std::shared_ptr<SeismWell>> Model::getSeismReceiversFrom(
+//    const QString &path,
+//    const std::map<QUuid, std::shared_ptr<SeismWell>> &wells_map) {
+
+//  std::map<QUuid, std::shared_ptr<SeismWell>> new_well_map = wells_map;
+//  for (auto &uuid_well : new_well_map) {
+//    std::cout << "from model well_nmae == "
+//              << uuid_well.second->getName().toStdString() << std::endl;
+//  }
+//  //  for (auto &pair : wells_map) {
+//  //    new_well_map[pair.first] =
+//  std::make_shared<SeismWell>(*(pair.second));
+//  //  }
+
+//  try {
+//    csv::Parser file = csv::Parser(path.toStdString());
+//    checkHeaderCorrect(file);
+
+//    for (unsigned row = 0; row < file.rowCount(); ++row) {
+//      QString wellName =
+//          QString::fromStdString(file[row][21]); // Owner_Array-field
+//      const std::shared_ptr<SeismWell> &well =
+//          findWellOfName(wellName, new_well_map);
+
+//      int receiverNum = std::stoi(file[row][0]); // Instrument_Number-field
+//      bool isNewReceiver = true;
+//      const auto &receiver = getReceiver(receiverNum, well, &isNewReceiver);
+//      if (isNewReceiver) {
+//        settingRecieverInfo(receiver, file[row]);
+//      } else {
+//        checkCorrect(receiver, file[row]);
+//      }
+//      if (receiverExistInWell(receiver, well)) {
+//        const auto &existReceiver = getExistReceiverFromWellOfWellNum(
+//            well, receiver->getWellReceiverNum());
+//        checkCorrect(receiver, existReceiver);
+//      }
+
+//      auto newChannel = std::make_shared<SeismChannelReceiver>();
+//      settingChannelInfo(newChannel, file[row]);
+
+//      checkCorrect(newChannel, receiver);
+//      receiver->addChannel(std::move(newChannel));
+//    }
+//  } catch (const std::runtime_error &err) {
+//    new_well_map.clear();
+//    emit notify(err.what());
+//  }
+
+//  return new_well_map;
+//}
 
 void Model::checkHeaderCorrect(const csv::Parser &parser) {
   if (Model::columnNum > parser.columnCount()) {
@@ -212,7 +268,7 @@ void Model::checkHeaderCorrect(const csv::Parser &parser) {
   }
 }
 
-void Model::settingRecieverInfo(const std::shared_ptr<SeismReceiver> &receiver,
+void Model::settingReceiverInfo(const std::shared_ptr<SeismReceiver> &receiver,
                                 const csv::Row &csvRow) {
   receiver->setReceiverNum(std::stoi(csvRow[0])); // Instrument_Number-field
   receiver->setName(
@@ -252,26 +308,46 @@ void Model::settingChannelInfo(
       std::stoi(csvRow[23])); // Array_Channel_Number-field
 }
 
-const std::shared_ptr<SeismReceiver> &
-Model::getReceiver(const int receiverNum,
-                   const std::shared_ptr<SeismWell> &well, bool *isNew) {
+// const std::shared_ptr<SeismReceiver> &
+// Model::getReceiver(const int receiverNum,
+//                   const std::shared_ptr<SeismWell> &well, bool *isNew) {
 
-  for (auto &receiver : well->getReceivers()) {
+//  for (auto &receiver : well->getReceivers()) {
+//    if (receiverNum == receiver->getReceiverNum()) {
+//      *isNew = false;
+//      return receiver;
+//    }
+//  }
+
+//  *isNew = true;
+//  auto new_receiver = std::make_shared<SeismReceiver>();
+//  well->addReceiver(std::move(new_receiver));
+//  return well->getReceivers().back();
+//}
+
+const std::shared_ptr<SeismReceiver> &
+Model::getReceiver(const int receiverNum, SeismWell const *const well,
+                   std::list<std::shared_ptr<SeismReceiver>> &receivers) {
+
+  for (auto &receiver : receivers) {
     if (receiverNum == receiver->getReceiverNum()) {
-      *isNew = false;
       return receiver;
     }
   }
 
-  *isNew = true;
-  auto new_receiver = std::make_shared<SeismReceiver>();
-  well->addReceiver(std::move(new_receiver));
-  return well->getReceivers().back();
+  auto new_receiver = std::make_shared<SeismReceiver>(well);
+  auto &uuid = new_receiver->getUuid();
+  receivers.push_back(new_receiver);
+  for (auto &receiver : receivers) {
+    if (uuid == receiver->getUuid()) {
+      return receiver;
+    }
+  }
 }
 
 const std::shared_ptr<Data::SeismWell> &Model::findWellOfName(
     const QString &wellName,
-    std::map<QUuid, std::shared_ptr<Data::SeismWell>> &wells_map) {
+    const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &wells_map) {
   for (auto &uuid_well : wells_map) {
     if (wellName == (uuid_well.second)->getName()) {
       return uuid_well.second;
@@ -282,31 +358,33 @@ const std::shared_ptr<Data::SeismWell> &Model::findWellOfName(
                            "\" not found");
 }
 
-bool Model::receiverExistInWell(
-    const std::shared_ptr<Data::SeismReceiver> &receiver,
-    const std::shared_ptr<Data::SeismWell> &well) {
-  for (auto &existReceiver : well->getReceivers()) {
-    if (existReceiver->getWellReceiverNum() == receiver->getWellReceiverNum()) {
-      return true;
-    }
-  }
+// bool Model::receiverExistInWell(
+//    const std::shared_ptr<Data::SeismReceiver> &receiver,
+//    const std::shared_ptr<Data::SeismWell> &well) {
+//  for (auto &existReceiver : well->getReceivers()) {
+//    if (existReceiver->getWellReceiverNum() == receiver->getWellReceiverNum())
+//    {
+//      return true;
+//    }
+//  }
 
-  return false;
-}
+//  return false;
+//}
 
-const std::shared_ptr<Data::SeismReceiver> &
-Model::getExistReceiverFromWellOfWellNum(
-    const std::shared_ptr<Data::SeismWell> &well, const int wellReceiverNum) {
-  for (auto &receiver : well->getReceivers()) {
-    if (wellReceiverNum == receiver->getWellReceiverNum()) {
-      return receiver;
-    }
-  }
+// const std::shared_ptr<Data::SeismReceiver> &
+// Model::getExistReceiverFromWellOfWellNum(
+//    const std::shared_ptr<Data::SeismWell> &well, const int wellReceiverNum) {
+//  for (auto &receiver : well->getReceivers()) {
+//    if (wellReceiverNum == receiver->getWellReceiverNum()) {
+//      return receiver;
+//    }
+//  }
 
-  throw std::runtime_error("Receiver with " + std::to_string(wellReceiverNum) +
-                           " wellReceiverNum not found in well (" +
-                           well->getName().toStdString() + ")");
-}
+//  throw std::runtime_error("Receiver with " + std::to_string(wellReceiverNum)
+//  +
+//                           " wellReceiverNum not found in well (" +
+//                           well->getName().toStdString() + ")");
+//}
 
 void Model::checkCorrect(const std::shared_ptr<Data::SeismReceiver> &receiver,
                          const csv::Row &csvRow) {

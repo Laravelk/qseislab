@@ -14,7 +14,8 @@
 #include <set>
 
 namespace Data {
-class SeismWell;
+// class SeismWell;
+class SeismReceiver;
 class SeismEvent : public QObject {
   Q_OBJECT
 public:
@@ -48,9 +49,11 @@ public:
   enum TransformOperation { RotateDataToEBasis, TestMultiplier };
 
   explicit SeismEvent();
-  explicit SeismEvent(const QJsonObject &,
-                      std::map<QUuid, std::shared_ptr<SeismWell>> &,
-                      const QDir &) noexcept(false);
+  explicit SeismEvent(
+      const QJsonObject &,
+      //                      std::map<QUuid, std::shared_ptr<SeismWell>> &,
+      const std::list<std::shared_ptr<SeismReceiver>> &,
+      const QDir &) noexcept(false);
 
   explicit SeismEvent(const SeismEvent &);
 
@@ -105,7 +108,7 @@ private:
       _appliedOperations; // NOTE: уместно ли использовать set?
   void addTransformOperation(TransformOperation);
   void removeTransformOperation(TransformOperation);
-//  friend class EventOperation::Modefication::RotateDataToEBasis;
+  //  friend class EventOperation::Modefication::RotateDataToEBasis;
 };
 
 } // namespace Data

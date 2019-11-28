@@ -26,11 +26,12 @@ SeismProject::SeismProject(QObject *parent) : QObject(parent) {
   well->addPoint(Point(0, 0, 0));
   auto uuid = well->getUuid();
   for (int j = 0; j < 8; ++j) {
-    auto receiver = std::make_shared<Data::SeismReceiver>();
+    auto receiver = std::make_shared<Data::SeismReceiver>(well.get());
     for (int i = 0; i < 3; ++i) {
       receiver->addChannel(std::make_shared<Data::SeismChannelReceiver>());
     }
-    well->addReceiver(receiver);
+    //    well->addReceiver(receiver);
+    _receivers.push_back(receiver);
   }
   _wells_map[uuid] = std::move(well);
 
@@ -39,11 +40,12 @@ SeismProject::SeismProject(QObject *parent) : QObject(parent) {
   well->addPoint(Point(0, 0, 0));
   uuid = well->getUuid();
   for (int j = 0; j < 8; ++j) {
-    auto receiver = std::make_shared<Data::SeismReceiver>();
+    auto receiver = std::make_shared<Data::SeismReceiver>(well.get());
     for (int i = 0; i < 3; ++i) {
       receiver->addChannel(std::make_shared<Data::SeismChannelReceiver>());
     }
-    well->addReceiver(receiver);
+    //    well->addReceiver(receiver);
+    _receivers.push_back(receiver);
   }
   _wells_map[uuid] = std::move(well);
   // end...
@@ -105,13 +107,46 @@ SeismProject::SeismProject(const QJsonObject &json, const QFileInfo &fileInfo,
     err_msg += "::Wells : not found\n";
   }
 
+  if (json.contains("Receivers")) {
+    QJsonArray receiversArray(json["Receivers"].toArray());
+    int idx = 0;
+    for (auto objReceiver : receiversArray) {
+      try {
+        auto obj = objReceiver.toObject();
+        if (obj.contains("wellUuid")) {
+          auto wellUuid = QUuid::fromString(obj["wellUuid"].toString());
+          auto itr_well = _wells_map.find(wellUuid);
+          if (wellUuid.isNull() || _wells_map.end() != itr_well) {
+            auto seismReceiver =
+                std::make_shared<SeismReceiver>(obj, itr_well->second.get());
+            //            auto uuid = seismReceiver->getUuid();
+            //            _receivers_map[uuid] = seismReceiver;
+            _receivers.push_back(seismReceiver);
+          } else {
+            throw std::runtime_error(
+                "::wellUuid : there isn`t well with the specified uuid\n");
+          }
+        } else {
+          throw std::runtime_error("::wellUuid : not found\n");
+        }
+
+      } catch (std::runtime_error &err) {
+        err_msg += "Receivers (idx: " + std::to_string(idx) + ")\n";
+        err_msg += err.what();
+      }
+      ++idx;
+    }
+  } else {
+    err_msg += "::Wells : not found\n";
+  }
+
   if (json.contains("Events")) {
     QJsonArray eventsArray(json["Events"].toArray());
     int idx = 0;
     for (auto objEvent : eventsArray) {
       try {
         auto seismEvent = std::make_shared<SeismEvent>(
-            objEvent.toObject(), _wells_map, fileInfo.dir());
+            objEvent.toObject(), _receivers, fileInfo.dir());
         auto uuid = seismEvent->getUuid();
         _events_map[uuid] = std::move(seismEvent);
       } catch (std::runtime_error &err) {
@@ -167,25 +202,34 @@ QJsonObject &SeismProject::writeToJson(QJsonObject &json,
 
   QJsonArray eventsArray;
   QJsonObject eventObj;
-  for (auto &itr : _events_map) {
-    eventsArray.append((itr.second)->writeToJson(eventObj, _fileInfo.dir()));
+  for (auto &uuid_event : _events_map) {
+    eventsArray.append(
+        (uuid_event.second)->writeToJson(eventObj, _fileInfo.dir()));
   }
   json["Events"] = eventsArray;
 
   QJsonArray horizonsArray;
   QJsonObject horizonObj;
-  for (auto &itr : _horizons_map) {
+  for (auto &uuid_horizon : _horizons_map) {
     horizonsArray.append(
-        (itr.second)->writeToJson(horizonObj, _fileInfo.dir()));
+        (uuid_horizon.second)->writeToJson(horizonObj, _fileInfo.dir()));
   }
   json["Horizons"] = horizonsArray;
 
   QJsonArray wellsArray;
   QJsonObject wellObj;
-  for (auto &itr : _wells_map) {
-    wellsArray.append((itr.second)->writeToJson(wellObj, _fileInfo.dir()));
+  for (auto &uuid_well : _wells_map) {
+    wellsArray.append(
+        (uuid_well.second)->writeToJson(wellObj, _fileInfo.dir()));
   }
   json["Wells"] = wellsArray;
+
+  QJsonArray receiversArray;
+  QJsonObject receiverObj;
+  for (auto &receiver : _receivers) {
+    receiversArray.append(receiver->writeToJson(receiverObj));
+  }
+  json["Receivers"] = receiversArray;
 
   _isSaved = true;
 
@@ -240,37 +284,40 @@ void SeismProject::processEvents() {
   emit processedEvents();
 }
 
-// Receivers func`s
-bool SeismProject::addReceiver(const QUuid &wellUuid,
-                               const std::shared_ptr<SeismReceiver> &receiver) {
-  for (auto &uuid_well : _wells_map) {
-    if (wellUuid == uuid_well.first) {
-      auto &well = uuid_well.second;
-      well->addReceiver(receiver);
-      emit addedReceiver(receiver);
-      return true;
-    }
-  }
-  return false;
-}
+//// Receivers func`s
+// bool SeismProject::addReceiver(const QUuid &wellUuid,
+//                               const std::shared_ptr<SeismReceiver> &receiver)
+//                               {
+//  for (auto &uuid_well : _wells_map) {
+//    if (wellUuid == uuid_well.first) {
+//      auto &well = uuid_well.second;
+//      well->addReceiver(receiver);
+//      emit addedReceiver(receiver);
+//      return true;
+//    }
+//  }
+//  return false;
+//}
 
-void SeismProject::removeAllReceivers() {
-  for (auto &uuid_well : _wells_map) {
-    for (auto &receiver : uuid_well.second->getReceivers()) {
-      emit removedReceiver(receiver->getUuid());
-    }
-    uuid_well.second->removeAllReceivers();
-  }
-}
-// end of Receivers func`s
+// void SeismProject::removeAllReceivers() {
+//  for (auto &uuid_well : _wells_map) {
+//    for (auto &receiver : uuid_well.second->getReceivers()) {
+//      emit removedReceiver(receiver->getUuid());
+//    }
+//    uuid_well.second->removeAllReceivers();
+//  }
+//}
+//// end of Receivers func`s
 
 // Event template`s
 template <>
 void SeismProject::add<SeismEvent>(const std::shared_ptr<SeismEvent> &event) {
   _isSaved = false;
 
-  connect(event.get(), &SeismEvent::infoChanged, [this, &event]{emit updatedEvent(event);});
-  connect(event.get(), &SeismEvent::dataChanged, [this, &event]{emit updatedEvent(event);});
+  connect(event.get(), &SeismEvent::infoChanged,
+          [this, &event] { emit updatedEvent(event); });
+  connect(event.get(), &SeismEvent::dataChanged,
+          [this, &event] { emit updatedEvent(event); });
 
   auto &uuid = event->getUuid();
   _events_map[uuid] = event;
@@ -342,11 +389,11 @@ template <> int SeismProject::getAmount<SeismHorizon>() const {
   return static_cast<int>(_horizons_map.size());
 }
 
-template <>
-const std::shared_ptr<SeismHorizon> &
-SeismProject::get<SeismHorizon>(const QUuid &uuid) const {
-  return _horizons_map.at(uuid);
-}
+// template <>
+// const std::shared_ptr<SeismHorizon> &
+// SeismProject::get<SeismHorizon>(const QUuid &uuid) const {
+//  return _horizons_map.at(uuid);
+//}
 
 template <>
 const std::map<QUuid, std::shared_ptr<SeismHorizon>> &
@@ -382,27 +429,58 @@ void SeismProject::add<SeismWell>(const std::shared_ptr<SeismWell> &well) {
 }
 
 template <> bool SeismProject::remove<SeismWell>(const QUuid &uuid) {
-  if (_wells_map.end() != _wells_map.find(uuid)) {
-    _isSaved = false;
-    for (auto &receiver : _wells_map[uuid]->getReceivers()) {
-      emit removedReceiver(receiver->getUuid());
+  std::set<QUuid> uuids_receiver_removing;
+  //  for (auto &uuid_receiver : _receivers_map) {
+  //    if (uuid == uuid_receiver.second->getSourseWell()->getUuid()) {
+  //      uuids_receiver_removing.insert(uuid_receiver.first);
+  //    }
+  //  }
+  for (auto &receiver : _receivers) {
+    if (uuid == receiver->getSourseWell()->getUuid()) {
+      uuids_receiver_removing.insert(receiver->getUuid());
     }
-    _wells_map.erase(uuid);
+  }
+
+  // NOTE: bad way!
+  for (auto &removing_uuid : uuids_receiver_removing) {
+    for (auto itr = _receivers.begin(); itr != _receivers.end(); ++itr) {
+      if ((*itr)->getUuid() == removing_uuid) {
+        _receivers.erase(itr);
+        break;
+      }
+    }
+    //    _receivers_map.erase(removing_uuid);
+    emit removedReceiver(removing_uuid);
+  }
+
+  if (_wells_map.erase(uuid)) {
+    _isSaved = false;
     emit removedWell(uuid);
     return true;
   }
   return false;
+
+  //  if (_wells_map.end() != _wells_map.find(uuid)) {
+  //    _isSaved = false;
+  //    for (auto &receiver : _wells_map[uuid]->getReceivers()) {
+  //      emit removedReceiver(receiver->getUuid());
+  //    }
+  //    _wells_map.erase(uuid);
+  //    emit removedWell(uuid);
+  //    return true;
+  //  }
+  //  return false;
 }
 
 template <> int SeismProject::getAmount<SeismWell>() const {
   return static_cast<int>(_wells_map.size());
 }
 
-template <>
-const std::shared_ptr<SeismWell> &
-SeismProject::get<SeismWell>(const QUuid &uuid) const {
-  return _wells_map.at(uuid);
-}
+// template <>
+// const std::shared_ptr<SeismWell> &
+// SeismProject::get<SeismWell>(const QUuid &uuid) const {
+//  return _wells_map.at(uuid);
+//}
 
 template <>
 const std::map<QUuid, std::shared_ptr<SeismWell>> &
@@ -412,28 +490,133 @@ SeismProject::getAllMap<SeismWell>() const {
 
 template <>
 void SeismProject::setAllMap<SeismWell>(
-    std::map<QUuid, std::shared_ptr<SeismWell>> &wells) {
+    std::map<QUuid, std::shared_ptr<SeismWell>> &wells_map) {
   for (auto &uuid_well : _wells_map) {
-    auto &uuid = uuid_well.first;
-    if (wells.end() == wells.find(uuid)) {
-      for (auto &receiver : uuid_well.second->getReceivers()) {
-        emit removedReceiver(receiver->getUuid());
-      }
-      _wells_map.erase(uuid);
-      emit removedWell(uuid);
+    //    emit removedWell(uuid_well.first);
+    remove<SeismWell>(uuid_well.first);
+  }
+
+  _wells_map = wells_map;
+
+  for (auto &uuid_well : _wells_map) {
+    add<SeismWell>(uuid_well.second);
+    //    emit addedWell(uuid_well.second);
+  }
+
+  //  for (auto &uuid_well : _wells_map) {
+  //    auto &uuid = uuid_well.first;
+  //    if (wells.end() == wells.find(uuid)) {
+  //      for (auto &receiver : uuid_well.second->getReceivers()) {
+  //        emit removedReceiver(receiver->getUuid());
+  //      }
+  //      _wells_map.erase(uuid);
+  //      emit removedWell(uuid);
+  //    }
+  //  }
+
+  //  for (auto &uuid_well : wells) {
+  //    auto &uuid = uuid_well.first;
+  //    if (_wells_map.end() == _wells_map.find(uuid)) {
+  //      for (auto &receiver : uuid_well.second->getReceivers()) {
+  //        emit addedReceiver(receiver);
+  //      }
+  //      _wells_map[uuid] = wells[uuid];
+  //      emit addedWell(_wells_map[uuid]);
+  //    }
+  //  }
+}
+// end of Well template`s
+
+// Receiver template`s
+template <>
+void SeismProject::add<SeismReceiver>(
+    const std::shared_ptr<SeismReceiver> &receiver) {
+  _isSaved = false;
+
+  //  auto &uuid = receiver->getUuid();
+  //  _receivers_map[uuid] = receiver;
+  _receivers.push_back(receiver);
+
+  emit addedReceiver(receiver);
+
+  //    connect(event.get(), &SeismEvent::infoChanged,
+  //            [this, &event] { emit updatedEvent(event); });
+  //    connect(event.get(), &SeismEvent::dataChanged,
+  //            [this, &event] { emit updatedEvent(event); });
+
+  //    auto &uuid = event->getUuid();
+  //    _events_map[uuid] = event;
+
+  //    // TODO: сделать коннект с ивентов, чтоюы при любом его апдейте мы знали
+  //    и
+  //    // говорили остальным
+
+  //    emit addedEvent(_events_map[uuid]);
+}
+
+template <> bool SeismProject::remove<SeismReceiver>(const QUuid &uuid) {
+  for (auto itr = _receivers.begin(); itr != _receivers.end(); ++itr) {
+    if (uuid == (*itr)->getUuid()) {
+      _receivers.erase(itr);
+      emit removedReceiver(uuid);
+      return true;
     }
   }
 
-  for (auto &uuid_well : wells) {
-    auto &uuid = uuid_well.first;
-    if (_wells_map.end() == _wells_map.find(uuid)) {
-      for (auto &receiver : uuid_well.second->getReceivers()) {
-        emit addedReceiver(receiver);
-      }
-      _wells_map[uuid] = wells[uuid];
-      emit addedWell(_wells_map[uuid]);
-    }
+  //  if (_receivers_map.erase(uuid)) {
+  //    _isSaved = false;
+  //    emit removedReceiver(uuid);
+  //    return true;
+  //  }
+  return false;
+}
+
+// template <>
+// void SeismProject::update<SeismEvent>(std::unique_ptr<SeismEvent> event) {
+//  _isSaved = false;
+//  auto uuid = event->getUuid();
+//  _events_map[uuid] = std::move(event);
+
+//  emit updatedEvent(_events_map[uuid]);
+//}
+
+template <> int SeismProject::getAmount<SeismReceiver>() const {
+  //  return static_cast<int>(_receivers_map.size());
+  return static_cast<int>(_receivers.size());
+}
+
+// template <>
+// const std::shared_ptr<SeismReceiver> &
+// SeismProject::get<SeismReceiver>(const QUuid &uuid) const {
+//  return _receivers_map.at(uuid);
+//}
+
+// template <>
+// const std::map<QUuid, std::shared_ptr<SeismReceiver>> &
+// SeismProject::getAllMap<SeismReceiver>() const {
+//  return _receivers_map;
+//}
+
+template <>
+const std::list<std::shared_ptr<SeismReceiver>> &
+SeismProject::getAll<SeismReceiver>() const {
+  return _receivers;
+}
+
+template <>
+void SeismProject::setAll<SeismReceiver>(
+    const std::list<std::shared_ptr<SeismReceiver>> &receivers) {
+  //  return _receivers;
+  for (auto &receiver : _receivers) {
+    emit removedReceiver(receiver->getUuid());
+  }
+  _receivers = receivers;
+
+  for (auto &receiver : _receivers) {
+    emit addedReceiver(receiver);
   }
 }
-// end of Well template`s
+
+// end of Receiver template`s
+
 } // namespace Data

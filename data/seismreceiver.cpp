@@ -1,12 +1,17 @@
 #include "seismreceiver.h"
 
+#include "seismwell.h"
+
 #include <QJsonArray>
 
 namespace Data {
 
-SeismReceiver::SeismReceiver() : _uuid(QUuid::createUuid()) {}
+SeismReceiver::SeismReceiver(Data::SeismWell const *const well)
+    : _uuid(QUuid::createUuid()), _soureWell(well) {}
 
-SeismReceiver::SeismReceiver(const QJsonObject &json) {
+SeismReceiver::SeismReceiver(const QJsonObject &json,
+                             Data::SeismWell const *const well)
+    : _soureWell(well) {
   std::string err_msg;
 
   if (json.contains("uuid")) {
@@ -111,9 +116,10 @@ SeismReceiver::SeismReceiver(const QJsonObject &json) {
 }
 
 SeismReceiver::SeismReceiver(const SeismReceiver &other)
-    : _uuid(other._uuid), _name(other._name), _receiverNum(other._receiverNum),
-      _location(other._location), _on(other._on), _type(other._type),
-      _gain(other._gain), _sensitivity(other._sensitivity), _vMax(other._vMax),
+    : _uuid(other._uuid), _soureWell(other._soureWell), _name(other._name),
+      _receiverNum(other._receiverNum), _location(other._location),
+      _on(other._on), _type(other._type), _gain(other._gain),
+      _sensitivity(other._sensitivity), _vMax(other._vMax),
       _lowFreq(other._lowFreq), _highFreq(other._highFreq),
       _wellReceiverNum(other._wellReceiverNum) {
   for (auto &channel : other._channels) {
@@ -124,6 +130,8 @@ SeismReceiver::SeismReceiver(const SeismReceiver &other)
 // void SeismReceiver::setUuid(const QUuid &uuid) { _uuid = uuid; }
 
 const QUuid &SeismReceiver::getUuid() const { return _uuid; }
+
+SeismWell const *SeismReceiver::getSourseWell() const { return _soureWell; }
 
 void SeismReceiver::setName(const QString &name) { _name = name; }
 
@@ -191,6 +199,7 @@ SeismReceiver::getChannels() const {
 
 QJsonObject &SeismReceiver::writeToJson(QJsonObject &json) {
   json["uuid"] = _uuid.toString();
+  json["wellUuid"] = _soureWell->getUuid().toString();
   json["name"] = _name;
   json["receiverNum"] = _receiverNum;
   QJsonArray locationArray;

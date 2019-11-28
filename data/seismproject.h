@@ -48,10 +48,13 @@ public:
   const std::map<QUuid, std::shared_ptr<T>> &getAllMap() const;
   template <typename T> void setAllMap(std::map<QUuid, std::shared_ptr<T>> &);
 
+  template <typename T> const std::list<std::shared_ptr<T>> &getAll() const;
+  template <typename T> void setAll(const std::list<std::shared_ptr<T>> &);
+
   void processEvents();
 
-  bool addReceiver(const QUuid &, const std::shared_ptr<Data::SeismReceiver> &);
-  void removeAllReceivers();
+  //  bool addReceiver(const QUuid &, const std::shared_ptr<Data::SeismReceiver>
+  //  &); void removeAllReceivers();
 
 signals:
   void addedEvent(const std::shared_ptr<Data::SeismEvent> &) const;
@@ -76,11 +79,13 @@ private:
   QDateTime _dateTime;
   QFileInfo _fileInfo;
 
-  //  std::map<QUuid, std::unique_ptr<SeismEvent>> _events_map;
   std::map<QUuid, std::shared_ptr<SeismEvent>> _events_map;
 
   std::map<QUuid, std::shared_ptr<SeismHorizon>> _horizons_map;
   std::map<QUuid, std::shared_ptr<SeismWell>> _wells_map;
+
+  //  std::map<QUuid, std::shared_ptr<SeismReceiver>> _receivers_map;
+  std::list<std::shared_ptr<SeismReceiver>> _receivers;
 };
 
 } // namespace Data

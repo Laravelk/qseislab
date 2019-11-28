@@ -121,9 +121,6 @@ void OilFieldScene::setProject(Data::SeismProject const *const project) {
   }
   for (auto &uuid_well : project->getAllMap<SeismWell>()) {
     addWell(uuid_well.second.get());
-    for (auto &receiver : uuid_well.second->getReceivers()) {
-      addReceiver(receiver.get());
-    }
   }
 }
 

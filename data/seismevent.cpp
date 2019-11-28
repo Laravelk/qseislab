@@ -1,6 +1,6 @@
 #include "seismevent.h"
 
-#include "data/seismwell.h"
+#include "data/seismreceiver.h"
 #include "io/seismcomponentreader.h"
 #include "io/seismcomponentwriter.h"
 
@@ -14,9 +14,11 @@ const QString SeismEvent::_default_path = "data/events/";
 
 SeismEvent::SeismEvent() : _uuid(QUuid::createUuid()) {}
 
-SeismEvent::SeismEvent(const QJsonObject &json,
-                       std::map<QUuid, std::shared_ptr<SeismWell>> &wells_map,
-                       const QDir &dir)
+SeismEvent::SeismEvent(
+    const QJsonObject &json,
+    //                       std::map<QUuid, std::shared_ptr<SeismWell>>
+    //                       &wells_map,
+    const std::list<std::shared_ptr<SeismReceiver>> &receivers, const QDir &dir)
     : _uuid(QUuid::createUuid()) {
   std::string err_msg;
 
@@ -89,18 +91,31 @@ SeismEvent::SeismEvent(const QJsonObject &json,
                 std::make_shared<SeismComponent>(objComponent.toObject());
             auto &receiverUuid = seismComponent->getReceiverUuid();
             bool findReceiver = false;
-            for (auto &uuid_well : wells_map) {
-              for (auto &receiver : uuid_well.second->getReceivers()) {
-                if (receiver->getUuid() == receiverUuid) {
-                  findReceiver = true;
-                  for (int i = 0; i < receiver->getChannelAmount(); ++i) {
-                    seismComponent->addTrace(reader.nextTrace());
-                  }
-                  addComponent(std::move(seismComponent));
-                  break;
+            for (auto &receiver : receivers) {
+              if (receiverUuid == receiver->getUuid()) {
+                findReceiver = true;
+                for (int i = 0; i < receiver->getChannelAmount(); ++i) {
+                  seismComponent->addTrace(reader.nextTrace());
                 }
+                addComponent(std::move(seismComponent));
+                break;
               }
             }
+
+            //            for (auto &uuid_well : wells_map) {
+            //              for (auto &receiver :
+            //              uuid_well.second->getReceivers()) {
+            //                if (receiver->getUuid() == receiverUuid) {
+            //                  findReceiver = true;
+            //                  for (int i = 0; i <
+            //                  receiver->getChannelAmount(); ++i) {
+            //                    seismComponent->addTrace(reader.nextTrace());
+            //                  }
+            //                  addComponent(std::move(seismComponent));
+            //                  break;
+            //                }
+            //              }
+            //            }
             if (!findReceiver) {
               err_msg += "::receiver with uuid == " +
                          receiverUuid.toString().toStdString() + " not found\n";

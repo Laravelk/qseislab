@@ -12,6 +12,7 @@
 namespace Data {
 class SeismEvent;
 class SeismWell;
+class SeismReceiver;
 } // namespace Data
 
 namespace EventOperation {
@@ -26,6 +27,7 @@ public:
   explicit Controller(
       const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
       const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &,
+      const std::list<std::shared_ptr<Data::SeismReceiver>> &,
       QObject *parent = nullptr);
 
   void start();
@@ -45,7 +47,6 @@ private:
   bool checkPolarizationAnalysisDataValid();
   bool _removedPickAndNeedUpdatePolarGraph = false;
 
-
   std::map<QUuid, std::shared_ptr<Data::SeismEvent>> _events_map;
   std::map<QUuid, std::shared_ptr<CustomIndividualUndoStack>> _stacks_map;
 
@@ -53,7 +54,6 @@ private:
 
   PolarizationAnalysisWindow *_polarizationWindow = nullptr;
   PolarizationAnalysisCompute *_calculatePolarization = nullptr;
-
 };
 
 } // namespace MoreEvents
