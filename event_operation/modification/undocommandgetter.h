@@ -1,8 +1,7 @@
 #pragma once
 
 #include "data/seismevent.h"
-//#include "event_operation/modification/testmultiplier.h"
-#include "testindividualcommand.h"
+#include "commands/testindividualcommand.h"
 
 #include <iostream>
 

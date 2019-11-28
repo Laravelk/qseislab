@@ -6,9 +6,9 @@
 #include "event_operation/share/view/3dscene/polarizationanalysiswindow.h"
 //#include "view/view.h"
 
-#include "event_operation/modification/rotatedatatoebasis.h"
-#include "event_operation/modification/testmultiplier.h"
-#include "undo_stack_work/event_modification/undocommandgetter.h"
+//#include "event_operation/modification/rotatedatatoebasis.h"
+#include "event_operation/modification/commands/testindividualcommand.h"
+#include "event_operation/modification/undocommandgetter.h"
 
 #include "data/io/segyreader.h"
 

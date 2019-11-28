@@ -1,5 +1,7 @@
 #include "shareundocommand.h"
 
+#include <iostream> // TODO: remove
+
 // ShareUndoCommand::ShareUndoCommand(const std::set<QUuid>& eventUuids,
 //                                   Data::SeismEvent::TransformOperation oper,
 //                                   QObject *parent)
@@ -12,6 +14,10 @@ ShareUndoCommand::ShareUndoCommand(const std::set<QUuid> &eventUuids,
 
 const QUuid &ShareUndoCommand::getUuid() const { return _uuid; }
 
-void ShareUndoCommand::undo() { emit applyUndo(_uuid, _eventUuids); }
+void ShareUndoCommand::undo() {
+    std::cout << "size eventUUids (before share undo) == " << _eventUuids.size() << std::endl;
+    emit applyUndo(_uuid, _eventUuids);
+    std::cout << "size eventUUids (after share undo) == " << _eventUuids.size() << std::endl;
+}
 
 void ShareUndoCommand::redo() { emit applyRedo(_uuid, _eventUuids); }

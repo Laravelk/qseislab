@@ -4,6 +4,7 @@
 
 #include <QMainWindow>
 #include <QMenuBar>
+#include <QUndoStack>
 
 #include <memory>
 
@@ -47,7 +48,7 @@ signals:
   void eventPageClosed(const QUuid &);
 
   void changeEventFocus(const std::set<QUuid> &) const;
-  void changeEventFocusToOne(const QUuid &) const;
+//  void changeEventFocusToOne(const QUuid &) const;
 
   void undoClicked() const;
   void redoClicked() const;

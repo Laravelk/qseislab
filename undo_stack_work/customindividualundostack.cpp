@@ -7,48 +7,35 @@
 CustomIndividualUndoStack::CustomIndividualUndoStack(QObject *parent)
     : QUndoStack(parent) {}
 
-// void CustomIndividualUndoStack::push(CustomIndividualUndoCommand *command) {
-//  this->push(command);
-//}
-
-// void CustomIndividualUndoStack::undo() { this->undo(); }
-
-// void CustomIndividualUndoStack::redo() { this->redo(); }
-
 bool CustomIndividualUndoStack::tryUndo(const QUuid &sharedUuid) {
 
-//    std::cout << "1" << std::endl;
+//    std::cerr << "1" << std::endl;
 
-  auto current_command = dynamic_cast<const CustomIndividualUndoCommand *>(
-      this->command(this->index()-1));
+    int index = this->index();
+  if (0 < index) {
+      auto current_command = dynamic_cast<const CustomIndividualUndoCommand *>(
+          this->command(index-1));
+      if (sharedUuid == current_command->getShareUuid()) {
+//          std::cerr << "3" << std::endl;
+          this->undo();
+//          std::cerr << "4" << std::endl;
+          return true;
+      }
+  }
 
-//  std::cout << "2" << std::endl;
-
-//  if (nullptr == current_command) {
-//      std::cerr << "index == " << this->index() << std::endl;
-//      std::cerr << "current_command == nullptr" <<std::endl;
-//      return false;
-//  }
-
-  if (sharedUuid == current_command->getShareUuid()) {
-//      std::cout << "3" << std::endl;
-      this->undo();
-//    std::cout << "4" << std::endl;
-    return true;
-  } else {
     for (int i = count() - 1; i >= 0; --i) {
-//        std::cout << "5 : i == " << i << std::endl;
+//        std::cerr << "5 : i == " << i << std::endl;
       auto command =
           dynamic_cast<const CustomIndividualUndoCommand *>(this->command(i));
-//      std::cout << "6 : i == " << i << std::endl;
+//      std::cerr << "6 : i == " << i << std::endl;
       if (sharedUuid == command->getShareUuid()) {
-//          std::cout << "7 : i == " << i << std::endl;
+//          std::cerr << "7 : i == " << i << std::endl;
         const_cast<CustomIndividualUndoCommand *>(command)->makeIndividual();
-//        std::cout << "8 : i == " << i << std::endl;
+//        std::cerr << "8 : i == " << i << std::endl;
         break;
       }
     }
-  }
+
 
   return false;
 }

@@ -3,7 +3,7 @@
 #include "seism_data_type.h"
 #include "seismcomponent.h"
 
-#include "event_operation/modification/rotatedatatoebasis.h"
+//#include "event_operation/modification/commands/rotatedatatoebasis.h"
 
 #include <QDateTime>
 #include <QDir>
@@ -105,7 +105,7 @@ private:
       _appliedOperations; // NOTE: уместно ли использовать set?
   void addTransformOperation(TransformOperation);
   void removeTransformOperation(TransformOperation);
-  friend class EventOperation::Modefication::RotateDataToEBasis;
+//  friend class EventOperation::Modefication::RotateDataToEBasis;
 };
 
 } // namespace Data

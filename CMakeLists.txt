@@ -29,7 +29,7 @@ find_package(Qt5 COMPONENTS ${_Q_MODULES} REQUIRED)
 #add_subdirectory(parser_test)
 
 # Bad way
-set(Boost_INCLUDE_DIR "C:/Program Files/boost_1_71_0/boost_1_71_0")
+#set(Boost_INCLUDE_DIR "C:/Program Files/boost_1_71_0/boost_1_71_0")
 find_package(Boost REQUIRED)
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
@@ -43,8 +43,10 @@ find_package(Eigen3 REQUIRED)
 
 set(SOURCES    
         event_operation/modification/share_functions.cpp
-        event_operation/modification/rotatedatatoebasis.cpp
-        event_operation/modification/testmultiplier.cpp
+        event_operation/modification/undocommandgetter.cpp
+        event_operation/modification/commands/rotatedatatoebasis.cpp
+        event_operation/modification/commands/testindividualcommand.cpp
+
 
         event_operation/one_event/controller.cpp
         event_operation/one_event/view/filemanager.cpp
@@ -119,11 +121,10 @@ set(SOURCES
         data/io/horizonreadergrd.cpp
 
         main.cpp
-        undo_stack_work/customindividualundostack.cpp #Note: где должен лежать?
+        undo_stack_work/customindividualundostack.cpp
         undo_stack_work/customindividualundocommand.cpp
         undo_stack_work/shareundocommand.cpp
-        undo_stack_work/event_modification/undocommandgetter.cpp
-        undo_stack_work/event_modification/testindividualcommand.cpp
+
 
         main/controller.cpp
         main/view/view.cpp
@@ -155,8 +156,9 @@ set(SOURCES
 
 set(HEADERS
         event_operation/modification/share_functions.h
-        event_operation/modification/rotatedatatoebasis.h
-        event_operation/modification/testmultiplier.h
+        event_operation/modification/undocommandgetter.h
+        event_operation/modification/commands/rotatedatatoebasis.h
+        event_operation/modification/commands/testindividualcommand.h
 
 
 
@@ -237,11 +239,9 @@ set(HEADERS
         data/io/horizonreadergrd.h
 
 
-        undo_stack_work/customindividualundostack.h #Note: где должен лежать?
+        undo_stack_work/customindividualundostack.h
         undo_stack_work/customindividualundocommand.h
         undo_stack_work/shareundocommand.h
-        undo_stack_work/event_modification/undocommandgetter.h
-        undo_stack_work/event_modification/testindividualcommand.h
 
 
         main/controller.h
@@ -249,8 +249,6 @@ set(HEADERS
         main/view/startpage.h
         main/view/workpage.h
         main/view/infoproject.h
-
-#        main/surface_view/surface.h
 
         main/oil_field_scene/oilfieldscene.h
         main/oil_field_scene/oilfieldwidget.h

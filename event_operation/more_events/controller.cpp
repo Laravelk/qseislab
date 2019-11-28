@@ -8,8 +8,8 @@
 #include "event_operation/share/polarizationanalysiscompute.h"
 #include "event_operation/share/view/polar_graph/polargraph.h"
 
-#include "event_operation/modification/testmultiplier.h"
-#include "undo_stack_work/event_modification/undocommandgetter.h"
+//#include "event_operation/modification/testmultiplier.h"
+#include "event_operation/modification/undocommandgetter.h"
 
 #include "data/io/segyreader.h"
 

@@ -76,7 +76,8 @@ WorkPage::WorkPage(QWidget *parent)
   // Connecting
   connect(_workPages, &QTabWidget::currentChanged, [this](auto index) {
     if (0 == index) {
-      emit eventSelectionChanged(_eventsTable->objectSelection());
+        emit eventPageChanged(QUuid());
+//      emit eventSelectionChanged(_eventsTable->objectSelection());
     } else {
       emit eventPageChanged(_pages_uuids_map[_workPages->widget(index)]);
     }

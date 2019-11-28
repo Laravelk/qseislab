@@ -1,6 +1,6 @@
 #include "rotatedatatoebasis.h"
 
-#include "share_functions.h"
+#include "event_operation/modification/share_functions.h"
 
 #include "data/seismevent.h"
 #include "data/seismwell.h"
@@ -49,7 +49,7 @@ void RotateDataToEBasis::undo() {
     rotateDataWithTransitionMatrix(component, _originalTransitionMatrixs[i]);
     ++i;
   }
-  _event->removeTransformOperation(SeismEvent::RotateDataToEBasis);
+//  _event->removeTransformOperation(SeismEvent::RotateDataToEBasis);
 }
 
 void RotateDataToEBasis::redo() {
@@ -59,7 +59,7 @@ void RotateDataToEBasis::redo() {
                                    _originalTransitionMatrixs[i].transpose());
     ++i;
   }
-  _event->addTransformOperation(SeismEvent::RotateDataToEBasis);
+//  _event->addTransformOperation(SeismEvent::RotateDataToEBasis);
 }
 
 const std::shared_ptr<SeismReceiver> &RotateDataToEBasis::findReceiver(

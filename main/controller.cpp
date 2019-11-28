@@ -1,7 +1,7 @@
 #include "controller.h"
 
 #include "undo_stack_work/customindividualundocommand.h"
-#include "undo_stack_work/event_modification/undocommandgetter.h"
+#include "event_operation/modification/undocommandgetter.h"
 #include "undo_stack_work/shareundocommand.h"
 
 #include <assert.h>
@@ -26,24 +26,8 @@ Controller::Controller(QObject *parent)
 
   // share-undo/redo connecting
   connect(_mainWindow.get(), &View::changeEventFocus, [this](auto &eventFocus) {
-    if (!_currentOneEventFocus.isNull()) {
-      _currentOneEventFocus = QUuid();
-    }
     _eventFocus = eventFocus;
-    //    if (1 == _eventFocus.size()) {
-    //      std::shared_ptr<CustomIndividualUndoStack> &stack =
-    //          _eventStacks[*_eventFocus.begin()];
-    //      _mainWindow->updateUndoStack(stack.get());
-    //            _mainWindow->updateUndoStack(_eventStacks[*_eventFocus.begin()]);
-    //    } else {
-    _mainWindow->updateUndoStack(_shareEventStack.get());
-    //    }
   });
-  connect(_mainWindow.get(), &View::changeEventFocusToOne,
-          [this](auto &eventUuid) {
-            _currentOneEventFocus = eventUuid;
-            _mainWindow->updateUndoStack(_eventStacks[eventUuid].get());
-          });
 
   connect(_mainWindow.get(), &View::undoClicked, [this]() {
     if (!_currentOneEventFocus.isNull()) {
@@ -89,8 +73,6 @@ Controller::Controller(QObject *parent)
 
         connect(shareCommand, &ShareUndoCommand::applyUndo,
                 [this](auto &shareUuid, auto &eventUuids) {
-                  //                  std::cout << "applyUndo" << std::endl;
-
                   std::set<QUuid> uuidsForRemove;
 
                   for (auto &eventUuid : eventUuids) {
@@ -101,7 +83,7 @@ Controller::Controller(QObject *parent)
                     }
                   }
 
-                  for (auto uuid : uuidsForRemove) {
+                  for (auto &uuid : uuidsForRemove) {
                     eventUuids.erase(uuid);
                   }
                 });
@@ -117,7 +99,7 @@ Controller::Controller(QObject *parent)
                     }
                   }
 
-                  for (auto uuid : uuidsForRemove) {
+                  for (auto &uuid : uuidsForRemove) {
                     eventUuids.erase(uuid);
                   }
                 });
@@ -131,7 +113,14 @@ Controller::Controller(QObject *parent)
           &Controller::handleAddEventClicked);
 
   connect(_mainWindow.get(), &View::eventPageChanged,
-          [this](auto &uuid) { _currentOneEventFocus = uuid; });
+          [this](auto &uuid) {
+              _currentOneEventFocus = uuid;
+              if(_currentOneEventFocus.isNull()) {
+                  _mainWindow->updateUndoStack(_shareEventStack.get());
+              } else {
+                  _mainWindow->updateUndoStack(_eventStacks[_currentOneEventFocus].get());
+              }
+          });
   connect(_mainWindow.get(), &View::eventPageClosed,
           [this](auto &uuid) { _oneViewEventControllers.erase(uuid); });
 

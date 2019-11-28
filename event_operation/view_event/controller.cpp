@@ -5,9 +5,7 @@
 #include "event_operation/share/view/3dscene/polarizationanalysiswindow.h"
 #include "view.h"
 
-#include "event_operation/modification/rotatedatatoebasis.h"
-#include "event_operation/modification/testmultiplier.h"
-#include "undo_stack_work/event_modification/undocommandgetter.h"
+#include "event_operation/modification/undocommandgetter.h"
 
 #include <QUndoStack>
 
@@ -45,13 +43,6 @@ Controller::Controller(
 
   connect(_event.get(), &Data::SeismEvent::dataChanged,
           [this](auto event) { _view->updateDataEvent(event); });
-
-  //  connect(_event.get(), &Data::SeismEvent::infoChanged,
-  //          [this](auto event) { std::cout << "event info changed" <<
-  //          std::endl; });
-
-  //  connect(_event.get(), &Data::SeismEvent::dataChanged,
-  //          []() { std::cout << "event data changed" << std::endl; });
 
   connect(_view, &View::createPolarizationAnalysisWindow, [this]() {
     _polarizationWindow = new PolarizationAnalysisWindow(_event);

@@ -108,9 +108,14 @@ void View::updateUndoStack(QUndoStack const *const undoStack) {
     disconnect(_currentUndoStack, &QUndoStack::canRedoChanged, _redoAction,
                &QAction::setEnabled);
   }
+
   _currentUndoStack = undoStack;
+
+  _undoAction->setEnabled(_currentUndoStack->canUndo());
   connect(_currentUndoStack, &QUndoStack::canUndoChanged, _undoAction,
           &QAction::setEnabled);
+
+  _redoAction->setEnabled(_currentUndoStack->canRedo());
   connect(_currentUndoStack, &QUndoStack::canRedoChanged, _redoAction,
           &QAction::setEnabled);
 }
