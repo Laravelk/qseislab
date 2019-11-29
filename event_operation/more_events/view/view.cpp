@@ -26,13 +26,14 @@ View::View(const std::set<QString> &globalEventNames,
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
       _toolsWidget(new EventToolsWidget()), _infoEvent(new InfoEvent()),
       _wellNames(new QComboBox()), _fileDialog(new QFileDialog(this)),
-      _eventList(new QListWidget()),
-      _graphicEvent(new GraphicController(this)),
+      _eventList(new QListWidget()), _graphicEvent(new GraphicController(this)),
       _okButton(new QPushButton("Ok")),
       _cancelButton(new QPushButton("Cancel")),
       _globalEventNames(globalEventNames) {
 
   // Setting`s
+  _toolsWidget->setDisabled(true);
+
   _graphicEvent->hide();
 
   setWindowTitle("SeismWindow");
@@ -63,6 +64,10 @@ View::View(const std::set<QString> &globalEventNames,
   // Setting`s end
 
   // Connecting
+  connect(_toolsWidget, &EventToolsWidget::undoClicked,
+          [this]() { emit undoClicked(); });
+  connect(_toolsWidget, &EventToolsWidget::redoClicked,
+          [this]() { emit redoClicked(); });
   connect(_toolsWidget, &EventToolsWidget::eventTransformClicked,
           [this](auto oper) { emit eventTransformClicked(oper); });
 
@@ -140,10 +145,9 @@ View::View(const std::set<QString> &globalEventNames,
   connect(_graphicEvent, &EventOperation::GraphicController::removePick,
           [this](auto type, auto num) { emit removePick(type, num); });
 
-  connect(_graphicEvent, &EventOperation::GraphicController::clickOnPolarAnalysisInGraph,
-          [this](){
-      emit clickOnPolarAnalysisInGraph();
-  });
+  connect(_graphicEvent,
+          &EventOperation::GraphicController::clickOnPolarAnalysisInGraph,
+          [this]() { emit clickOnPolarAnalysisInGraph(); });
 
   connect(_okButton, &QPushButton::clicked, [this]() {
     if (allValid()) {
@@ -169,17 +173,17 @@ View::View(const std::set<QString> &globalEventNames,
   leftLayout->addStretch(1);
 
   QHBoxLayout *buttonsLayout = new QHBoxLayout();
-  _undoButton = new QPushButton("Undo");
-  _redoButton = new QPushButton("Redo");
-  _undoButton->setDisabled(true);
-  _redoButton->setDisabled(true);
+  //  _undoButton = new QPushButton("Undo");
+  //  _redoButton = new QPushButton("Redo");
+  //  _undoButton->setDisabled(true);
+  //  _redoButton->setDisabled(true);
 
-  connect(_undoButton, &QPushButton::clicked, [this]() { emit undoClicked(); });
-  connect(_redoButton, &QPushButton::clicked, [this]() { emit redoClicked(); });
-  buttonsLayout->addWidget(_undoButton);
-  buttonsLayout->addWidget(_redoButton);
+  //  connect(_undoButton, &QPushButton::clicked, [this]() { emit undoClicked();
+  //  }); connect(_redoButton, &QPushButton::clicked, [this]() { emit
+  //  redoClicked(); }); buttonsLayout->addWidget(_undoButton);
+  //  buttonsLayout->addWidget(_redoButton);
 
-  buttonsLayout->addWidget(_toolsWidget);
+  //  buttonsLayout->addWidget(_toolsWidget);
   buttonsLayout->addStretch(1);
   buttonsLayout->addWidget(_okButton);
   buttonsLayout->addWidget(_cancelButton);
@@ -194,6 +198,7 @@ View::View(const std::set<QString> &globalEventNames,
   mainLayout->addLayout(graphicLayout, 10);
 
   QVBoxLayout *mainButtonLayout = new QVBoxLayout();
+  mainButtonLayout->addWidget(_toolsWidget);
   mainButtonLayout->addLayout(mainLayout);
   mainButtonLayout->addStretch(1);
   mainButtonLayout->addLayout(buttonsLayout);
@@ -204,15 +209,16 @@ View::View(const std::set<QString> &globalEventNames,
 
 void View::loadEvent(SeismEvent const *const event,
                      QUndoStack const *const undoStack) {
-  connect(undoStack, &QUndoStack::canUndoChanged, _undoButton,
-          &QPushButton::setEnabled);
-  connect(undoStack, &QUndoStack::canRedoChanged, _redoButton,
-          &QPushButton::setEnabled);
-  _undoButton->setEnabled(undoStack->canUndo());
-  _redoButton->setEnabled(undoStack->canRedo());
+  //  connect(undoStack, &QUndoStack::canUndoChanged, _undoButton,
+  //          &QPushButton::setEnabled);
+  //  connect(undoStack, &QUndoStack::canRedoChanged, _redoButton,
+  //          &QPushButton::setEnabled);
+  //  _undoButton->setEnabled(undoStack->canUndo());
+  //  _redoButton->setEnabled(undoStack->canRedo());
 
   _toolsWidget->setEnabled(true);
   _toolsWidget->update(event);
+  _toolsWidget->connectUndoStack(undoStack);
 
   _infoEvent->setEnabled(true);
   _infoEvent->update(event);
@@ -221,15 +227,16 @@ void View::loadEvent(SeismEvent const *const event,
 }
 
 void View::unloadEvent(QUndoStack const *const undoStack) {
-  disconnect(undoStack, &QUndoStack::canUndoChanged, _undoButton,
-             &QPushButton::setEnabled);
-  disconnect(undoStack, &QUndoStack::canRedoChanged, _redoButton,
-             &QPushButton::setEnabled);
+  //  disconnect(undoStack, &QUndoStack::canUndoChanged, _undoButton,
+  //             &QPushButton::setEnabled);
+  //  disconnect(undoStack, &QUndoStack::canRedoChanged, _redoButton,
+  //             &QPushButton::setEnabled);
 
-  _undoButton->setDisabled(true);
-  _redoButton->setDisabled(true);
+  //  _undoButton->setDisabled(true);
+  //  _redoButton->setDisabled(true);
 
   _toolsWidget->setDisabled(true);
+  _toolsWidget->disconnectUndoStack(undoStack);
 
   _infoEvent->clear();
   _graphicEvent->clear();
@@ -285,9 +292,8 @@ void View::update(
   }
 }
 
-void View::updatePolarGraph(const Data::SeismEvent * const event)
-{
-    _graphicEvent->updatePolarGraph(event);
+void View::updatePolarGraph(const Data::SeismEvent *const event) {
+  _graphicEvent->updatePolarGraph(event);
 }
 
 void View::setNotification(const QString &text) {

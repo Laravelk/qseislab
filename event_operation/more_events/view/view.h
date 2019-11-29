@@ -47,7 +47,7 @@ public:
   ChartGesture *getChartGesture();
 
   void setAddPolarizationWindowButtonEnable(bool enable);
-//  PolarGraph *getPolarGraph() { return _polarGraph; }
+  //  PolarGraph *getPolarGraph() { return _polarGraph; }
   void showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
 
 signals:
@@ -81,8 +81,8 @@ private:
   QBrush updateRepetition(const QString &);
   bool allValid() const;
 
-  QPushButton *_undoButton;
-  QPushButton *_redoButton;
+  //  QPushButton *_undoButton;
+  //  QPushButton *_redoButton;
 
   EventToolsWidget *_toolsWidget;
 
