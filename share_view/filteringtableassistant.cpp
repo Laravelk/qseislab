@@ -404,7 +404,7 @@ void FilteringTableAssistant::add<SeismEvent>(SeismEvent const *const event) {
           event->getStampDateTime().time().toString("hh:mm:zzz")));
 
   QPushButton *removeButton = new QPushButton();
-  QIcon icon(":/remove_button.png");
+  QIcon icon(":/icons/remove.png");
   removeButton->setStyleSheet("background-color:white; border-style: outset");
   removeButton->setIcon(icon);
   _objectsTable->setCellWidget(row, 13, removeButton);

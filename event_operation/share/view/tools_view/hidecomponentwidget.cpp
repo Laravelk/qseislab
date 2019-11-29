@@ -5,14 +5,22 @@
 
 namespace EventOperation {
 HideComponentWidget::HideComponentWidget(QWidget *parent)
-    : QFrame(parent), _x_axisButton(new QCheckBox("X")),
-      _y_axisButton(new QCheckBox("Y")), _z_axisButton(new QCheckBox("Z")) {
+    : QFrame(parent), _x_axisButton(new QCheckBox()),
+      _y_axisButton(new QCheckBox()), _z_axisButton(new QCheckBox()) {
   // Setting`s
   setFrameStyle(1);
 
   _x_axisButton->setChecked(true);
+  _x_axisButton->setIcon(QIcon(":/icons/red_wave.png"));
+  _x_axisButton->setText(" - component 1");
+
   _y_axisButton->setChecked(true);
+  _y_axisButton->setIcon(QIcon(":/icons/green_wave.png"));
+  _y_axisButton->setText(" - component 2");
+
   _z_axisButton->setChecked(true);
+  _z_axisButton->setIcon(QIcon(":/icons/blue_wave.png"));
+  _z_axisButton->setText(" - component 3");
   // Setting`s end
 
   // Connect`s

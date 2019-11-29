@@ -46,9 +46,11 @@ View::View(QWidget *parent) : QMainWindow(parent) {
   QMenu *editMenu = new QMenu("&Edit");
   editMenu->setDisabled(true);
   connect(this, &View::projectPresence, editMenu, &QMenu::setEnabled);
-  _undoAction = editMenu->addAction("Undo", [this] { emit undoClicked(); });
+  _undoAction = editMenu->addAction(QIcon(":/icons/undo.png"), "Undo",
+                                    [this] { emit undoClicked(); });
   _undoAction->setDisabled(true);
-  _redoAction = editMenu->addAction("Redo", [this] { emit redoClicked(); });
+  _redoAction = editMenu->addAction(QIcon(":/icons/redo.png"), "Redo",
+                                    [this] { emit redoClicked(); });
   _redoAction->setDisabled(true);
 
   QMenu *actionMenu = new QMenu("Action");
@@ -58,7 +60,7 @@ View::View(QWidget *parent) : QMainWindow(parent) {
   //    emit eventTransformClicked(
   //        SeismEvent::TransformOperation::RotateDataToEBasis);
   //  });
-  actionMenu->addAction("Test Mult", [this] {
+  actionMenu->addAction(QIcon(":/icons/test_mult.png"), "Test Mult", [this] {
     emit eventTransformClicked(SeismEvent::TransformOperation::TestMultiplier);
   });
   editMenu->addMenu(actionMenu);

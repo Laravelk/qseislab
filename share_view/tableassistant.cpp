@@ -121,7 +121,7 @@ void TableAssistant::add<SeismHorizon>(SeismHorizon const *const horizon) {
                   new QTableWidgetItem(QString::number(horizon->getNy())));
 
   QPushButton *removeButton = new QPushButton();
-  QIcon icon(":/remove_button.png");
+  QIcon icon(":/icons/remove.png");
   removeButton->setStyleSheet("background-color:white; border-style: outset");
   removeButton->setIcon(icon);
   _table->setCellWidget(row, 6, removeButton);
@@ -195,7 +195,7 @@ template <> void TableAssistant::add<SeismWell>(SeismWell const *const well) {
       row, 2, new QTableWidgetItem(QString::number(well->getPointsAmount())));
 
   QPushButton *removeButton = new QPushButton();
-  QIcon icon(":/remove_button.png");
+  QIcon icon(":/icons/remove.png");
   removeButton->setStyleSheet("background-color:white; border-style: outset");
   removeButton->setIcon(icon);
   _table->setCellWidget(row, 4, removeButton);
@@ -277,7 +277,7 @@ void TableAssistant::add<SeismReceiver>(SeismReceiver const *const receiver) {
                       static_cast<double>(std::get<2>(location)))));
 
   QPushButton *removeButton = new QPushButton();
-  QIcon icon(":/remove_button.png");
+  QIcon icon(":/icons/remove.png");
   removeButton->setStyleSheet("background-color:white; border-style: outset");
   removeButton->setIcon(icon);
   _table->setCellWidget(row, 6, removeButton);

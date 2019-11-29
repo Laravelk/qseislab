@@ -4,6 +4,14 @@
   <file>sphereSmooth.obj</file>
   <file>minimalSmooth.obj</file>
   <file>cylinderFilledSmooth.obj</file>
-  <file>remove_button.png</file>
+
+  <file>icons/remove.png</file>
+
+  <file>icons/test_mult.png</file>
+  <file>icons/undo.png</file>
+  <file>icons/redo.png</file>
+  <file>icons/red_wave.png</file>
+  <file>icons/green_wave.png</file>
+  <file>icons/blue_wave.png</file>
 </qresource>
 </RCC>

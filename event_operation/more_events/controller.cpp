@@ -147,35 +147,46 @@ Controller::Controller(
             for (auto &component :
                  _events_map.at(_currentEventUuid)->getComponents()) {
               if (num == idx) {
-                Data::SeismWavePick wavePick =
-                    Data::SeismWavePick(type, pick_val);
 
+                auto &pick = component->getWavePicks()[type];
+                pick.setValidDataStatus(false);
+                _events_map.at(_currentEventUuid)->changeTrigger();
+                break;
+
+                //                Data::SeismWavePick wavePick =
+                //                    Data::SeismWavePick(type, pick_val);
+
+                //                // wavePick.setPolarizationLeftBorder(l_val);
+                //                // wavePick.setPolarizationRightBorder(r_val);
+
+                //                Data::SeismWavePick oldWavePick;
+                //                for (auto &pick : component->getWavePicks()) {
+                //                  if (type == pick.first) {
+                //                    oldWavePick = pick.second;
+                //                    break;
+                //                  }
+                //                }
+
+                //                //                Data::SeismWavePick
+                //                oldWavePick =
+                //                // component->getWavePick(type);
+                //                wavePick.setPolarizationAnalysisData(
+                //                    oldWavePick.getPolarizationAnalysisData());
                 //                wavePick.setPolarizationLeftBorder(l_val);
                 //                wavePick.setPolarizationRightBorder(r_val);
-
-                Data::SeismWavePick oldWavePick;
-                for (auto &pick : component->getWavePicks()) {
-                  if (type == pick.first) {
-                    oldWavePick = pick.second;
-                    break;
-                  }
-                }
-
-                //                Data::SeismWavePick oldWavePick =
-                //                component->getWavePick(type);
-                wavePick.setPolarizationAnalysisData(
-                    oldWavePick.getPolarizationAnalysisData());
-                wavePick.setPolarizationLeftBorder(l_val);
-                wavePick.setPolarizationRightBorder(r_val);
-                if (oldWavePick.getPolarizationLeftBorder() !=
-                        wavePick.getPolarizationLeftBorder() ||
-                    oldWavePick.getPolarizationRightBorder() !=
-                        wavePick.getPolarizationRightBorder() ||
-                    oldWavePick.getArrival() != wavePick.getArrival()) {
-                  wavePick.setValidDataStatus(false);
-                }
-                component->addWavePick(wavePick);
-                break;
+                //                if (oldWavePick.getPolarizationLeftBorder() !=
+                //                        wavePick.getPolarizationLeftBorder()
+                //                        ||
+                //                    oldWavePick.getPolarizationRightBorder()
+                //                    !=
+                //                        wavePick.getPolarizationRightBorder()
+                //                        ||
+                //                    oldWavePick.getArrival() !=
+                //                    wavePick.getArrival()) {
+                //                  wavePick.setValidDataStatus(false);
+                //                }
+                //                component->addWavePick(wavePick);
+                //                break;
               }
               ++idx;
             }

@@ -127,7 +127,7 @@ void WavePick::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
                                    event->buttonDownPos(Qt::LeftButton)))
             .x();
     _anchor = QPointF(newX, _anchor.y());
-//    emit changed();
+    emit changed();
   }
 }
 
