@@ -60,7 +60,7 @@ public:
   const std::vector<SeismTrace const *> getTraces() const;
   const std::vector<SeismTrace *> getTraces();
 
-  void addWavePick(SeismWavePick);
+  void addWavePick(const SeismWavePick &);
   void removeWavePick(const SeismWavePick::Type);
   bool containsWavePickBy(const SeismWavePick::Type) const;
   //  const SeismWavePick &getWavePick(SeismWavePick::Type) const;

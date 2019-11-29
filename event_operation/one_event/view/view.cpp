@@ -24,14 +24,24 @@ View::View(const std::set<QString> &eventNames,
            const std::map<QUuid, QString> &wellNames_map,
            QUndoStack const *const undoStack, QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
+      _toolsWidget(new EventToolsWidget()), _infoEvent(new InfoEvent()),
       _wellManagersLayout(new QVBoxLayout()),
-      _addButtonManagers(new QPushButton("Add")), _wellNames_map(wellNames_map),
+      _addButtonManagers(new QPushButton("Add")),
+      _graphicEvent(new GraphicController()), _okButton(new QPushButton("Ok")),
+      _cancelButton(new QPushButton("Cancel")), _wellNames_map(wellNames_map),
       _eventNames(eventNames) {
 
-  commonSetting();
-
   // Setting`s
+  setWindowTitle("SeismWindow");
+
   _toolsWidget->setDisabled(true);
+  _toolsWidget->connectUndoStack(undoStack);
+
+  _infoEvent->setDisabled(true);
+
+  _okButton->setDisabled(true);
+  _cancelButton->setFocus();
+  // Setting`s end
 
   connect(_addButtonManagers, &QPushButton::clicked, [this]() {
     _addButtonManagers->setDisabled(true);
@@ -69,6 +79,22 @@ View::View(const std::set<QString> &eventNames,
                                       wellManager);
   });
 
+  QHBoxLayout *buttonLayoutManagers = new QHBoxLayout();
+  buttonLayoutManagers->addStretch(1);
+  buttonLayoutManagers->addWidget(_addButtonManagers);
+  _wellManagersLayout->addLayout(buttonLayoutManagers);
+  _addButtonManagers->click();
+  // Setting`s end
+
+  // Connecting
+  connect(_toolsWidget, &EventToolsWidget::undoClicked,
+          [this]() { emit undoClicked(); });
+  connect(_toolsWidget, &EventToolsWidget::redoClicked,
+          [this]() { emit redoClicked(); });
+
+  connect(_toolsWidget, &EventToolsWidget::eventTransformClicked,
+          [this](auto oper) { emit eventTransformClicked(oper); });
+
   connect(_infoEvent, &InfoEvent::changed, [this]() { emit infoChanged(); });
 
   connect(_graphicEvent,
@@ -76,17 +102,27 @@ View::View(const std::set<QString> &eventNames,
               calculatePolarizationAnalysisDataClicked,
           [this]() { emit calculatePolarizationAnalysisData(); });
 
-  connect(_graphicEvent, &EventOperation::GraphicController::clickOnPolarAnalysisInGraph,
-          [this](){
-      emit clickOnPolarAnalysisInGraph();
-  });
+  connect(_graphicEvent,
+          &EventOperation::GraphicController::clickOnPolarAnalysisInGraph,
+          [this]() { emit clickOnPolarAnalysisInGraph(); });
 
-  QHBoxLayout *buttonLayoutManagers = new QHBoxLayout();
-  buttonLayoutManagers->addStretch(1);
-  buttonLayoutManagers->addWidget(_addButtonManagers);
-  _wellManagersLayout->addLayout(buttonLayoutManagers);
-  _addButtonManagers->click();
-  // Setting`s end
+  connect(_graphicEvent, &EventOperation::GraphicController::sendPicksInfo,
+          [this](auto type, auto num, auto l_val, auto pick_val, auto r_val) {
+            emit sendPicksInfo(type, num, l_val, pick_val, r_val);
+          });
+  connect(_graphicEvent,
+          &EventOperation::GraphicController::
+              createPolarizationAnalysisWindowClicked,
+          [this]() { emit createPolarizationAnalysisWindow(); });
+  connect(_okButton, &QPushButton::clicked, [this]() {
+    if (_isValid) {
+      accept();
+    } else {
+      setNotification("There is invalid event-info");
+    }
+  });
+  connect(_cancelButton, &QPushButton::clicked, this, &View::reject);
+  // Connecting end
 
   // Layout`s
   QVBoxLayout *leftLayout = new QVBoxLayout();
@@ -95,48 +131,16 @@ View::View(const std::set<QString> &eventNames,
   leftLayout->addStretch(1);
 
   QHBoxLayout *buttonsLayout = new QHBoxLayout();
-  //  buttonsLayout->addWidget(new QUndoView(undoStack)); // NOTE: undo/redo -
-  //  view TODO: re-build
-
-  auto undoButton = new QPushButton("Undo");
-  auto redoButton = new QPushButton("Redo");
-  //  undoButton->setDisabled(true);
-  //  redoButton->setDisabled(true);
-  undoButton->setEnabled(undoStack->canUndo());
-  redoButton->setEnabled(undoStack->canRedo());
-  connect(undoStack, &QUndoStack::canUndoChanged, undoButton,
-          &QPushButton::setEnabled);
-  connect(undoStack, &QUndoStack::canRedoChanged, redoButton,
-          &QPushButton::setEnabled);
-  connect(undoButton, &QPushButton::clicked, [this]() { emit undoClicked(); });
-  connect(redoButton, &QPushButton::clicked, [this]() { emit redoClicked(); });
-  buttonsLayout->addWidget(undoButton);
-  buttonsLayout->addWidget(redoButton);
-
-  buttonsLayout->addWidget(_toolsWidget);
   buttonsLayout->addStretch(1);
   buttonsLayout->addWidget(_okButton);
   buttonsLayout->addWidget(_cancelButton);
 
-  //  QVBoxLayout *graphicLayout = new QVBoxLayout();
-  //  graphicLayout->addWidget(_graphicEvent->getView(), 10);
-  //  graphicLayout->addStretch(1);
-  //  graphicLayout->addLayout(buttonsLayout);
-
   QHBoxLayout *mainLayout = new QHBoxLayout();
   mainLayout->addLayout(leftLayout);
-  mainLayout->addStretch(1);
   mainLayout->addWidget(_graphicEvent, 10);
 
-  // setting tool-bar
-  //  QToolBar* toolBar = new QToolBar();
-  //  toolBar->addWidget(_toolsWidget);
-  //  QAction* action = toolBar->addAction("");
-
-  // end of setting tool-bar
-
   QVBoxLayout *mainButtonLayout = new QVBoxLayout();
-  //  mainButtonLayout->addWidget(toolBar);
+  mainButtonLayout->addWidget(_toolsWidget);
   mainButtonLayout->addLayout(mainLayout);
   mainButtonLayout->addStretch(1);
   mainButtonLayout->addLayout(buttonsLayout);
@@ -145,23 +149,15 @@ View::View(const std::set<QString> &eventNames,
   // Layout`s end
 }
 
-// void View::update(SeismEvent const *const event) {
-//  _toolsWidget->update(event);
-//  _infoEvent->update(event);
-//  _graphicEvent->update(event);
-//}
-
 void View::updateInfoEvent(Data::SeismEvent const *const event) {
-  //  _toolsWidget->update(event);
   auto &name = event->getName();
   updateRepetition(name);
   _infoEvent->update(event);
   _graphicEvent->updateEventName(name);
 }
 
-void View::updatePolarGraph(const Data::SeismEvent * const event)
-{
-    _graphicEvent->updatePolarGraph(event);
+void View::updatePolarGraph(const Data::SeismEvent *const event) {
+  _graphicEvent->updatePolarGraph(event);
 }
 
 void View::showWarningWindowAboutValidStatusOfPolarizationAnalysisData() {
@@ -198,9 +194,6 @@ void View::update(SeismEvent const *const event, const QUuid &removedWellUuid) {
 void View::update(SeismEvent const *const event, const QUuid &uuid,
                   const QString &wellName) {
   assert(nullptr != _wellManagersLayout);
-
-  //  std::cout << "update event-name: " << event->getName().toStdString()
-  //            << std::endl; // TODO: remove
 
   _wellNames_map[uuid] = wellName;
   WellManager *manager = qobject_cast<WellManager *>(
@@ -246,47 +239,6 @@ void View::settingEventInfo(SeismEvent *const event) const {
 }
 
 ChartGesture *View::getChartGesture() { return _graphicEvent->getModel(); }
-
-void View::commonSetting() {
-  // Setting`s
-  _toolsWidget = new EventToolsWidget(this);
-  _infoEvent = new InfoEvent(this);
-  _graphicEvent = new GraphicController(this);
-  _okButton = new QPushButton("Ok", this);
-  _cancelButton = new QPushButton("Cancel", this);
-
-  setWindowTitle("SeismWindow");
-  setMinimumSize(1300, 590);
-
-  _infoEvent->setDisabled(true);
-
-  _okButton->setDisabled(true);
-  _cancelButton->setFocus();
-  // Setting`s end
-
-  // Connecting
-  connect(_toolsWidget, &EventToolsWidget::eventTransformClicked,
-          [this](auto oper) { emit eventTransformClicked(oper); });
-
-  connect(_graphicEvent, &EventOperation::GraphicController::sendPicksInfo,
-          [this](auto type, auto num, auto l_val, auto pick_val, auto r_val) {
-            emit sendPicksInfo(type, num, l_val, pick_val, r_val);
-          });
-  connect(_graphicEvent,
-          &EventOperation::GraphicController::
-              createPolarizationAnalysisWindowClicked,
-          [this]() { emit createPolarizationAnalysisWindow(); });
-  connect(_okButton, &QPushButton::clicked, [this]() {
-    if (_isValid) {
-      accept();
-    } else {
-      setNotification("There is invalid event-info");
-    }
-  });
-  connect(_cancelButton, &QPushButton::clicked, this, &View::reject);
-
-  // Connecting end
-}
 
 void View::updateRepetition(const QString &name) {
   for (auto &globalName : _eventNames) {

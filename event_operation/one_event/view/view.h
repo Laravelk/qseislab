@@ -29,27 +29,16 @@ class View : public QDialog {
   Q_OBJECT
 
 public:
-  //  explicit View(const std::set<QString> &, Data::SeismEvent const *const,
-  //                QUndoStack const *const, QWidget *parent = nullptr);
   explicit View(const std::set<QString> &, const std::map<QUuid, QString> &,
                 QUndoStack const *const, QWidget *parent = nullptr);
 
-  //  void update(const std::shared_ptr<Data::SeismEvent> &);
-
-  //  void update(const std::shared_ptr<Data::SeismEvent> &, const QUuid &);
-  //  void update(const std::shared_ptr<Data::SeismEvent> &, const QUuid &,
-  //              const QString &);
-
-  //  void update(Data::SeismEvent const *const);
   void updateInfoEvent(Data::SeismEvent const *const);
   void updateDataEvent(Data::SeismEvent const *const);
   void updatePolarGraph(Data::SeismEvent const *const);
 
-
   void update(Data::SeismEvent const *const, const QUuid &);
   void update(Data::SeismEvent const *const, const QUuid &, const QString &);
   void showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
-
 
   void setNotification(const QString &);
   void settingEventInfo(Data::SeismEvent *const) const;
@@ -65,7 +54,6 @@ signals:
   void calculatePolarizationAnalysisData();
   void clickOnPolarAnalysisInGraph();
 
-
   void undoClicked() const;
   void redoClicked() const;
 
@@ -73,7 +61,6 @@ signals:
   void eventTransformClicked(Data::SeismEvent::TransformOperation) const;
 
 private:
-  void commonSetting(); // TODO: перетащить в конструктор
   void updateRepetition(const QString &);
 
   EventToolsWidget *_toolsWidget;

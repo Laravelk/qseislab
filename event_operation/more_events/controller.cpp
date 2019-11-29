@@ -148,9 +148,22 @@ Controller::Controller(
                  _events_map.at(_currentEventUuid)->getComponents()) {
               if (num == idx) {
 
-                auto &pick = component->getWavePicks()[type];
-                pick.setArrival(pick_val);
-                pick.setValidDataStatus(false);
+                auto &picks_map = component->getWavePicks();
+                auto itr_pic = picks_map.find(type);
+                if (itr_pic != picks_map.end()) {
+                  std::cout << "here 2" << std::endl;
+                  auto &pick = itr_pic->second;
+                  pick.setValidDataStatus(false);
+                  pick.setArrival(pick_val);
+                  pick.setPolarizationLeftBorder(l_val);
+                  pick.setPolarizationRightBorder(r_val);
+                } else {
+                  std::cout << "here" << std::endl;
+                  auto pick = Data::SeismWavePick(type, pick_val);
+                  pick.setPolarizationLeftBorder(l_val);
+                  pick.setPolarizationRightBorder(r_val);
+                  component->addWavePick(pick);
+                }
                 _events_map.at(_currentEventUuid)->changeTrigger();
                 break;
 

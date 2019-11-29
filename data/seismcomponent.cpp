@@ -197,7 +197,7 @@ const std::vector<SeismTrace *> SeismComponent::getTraces() {
 //  return _traces;
 //}
 
-void SeismComponent::addWavePick(const SeismWavePick wavePick) {
+void SeismComponent::addWavePick(const SeismWavePick &wavePick) {
   _wavePicks_map[wavePick.getType()] = wavePick;
   emit dataChanged();
 }
