@@ -21,6 +21,7 @@ GraphicView::GraphicView(QChart *chart, QWidget *parent)
   _status = new QGraphicsTextItem(OVERVIEW_MODE_STRING, this->chart());
   _status->setPos(QPointF(20, 450));
   _status->show();
+  this->chart()->zoomReset();
 }
 
 void GraphicView::addPick(Data::SeismWavePick::Type type, qreal ax, qreal ay, qreal rangeX,
@@ -75,9 +76,6 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos, qreal ran
       }
   });
   pick->setBorders(leftBorder, rightBorder);
-//  pick->emitChanged();
-//  leftBorder->emitChanged();
-//  rightBorder->emitChanged();
   _wavePicks.push_back(leftBorder);
   _wavePicks.push_back(rightBorder);
   _wavePicks.push_back(pick);
@@ -100,6 +98,45 @@ void GraphicView::setWaveAddTriggerFlag(Data::SeismWavePick::Type type) {
   }
   this->setFocus();
   _chart->setActive(true);
+}
+
+void GraphicView::clearHistoryOfTransformations()
+{
+    _sizeWaveItem = DEFAULT_WAVEITEM_SIZE;
+    _transformationsZoomHistory.clear();
+}
+
+void GraphicView::useHistoryOfTransformations()
+{
+    chart()->zoomReset();
+    _sizeWaveItem = DEFAULT_WAVEITEM_SIZE;
+    std::cerr << " count of operation " << _transformationsZoomHistory.size() << std::endl;
+    for (auto &operation : _transformationsZoomHistory) {
+        if (ViewOperation::OPERATION_TYPE::ZOOM == operation.operationType() ) {
+            std::cerr << "h zoom " << operation.factor() << std::endl;
+            chart()->zoom(operation.factor());
+//            _sizeWaveItem = QSizeF(_sizeWaveItem.width(), _sizeWaveItem.height() * operation.factor());
+//            for (auto &wavePick : _wavePicks) {
+//            _sizeWaveItem = wavePick->scallByAxis(QSizeF(operation.factor(), operation.factor()));
+//            wavePick->updateGeometry();
+//            }
+        }
+        if (ViewOperation::OPERATION_TYPE::SCROLL == operation.operationType()) {
+            chart()->scroll(operation.dx(), operation.dy());
+        }
+        if (ViewOperation::OPERATION_TYPE::ZOOM_IN == operation.operationType()) {
+//            _sizeWaveItem = QSizeF(_sizeWaveItem.width(), _sizeWaveItem.height() * operation.factor());
+//            for (auto &pick : _wavePicks) {
+//                _sizeWaveItem = pick->scallByAxis(QSizeF(1.0f, operation.factor()));
+//                pick->updateGeometry();
+//            }
+            chart()->zoomIn(operation.rect());
+        }
+    }
+    for (auto &wave : _wavePicks) {
+      wave->updateGeometry();
+    }
+    std::cerr << std::endl;
 }
 
 bool GraphicView::viewportEvent(QEvent *event) {
@@ -167,17 +204,22 @@ void GraphicView::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void GraphicView::mouseReleaseEvent(QMouseEvent *event) {
-    if (rubberBand && _zoomIsTouching && event->button() == Qt::LeftButton) {
+    if (rubberBand && rubberBand->width() > 10 && _zoomIsTouching && event->button() == Qt::LeftButton) {
         rubberBand->hide();
         QPoint point = rubberBand->pos();
         QSize size = rubberBand->size();
         delete rubberBand;
-        _chart->zoomIn(QRect(point, size));
+        QRect transform(point, size);
+        ViewOperation operation(ViewOperation::OPERATION_TYPE::ZOOM_IN);
+        operation.setRect(transform);
+        _chart->zoomIn(transform);
         rubberBand = nullptr;
         float scale = std::min(chart()->plotArea().width() / size.width(), chart()->plotArea().height() / size.height());
         if (abs(scale) > 400) {
             return;
         }
+        operation.setFactor(scale);
+        _transformationsZoomHistory.push_back(operation);
         _sizeWaveItem = QSizeF(_sizeWaveItem.width(), _sizeWaveItem.height() * scale);
         for (auto &pick : _wavePicks) {
             _sizeWaveItem = pick->scallByAxis(QSizeF(chart()->plotArea().width() / size.width(), chart()->plotArea().height() / size.height()));
@@ -273,6 +315,9 @@ void GraphicView::scrollContentsBy(int dx, int dy) {
     if (!_editMode) {
         if (scene()) {
         _chart->scroll(dx, dy);
+        ViewOperation operation(ViewOperation::OPERATION_TYPE::SCROLL);
+        operation.setScroll(dx,dy);
+        _transformationsZoomHistory.push_back(operation);
         for (auto &wave : _wavePicks) {
           wave->updateGeometry();
         }
@@ -311,6 +356,9 @@ void GraphicView::wheelEvent(QWheelEvent *event) {
 void GraphicView::scaleContentsBy(qreal factor) {
     if (!_editMode) {
           _chart->zoom(factor);
+          ViewOperation operation(ViewOperation::OPERATION_TYPE::ZOOM);
+          operation.setFactor(factor);
+          _transformationsZoomHistory.push_back(operation);
           if (scene()) {
               _sizeWaveItem = QSizeF(_sizeWaveItem.width(), _sizeWaveItem.height() * factor);
             for (auto &wavePick : _wavePicks) {
@@ -319,6 +367,7 @@ void GraphicView::scaleContentsBy(qreal factor) {
             }
           }
   }
+    _viewport = viewport();
 }
 
 QPointF GraphicView::calculatePickPosition(QPointF pointByMouse) {

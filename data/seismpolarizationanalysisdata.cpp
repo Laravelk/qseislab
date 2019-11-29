@@ -8,8 +8,7 @@ namespace Data {
 SeismPolarizationAnalysisData::SeismPolarizationAnalysisData(double maxSingularValue, double pAzimutInRadian,
                                                              double pIncidenceInRadian, double pAzimutDegrees,
                                                              double pIncidenceDegrees)
-    : _maxSingularValue(maxSingularValue), _pAzimutInRadian(pAzimutInRadian), _pIncidenceInRadian(pIncidenceInRadian),
-            _pAzimutDegrees(pAzimutDegrees), _pIncidenceDegrees(pIncidenceDegrees) {}
+    : _maxSingularValue(maxSingularValue), _pAzimutInRadian(pAzimutInRadian), _pIncidenceInRadian(pIncidenceInRadian) {}
 
 void SeismPolarizationAnalysisData::setValid(const bool validStatus) {
   _isValid = validStatus;
@@ -21,23 +20,12 @@ void SeismPolarizationAnalysisData::setMaxSingularVale(const double value) {
 
 void SeismPolarizationAnalysisData::setAzimutInRadian(const double radian) {
   _pAzimutInRadian = radian;
-  _pAzimutDegrees = radian * DEGREES_COEFFICIENT / M_PI;
 }
 
 void SeismPolarizationAnalysisData::setIncidenceInRadian(const double radian) {
   _pIncidenceInRadian = radian;
-  _pAzimutDegrees = radian * DEGREES_COEFFICIENT / M_PI;
 }
 
-void SeismPolarizationAnalysisData::setAzimutDegrees(const double degrees) {
-  _pAzimutDegrees = degrees;
-  _pAzimutInRadian = degrees * M_PI / DEGREES_COEFFICIENT;
-}
-
-void SeismPolarizationAnalysisData::setIncidenceDegrees(const double degrees) {
-  _pIncidenceDegrees = degrees;
-  _pIncidenceInRadian = degrees * M_PI / DEGREES_COEFFICIENT;
-}
 
 bool SeismPolarizationAnalysisData::isValid() const { return _isValid; }
 
@@ -54,18 +42,17 @@ double SeismPolarizationAnalysisData::getIncidenceInRadian() const {
 }
 
 double SeismPolarizationAnalysisData::getAzimutDegrees() const {
-  return _pAzimutDegrees;
+  return _pAzimutInRadian * DEGREES_COEFFICIENT / M_PI;
 }
 
 double SeismPolarizationAnalysisData::getIncidenceDegrees() const {
-    return _pIncidenceDegrees;
+    return _pIncidenceInRadian * DEGREES_COEFFICIENT / M_PI;
 }
 
 void SeismPolarizationAnalysisData::print()
 {
     std::cerr << "maxSing " << _maxSingularValue << " AzimputInRadian " << _pAzimutInRadian << " IncendceInRadian " <<
-                 _pIncidenceInRadian << " AzimutInDegrees " << _pAzimutDegrees << " IncencdeInDegree "
-                        << _pIncidenceDegrees << std::endl;
+                 _pIncidenceInRadian << std::endl;
 
 }
 

@@ -17,12 +17,8 @@ class ChartGesture : public QChart {
 public:
   explicit ChartGesture(QGraphicsItem *parent = nullptr,
                         Qt::WindowFlags wFlags = nullptr);
-  void addPicks(QList<WavePick *> *wavePicks) { _wavePicks = wavePicks; }
   void setReceiverCount(int count) { receiverCount = count; }
   int getReceiverCount() { return receiverCount; }
-
-  QList<WavePick *> *getWavePicks() { return _wavePicks; }
-
   void zoom(qreal);
   void zoomIn(const QRectF &rect);
 
@@ -33,7 +29,6 @@ private:
   bool gestureEvent(QGestureEvent *event);
 
 private:
-  QList<WavePick *> *_wavePicks;
   int receiverCount = 0;
 };
 } // namespace EventOperation

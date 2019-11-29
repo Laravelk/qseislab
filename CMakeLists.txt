@@ -29,8 +29,8 @@ find_package(Qt5 COMPONENTS ${_Q_MODULES} REQUIRED)
 #add_subdirectory(parser_test)
 
 # Bad way
-#set(Boost_INCLUDE_DIR "C:/Program Files/boost_1_71_0/boost_1_71_0")
-set(Boost_INCLUDE_DIR "C:/Users/seismuser/all/boost_1_71_0/boost_1_71_0")
+set(Boost_INCLUDE_DIR "C:/Program Files/boost_1_71_0/boost_1_71_0")
+#set(Boost_INCLUDE_DIR "C:/Users/seismuser/all/boost_1_71_0/boost_1_71_0")
 find_package(Boost REQUIRED)
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
@@ -71,6 +71,7 @@ set(SOURCES
         event_operation/share/view/eventtoolswidget.cpp
         event_operation/share/view/graphic_view/pipes2dname.cpp
         event_operation/share/view/3dscene/polarizationanalysiswindow.cpp
+        event_operation/share/view/graphic_view/viewoperation.cpp
 
 
         event_operation/share/view/polar_graph/polargraph.cpp # test
@@ -186,6 +187,7 @@ set(HEADERS
         event_operation/share/view/chartgesture.h
         event_operation/share/view/eventtoolswidget.h
         event_operation/share/view/graphic_view/pipes2dname.h
+        event_operation/share/view/graphic_view/viewoperation.h
         event_operation/share/view/3dscene/polarizationanalysiswindow.h
 
         event_operation/share/view/polar_graph/polargraph.h # test

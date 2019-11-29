@@ -3,6 +3,7 @@
 #include "../chartgesture.h"
 #include "pipes2dname.h"
 #include "wavepick.h"
+#include "viewoperation.h"
 #include <QtCharts/QChartView>
 #include <QtWidgets/QRubberBand>
 
@@ -34,19 +35,24 @@ public:
   void setCountOfComponents(int count) { _countOfComponents = count; }
 
   QList<WavePick *> *getPickcs() { return &_wavePicks; }
-  const bool isEdit() const { return _editMode; }
-  void clearPicks() {
+  bool isEdit() const { return _editMode; }
+  void clearView() {
     for (auto &pick : _wavePicks) {
       scene()->removeItem(pick);
     }
     _wavePicks.clear();
   }
 
+  void clearHistoryOfTransformations();
+  void useHistoryOfTransformations();
+
   void mouseEvent(const QPointF &pos) {
       QPointF localPos = QPointF(_chart->mapToPosition(pos));
       this->mousePressEvent(new QMouseEvent(QEvent::MouseButtonPress, localPos, Qt::LeftButton, Qt::LeftButton,
                                                   Qt::NoModifier));
   }
+
+  void resetItemSize() { _sizeWaveItem = DEFAULT_WAVEITEM_SIZE;}
 
 protected:
   bool viewportEvent(QEvent *) override;
@@ -93,8 +99,10 @@ private:
   const QString ADD_WAVE_STRING = "Add Wave";
   const int MICROSECONDS_IN_SECOND = 1000000;
   const int MICROSECONDS_IN_MILISECOND = 1000;
+  const QSizeF DEFAULT_WAVEITEM_SIZE = QSizeF(2,40);
 
 private:
+  QList<ViewOperation> _transformationsZoomHistory;
 
   class ColorData {
   public:
@@ -130,5 +138,6 @@ private:
   };
 
   ColorData *_colorData;
+  QWidget *_viewport;
 };
 } // namespace EventOperation

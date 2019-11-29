@@ -149,6 +149,7 @@ Controller::Controller(
               if (num == idx) {
 
                 auto &pick = component->getWavePicks()[type];
+                pick.setArrival(pick_val);
                 pick.setValidDataStatus(false);
                 _events_map.at(_currentEventUuid)->changeTrigger();
                 break;

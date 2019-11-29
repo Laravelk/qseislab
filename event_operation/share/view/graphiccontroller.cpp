@@ -158,32 +158,35 @@ GraphicController::GraphicController(QWidget *parent)
 }
 
 void GraphicController::update(SeismEvent const *const event) {
-  _event = event;
-
-  // setting event-name on title
-  //  _view->chart()->setTitle(event->getInfo().getName());
-  _view->chart()->removeAllSeries();
-  _allSeries.clear();
-  _view->clearPicks();
-  //  _view->setDefaultScale();
-  _rangeAxisX = 0;
-  getRangeX(event);
-  _view->setCountOfComponents(event->getComponentAmount());
-  _view->setRangeX(_rangeAxisX);
-  setInterval(event);
-  setAxesY(event->getComponentAmount());
-  _chart->setReceiverCount(event->getComponentAmount());
+    bool isAnotherEvent = false;
+    if (_event != event) {
+        isAnotherEvent = true;
+    }
+    _event = event;
+    _view->chart()->removeAllSeries();
+    _view->clearView();
+    _allSeries.clear();
+    if (isAnotherEvent) {
+//        _view->clearHistoryOfTransformations();
+        setInterval(event);
+        setAxesY(event->getComponentAmount());
+        _chart->setReceiverCount(event->getComponentAmount());
+        _rangeAxisX = 0;
+        getRangeX(event);
+        _view->setCountOfComponents(event->getComponentAmount());
+        _view->setRangeX(_rangeAxisX);
+        _chart->axisX()->setMin(0);
+        _chart->axisX()->setMax(_rangeAxisX);
+        _view->resetItemSize();
+  }
   int componentAmount = 0;
   for (auto &component : event->getComponents()) {
     for (auto &pick : component->getWavePicks()) {
       addWaveArrival(pick.second, componentAmount);
     }
-    //    std::cerr << "H ";
-
     addTraceSeries(component, componentAmount);
     componentAmount++;
   }
-  _chart->addPicks(_view->getPickcs());
   updateSeries();
 }
 

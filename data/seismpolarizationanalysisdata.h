@@ -12,8 +12,6 @@ public:
   void setMaxSingularVale(const double value);
   void setAzimutInRadian(const double radian);
   void setIncidenceInRadian(const double radian);
-  void setAzimutDegrees(const double degrees);
-  void setIncidenceDegrees(const double degrees);
 
   bool isValid() const;
   double getMaxSingularValue() const;
@@ -28,9 +26,7 @@ private:
   bool _isValid;
   double _maxSingularValue;
   double _pAzimutInRadian;
-  double _pIncidenceInRadian;
-  double _pAzimutDegrees;
-  double _pIncidenceDegrees;
+  double _pIncidenceInRadian;;
 
   const double DEGREES_COEFFICIENT = 180;
 };
