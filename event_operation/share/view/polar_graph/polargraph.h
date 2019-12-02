@@ -29,6 +29,8 @@ public:
   QWidget *getView() const;
   void update(const Data::SeismEvent * const);
   void setGraphColor(const QBrush &);
+  void setScatterColor(const QBrush&);
+  void setAlarmAboutUnvalidData(bool);
 
 private:
   QPolarChart *_polarChart;

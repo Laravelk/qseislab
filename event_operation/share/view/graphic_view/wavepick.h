@@ -39,6 +39,8 @@ public:
   void setRightBorder(std::variant<WavePick *, qreal>);
   void setBorders(std::variant<WavePick *, qreal>,
                   std::variant<WavePick *, qreal>);
+  void setRightBorderValue(const qreal value) { _valueRightBorder = value; }
+  void setLeftBorderValue(const qreal value) { _valueLeftBorder = value; }
   QSizeF scallByAxis(QSizeF scaleS);
   Data::SeismWavePick::Type getType() { return _type; }
   int getComponentAmount() { return static_cast<int>(_anchor.y()); }

@@ -245,17 +245,19 @@ void GraphicController::showWarningAboutUnvalidDataOnGraph(bool show)
     QPalette paletteTabWidget = _tabWidget->palette();
     QPalette paletteGraph = _polarGraph->palette();
     if (!show) {
-        paletteTabWidget.setColor(_tabWidget->backgroundRole(), Qt::white);
-        paletteGraph.setColor(_polarGraph->backgroundRole(), Qt::white);
-        _tabWidget->setPalette(paletteTabWidget);
-        _polarGraph->setGraphColor(Qt::white);
-        _polarGraph->setPalette(paletteGraph);
+//        paletteTabWidget.setColor(_tabWidget->backgroundRole(), Qt::white);
+//        paletteGraph.setColor(_polarGraph->backgroundRole(), Qt::white);
+        _polarGraph->setAlarmAboutUnvalidData(false);
+//        _tabWidget->setPalette(paletteTabWidget);
+//        _polarGraph->setGraphColor(Qt::white);
+//        _polarGraph->setPalette(paletteGraph);
     } else {
-        paletteTabWidget.setColor(_tabWidget->backgroundRole(), Qt::yellow);
+//        paletteTabWidget.setColor(_tabWidget->backgroundRole(), Qt::yellow);
         paletteGraph.setColor(_polarGraph->backgroundRole(), Qt::gray);
-        _polarGraph->setGraphColor(Qt::gray);
-        _polarGraph->setPalette(Qt::yellow);
-        _tabWidget->setPalette(paletteTabWidget);
+        _polarGraph->setAlarmAboutUnvalidData(true);
+//        _polarGraph->setGraphColor(Qt::gray);
+//        _polarGraph->setPalette(Qt::yellow);
+//        _tabWidget->setPalette(paletteTabWidget);
    }
 }
 

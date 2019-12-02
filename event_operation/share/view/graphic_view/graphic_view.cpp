@@ -40,6 +40,8 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos, qreal ran
       new WavePick(type, rect, chart(), QPointF(rightBorderPos, pos.y()), _sizeWaveItem,
                    _colorData->getBorderPickColor(type), pick, rangeX);
   connect(pick, &WavePick::changed, [this, pick, leftBorder, rightBorder]() {
+      leftBorder->setRightBorderValue(pick->getXPos());
+      rightBorder->setLeftBorderValue(pick->getXPos());
     emit sendPicksInfo(pick->getType(), pick->getComponentAmount(),
                        static_cast<int>(leftBorder->getXPos() * MICROSECONDS_IN_SECOND),
                        static_cast<int>(pick->getXPos() * MICROSECONDS_IN_SECOND),
@@ -47,6 +49,7 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos, qreal ran
   });
   connect(leftBorder, &WavePick::changed,
           [this, pick, leftBorder, rightBorder]() {
+            pick->setLeftBorderValue(leftBorder->getXPos());
             emit sendPicksInfo(pick->getType(), pick->getComponentAmount(),
                                static_cast<int>(leftBorder->getXPos() * MICROSECONDS_IN_SECOND),
                                static_cast<int>(pick->getXPos() * MICROSECONDS_IN_SECOND),
@@ -54,6 +57,7 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos, qreal ran
           });
   connect(rightBorder, &WavePick::changed,
           [this, pick, leftBorder, rightBorder]() {
+            pick->setRightBorderValue(rightBorder->getXPos());
             emit sendPicksInfo(pick->getType(), pick->getComponentAmount(),
                                static_cast<int>(leftBorder->getXPos() * MICROSECONDS_IN_SECOND),
                                static_cast<int>(pick->getXPos() * MICROSECONDS_IN_SECOND),

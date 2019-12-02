@@ -34,8 +34,12 @@ private:
            std::optional<Data::SeismPolarizationAnalysisData *>>
       _oldDataMap;
 
+  std::map<std::pair<int, Data::SeismWavePick::Type>,
+           std::optional<Data::SeismPolarizationAnalysisData *>>
+      _currentlyMap;
+
 private:
-  Eigen::MatrixXf *getPointMatrix(Data::SeismComponent *const,
+  Eigen::MatrixXf getPointMatrix(Data::SeismComponent *const,
                                   const int firstIndex, const int lastIndex);
   Data::SeismPolarizationAnalysisData *
   calculatePolarizationData(const Eigen::MatrixXf &);

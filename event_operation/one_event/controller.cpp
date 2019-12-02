@@ -133,13 +133,12 @@ Controller::Controller(
             int idx = 0;
             for (auto &component : this->_event->getComponents()) {
               if (num == idx) {
-                Data::SeismWavePick wavePick =
-                    Data::SeismWavePick(type, pick_val);
-                wavePick.setPolarizationLeftBorder(l_val);
-                wavePick.setPolarizationRightBorder(r_val);
-
-                component->addWavePick(wavePick);
-                break;
+                    auto &pick = component->getWavePicks()[type];
+                    pick.setArrival(pick_val);
+                    pick.setPolarizationLeftBorder(l_val);
+                    pick.setPolarizationRightBorder(r_val);
+                    pick.setValidDataStatus(false);
+                    break;
               }
               ++idx;
             }

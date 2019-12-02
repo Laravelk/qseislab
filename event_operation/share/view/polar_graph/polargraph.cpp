@@ -33,10 +33,10 @@ PolarGraph::PolarGraph(QWidget *parent)
 
 //  _status = new QLabel(WARNING_STATUS);
 //  _status->move(20, 450);
-  _statusRect = new QGraphicsRectItem(20, 447, 133, 20, _polarChart);
+  _statusRect = new QGraphicsRectItem(20, 442, 133, 20, _polarChart);
+  _statusRect->setBrush(Qt::yellow);
   _status = new QGraphicsTextItem(WARNING_STATUS, _polarChart);
-  _status->setPos(20, 443);
-  _status->show();
+  _status->setPos(20, 440);
 
   QHBoxLayout *mainLayout = new QHBoxLayout();
   mainLayout->addWidget(_polarView);
@@ -57,21 +57,57 @@ void PolarGraph::update(Data::SeismEvent const * const event) {
             std::fmod(data->getAzimutDegrees(), 360) > 0
                 ? std::fmod(data->getAzimutDegrees(), 360)
                 : 360 + std::fmod(data->getAzimutDegrees(), 360);
-        //                std::cerr << polarAngle << " " <<
-        //                data->getIncidenceInRadian() << std::endl;
         series->append(polarAngle, data->getIncidenceInRadian());
       }
     }
   }
+  connect(series, &QScatterSeries::pressed, [](const QPointF &point){
+      std::cerr << "pressed"  << point.x() << " " << point.y();
+  });
   _polarChart->addSeries(series);
+  _seriesList.append(series);
   series->attachAxis(_radialAxis);
   series->attachAxis(_angularAxis);
 }
 
 void PolarGraph::setGraphColor(const QBrush &color)
 {
-    _polarView->setAutoFillBackground(true);
-    _polarChart->setBackgroundBrush(color);
-    _polarChart->setBackgroundVisible(true);
+//    _polarView->setAutoFillBackground(true);
+//    _polarChart->setBackgroundBrush(color);
+//    _polarChart->setBackgroundVisible(true);
+}
+
+void PolarGraph::setScatterColor(const QBrush &color)
+{
+    for (auto &series : _seriesList) {
+        series->setColor(color.color());
+    }
+}
+
+void PolarGraph::setAlarmAboutUnvalidData(bool alarmStatus)
+{
+    if (alarmStatus) {
+        _status->show();
+        setScatterColor(Qt::gray);
+    } else {
+        _status->hide();
+        setScatterColor(Qt::blue);
+    }
 }
 } // namespace EventOperation
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
