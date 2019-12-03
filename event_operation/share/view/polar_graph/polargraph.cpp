@@ -1,8 +1,8 @@
 #include "polargraph.h"
 
 #include <data/seismevent.h>
-#include <data/seismwavepick.h>
 
+#include <limits>
 #include <iostream> // TODO: delete
 
 namespace EventOperation {
@@ -31,8 +31,6 @@ PolarGraph::PolarGraph(QWidget *parent)
   _polarView->setChart(_polarChart);
   _polarView->setRenderHint(QPainter::Antialiasing);
 
-//  _status = new QLabel(WARNING_STATUS);
-//  _status->move(20, 450);
   _statusRect = new QGraphicsRectItem(20, 442, 133, 20, _polarChart);
   _statusRect->setBrush(Qt::yellow);
   _status = new QGraphicsTextItem(WARNING_STATUS, _polarChart);
@@ -47,6 +45,8 @@ QWidget *PolarGraph::getView() const { return _allView; }
 
 void PolarGraph::update(Data::SeismEvent const * const event) {
   _polarChart->removeAllSeries();
+  _seriesList.clear();
+  _dataList.clear();
   QScatterSeries *series = new QScatterSeries();
   for (auto &component : event->getComponents()) {
     for (auto &pick : component->getWavePicks()) {
@@ -58,11 +58,21 @@ void PolarGraph::update(Data::SeismEvent const * const event) {
                 ? std::fmod(data->getAzimutDegrees(), 360)
                 : 360 + std::fmod(data->getAzimutDegrees(), 360);
         series->append(polarAngle, data->getIncidenceInRadian());
+        _dataList.append(*(pick.second.getPolarizationAnalysisData().value()));
       }
     }
   }
-  connect(series, &QScatterSeries::pressed, [](const QPointF &point){
-      std::cerr << "pressed"  << point.x() << " " << point.y();
+  connect(series, &QScatterSeries::pressed, [this](const QPointF &point){
+      for (auto &data : _dataList) {
+          qreal dataPolarAngle = static_cast<qreal>(std::fmod(data.getAzimutDegrees(), 360) > 0
+                                   ? std::fmod(data.getAzimutDegrees(), 360)
+                                   : 360 + std::fmod(data.getAzimutDegrees(), 360));
+          qreal dataIncidenceInRadian = static_cast<qreal>(data.getIncidenceInRadian());
+            if ((std::fabs(dataPolarAngle - point.x()) < std::numeric_limits<qreal>::epsilon()) &&
+                    (std::fabs(dataIncidenceInRadian - point.y()) < std::numeric_limits<qreal>::epsilon())) {
+
+            }
+      }
   });
   _polarChart->addSeries(series);
   _seriesList.append(series);

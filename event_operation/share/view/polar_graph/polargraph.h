@@ -13,6 +13,8 @@
 #include <QtMath>
 #include <memory>
 
+#include <data/seismwavepick.h>
+
 namespace Data {
 class SeismEvent;
 class SeismComponent;
@@ -41,6 +43,7 @@ private:
   QGraphicsTextItem *_status;
   QGraphicsRectItem *_statusRect;
   QList<QScatterSeries *> _seriesList;
+  QList<Data::SeismPolarizationAnalysisData> _dataList;
 
   const QString WARNING_STATUS = "WARNING. UNVALID DATA";
 };
