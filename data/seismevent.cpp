@@ -268,7 +268,7 @@ bool SeismEvent::isTransformBy(TransformOperation oper) const {
 void SeismEvent::process() {
   _location = {1.67, 1.113, 1.13}; // TODO: implement!
   _isProcessed = true;
-  emit dataChanged(this);
+  //  emit dataChanged(this);
 }
 
 bool SeismEvent::isProcessed() const { return _isProcessed; }
