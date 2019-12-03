@@ -13,7 +13,8 @@
 #include <QtMath>
 #include <memory>
 
-#include <data/seismwavepick.h>
+#include "data/seismwavepick.h"
+#include "analysisdatagraphicsitem.h"
 
 namespace Data {
 class SeismEvent;
@@ -36,6 +37,7 @@ public:
 
 private:
   QPolarChart *_polarChart;
+  QGraphicsRectItem *_rect;
   QChartView *_polarView;
   QValueAxis *_angularAxis;
   QValueAxis *_radialAxis;
@@ -44,6 +46,7 @@ private:
   QGraphicsRectItem *_statusRect;
   QList<QScatterSeries *> _seriesList;
   QList<Data::SeismPolarizationAnalysisData> _dataList;
+  AnalysisDataGraphicsItem *_dataItem = nullptr;
 
   const QString WARNING_STATUS = "WARNING. UNVALID DATA";
 };

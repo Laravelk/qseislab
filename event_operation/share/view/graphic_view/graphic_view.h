@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../chartgesture.h"
-#include "pipes2dname.h"
 #include "wavepick.h"
 #include "viewoperation.h"
 #include <QtCharts/QChartView>
@@ -79,7 +78,6 @@ private:
   bool _isAddSWaveTriggerPressed = false;
   ChartGesture *_chart;
   QList<WavePick *> _wavePicks;
-  QList<Pipes2DName *> _pipesName;
   QPointF calculatePickPosition(QPointF);
   bool checkAvailability(Data::SeismWavePick::Type, int);
   QGraphicsTextItem *_status;
@@ -138,6 +136,5 @@ private:
   };
 
   ColorData *_colorData;
-  QWidget *_viewport;
 };
 } // namespace EventOperation

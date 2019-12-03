@@ -9,7 +9,7 @@ namespace EventOperation {
 PolarGraph::PolarGraph(QWidget *parent)
     : QWidget(parent), _polarChart(new QPolarChart()),
       _polarView(new QChartView()), _angularAxis(new QValueAxis()),
-      _radialAxis(new QValueAxis) {
+      _radialAxis(new QValueAxis), _rect(new QGraphicsRectItem) {
   const qreal angularMin = 0;
   const qreal angularMax = 360;
 
@@ -20,6 +20,7 @@ PolarGraph::PolarGraph(QWidget *parent)
   _angularAxis->setLabelFormat("%.1f");
   _angularAxis->setShadesBrush(QBrush(QColor(249, 249, 250)));
   _polarChart->addAxis(_angularAxis, QPolarChart::PolarOrientationAngular);
+  _polarChart->legend()->hide();
 
   _radialAxis->setTickCount(9);
   _radialAxis->setLabelFormat("%.1f");
@@ -31,11 +32,16 @@ PolarGraph::PolarGraph(QWidget *parent)
   _polarView->setChart(_polarChart);
   _polarView->setRenderHint(QPainter::Antialiasing);
 
-  _statusRect = new QGraphicsRectItem(20, 442, 133, 20, _polarChart);
+//  _statusRect = new QGraphicsRectItem(20, 442, 133, 20, _polarChart);
+  _statusRect = new QGraphicsRectItem(260, 200, 133, 20, _polarChart);
+  _statusRect->setZValue(11);
   _statusRect->setBrush(Qt::yellow);
   _status = new QGraphicsTextItem(WARNING_STATUS, _polarChart);
-  _status->setPos(20, 440);
+//  _status->setPos(20, 440);
+  _status->setPos(260,198);
+  _status->setZValue(12);
 
+  _polarChart->scene()->addItem(_rect);
   QHBoxLayout *mainLayout = new QHBoxLayout();
   mainLayout->addWidget(_polarView);
   setLayout(mainLayout);
@@ -70,7 +76,13 @@ void PolarGraph::update(Data::SeismEvent const * const event) {
           qreal dataIncidenceInRadian = static_cast<qreal>(data.getIncidenceInRadian());
             if ((std::fabs(dataPolarAngle - point.x()) < std::numeric_limits<qreal>::epsilon()) &&
                     (std::fabs(dataIncidenceInRadian - point.y()) < std::numeric_limits<qreal>::epsilon())) {
-
+                if (_dataItem == nullptr) {
+                    _dataItem = new AnalysisDataGraphicsItem(_polarChart);
+                    _dataItem->setZValue(999999);
+                }
+                _dataItem->setAnchor(point);
+                _dataItem->setText("hello");
+                _dataItem->updateGeometry();
             }
       }
   });

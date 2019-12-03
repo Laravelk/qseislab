@@ -401,7 +401,6 @@ void GraphicView::scaleContentsBy(qreal factor) {
             }
           }
   }
-    _viewport = viewport();
 }
 
 QPointF GraphicView::calculatePickPosition(QPointF pointByMouse) {

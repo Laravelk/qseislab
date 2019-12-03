@@ -26,7 +26,7 @@ private:
   bool _isValid;
   double _maxSingularValue;
   double _pAzimutInRadian;
-  double _pIncidenceInRadian;;
+  double _pIncidenceInRadian;
 
   const double DEGREES_COEFFICIENT = 180;
 };

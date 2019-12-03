@@ -69,12 +69,13 @@ set(SOURCES
         event_operation/share/view/graphiccontroller.cpp
         event_operation/share/view/chartgesture.cpp
         event_operation/share/view/eventtoolswidget.cpp
-        event_operation/share/view/graphic_view/pipes2dname.cpp
         event_operation/share/view/3dscene/polarizationanalysiswindow.cpp
         event_operation/share/view/graphic_view/viewoperation.cpp
 
 
         event_operation/share/view/polar_graph/polargraph.cpp # test
+        event_operation/share/view/polar_graph/analysisdatagraphicsitem.cpp
+
 
         event_operation/share/view/tools_view/wigglewidget.cpp
         event_operation/share/view/tools_view/hidecomponentwidget.cpp
@@ -176,7 +177,6 @@ set(HEADERS
         event_operation/view_event/controller.h
         event_operation/view_event/view.h
 
-
         event_operation/share/polarizationanalysiscompute.h # test
 
         event_operation/share/model.h
@@ -186,11 +186,11 @@ set(HEADERS
         event_operation/share/view/graphiccontroller.h
         event_operation/share/view/chartgesture.h
         event_operation/share/view/eventtoolswidget.h
-        event_operation/share/view/graphic_view/pipes2dname.h
         event_operation/share/view/graphic_view/viewoperation.h
         event_operation/share/view/3dscene/polarizationanalysiswindow.h
 
         event_operation/share/view/polar_graph/polargraph.h # test
+        event_operation/share/view/polar_graph/analysisdatagraphicsitem.h
 
 
         event_operation/share/view/tools_view/wigglewidget.h
