@@ -9,6 +9,7 @@
 #include "tools_view/gainwidget.h"
 #include "tools_view/hidecomponentwidget.h"
 #include "tools_view/wigglewidget.h"
+#include "tools_view/hidewavepointswidget.h"
 
 #include <iostream> // TODO: need to DELETE
 
@@ -27,9 +28,10 @@ GraphicController::GraphicController(QWidget *parent)
       _polarizationEventButton(new QPushButton("Polarization Analysis")),
       _tabWidget(new QTabWidget()),
       _calculatePolarizationAnalysisDataButton(new QPushButton("Calculate")),
-      _polarGraph(new PolarGraph()) {
+      _polarChart(new QPolarChart()), _hideWavePointsWidget(new HideWavePointsWidget()) {
 
   _view = new GraphicView(_chart);
+  _polarGraph = new PolarGraph(_polarChart);
   _view->addModel(_chart);
   _chart->setAnimationOptions(QChart::NoAnimation);
   _chart->legend()->hide();
@@ -62,17 +64,15 @@ GraphicController::GraphicController(QWidget *parent)
 
   // conect`s
   connect(_polarizationEventButton, &QPushButton::clicked,
-          [this]() { emit createPolarizationAnalysisWindowClicked(); });
+          [this]() {
+      emit createPolarizationAnalysisWindowClicked(); });
 
   connect(_calculatePolarizationAnalysisDataButton, &QPushButton::clicked,
           [this]() { emit calculatePolarizationAnalysisDataClicked(); });
 
   connect(_tabWidget, &QTabWidget::tabBarClicked, [this](int index) {
     if (POLAR_ANALYSIS_INDEX_IN_TAB == index) {
-//            std::cerr << "HH ";
             emit clickOnPolarAnalysisInGraph();
-    } else {
-        showWarningAboutUnvalidDataOnGraph(false);
     }
   });
 
@@ -116,6 +116,19 @@ GraphicController::GraphicController(QWidget *parent)
             }
           });
 
+  connect(_hideWavePointsWidget, &HideWavePointsWidget::updateWaveState, [this](auto wave, auto state) {
+        switch(wave) {
+            case HideWavePointsWidget::Wave::PWAVE:
+                _polarGraph->hidePWavePoints(state == HideWavePointsWidget::State::Unchecked);
+                _polarGraph->update(_event);
+                break;
+        case HideWavePointsWidget::Wave::SWAVE:
+            _polarGraph->hideSWavePoints(state == HideWavePointsWidget::State::Unchecked);
+            _polarGraph->update(_event);
+            break;
+        }
+      });
+
   connect(_clippingWidget, &ClippingWidget::updateClipping,
           [this](float clipping) {
             _clipping = clipping;
@@ -129,15 +142,21 @@ GraphicController::GraphicController(QWidget *parent)
 
   // layout`s
   QVBoxLayout *editGraphicMenuLayout = new QVBoxLayout();
+  QVBoxLayout *editPolarGraphicMenuLayout = new QVBoxLayout();
   editGraphicMenuLayout->addWidget(_wiggleWidget);
   editGraphicMenuLayout->addWidget(_hideComponentWidget);
   editGraphicMenuLayout->addWidget(_clippingWidget);
 
   editGraphicMenuLayout->addWidget(_gainWidget);
   editGraphicMenuLayout->addWidget(_addWaveButton);
-  editGraphicMenuLayout->addWidget(_polarizationEventButton);
-  editGraphicMenuLayout->addWidget(_calculatePolarizationAnalysisDataButton);
+//  editGraphicMenuLayout->addWidget(_polarizationEventButton);
+//  editGraphicMenuLayout->addWidget(_calculatePolarizationAnalysisDataButton);
   editGraphicMenuLayout->addStretch(1);
+
+  editPolarGraphicMenuLayout->addWidget(_polarizationEventButton);
+  editPolarGraphicMenuLayout->addWidget(_calculatePolarizationAnalysisDataButton);
+  editPolarGraphicMenuLayout->addWidget(_hideWavePointsWidget);
+  editPolarGraphicMenuLayout->addStretch(1);
 
   QHBoxLayout *graphLayout = new QHBoxLayout();
   graphLayout->addWidget(_view, 1);
@@ -146,8 +165,15 @@ GraphicController::GraphicController(QWidget *parent)
   QWidget *graphWidget = new QWidget();
   graphWidget->setLayout(graphLayout);
 
+  QHBoxLayout *polarGraphLayout = new QHBoxLayout();
+  polarGraphLayout->addWidget(_polarGraph, 1);
+  polarGraphLayout->addLayout(editPolarGraphicMenuLayout);
+
+  QWidget *polarGraphWidget = new QWidget();
+  polarGraphWidget->setLayout(polarGraphLayout);
+
   _tabWidget->addTab(graphWidget, "graphic");
-  _tabWidget->addTab(_polarGraph, "polar");
+  _tabWidget->addTab(polarGraphWidget, "polar");
 
   QHBoxLayout *mainLayout = new QHBoxLayout();
   mainLayout->addWidget(_tabWidget, 1);
@@ -238,27 +264,6 @@ void GraphicController::setWiggle(const int status) {
     _isNegativeWiggleSet = true;
     addWiggle(false);
   }
-}
-
-void GraphicController::showWarningAboutUnvalidDataOnGraph(bool show)
-{
-    QPalette paletteTabWidget = _tabWidget->palette();
-    QPalette paletteGraph = _polarGraph->palette();
-    if (!show) {
-//        paletteTabWidget.setColor(_tabWidget->backgroundRole(), Qt::white);
-//        paletteGraph.setColor(_polarGraph->backgroundRole(), Qt::white);
-        _polarGraph->setAlarmAboutUnvalidData(false);
-//        _tabWidget->setPalette(paletteTabWidget);
-//        _polarGraph->setGraphColor(Qt::white);
-//        _polarGraph->setPalette(paletteGraph);
-    } else {
-//        paletteTabWidget.setColor(_tabWidget->backgroundRole(), Qt::yellow);
-        paletteGraph.setColor(_polarGraph->backgroundRole(), Qt::gray);
-        _polarGraph->setAlarmAboutUnvalidData(true);
-//        _polarGraph->setGraphColor(Qt::gray);
-//        _polarGraph->setPalette(Qt::yellow);
-//        _tabWidget->setPalette(paletteTabWidget);
-   }
 }
 
 void GraphicController::clear() {

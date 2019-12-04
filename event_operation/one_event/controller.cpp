@@ -119,6 +119,10 @@ Controller::Controller(
     _view->updatePolarGraph(_event.get());
   });
 
+  connect(_view.get(), &View::updatePolarGraphSignal, [this]() {
+      _view->updatePolarGraph(_event.get());
+  });
+
   connect(_view.get(), &View::clickOnPolarAnalysisInGraph, [this]() {
     if (!checkPolarizationAnalysisDataValid() ||
         _removedPickAndNeedUpdatePolarGraph) {

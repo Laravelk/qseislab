@@ -70,6 +70,7 @@ signals:
   void removePick(Data::SeismWavePick::Type, int);
   void createPolarizationAnalysisWindow();
   void calculatePolarizationAnalysisData();
+  void updatePolarGraphSignal();
   void clickOnPolarAnalysisInGraph();
 
 private slots:

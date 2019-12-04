@@ -53,6 +53,7 @@ signals:
   void createPolarizationAnalysisWindow();
   void calculatePolarizationAnalysisData();
   void clickOnPolarAnalysisInGraph();
+  void updatePolarGraphSignal();
 
   void undoClicked() const;
   void redoClicked() const;

@@ -25,20 +25,25 @@ class SeismTrace;
 QT_CHARTS_USE_NAMESPACE;
 
 namespace EventOperation {
-class PolarGraph : public QWidget {
+class PolarGraph : public QChartView {
   Q_OBJECT
 public:
-  PolarGraph(QWidget *parent = nullptr);
+  PolarGraph(QPolarChart *chart, QWidget *parent = nullptr);
   QWidget *getView() const;
   void update(const Data::SeismEvent * const);
   void setGraphColor(const QBrush &);
   void setScatterColor(const QBrush&);
-  void setAlarmAboutUnvalidData(bool);
+
+  void hideSWavePoints(bool);
+  void hidePWavePoints(bool);
+
+protected:
+  void keyPressEvent(QKeyEvent *) override;
+  void keyReleaseEvent(QKeyEvent *) override;
 
 private:
   QPolarChart *_polarChart;
   QGraphicsRectItem *_rect;
-  QChartView *_polarView;
   QValueAxis *_angularAxis;
   QValueAxis *_radialAxis;
   QWidget *_allView;
@@ -48,7 +53,17 @@ private:
   QList<Data::SeismPolarizationAnalysisData> _dataList;
   AnalysisDataGraphicsItem *_dataItem = nullptr;
 
-  const QString WARNING_STATUS = "WARNING. UNVALID DATA";
+  bool _hideSWave = false;
+  bool _hidePWave = false;
+  bool _altIsTouch = false;
+
+  const QString WARNING_STATUS = "WARNING. DATA WAS CHANGE";
+  const QString ALT_IS_TOUCHING_STATUS = "EDIT MODE";
+  const QRectF WARNING_STATUS_RECT = QRectF(19, 403, 158, 20);
+  const QString NORMAL_STATUS = "OK";
+
+  void handleClickedPoint(const QPointF &);
+  void findPolarizationAnalysisDataForClickedPoint(const QPointF &);
 };
 
 } // namespace EventOperation

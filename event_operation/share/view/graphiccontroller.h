@@ -18,6 +18,7 @@ class WiggleWidget;
 class HideComponentWidget;
 class ClippingWidget;
 class GainWidget;
+class HideWavePointsWidget;
 class GraphicController : public QFrame {
   Q_OBJECT
 public:
@@ -35,7 +36,6 @@ public:
   void setGainCoefficient(const float gainCoefficient);
   void setClippingValue(const float clippingValue);
   void setWiggle(const int status);
-  void showWarningAboutUnvalidDataOnGraph(bool);
 
   void setAddPolarizationWindowButtonEnable(bool enable) {
     _polarizationEventButton->setEnabled(enable);
@@ -67,6 +67,7 @@ private:
   bool _isNegativeWiggleSet = false;
 
   ChartGesture *_chart;
+  QPolarChart *_polarChart;
   QValueAxis *_axisX = new QValueAxis;
   QValueAxis *_axisY = new QValueAxis;
   QList<QAreaSeries *> _positiveWiggleSeries;
@@ -108,6 +109,7 @@ private:
 
   WiggleWidget *_wiggleWidget;
   HideComponentWidget *_hideComponentWidget;
+  HideWavePointsWidget *_hideWavePointsWidget;
   ClippingWidget *_clippingWidget;
   GainWidget *_gainWidget;
 

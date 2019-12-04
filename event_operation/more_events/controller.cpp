@@ -95,6 +95,10 @@ Controller::Controller(
         _view->update(_events_map);
       });
 
+  connect(_view.get(), &View::updatePolarGraphSignal, [this]() {
+      _view->updatePolarGraph(_events_map.at(_currentEventUuid).get());
+  });
+
   connect(_view.get(), &View::createPolarizationAnalysisWindow, [this]() {
     _polarizationWindow =
         new PolarizationAnalysisWindow(_events_map.at(_currentEventUuid));

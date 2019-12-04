@@ -81,6 +81,7 @@ set(SOURCES
         event_operation/share/view/tools_view/hidecomponentwidget.cpp
         event_operation/share/view/tools_view/clippingwidget.cpp
         event_operation/share/view/tools_view/gainwidget.cpp
+        event_operation/share/view/tools_view/hidewavepointswidget.cpp
 
 
         horizon_operation/controller.cpp
@@ -197,6 +198,7 @@ set(HEADERS
         event_operation/share/view/tools_view/hidecomponentwidget.h
         event_operation/share/view/tools_view/clippingwidget.h
         event_operation/share/view/tools_view/gainwidget.h
+        event_operation/share/view/tools_view/hidewavepointswidget.h
 
 
         horizon_operation/controller.h

@@ -322,7 +322,7 @@ void View::showWarningWindowAboutValidStatusOfPolarizationAnalysisData() {
   if (reply == QMessageBox::Yes) {
     emit calculatePolarizationAnalysisData();
   } else {
-    _graphicEvent->showWarningAboutUnvalidDataOnGraph(true);
+      emit updatePolarGraphSignal();
   }
 }
 
