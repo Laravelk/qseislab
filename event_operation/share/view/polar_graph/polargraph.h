@@ -39,6 +39,7 @@ public:
 
 protected:
   void keyPressEvent(QKeyEvent *) override;
+  void mousePressEvent(QMouseEvent *) override;
   void keyReleaseEvent(QKeyEvent *) override;
 
 private:
@@ -59,7 +60,7 @@ private:
 
   const QString WARNING_STATUS = "WARNING. DATA WAS CHANGE";
   const QString ALT_IS_TOUCHING_STATUS = "EDIT MODE";
-  const QRectF WARNING_STATUS_RECT = QRectF(19, 403, 158, 20);
+  const QRectF WARNING_STATUS_RECT = QRectF(19, 413, 158, 20);
   const QString NORMAL_STATUS = "OK";
 
   void handleClickedPoint(const QPointF &);

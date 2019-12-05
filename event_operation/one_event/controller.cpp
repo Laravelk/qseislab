@@ -116,6 +116,7 @@ Controller::Controller(
     }
     //      _calculatePolarization->calculate(_events_map.at(_currentEventUuid));
     _calculatePolarization->calculate();
+    _removedPickAndNeedUpdatePolarGraph = false;
     _view->updatePolarGraph(_event.get());
   });
 

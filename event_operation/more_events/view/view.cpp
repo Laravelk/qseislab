@@ -37,7 +37,7 @@ View::View(const std::set<QString> &globalEventNames,
   _graphicEvent->hide();
 
   setWindowTitle("SeismWindow");
-  setMinimumSize(1300, 590);
+  setMinimumSize(1300, 620);
 
   _fileDialog->setFileMode(QFileDialog::ExistingFiles);
   _fileDialog->setOption(QFileDialog::DontResolveSymlinks);

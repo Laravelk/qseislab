@@ -37,7 +37,7 @@ PolarGraph::PolarGraph(QPolarChart *chart,QWidget *parent)
     _statusRect->setBrush(Qt::yellow);
     _status = new QGraphicsTextItem(WARNING_STATUS, _polarChart);
   //  _status->setPos(20, 440);
-    _status->setPos(QPointF(20, 405));
+    _status->setPos(QPointF(20, 415));
     _status->setZValue(12);
 
 //    _polarChart->scene()->addItem(_rect);
@@ -143,6 +143,14 @@ void PolarGraph::keyPressEvent(QKeyEvent *event)
     }
 }
 
+void PolarGraph::mousePressEvent(QMouseEvent *event)
+{
+    if (_dataItem != nullptr) {
+        _dataItem->hide();
+    }
+    QChartView::mousePressEvent(event);
+}
+
 void PolarGraph::keyReleaseEvent(QKeyEvent *event)
 {
     switch (event->key()) {
@@ -185,15 +193,16 @@ void PolarGraph::findPolarizationAnalysisDataForClickedPoint(const QPointF &poin
                                  ? std::fmod(data.getAzimutDegrees(), 360)
                                  : 360 + std::fmod(data.getAzimutDegrees(), 360));
         qreal dataIncidenceInRadian = static_cast<qreal>(data.getIncidenceInRadian());
-          if ((std::fabs(dataPolarAngle - point.x()) < std::numeric_limits<qreal>::epsilon()) &&
+          if ((std::fabs(dataPolarAngle - point.x()) < std::numeric_limits<qreal>::epsilon())    &&
                   (std::fabs(dataIncidenceInRadian - point.y()) < std::numeric_limits<qreal>::epsilon())) {
               if (_dataItem == nullptr) {
                   _dataItem = new AnalysisDataGraphicsItem(_polarChart);
                   _dataItem->setZValue(999999);
               }
-              _dataItem->setAnchor(QPointF(point.x() - 100, point.y() - 100));
-              _dataItem->setText("hello");
+              _dataItem->setAnchor(QPointF(dataPolarAngle, dataIncidenceInRadian));
+              _dataItem->setText(QString("PolarAngle: %1 \nIncidence: %2 ").arg(dataPolarAngle).arg(dataIncidenceInRadian));
               _dataItem->updateGeometry();
+              _dataItem->show();
               break;
           }
     }

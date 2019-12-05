@@ -86,7 +86,8 @@ void AnalysisDataGraphicsItem::setAnchor(QPointF point)
 void AnalysisDataGraphicsItem::updateGeometry()
 {
     prepareGeometryChange();
-    setPos(_chart->mapToPosition(_anchor) + QPoint(10, -50));
+//    setPos(_chart->mapToPosition(_anchor) + QPoint(10, -50));
+    setPos(_anchor);
 }
 
 }
