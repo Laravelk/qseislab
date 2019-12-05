@@ -59,19 +59,19 @@ void PolarGraph::update(Data::SeismEvent const * const event) {
           continue;
       }
       if (pick.second.getPolarizationAnalysisData() != std::nullopt) {
-        Data::SeismPolarizationAnalysisData *data =
+        Data::SeismPolarizationAnalysisData data =
             pick.second.getPolarizationAnalysisData().value();
         double polarAngle =
-            std::fmod(data->getAzimutDegrees(), 360) > 0
-                ? std::fmod(data->getAzimutDegrees(), 360)
-                : 360 + std::fmod(data->getAzimutDegrees(), 360);
-        if (data->isValid()) {
-            validSeries->append(polarAngle, data->getIncidenceInRadian());
+            std::fmod(data.getAzimutDegrees(), 360) > 0
+                ? std::fmod(data.getAzimutDegrees(), 360)
+                : 360 + std::fmod(data.getAzimutDegrees(), 360);
+        if (data.isValid()) {
+            validSeries->append(polarAngle, data.getIncidenceInRadian());
         }
         else {
-           unValidSeries->append(polarAngle, data->getIncidenceInRadian());
+           unValidSeries->append(polarAngle, data.getIncidenceInRadian());
         }
-        _dataList.append(*(pick.second.getPolarizationAnalysisData().value()));
+        _dataList.append(pick.second.getPolarizationAnalysisData().value());
       }
     }
   }

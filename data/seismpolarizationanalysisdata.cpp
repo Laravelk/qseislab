@@ -26,6 +26,17 @@ void SeismPolarizationAnalysisData::setIncidenceInRadian(const double radian) {
   _pIncidenceInRadian = radian;
 }
 
+SeismPolarizationAnalysisData &SeismPolarizationAnalysisData::operator=(const SeismPolarizationAnalysisData &pick)
+{
+    if (this != &pick) {
+        this->_pAzimutInRadian = pick._pAzimutInRadian;
+        this->_pIncidenceInRadian = pick._pIncidenceInRadian;
+        this->_isValid = pick._isValid;
+        this->_maxSingularValue = pick._maxSingularValue;
+    }
+    return *this;
+}
+
 
 bool SeismPolarizationAnalysisData::isValid() const { return _isValid; }
 

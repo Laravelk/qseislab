@@ -26,9 +26,9 @@ void PolarizationAnalysisCompute::calculate() {
       Eigen::MatrixXf matrix =
           getPointMatrix(component, FIRST_NUMBER_OF_ELEMENT_IN_ARRAY,
                          LAST_NUMBER_OF_ELEMENT_IN_ARRAY);
-      Data::SeismPolarizationAnalysisData *data =
+      Data::SeismPolarizationAnalysisData data =
           calculatePolarizationData(matrix);
-      data->setValid(true);
+      data.setValid(true);
       pick.setPolarizationAnalysisData(data);
       _currentlyMap[std::make_pair(numberOfComponent, pick.getType())] =
               pick.getPolarizationAnalysisData();
@@ -80,7 +80,7 @@ Eigen::MatrixXf PolarizationAnalysisCompute::getPointMatrix(
   return pointMatrix;
 }
 
-Data::SeismPolarizationAnalysisData *
+Data::SeismPolarizationAnalysisData
 PolarizationAnalysisCompute::calculatePolarizationData(
     const Eigen::MatrixXf &matrix) {
   Eigen::BDCSVD<Eigen::MatrixXf> *svd = new Eigen::BDCSVD<Eigen::MatrixXf>(
@@ -101,7 +101,7 @@ PolarizationAnalysisCompute::calculatePolarizationData(
   const double pIncidenceDegrees =
       pIncidenceInRadian * DEGREES_COEFFICIENT / M_PI;
 
-  return new Data::SeismPolarizationAnalysisData(
+  return Data::SeismPolarizationAnalysisData(
       maxSingularValue, pAzimutInRadian, pIncidenceInRadian, pAzimutDegrees,
       pIncidenceDegrees);
 }

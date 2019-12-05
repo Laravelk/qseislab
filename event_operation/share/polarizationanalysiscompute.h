@@ -31,17 +31,17 @@ private:
   const double DEGREES_COEFFICIENT = 180;
 
   std::map<std::pair<int, Data::SeismWavePick::Type>,
-           std::optional<Data::SeismPolarizationAnalysisData *>>
+           std::optional<Data::SeismPolarizationAnalysisData>>
       _oldDataMap;
 
   std::map<std::pair<int, Data::SeismWavePick::Type>,
-           std::optional<Data::SeismPolarizationAnalysisData *>>
+           std::optional<Data::SeismPolarizationAnalysisData>>
       _currentlyMap;
 
 private:
   Eigen::MatrixXf getPointMatrix(Data::SeismComponent *const,
                                   const int firstIndex, const int lastIndex);
-  Data::SeismPolarizationAnalysisData *
+  Data::SeismPolarizationAnalysisData
   calculatePolarizationData(const Eigen::MatrixXf &);
 
   template <typename T> int sgn(T val) { return (T(0) < val) - (val < T(0)); }

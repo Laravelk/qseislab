@@ -20,6 +20,9 @@ public:
   double getAzimutDegrees() const;
   double getIncidenceDegrees() const;
 
+  SeismPolarizationAnalysisData &operator=(SeismPolarizationAnalysisData const &pick);
+
+
   void print();
 
 private:
