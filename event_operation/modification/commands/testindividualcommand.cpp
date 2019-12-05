@@ -4,9 +4,9 @@
 
 TestIndividualCommand::TestIndividualCommand(const QUuid &shareUuid,
                                              Data::SeismEvent *event,
-                                             float multiplier)
+                                             const Parameters& parameters)
     : CustomIndividualUndoCommand(shareUuid), _event(event),
-      _multiplier(multiplier) {
+      _multiplier(parameters.getMult()) {
   std::cout << "call TestIndividualCommand constr" << std::endl;
 }
 
@@ -41,4 +41,12 @@ void TestIndividualCommand::redo() {
 bool TestIndividualCommand::is(
     Data::SeismEvent::TransformOperation oper) const {
   return oper == Data::SeismEvent::TransformOperation::TestMultiplier;
+}
+
+int TestIndividualCommand::Parameters::getMult() const {
+    return _mult;
+}
+
+void TestIndividualCommand::Parameters::setMult(int mult) {
+    _mult = mult;
 }

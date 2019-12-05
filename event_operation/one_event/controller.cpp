@@ -177,25 +177,10 @@ Controller::Controller(
 
   connect(_view.get(), &View::eventTransformClicked,
           [this, &wells_map](auto oper) {
-            //        switch (oper) {
-            //        case SeismEvent::RotateDataToEBasis:
-            //          //              _appliedOperations->push(
-            //          //                  new
-            //          Modefication::RotateDataToEBasis(_event,
-            //          //                  wells_map));
-            //          _undoStack->push(
-            //              new Modefication::RotateDataToEBasis(_event.get(),
-            //              wells_map));
-            //          break;
-            //        case SeismEvent::TestMultiplier:
-            //          std::cout << "event-address == " << _event.get() <<
-            //          std::endl; _undoStack->push(new
-            //          Modefication::TestMultiplier(_event.get(), 5.0)); break;
-            //        }
-
-            CustomIndividualUndoCommand *command =
-                UndoCommandGetter::get(oper, QUuid(), _event.get());
-            _undoStack->push(command);
+              // TODO: implement!
+//            CustomIndividualUndoCommand *command =
+//                UndoCommandGetter::get(oper, QUuid(), _event.get());
+//            _undoStack->push(command);
           });
 
   connect(_view.get(), &View::finished, this, &Controller::finish);

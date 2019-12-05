@@ -4,6 +4,7 @@
 #include "seismhorizon.h"
 #include "seismreceiver.h"
 #include "seismwell.h"
+#include "projectsettings.h"
 
 #include <QDateTime>
 #include <QFileInfo>
@@ -37,6 +38,12 @@ public:
 
   void setFileInfo(const QFileInfo &);
   const QFileInfo &getFileInfo();
+
+    /* test for set setttings */
+  void setSettings(const ProjectSettings& ); // надо ли?
+  ProjectSettings& getSettings();
+  const ProjectSettings& getSettings() const;
+
 
   template <typename T> void add(const std::shared_ptr<T> &);
   template <typename T> void update(const std::shared_ptr<T> &);
@@ -78,6 +85,8 @@ private:
   QString _name;
   QDateTime _dateTime;
   QFileInfo _fileInfo;
+
+  ProjectSettings _setting; /* test for set setttings */
 
   std::map<QUuid, std::shared_ptr<SeismEvent>> _events_map;
 

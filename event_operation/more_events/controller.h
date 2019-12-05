@@ -13,6 +13,7 @@ namespace Data {
 class SeismEvent;
 class SeismWell;
 class SeismReceiver;
+class SeismProject; /* test for set setttings */
 } // namespace Data
 
 namespace EventOperation {
@@ -24,10 +25,15 @@ class Controller : public QObject {
   Q_OBJECT
 
 public:
+//  explicit Controller(
+//      const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
+//      const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &,
+//      const std::list<std::shared_ptr<Data::SeismReceiver>> &,
+//      QObject *parent = nullptr);
+
+    /* test for set setttings */
   explicit Controller(
-      const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
-      const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &,
-      const std::list<std::shared_ptr<Data::SeismReceiver>> &,
+        Data::SeismProject * const ,
       QObject *parent = nullptr);
 
   void start();
@@ -40,6 +46,9 @@ signals:
   void finished() const;
 
 private:
+    /* test for set setttings */
+   Data::SeismProject * const _project;
+
   Model *_model;
 
   std::unique_ptr<View> _view;

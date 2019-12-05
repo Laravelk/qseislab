@@ -106,6 +106,7 @@ set(SOURCES
 
 
         data/seismpolarizationanalysisdata.cpp
+        data/projectsettings.cpp
         data/seismproject.cpp
         data/seismcomponent.cpp
         data/seismwavepick.cpp
@@ -159,6 +160,7 @@ set(SOURCES
 set(HEADERS
         event_operation/modification/share_functions.h
         event_operation/modification/undocommandgetter.h
+        event_operation/modification/commands/commandparametersinterface.h
         event_operation/modification/commands/rotatedatatoebasis.h
         event_operation/modification/commands/testindividualcommand.h
 
@@ -223,6 +225,7 @@ set(HEADERS
 
         data/seismpolarizationanalysisdata.h
         data/seism_data_type.h
+        data/projectsettings.h
         data/seismproject.h
         data/seismcomponent.h
         data/seismwavepick.h
@@ -260,6 +263,7 @@ set(HEADERS
         share_view/filteringtableassistant.h
         share_view/parsing/evaluateExpr.h
         share_view/parsing/parser.h
+        share_view/project_settings/settingdialog.h
 
         project_operation/new_project/controller.h
         project_operation/new_project/view.h

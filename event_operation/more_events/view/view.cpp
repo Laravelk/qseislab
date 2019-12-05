@@ -70,6 +70,8 @@ View::View(const std::set<QString> &globalEventNames,
           [this]() { emit redoClicked(); });
   connect(_toolsWidget, &EventToolsWidget::eventTransformClicked,
           [this](auto oper) { emit eventTransformClicked(oper); });
+  connect(_toolsWidget, &EventToolsWidget::eventTransformSettingsClicked,
+          [this](auto oper) { emit eventTransformSettingsClicked(oper); });
 
   connect(addEventsButton, &QPushButton::clicked, [this]() {
     _fileDialog->open(this, SLOT(recvFilesPath(const QStringList &)));
@@ -89,7 +91,7 @@ View::View(const std::set<QString> &globalEventNames,
       nextFocusRow = allCount - selectedCount - 1;
     }
 
-    for (auto item : selectedEvents) {
+    for (auto& item : selectedEvents) {
       auto name = item->text();
       removeLocal(name);
       updateRepetition(name);

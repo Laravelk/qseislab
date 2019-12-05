@@ -1,5 +1,7 @@
 #pragma once
 
+#include "data/projectsettings.h" /* test for set setttings */
+
 #include "data/seismevent.h"
 #include "commands/testindividualcommand.h"
 
@@ -9,19 +11,23 @@ class CustomIndividualUndoCommand;
 using TransformOperation = Data::SeismEvent::TransformOperation;
 
 namespace UndoCommandGetter {
-template <typename... Args>
+//template <typename... Args>
+//CustomIndividualUndoCommand *get(Data::SeismEvent::TransformOperation oper,
+//                                 const QUuid &shareUuid,
+//                                 Data::SeismEvent *event, Args... args) {
+//  switch (oper) {
+//  case TransformOperation::TestMultiplier:
+//    return new TestIndividualCommand(shareUuid, event, args...);
+//    break;
+//  }
+
+//  std::cerr << "UndoCommandGetter::get ::return nullptr" << std::endl;
+//  return nullptr;
+//}
+
 CustomIndividualUndoCommand *get(Data::SeismEvent::TransformOperation oper,
                                  const QUuid &shareUuid,
-                                 Data::SeismEvent *event, Args... args) {
-  switch (oper) {
-  case TransformOperation::TestMultiplier:
-    return new TestIndividualCommand(shareUuid, event, args...);
-    break;
-  }
-
-  std::cerr << "UndoCommandGetter::get ::return nullptr" << std::endl;
-  return nullptr;
-}
+                                 Data::SeismEvent *event, const Data::ProjectSettings & settings);
 
 // template <typename... Args>
 // CustomIndividualUndoCommand *get(Data::SeismEvent::TransformOperation oper,

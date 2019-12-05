@@ -66,6 +66,8 @@ signals:
 
   // tool-signals
   void eventTransformClicked(Data::SeismEvent::TransformOperation) const;
+  void eventTransformSettingsClicked(Data::SeismEvent::TransformOperation) const;
+
 
   void removePick(Data::SeismWavePick::Type, int);
   void createPolarizationAnalysisWindow();

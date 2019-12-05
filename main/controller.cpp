@@ -48,7 +48,8 @@ Controller::Controller(QObject *parent)
     if (!_currentOneEventFocus.isNull()) {
       auto command = UndoCommandGetter::get(
           oper, QUuid(),
-          _project->get<SeismEvent>(_currentOneEventFocus).get());
+          _project->get<SeismEvent>(_currentOneEventFocus).get(),
+            _project->getSettings());
       _eventStacks[_currentOneEventFocus]->push(command);
     } else {
 
@@ -66,7 +67,7 @@ Controller::Controller(QObject *parent)
         for (auto &eventUuid : _eventFocus) {
           //        std::cout << "create individual command" << std::endl;
           auto command = UndoCommandGetter::get(
-              oper, shareUuid, _project->get<SeismEvent>(eventUuid).get());
+              oper, shareUuid, _project->get<SeismEvent>(eventUuid).get(), _project->getSettings());
           _eventStacks[eventUuid]->push(command);
         }
 
@@ -200,9 +201,13 @@ void Controller::recvProject(const std::shared_ptr<SeismProject> &project) {
 
 void Controller::handleAddEventsClicked() {
   if (!_moreEventsController) {
-    _moreEventsController = std::make_unique<MoreEvents::Controller>(
-        _project->getAllMap<SeismEvent>(), _project->getAllMap<SeismWell>(),
-        _project->getAll<SeismReceiver>(), this);
+//    _moreEventsController = std::make_unique<MoreEvents::Controller>(
+//        _project->getAllMap<SeismEvent>(), _project->getAllMap<SeismWell>(),
+//        _project->getAll<SeismReceiver>(), this);
+
+/* test for set setttings */
+_moreEventsController = std::make_unique<MoreEvents::Controller>(
+    _project.get(), this);
 
     connect(_moreEventsController.get(),
             &MoreEvents::Controller::sendEventsAndStacks,
