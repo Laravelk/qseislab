@@ -5,13 +5,13 @@
 namespace Data {
 class ProjectSettings {
 public:
-    explicit ProjectSettings();
+  explicit ProjectSettings();
 
-    const TestIndividualCommand::Parameters& getTestMultParameters() const;
-    void setTestMultParameters(const TestIndividualCommand::Parameters& );
+  void setTestMultParameters(const TestIndividualCommand::Parameters &);
+  TestIndividualCommand::Parameters &getTestMultParameters();
+  const TestIndividualCommand::Parameters &getTestMultParameters() const;
 
 private:
-    TestIndividualCommand::Parameters _testMultParameters;
+  TestIndividualCommand::Parameters _testMultParameters;
 };
 } // namespace Data
-

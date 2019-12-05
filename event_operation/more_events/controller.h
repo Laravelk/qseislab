@@ -13,7 +13,7 @@ namespace Data {
 class SeismEvent;
 class SeismWell;
 class SeismReceiver;
-class SeismProject; /* test for set setttings */
+class ProjectSettings;
 } // namespace Data
 
 namespace EventOperation {
@@ -25,16 +25,11 @@ class Controller : public QObject {
   Q_OBJECT
 
 public:
-//  explicit Controller(
-//      const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
-//      const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &,
-//      const std::list<std::shared_ptr<Data::SeismReceiver>> &,
-//      QObject *parent = nullptr);
-
-    /* test for set setttings */
   explicit Controller(
-        Data::SeismProject * const ,
-      QObject *parent = nullptr);
+      const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
+      const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &,
+      const std::list<std::shared_ptr<Data::SeismReceiver>> &,
+      const Data::ProjectSettings &, QObject *parent = nullptr);
 
   void start();
   void finish(int);
@@ -43,12 +38,11 @@ signals:
   void sendEventsAndStacks(
       std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
       std::map<QUuid, std::shared_ptr<CustomIndividualUndoStack>> &) const;
+  void
+      eventTransformSettingsClicked(Data::SeismEvent::TransformOperation) const;
   void finished() const;
 
 private:
-    /* test for set setttings */
-   Data::SeismProject * const _project;
-
   Model *_model;
 
   std::unique_ptr<View> _view;

@@ -25,6 +25,8 @@ signals:
   void redoClicked() const;
 
   void eventTransformClicked(Data::SeismEvent::TransformOperation) const;
+  void
+      eventTransformSettingsClicked(Data::SeismEvent::TransformOperation) const;
   //  void dataToEBasisClicked() const;
 
 private:

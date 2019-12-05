@@ -1,20 +1,20 @@
 #pragma once
 
 #include "undo_stack_work/customindividualundocommand.h"
-#include "commandparametersinterface.h"
 
 class TestIndividualCommand : public CustomIndividualUndoCommand {
 public:
-    class Parameters {
-    public:
-        int getMult() const;
-        void setMult(int);
+  class Parameters {
+  public:
+    int getMult() const;
+    void setMult(int);
 
-    private:
-        int _mult = 5;
-    };
+  private:
+    int _mult = 5;
+  };
 
-  explicit TestIndividualCommand(const QUuid &, Data::SeismEvent *, const Parameters& );
+  explicit TestIndividualCommand(const QUuid &, Data::SeismEvent *,
+                                 const Parameters &);
 
   void undo() override;
 

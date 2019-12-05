@@ -60,9 +60,16 @@ View::View(QWidget *parent) : QMainWindow(parent) {
   //    emit eventTransformClicked(
   //        SeismEvent::TransformOperation::RotateDataToEBasis);
   //  });
-  actionMenu->addAction(QIcon(":/icons/test_mult.png"), "Test Mult", [this] {
+  QMenu *testMultMenu = new QMenu("Test Mult");
+  testMultMenu->addAction(QIcon(":/icons/test_mult.png"), "Apply", [this] {
     emit eventTransformClicked(SeismEvent::TransformOperation::TestMultiplier);
   });
+  testMultMenu->addAction(QIcon(":/icons/settings.png"), "Parameters", [this] {
+    emit eventTransformSettingsClicked(
+        SeismEvent::TransformOperation::TestMultiplier);
+  });
+
+  actionMenu->addMenu(testMultMenu);
   editMenu->addMenu(actionMenu);
 
   QMenu *viewMenu = new QMenu("&Data");

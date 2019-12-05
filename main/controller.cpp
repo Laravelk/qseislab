@@ -8,6 +8,8 @@
 
 #include <iostream> // TODO: remove
 
+#include "project_operation/project_settings/testmultipliersettingdialog.h"
+
 typedef Data::SeismEvent SeismEvent;
 typedef Data::SeismHorizon SeismHorizon;
 typedef Data::SeismReceiver SeismReceiver;
@@ -42,32 +44,28 @@ Controller::Controller(QObject *parent)
       _shareEventStack->redo();
     }
   });
-  connect(_mainWindow.get(), &View::eventTransformClicked, [this](auto oper) {
-    //    std::cout << "here" << std::endl;
 
+  connect(_mainWindow.get(), &View::eventTransformSettingsClicked, this,
+          &Controller::handleEventTransformSettingsClicked);
+
+  connect(_mainWindow.get(), &View::eventTransformClicked, [this](auto oper) {
     if (!_currentOneEventFocus.isNull()) {
       auto command = UndoCommandGetter::get(
-          oper, QUuid(),
-          _project->get<SeismEvent>(_currentOneEventFocus).get(),
-            _project->getSettings());
+          oper, QUuid(), _project->get<SeismEvent>(_currentOneEventFocus).get(),
+          _project->getSettings());
       _eventStacks[_currentOneEventFocus]->push(command);
     } else {
 
       if (!_eventFocus.empty()) {
-        //      auto shareCommand = new ShareUndoCommand(_eventFocus, oper);
         auto shareCommand = new ShareUndoCommand(_eventFocus);
         _shareEventStack->push(shareCommand);
 
         auto shareUuid = shareCommand->getUuid();
 
-        //      std::cout << "here2" << std::endl;
-
-        // TODO: откуда здесь принимать аргументы и как их вставлять????
-
         for (auto &eventUuid : _eventFocus) {
-          //        std::cout << "create individual command" << std::endl;
           auto command = UndoCommandGetter::get(
-              oper, shareUuid, _project->get<SeismEvent>(eventUuid).get(), _project->getSettings());
+              oper, shareUuid, _project->get<SeismEvent>(eventUuid).get(),
+              _project->getSettings());
           _eventStacks[eventUuid]->push(command);
         }
 
@@ -199,15 +197,30 @@ void Controller::recvProject(const std::shared_ptr<SeismProject> &project) {
   _mainWindow->loadProject(_project.get());
 }
 
+void Controller::handleEventTransformSettingsClicked(
+    SeismEvent::TransformOperation oper) {
+  if (_projectSettingViews.end() == _projectSettingViews.find(oper)) {
+    auto settingDialog = getSettingDialog(oper);
+    settingDialog->update(_project->getSettings());
+    connect(settingDialog, &ProjectOperation::SettingDialog::apply,
+            [this, settingDialog] {
+              settingDialog->setSettings(_project->getSettings());
+            });
+    connect(settingDialog, &ProjectOperation::SettingDialog::finished,
+            [this, oper] { _projectSettingViews.erase(oper); });
+
+    _projectSettingViews[oper] =
+        std::unique_ptr<ProjectOperation::SettingDialog>(settingDialog);
+
+    settingDialog->open();
+  }
+}
+
 void Controller::handleAddEventsClicked() {
   if (!_moreEventsController) {
-//    _moreEventsController = std::make_unique<MoreEvents::Controller>(
-//        _project->getAllMap<SeismEvent>(), _project->getAllMap<SeismWell>(),
-//        _project->getAll<SeismReceiver>(), this);
-
-/* test for set setttings */
-_moreEventsController = std::make_unique<MoreEvents::Controller>(
-    _project.get(), this);
+    _moreEventsController = std::make_unique<MoreEvents::Controller>(
+        _project->getAllMap<SeismEvent>(), _project->getAllMap<SeismWell>(),
+        _project->getAll<SeismReceiver>(), _project->getSettings(), this);
 
     connect(_moreEventsController.get(),
             &MoreEvents::Controller::sendEventsAndStacks,
@@ -219,6 +232,11 @@ _moreEventsController = std::make_unique<MoreEvents::Controller>(
                 _eventStacks[uuid_stack.first] = uuid_stack.second;
               }
             });
+
+    connect(_moreEventsController.get(),
+            &MoreEvents::Controller::eventTransformSettingsClicked, this,
+            &Controller::handleEventTransformSettingsClicked);
+
     connect(_moreEventsController.get(), &MoreEvents::Controller::finished,
             [this] { _moreEventsController.reset(); });
 
@@ -434,6 +452,14 @@ void Controller::deleteCloseProjectController(bool closed) {
   if (closed) {
     _mainWindow->closeProject();
     _project.reset();
+  }
+}
+
+SettingDialog *
+Controller::getSettingDialog(SeismEvent::TransformOperation oper) const {
+  switch (oper) {
+  case Data::SeismEvent::TransformOperation::TestMultiplier:
+    return new ProjectOperation::TestMultiplierSettingDialog();
   }
 }
 

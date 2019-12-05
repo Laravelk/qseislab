@@ -18,6 +18,7 @@
 #include "project_operation/close_project/controller.h"
 #include "project_operation/new_project/controller.h"
 #include "project_operation/open_project/controller.h"
+#include "project_operation/project_settings/settingdialog.h"
 #include "project_operation/save_project/controller.h"
 
 #include <QObject>
@@ -37,6 +38,9 @@ signals:
 private slots:
   void recvProject(const std::shared_ptr<Data::SeismProject> &);
 
+  void
+      handleEventTransformSettingsClicked(Data::SeismEvent::TransformOperation);
+
   void handleAddEventsClicked();
   void handleAddEventClicked();
   void handleViewEventClicked(const QUuid &);
@@ -55,7 +59,14 @@ private slots:
   void deleteCloseProjectController(bool);
 
 private:
+  ProjectOperation::SettingDialog *
+      getSettingDialog(Data::SeismEvent::TransformOperation) const;
+
   std::shared_ptr<Data::SeismProject> _project;
+
+  std::map<Data::SeismEvent::TransformOperation,
+           std::unique_ptr<ProjectOperation::SettingDialog>>
+      _projectSettingViews;
 
   std::set<QUuid> _eventFocus;
   QUuid _currentOneEventFocus;

@@ -30,7 +30,7 @@ find_package(Qt5 COMPONENTS ${_Q_MODULES} REQUIRED)
 
 # Bad way
 #set(Boost_INCLUDE_DIR "C:/Program Files/boost_1_71_0/boost_1_71_0")
-#set(Boost_INCLUDE_DIR "C:/Users/seismuser/all/boost_1_71_0/boost_1_71_0")
+set(Boost_INCLUDE_DIR "C:/Users/seismuser/all/boost_1_71_0/boost_1_71_0")
 find_package(Boost REQUIRED)
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
@@ -155,12 +155,14 @@ set(SOURCES
         project_operation/save_project/controller.cpp
 
         project_operation/close_project/controller.cpp
+
+        project_operation/project_settings/settingdialog.cpp
+        project_operation/project_settings/testmultipliersettingdialog.cpp
 )
 
 set(HEADERS
         event_operation/modification/share_functions.h
         event_operation/modification/undocommandgetter.h
-        event_operation/modification/commands/commandparametersinterface.h
         event_operation/modification/commands/rotatedatatoebasis.h
         event_operation/modification/commands/testindividualcommand.h
 
@@ -263,7 +265,6 @@ set(HEADERS
         share_view/filteringtableassistant.h
         share_view/parsing/evaluateExpr.h
         share_view/parsing/parser.h
-        share_view/project_settings/settingdialog.h
 
         project_operation/new_project/controller.h
         project_operation/new_project/view.h
@@ -278,6 +279,9 @@ set(HEADERS
         project_operation/save_project/controller.h
 
         project_operation/close_project/controller.h
+
+        project_operation/project_settings/settingdialog.h
+        project_operation/project_settings/testmultipliersettingdialog.h
 )
 
 add_executable(qseislab ${SOURCES} ${HEADERS} resources/resources.qrc)
