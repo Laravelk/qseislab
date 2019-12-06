@@ -33,6 +33,13 @@ signals:
   void show(const QUuid &);
   void removeClicked(const QUuid &);
 
+  void captureFocus() const;
+  //  void freeFocus() const;
+
+protected:
+  void focusInEvent(QFocusEvent *event) override;
+  //  void focusOutEvent(QFocusEvent *event) override;
+
 private:
   void clearObjectTable();
   void forEvents();

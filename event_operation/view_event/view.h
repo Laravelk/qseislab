@@ -42,8 +42,10 @@ signals:
 
   void finished() const;
 
-  // tool-signals
-  //  void eventTransformClicked(Data::SeismEvent::TransformOperation) const;
+  void captureFocus() const;
+
+protected:
+  void focusInEvent(QFocusEvent *event) override;
 
 private:
   void updateRepetition(const QString &);

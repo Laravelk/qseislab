@@ -108,6 +108,7 @@ private:
       _appliedOperations; // NOTE: уместно ли использовать set?
   void addTransformOperation(TransformOperation);
   void removeTransformOperation(TransformOperation);
+
   //  friend class EventOperation::Modefication::RotateDataToEBasis;
 };
 

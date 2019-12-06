@@ -149,12 +149,12 @@ void View::loadProject(Data::SeismProject const *const project) {
           [this](const QUuid uuid) { emit removeEventClicked(uuid); });
   connect(_workPage, &WorkPage::viewEventClicked,
           [this](const QUuid uuid) { emit viewEventClicked(uuid); });
-  connect(_workPage, &WorkPage::eventPageChanged,
-          [this](auto &uuid) { emit eventPageChanged(uuid); });
   connect(_workPage, &WorkPage::eventPageClosed,
           [this](auto &uuid) { emit eventPageClosed(uuid); });
   connect(_workPage, &WorkPage::eventSelectionChanged,
           [this](auto &select) { emit changeEventFocus(select); });
+  connect(_workPage, &WorkPage::eventPageChanged,
+          [this](auto &uuid) { emit eventPageChanged(uuid); });
 
   emit projectPresence(true);
 }
@@ -221,5 +221,10 @@ void View::closeProject() {
 
   emit projectPresence(false);
 }
+
+// QUuid View::getFocusEventPage() const {
+//  assert(nullptr != _workPage);
+//  return _workPage->getFocusEventPage();
+//}
 
 } // namespace Main

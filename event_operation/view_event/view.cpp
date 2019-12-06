@@ -18,6 +18,8 @@ View::View(const std::set<QString> &eventNames, SeismEvent const *const event,
       _graphicEvent(new GraphicController()), _eventNames(eventNames) {
 
   // Setting`s
+  setFocusPolicy(Qt::StrongFocus);
+
   setWindowTitle("SeismWindow");
   setMinimumSize(1300, 590);
   // Setting`s end
@@ -84,6 +86,11 @@ void View::settingEventInfo(SeismEvent *const event) const {
 }
 
 ChartGesture *View::getChartGesture() { return _graphicEvent->getModel(); }
+
+void View::focusInEvent(QFocusEvent *event) {
+  emit captureFocus();
+  QWidget::focusInEvent(event);
+}
 
 void View::updateRepetition(const QString &name) {
   for (auto &globalName : _eventNames) {

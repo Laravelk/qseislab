@@ -8,6 +8,8 @@
 
 #include <memory>
 
+#include "event_operation/view_event/view.h" // TODO& ?????
+
 namespace Main {
 class WorkPage;
 class View : public QMainWindow {
@@ -47,11 +49,9 @@ signals:
       eventTransformSettingsClicked(Data::SeismEvent::TransformOperation) const;
   void finished() const;
 
+  void changeEventFocus(const std::set<QUuid> &) const;
   void eventPageChanged(const QUuid &) const;
   void eventPageClosed(const QUuid &);
-
-  void changeEventFocus(const std::set<QUuid> &) const;
-  //  void changeEventFocusToOne(const QUuid &) const;
 
   void undoClicked() const;
   void redoClicked() const;
