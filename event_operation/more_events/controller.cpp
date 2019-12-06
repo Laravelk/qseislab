@@ -24,6 +24,7 @@ Controller::Controller(
     const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &all_events,
     const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &wells_map,
     const std::list<std::shared_ptr<Data::SeismReceiver>> &receivers,
+    const Data::ProjectSettings &settings,
     QObject *parent)
     : QObject(parent), _model(new Model(new SegyReader(), this)) {
 
@@ -148,37 +149,40 @@ Controller::Controller(
   connect(_view.get(), &View::sendPicksInfo,
           [this](const auto type, const auto num, const auto l_val,
                  const auto pick_val, const auto r_val) {
-            int idx = 0;
-            for (auto &component :
-                 _events_map.at(_currentEventUuid)->getComponents()) {
-              if (num == idx) {
-
-//                auto &pick = component->getWavePicks()[type];
-//                pick.setArrival(pick_val);
-//                pick.setPolarizationLeftBorder(l_val);
-//                pick.setPolarizationRightBorder(r_val);
-//                pick.setValidDataStatus(false);
-                auto &picks_map = component->getWavePicks();
-                auto itr_pic = picks_map.find(type);
-                if (itr_pic != picks_map.end()) {
-                  std::cout << "here 2" << std::endl;
-                  auto &pick = itr_pic->second;
-                  pick.setValidDataStatus(false);
-                  pick.setArrival(pick_val);
-                  pick.setPolarizationLeftBorder(l_val);
-                  pick.setPolarizationRightBorder(r_val);
-                } else {
-                  std::cout << "here" << std::endl;
-                  auto pick = Data::SeismWavePick(type, pick_val);
-                  pick.setPolarizationLeftBorder(l_val);
-                  pick.setPolarizationRightBorder(r_val);
-                  component->addWavePick(pick);
-                }
-                _events_map.at(_currentEventUuid)->changeTrigger();
-                break;
-              }
-              ++idx;
-            }
+//            int idx = 0;
+//            for (auto &component :
+//                 _events_map.at(_currentEventUuid)->getComponents()) {
+//              if (num == idx) {
+//                auto &picks_map = component->getWavePicks();
+//                auto itr_pic = picks_map.find(type);
+//                if (itr_pic != picks_map.end()) {
+//                  auto &pick = itr_pic->second;
+//                  pick.setValidDataStatus(false);
+//                  pick.setArrival(pick_val);
+//                  pick.setPolarizationLeftBorder(l_val);
+//                  pick.setPolarizationRightBorder(r_val);
+//                } else {
+//                  auto pick = Data::SeismWavePick(type, pick_val);
+//                  pick.setPolarizationLeftBorder(l_val);
+//                  pick.setPolarizationRightBorder(r_val);
+//                  component->addWavePick(pick);
+//                }
+//                _events_map.at(_currentEventUuid)->changeTrigger();
+//                break;
+//              }
+//              ++idx;
+//            }
+      auto &event = _events_map[_currentEventUuid];
+      Data::ProjectSettings setting;
+      MovePick::Parameters parameters;
+      parameters.setNumber(num);
+      parameters.setLeftValue(l_val);
+      parameters.setRightValue(r_val);
+      parameters.setPickArrivalValue(pick_val);
+      parameters.setTypePick(type);
+      setting.setMovePickParameters(parameters);
+      auto command = UndoCommandGetter::get(Data::SeismEvent::TransformOperation::MovePick,QUuid(), event.get(), setting);
+      _stacks_map[_currentEventUuid]->push(command);
           });
 
   connect(_view.get(), &View::undoClicked, [this]() {
@@ -210,26 +214,12 @@ Controller::Controller(
           });
 
   connect(_view.get(), &View::eventTransformClicked,
-          [this, &wells_map](auto oper) {
+          [this, &settings](auto oper) {
             if (!_currentEventUuid.isNull()) {
               auto &event = _events_map[_currentEventUuid];
-              //          switch (oper) {
-              //          case SeismEvent::RotateDataToEBasis:
-              //            //            _appliedOperations->push(
-              //            //                new
-              //            // Modefication::RotateDataToEBasis(event.get(),
-              //            //                wells_map));
-              //            _stacks_map[_currentEventUuid]->push(
-              //                new
-              //                Modefication::RotateDataToEBasis(event.get(),
-              //                wells_map));
-              //          case SeismEvent::TestMultiplier:
-              //            _stacks_map[_currentEventUuid]->push(
-              //                new
-              //                Modefication::TestMultiplier(event.get(), 5.0));
-              //          }
 
-              auto command = UndoCommandGetter::get(oper, QUuid(), event.get());
+              auto command =
+                  UndoCommandGetter::get(oper, QUuid(), event.get(), settings);
               _stacks_map[_currentEventUuid]->push(command);
             }
           });

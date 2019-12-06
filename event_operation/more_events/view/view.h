@@ -15,8 +15,10 @@
 #include <set>
 
 namespace Data {
-// class SeismEvent;
+class SeismEvent;
 class SeismWell;
+class SeismReceiver;
+class ProjectSettings;
 } // namespace Data
 
 namespace EventOperation {
@@ -30,7 +32,9 @@ class View : public QDialog {
   Q_OBJECT
 
 public:
-  explicit View(const std::set<QString> &, const std::map<QUuid, QString> &,
+  explicit View(const std::set<QString> &, const std::map<QUuid, QString> &, const
+                std::list<std::shared_ptr<Data::SeismReceiver>> &receivers,
+                const Data::ProjectSettings &settings,
                 QWidget *parent = nullptr);
 
   void loadEvent(Data::SeismEvent const *const, QUndoStack const *const);

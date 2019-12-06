@@ -47,6 +47,8 @@ set(SOURCES
         event_operation/modification/undocommandgetter.cpp
         event_operation/modification/commands/rotatedatatoebasis.cpp
         event_operation/modification/commands/testindividualcommand.cpp
+        event_operation/modification/commands/movepick.cpp
+
 
 
         event_operation/one_event/controller.cpp
@@ -117,6 +119,7 @@ set(SOURCES
         data/seismwell.cpp
         data/seismreceiver.cpp
         data/seismchannelreceiver.cpp
+        data/projectsettings.cpp
         data/io/segyreader.cpp
         data/io/seismcomponentreader.cpp
         data/io/seismcomponentwriter.cpp
@@ -163,8 +166,7 @@ set(HEADERS
         event_operation/modification/undocommandgetter.h
         event_operation/modification/commands/rotatedatatoebasis.h
         event_operation/modification/commands/testindividualcommand.h
-
-
+        event_operation/modification/commands/movepick.h
 
         event_operation/one_event/controller.h
         event_operation/one_event/view/filemanager.h
@@ -234,6 +236,7 @@ set(HEADERS
         data/seismwell.h
         data/seismreceiver.h
         data/seismchannelreceiver.h
+        data/projectsettings.h
         data/io/segy_files_params.h
         data/io/abstractsegyreader.h
         data/io/segyreader.h

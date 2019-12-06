@@ -186,9 +186,9 @@ Controller::Controller(
             //          Modefication::TestMultiplier(_event.get(), 5.0)); break;
             //        }
 
-            CustomIndividualUndoCommand *command =
-                UndoCommandGetter::get(oper, QUuid(), _event.get());
-            _undoStack->push(command);
+//            CustomIndividualUndoCommand *command =
+//                UndoCommandGetter::get(oper, QUuid(), _event.get());
+//            _undoStack->push(command);
           });
 
   connect(_view.get(), &View::finished, this, &Controller::finish);

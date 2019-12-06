@@ -28,6 +28,7 @@ public:
       const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
       const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &,
       const std::list<std::shared_ptr<Data::SeismReceiver>> &,
+      const Data::ProjectSettings &,
       QObject *parent = nullptr);
 
   void start();
