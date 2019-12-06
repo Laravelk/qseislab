@@ -18,6 +18,9 @@ EventToolsWidget::EventToolsWidget(QWidget *parent)
   _redoButton->setIcon(QIcon(":/icons/redo.png"));
   _dataToEBasisButton->setIcon(QIcon(":/icons/rotate.png"));
   _testMultButton->setIcon(QIcon(":/icons/test_mult.png"));
+
+  /* test for set setttings */
+  QPushButton* testMultSettingsButton = new QPushButton("test_mult_set");
   // Setting`s end
 
   // Connecting
@@ -32,6 +35,12 @@ EventToolsWidget::EventToolsWidget(QWidget *parent)
     emit eventTransformClicked(SeismEvent::TransformOperation::TestMultiplier);
   });
 
+  /* test for set setttings */
+  connect(testMultSettingsButton, &QPushButton::clicked, [this]() {
+      emit eventTransformSettingsClicked(SeismEvent::TransformOperation::TestMultiplier);
+  });
+
+
   // Connecting end
 
   // Layout`s
@@ -41,6 +50,7 @@ EventToolsWidget::EventToolsWidget(QWidget *parent)
   mainLayout->addWidget(_redoButton);
   //  mainLayout->addWidget(_dataToEBasisButton); // TODO: implement!
   mainLayout->addWidget(_testMultButton);
+  mainLayout->addWidget(testMultSettingsButton);
   mainLayout->addStretch(1);
 
   setLayout(mainLayout);

@@ -2,6 +2,7 @@
 
 #include "event_operation/modification/commands/testindividualcommand.h"
 #include "event_operation/modification/commands/movepick.h"
+#include "event_operation/modification/commands/removepick.h"
 
 namespace Data {
 class ProjectSettings {
@@ -16,8 +17,13 @@ public:
   MovePick::Parameters &getMovePickParameters();
   const MovePick::Parameters &getMovePickParameters() const;
 
+  void setRemovePickParameters(const RemovePick::Parameters &removePickParameters);
+  RemovePick::Parameters &getRemovePickParameters();
+  const RemovePick::Parameters &getRemovePickParameters() const;
+
 private:
   TestIndividualCommand::Parameters _testMultParameters;
   MovePick::Parameters _movePickParameters;
+  RemovePick::Parameters _removePickParameters;
 };
 } // namespace Data

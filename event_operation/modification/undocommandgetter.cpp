@@ -11,6 +11,11 @@ CustomIndividualUndoCommand *get(Data::SeismEvent::TransformOperation oper,
         break;
     case TransformOperation::MovePick:
         return new MovePick(shareUuid, event, settings.getMovePickParameters());
+        break;
+
+    case TransformOperation::RemovePick:
+        return new RemovePick(shareUuid, event, settings.getRemovePickParameters());
+        break;
     }
 
     std::cerr << "UndoCommandGetter::get ::return nullptr" << std::endl;

@@ -46,7 +46,7 @@ public:
 
   static const QString _default_path;
 
-  enum TransformOperation { RotateDataToEBasis, TestMultiplier, MovePick };
+  enum TransformOperation { RotateDataToEBasis, TestMultiplier, MovePick, RemovePick, AddPick };
 
   explicit SeismEvent();
   explicit SeismEvent(
@@ -108,6 +108,7 @@ private:
       _appliedOperations; // NOTE: уместно ли использовать set?
   void addTransformOperation(TransformOperation);
   void removeTransformOperation(TransformOperation);
+
   //  friend class EventOperation::Modefication::RotateDataToEBasis;
 };
 

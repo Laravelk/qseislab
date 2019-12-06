@@ -1,5 +1,7 @@
 #include "controller.h"
 
+//#include "data/projectsettings.h"
+
 #include "data/seismevent.h"
 #include "data/seismwell.h"
 #include "event_operation/share/model.h"
@@ -50,7 +52,7 @@ Controller::Controller(
 
   connect(
       _view.get(), &View::sendWellUuidAndFilePaths,
-      [this, &wells_map, &receivers](auto &wellUuid, auto &filePaths) {
+      [this, &receivers](auto &wellUuid, auto &filePaths) {
         for (auto &path : filePaths) {
           std::list<std::shared_ptr<Data::SeismReceiver>> receiversByWell;
           for (auto &receiver : receivers) {
@@ -147,31 +149,9 @@ Controller::Controller(
           [this](auto &uuid) { _events_map.erase(uuid); });
 
   connect(_view.get(), &View::sendPicksInfo,
-          [this](const auto type, const auto num, const auto l_val,
+          [this, settings](const auto type, const auto num, const auto l_val,
                  const auto pick_val, const auto r_val) {
-//            int idx = 0;
-//            for (auto &component :
-//                 _events_map.at(_currentEventUuid)->getComponents()) {
-//              if (num == idx) {
-//                auto &picks_map = component->getWavePicks();
-//                auto itr_pic = picks_map.find(type);
-//                if (itr_pic != picks_map.end()) {
-//                  auto &pick = itr_pic->second;
-//                  pick.setValidDataStatus(false);
-//                  pick.setArrival(pick_val);
-//                  pick.setPolarizationLeftBorder(l_val);
-//                  pick.setPolarizationRightBorder(r_val);
-//                } else {
-//                  auto pick = Data::SeismWavePick(type, pick_val);
-//                  pick.setPolarizationLeftBorder(l_val);
-//                  pick.setPolarizationRightBorder(r_val);
-//                  component->addWavePick(pick);
-//                }
-//                _events_map.at(_currentEventUuid)->changeTrigger();
-//                break;
-//              }
-//              ++idx;
-//            }
+
       auto &event = _events_map[_currentEventUuid];
       Data::ProjectSettings setting;
       MovePick::Parameters parameters;
@@ -198,18 +178,19 @@ Controller::Controller(
 
   connect(_view.get(), &View::removePick,
           [this](const auto type, const auto num) {
+          auto &event = _events_map[_currentEventUuid];
+          Data::ProjectSettings setting;
+          RemovePick::Parameters parameters;
+          parameters.setNum(num);
+          parameters.setType(type);
+          setting.setRemovePickParameters(parameters);
+          auto command = UndoCommandGetter::get(Data::SeismEvent::TransformOperation::RemovePick,QUuid(), event.get(),
+                                                setting);
+          _stacks_map[_currentEventUuid]->push(command);
             _removedPickAndNeedUpdatePolarGraph = true;
-            int idx = 0;
+
             if (_polarizationWindow) {
               _polarizationWindow->setDefault();
-            }
-            for (auto &component :
-                 _events_map.at(_currentEventUuid)->getComponents()) {
-              if (num == idx) {
-                component->removeWavePick(type);
-                break;
-              }
-              idx++;
             }
           });
 
@@ -223,6 +204,9 @@ Controller::Controller(
               _stacks_map[_currentEventUuid]->push(command);
             }
           });
+
+  connect(_view.get(), &View::eventTransformSettingsClicked,
+          [this](auto oper) { emit eventTransformSettingsClicked(oper); });
 
   connect(_view.get(), &View::finished, this, &Controller::finish);
 }

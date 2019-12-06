@@ -6,6 +6,7 @@
 #include <QFrame>
 #include <QTableWidget>
 //#include <QtDataVisualization>
+#include "event_operation/view_event/view.h"
 
 #include <memory>
 
@@ -27,6 +28,7 @@ public:
 
   void addEventPage(QWidget *, Data::SeismEvent const *const);
   void setFocusEventPage(QWidget *);
+  //  QUuid getFocusEventPage() const;
 
   //  const QUuid getFocusEvent() const;
 

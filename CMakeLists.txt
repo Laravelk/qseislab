@@ -48,6 +48,8 @@ set(SOURCES
         event_operation/modification/commands/rotatedatatoebasis.cpp
         event_operation/modification/commands/testindividualcommand.cpp
         event_operation/modification/commands/movepick.cpp
+        event_operation/modification/commands/removepick.cpp
+        event_operation/modification/commands/addpick.cpp
 
 
 
@@ -110,6 +112,7 @@ set(SOURCES
 
 
         data/seismpolarizationanalysisdata.cpp
+        data/projectsettings.cpp
         data/seismproject.cpp
         data/seismcomponent.cpp
         data/seismwavepick.cpp
@@ -159,6 +162,9 @@ set(SOURCES
         project_operation/save_project/controller.cpp
 
         project_operation/close_project/controller.cpp
+
+        project_operation/project_settings/settingdialog.cpp
+        project_operation/project_settings/testmultipliersettingdialog.cpp
 )
 
 set(HEADERS
@@ -167,6 +173,8 @@ set(HEADERS
         event_operation/modification/commands/rotatedatatoebasis.h
         event_operation/modification/commands/testindividualcommand.h
         event_operation/modification/commands/movepick.h
+        event_operation/modification/commands/removepick.h
+        event_operation/modification/commands/addpick.h
 
         event_operation/one_event/controller.h
         event_operation/one_event/view/filemanager.h
@@ -227,6 +235,7 @@ set(HEADERS
 
         data/seismpolarizationanalysisdata.h
         data/seism_data_type.h
+        data/projectsettings.h
         data/seismproject.h
         data/seismcomponent.h
         data/seismwavepick.h
@@ -279,6 +288,9 @@ set(HEADERS
         project_operation/save_project/controller.h
 
         project_operation/close_project/controller.h
+
+        project_operation/project_settings/settingdialog.h
+        project_operation/project_settings/testmultipliersettingdialog.h
 )
 
 add_executable(qseislab ${SOURCES} ${HEADERS} resources/resources.qrc)

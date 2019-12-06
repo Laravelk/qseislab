@@ -124,6 +124,18 @@ bool FilteringTableAssistant::remove(const QUuid &uuid) {
   return false;
 }
 
+void FilteringTableAssistant::focusInEvent(QFocusEvent *event) {
+  std::cout << "here" << std::endl;
+  emit captureFocus();
+
+  QFrame::focusInEvent(event);
+}
+
+// void FilteringTableAssistant::focusOutEvent(QFocusEvent *event) {
+//  emit freeFocus();
+//  QFrame::focusOutEvent(event);
+//}
+
 void FilteringTableAssistant::clearObjectTable() {
   const int end = _objectsTable->rowCount();
   for (int i = 0; i < end; ++i) {

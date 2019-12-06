@@ -1,5 +1,6 @@
 #pragma once
 
+#include "projectsettings.h"
 #include "seismevent.h"
 #include "seismhorizon.h"
 #include "seismreceiver.h"
@@ -37,6 +38,10 @@ public:
 
   void setFileInfo(const QFileInfo &);
   const QFileInfo &getFileInfo();
+
+  void setSettings(const ProjectSettings &); // надо ли?
+  ProjectSettings &getSettings();
+  const ProjectSettings &getSettings() const;
 
   template <typename T> void add(const std::shared_ptr<T> &);
   template <typename T> void update(const std::shared_ptr<T> &);
@@ -78,6 +83,8 @@ private:
   QString _name;
   QDateTime _dateTime;
   QFileInfo _fileInfo;
+
+  ProjectSettings _setting;
 
   std::map<QUuid, std::shared_ptr<SeismEvent>> _events_map;
 

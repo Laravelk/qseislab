@@ -32,9 +32,7 @@ class View : public QDialog {
   Q_OBJECT
 
 public:
-  explicit View(const std::set<QString> &, const std::map<QUuid, QString> &, const
-                std::list<std::shared_ptr<Data::SeismReceiver>> &receivers,
-                const Data::ProjectSettings &settings,
+  explicit View(const std::set<QString> &, const std::map<QUuid, QString> &,
                 QWidget *parent = nullptr);
 
   void loadEvent(Data::SeismEvent const *const, QUndoStack const *const);
@@ -70,6 +68,8 @@ signals:
 
   // tool-signals
   void eventTransformClicked(Data::SeismEvent::TransformOperation) const;
+  void eventTransformSettingsClicked(Data::SeismEvent::TransformOperation) const;
+
 
   void removePick(Data::SeismWavePick::Type, int);
   void createPolarizationAnalysisWindow();

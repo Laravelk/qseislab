@@ -65,30 +65,6 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
                                static_cast<int>(pick->getXPos() * MICROSECONDS_IN_SECOND),
                                static_cast<int>(rightBorder->getXPos() * MICROSECONDS_IN_SECOND));
           });
-//=======
-//    emit sendPicksInfo(
-//        pick->getType(), pick->getComponentAmount(),
-//        static_cast<int>(leftBorder->getXPos() * MICROSECONDS_IN_SECOND),
-//        static_cast<int>(pick->getXPos() * MICROSECONDS_IN_SECOND),
-//        static_cast<int>(rightBorder->getXPos() * MICROSECONDS_IN_SECOND));
-//  });
-//  connect(
-//      leftBorder, &WavePick::changed, [this, pick, leftBorder, rightBorder]() {
-//        emit sendPicksInfo(
-//            pick->getType(), pick->getComponentAmount(),
-//            static_cast<int>(leftBorder->getXPos() * MICROSECONDS_IN_SECOND),
-//            static_cast<int>(pick->getXPos() * MICROSECONDS_IN_SECOND),
-//            static_cast<int>(rightBorder->getXPos() * MICROSECONDS_IN_SECOND));
-//      });
-//  connect(
-//      rightBorder, &WavePick::changed, [this, pick, leftBorder, rightBorder]() {
-//        emit sendPicksInfo(
-//            pick->getType(), pick->getComponentAmount(),
-//            static_cast<int>(leftBorder->getXPos() * MICROSECONDS_IN_SECOND),
-//            static_cast<int>(pick->getXPos() * MICROSECONDS_IN_SECOND),
-//            static_cast<int>(rightBorder->getXPos() * MICROSECONDS_IN_SECOND));
-//      });
-//>>>>>>> ffcc3faabf517df055b942d5bbd0833e6dad0102
 
   connect(pick, &WavePick::needDelete, [this, pick, leftBorder, rightBorder]() {
     if (_editMode) {
@@ -235,7 +211,12 @@ void GraphicView::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void GraphicView::mouseReleaseEvent(QMouseEvent *event) {
-    if (rubberBand && rubberBand->width() > 10 && _zoomIsTouching && event->button() == Qt::LeftButton) {
+
+    if (rubberBand && (rubberBand->width() > 10 || rubberBand->height() > 10)) {
+        rubberBand->hide();
+    }
+
+    if (rubberBand && rubberBand->width() > 10 && rubberBand->height() > 10 && _zoomIsTouching && event->button() == Qt::LeftButton) {
         rubberBand->hide();
         QPoint point = rubberBand->pos();
         QSize size = rubberBand->size();
@@ -259,6 +240,7 @@ void GraphicView::mouseReleaseEvent(QMouseEvent *event) {
         _zoomIsTouching = false;
         return;
   }
+
 
   if (event->button() == Qt::RightButton) {
     if (scene()) {

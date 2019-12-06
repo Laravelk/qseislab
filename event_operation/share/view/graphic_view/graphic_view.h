@@ -88,6 +88,7 @@ private:
 signals:
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
   void removePick(Data::SeismWavePick::Type, int);
+  void addPick(Data::SeismWavePick::Type, int, int, int, int, int);
 
 private:
   QGraphicsRectItem *rect;

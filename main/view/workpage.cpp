@@ -9,14 +9,14 @@
 
 #include "share_view/filteringtableassistant.h"
 
-//#include <iostream> // TODO: delete
+#include <iostream> // TODO: delete
 
 #include <QDateTime>
 #include <QHBoxLayout>
 #include <QMessageBox>
 #include <QPushButton>
 
-#include "event_operation/view_event/view.h" // TODO: не должно быть этого!!
+//#include "event_operation/view_event/view.h" // TODO: не должно быть этого!!
 
 typedef Data::SeismProject SeismProject;
 typedef Data::SeismEvent SeismEvent;
@@ -28,60 +28,41 @@ WorkPage::WorkPage(QWidget *parent)
     : QFrame(parent), _workPages(new QTabWidget()),
       _oilFieldWidget(new OilFieldWidget()),
       _eventsTable(
-          new FilteringTableAssistant(FilteringTableAssistant::ForEvents))
-//      ,_graph(new Q3DSurface), _eventBox(new QCheckBox),
-//      _receiverBox(new QCheckBox), _wellBox(new QCheckBox),
-//      _horizonBox(new QCheckBox)
-{
+          new FilteringTableAssistant(FilteringTableAssistant::ForEvents)) {
 
   // Setting`s
 
   _workPages->setTabsClosable(true);
   _workPages->setTabBarAutoHide(true);
-  //  connect(_workPages, &QTabWidget::tabCloseRequested, _workPages,
-  //          &QTabWidget::removeTab);
   connect(_workPages, &QTabWidget::tabCloseRequested, [this](auto index) {
     if (0 != index) {
       auto page = _workPages->widget(index);
       // TODO: очень плохо - не надо так!
+      //      if (std::is_same<EventOperation::ViewEvent::View *,
+      //                       decltype(page)>::value) {
       if (static_cast<EventOperation::ViewEvent::View *>(page)->allValid()) {
         _workPages->removeTab(index);
         emit eventPageClosed(_pages_uuids_map.at(page));
       }
+      //      }
     }
   });
 
   _workPages->addTab(_oilFieldWidget, "Oil Field");
+  _pages_uuids_map[_oilFieldWidget] = QUuid();
   _workPages->setTabIcon(0, QIcon());
-
-  //  _graph->setMinimumWidth(400);
-  //  _graph->setMinimumHeight(700);
-  //  _oilFieldScene = new OilFieldScene(_graph);
-  //  QWidget *container = QWidget::createWindowContainer(_graph);
-  //  container->setMinimumSize(QSize(400, 400));
-  //  container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  //  container->setFocusPolicy(Qt::StrongFocus);
-
-  //  _horizonBox->setChecked(true);
-  //  _horizonBox->setText("Horizons");
-  //  _wellBox->setChecked(true);
-  //  _wellBox->setText("Wells");
-  //  _receiverBox->setChecked(true);
-  //  _receiverBox->setText("Receivers");
-  //  _eventBox->setChecked(true);
-  //  _eventBox->setText("Events");
-
   // Setting`s end
 
   // Connecting
-  connect(_workPages, &QTabWidget::currentChanged, [this](auto index) {
-    if (0 == index) {
-      emit eventPageChanged(QUuid());
-      //      emit eventSelectionChanged(_eventsTable->objectSelection());
-    } else {
-      emit eventPageChanged(_pages_uuids_map[_workPages->widget(index)]);
-    }
-  });
+  //  connect(_workPages, &QTabWidget::currentChanged, [this](auto index) {
+  //    emit eventPageChanged(_pages_uuids_map[_workPages->widget(index)]);
+  //  });
+
+  connect(_eventsTable, &FilteringTableAssistant::captureFocus,
+          [this] { emit eventPageChanged(_pages_uuids_map[_oilFieldWidget]); });
+  //  connect(_eventsTable, &FilteringTableAssistant::freeFocus, [this] {
+  //    emit eventPageChanged((_pages_uuids_map[_workPages->currentWidget()]));
+  //  });
 
   connect(_eventsTable, &FilteringTableAssistant::objectSelectionChanged,
           [this](auto &select) { emit eventSelectionChanged(select); });
@@ -157,20 +138,37 @@ void WorkPage::loadProject(Data::SeismProject const *const project) {
   _eventsTable->setAll<SeismEvent>(project->getAllMap<SeismEvent>());
 }
 
-void WorkPage::addEventPage(QWidget *eventPage, SeismEvent const *const event) {
-  _pages_uuids_map[eventPage] = event->getUuid();
-  _workPages->addTab(eventPage, event->getName());
-  connect(event, &SeismEvent::infoChanged, [this, eventPage](auto event) {
-    auto index = _workPages->indexOf(eventPage);
+void WorkPage::addEventPage(QWidget *page, SeismEvent const *const event) {
+  _pages_uuids_map[page] = event->getUuid();
+  _workPages->addTab(page, event->getName());
+  connect(event, &SeismEvent::infoChanged, [this, page](auto event) {
+    auto index = _workPages->indexOf(page);
     auto &name = event->getName();
     _workPages->setTabText(index, name);
   });
-  _workPages->setCurrentWidget(eventPage);
+  _workPages->setCurrentWidget(page);
+
+  // TODO: очень плохо - не надо так!
+  auto eventPage = static_cast<EventOperation::ViewEvent::View *>(page);
+  connect(eventPage, &EventOperation::ViewEvent::View::captureFocus,
+          [this, event] { emit eventPageChanged(event->getUuid()); });
 }
 
 void WorkPage::setFocusEventPage(QWidget *page) {
   _workPages->setCurrentWidget(page);
 }
+
+// QUuid WorkPage::getFocusEventPage() const {
+//  if (_workPages->hasFocus()) {
+//    int index = _workPages->currentIndex();
+//    if (0 != index) {
+//      auto page = _workPages->widget(index);
+//      return _pages_uuids_map.at(page);
+//    }
+//  }
+
+//  return QUuid();
+//}
 
 // const QUuid WorkPage::getFocusEvent() const {
 //  return _eventsTable->getFocusObject();
