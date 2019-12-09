@@ -46,7 +46,7 @@ public:
 
   static const QString _default_path;
 
-  enum TransformOperation { RotateDataToEBasis, TestMultiplier };
+  enum TransformOperation { RotateData, TestMultiplier };
 
   explicit SeismEvent();
   explicit SeismEvent(

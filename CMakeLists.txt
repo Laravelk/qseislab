@@ -158,6 +158,7 @@ set(SOURCES
 
         project_operation/project_settings/settingdialog.cpp
         project_operation/project_settings/testmultipliersettingdialog.cpp
+        project_operation/project_settings/rotatedatasettingdialog.cpp
 )
 
 set(HEADERS
@@ -282,6 +283,7 @@ set(HEADERS
 
         project_operation/project_settings/settingdialog.h
         project_operation/project_settings/testmultipliersettingdialog.h
+        project_operation/project_settings/rotatedatasettingdialog.h
 )
 
 add_executable(qseislab ${SOURCES} ${HEADERS} resources/resources.qrc)

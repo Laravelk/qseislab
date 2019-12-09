@@ -2,7 +2,6 @@
 
 #include "data/projectsettings.h"
 
-#include "commands/testindividualcommand.h"
 #include "data/seismevent.h"
 
 #include <iostream>

@@ -10,26 +10,25 @@ typedef Data::SeismEvent SeismEvent;
 namespace EventOperation {
 EventToolsWidget::EventToolsWidget(QWidget *parent)
     : QWidget(parent), _undoButton(new QPushButton()),
-      _redoButton(new QPushButton()), _dataToEBasisButton(new QPushButton()),
+      _redoButton(new QPushButton()), _rotateDataButton(new QPushButton()),
       _testMultButton(new QPushButton()) {
 
   // Setting`s
   _undoButton->setIcon(QIcon(":/icons/undo.png"));
   _redoButton->setIcon(QIcon(":/icons/redo.png"));
-  _dataToEBasisButton->setIcon(QIcon(":/icons/rotate.png"));
+  _rotateDataButton->setIcon(QIcon(":/icons/rotate.png"));
   _testMultButton->setIcon(QIcon(":/icons/test_mult.png"));
 
   /* test for set setttings */
-  QPushButton* testMultSettingsButton = new QPushButton("test_mult_set");
+  QPushButton *testMultSettingsButton = new QPushButton("test_mult_set");
   // Setting`s end
 
   // Connecting
   connect(_undoButton, &QPushButton::clicked, [this] { emit undoClicked(); });
   connect(_redoButton, &QPushButton::clicked, [this] { emit redoClicked(); });
 
-  connect(_dataToEBasisButton, &QPushButton::clicked, [this]() {
-    emit eventTransformClicked(
-        SeismEvent::TransformOperation::RotateDataToEBasis);
+  connect(_rotateDataButton, &QPushButton::clicked, [this]() {
+    emit eventTransformClicked(SeismEvent::TransformOperation::RotateData);
   });
   connect(_testMultButton, &QPushButton::clicked, [this]() {
     emit eventTransformClicked(SeismEvent::TransformOperation::TestMultiplier);
@@ -37,9 +36,9 @@ EventToolsWidget::EventToolsWidget(QWidget *parent)
 
   /* test for set setttings */
   connect(testMultSettingsButton, &QPushButton::clicked, [this]() {
-      emit eventTransformSettingsClicked(SeismEvent::TransformOperation::TestMultiplier);
+    emit eventTransformSettingsClicked(
+        SeismEvent::TransformOperation::TestMultiplier);
   });
-
 
   // Connecting end
 
@@ -58,8 +57,8 @@ EventToolsWidget::EventToolsWidget(QWidget *parent)
 }
 
 void EventToolsWidget::update(SeismEvent const *const event) {
-  _dataToEBasisButton->setDisabled(
-      event->isTransformBy(SeismEvent::TransformOperation::RotateDataToEBasis));
+  _rotateDataButton->setDisabled(
+      event->isTransformBy(SeismEvent::TransformOperation::RotateData));
   _testMultButton->setDisabled(
       event->isTransformBy(SeismEvent::TransformOperation::TestMultiplier));
 }

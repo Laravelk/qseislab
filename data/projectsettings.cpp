@@ -16,4 +16,17 @@ ProjectSettings::getTestMultParameters() const {
   return _testMultParameters;
 }
 
+void ProjectSettings::setRotateDataParameters(
+    const RotateData::Parameters &rotateDataParameters) {
+  _rotateDataParameters = rotateDataParameters;
+}
+
+RotateData::Parameters &ProjectSettings::getRotateDataParameters() {
+  return _rotateDataParameters;
+}
+
+const RotateData::Parameters &ProjectSettings::getRotateDataParameters() const {
+  return _rotateDataParameters;
+}
+
 } // namespace Data

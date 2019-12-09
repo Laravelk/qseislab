@@ -33,7 +33,7 @@ private:
   QPushButton *_undoButton;
   QPushButton *_redoButton;
 
-  QPushButton *_dataToEBasisButton;
+  QPushButton *_rotateDataButton;
   QPushButton *_testMultButton;
 };
 } // namespace EventOperation

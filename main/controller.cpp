@@ -8,6 +8,7 @@
 
 #include <iostream> // TODO: remove
 
+#include "project_operation/project_settings/rotatedatasettingdialog.h"
 #include "project_operation/project_settings/testmultipliersettingdialog.h"
 
 typedef Data::SeismEvent SeismEvent;
@@ -463,6 +464,8 @@ Controller::getSettingDialog(SeismEvent::TransformOperation oper) const {
   switch (oper) {
   case Data::SeismEvent::TransformOperation::TestMultiplier:
     return new ProjectOperation::TestMultiplierSettingDialog();
+  case Data::SeismEvent::TransformOperation::RotateData:
+    return new ProjectOperation::RotateDataSettingDialog();
   }
 }
 

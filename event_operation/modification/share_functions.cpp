@@ -2,8 +2,8 @@
 
 #include "data/seismcomponent.h"
 
-namespace EventOperation {
-namespace Modefication {
+// namespace EventOperation {
+// namespace Modefication {
 bool rotateDataWithTransitionMatrix(Data::SeismComponent *const component,
                                     const Eigen::MatrixXf &transitionMatrix) {
   const int size = component->getTracesAmount();
@@ -34,5 +34,5 @@ bool rotateDataWithTransitionMatrix(Data::SeismComponent *const component,
   return true;
 }
 
-} // namespace Modefication
-} // namespace EventOperation
+//} // namespace Modefication
+//} // namespace EventOperation

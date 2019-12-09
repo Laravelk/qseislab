@@ -277,9 +277,9 @@ void SeismProject::setFileInfo(const QFileInfo &fileInfo) {
 
 const QFileInfo &SeismProject::getFileInfo() { return _fileInfo; }
 
-void SeismProject::setSettings(const ProjectSettings &settings) {
-  _setting = settings;
-}
+// void SeismProject::setSettings(const ProjectSettings &settings) {
+//  _setting = settings;
+//}
 
 ProjectSettings &SeismProject::getSettings() { return _setting; }
 

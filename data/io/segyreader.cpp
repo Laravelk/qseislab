@@ -69,7 +69,9 @@ SegyReader::nextComponent(const std::shared_ptr<SeismReceiver> &receiver) {
 
   QDateTime date_time_stamp;
 
-  for (int i = 0; i < receiver->getChannelAmount(); ++i) {
+  //  for (int i = 0; i < receiver->getChannelAmount(); ++i) {
+  int i = 0;
+  for (auto &channel : receiver->getChannels()) {
     if (_trace_num == _alreadyRead) {
       throw std::runtime_error("No more traces in the segy-file");
     }
@@ -156,13 +158,15 @@ SegyReader::nextComponent(const std::shared_ptr<SeismReceiver> &receiver) {
     segy_to_native(_format, _sam_num, buffer);
 
     std::shared_ptr<SeismTrace> trace = std::make_shared<SeismTrace>();
-    //    trace = std::make_shared<SeismTrace>();
+    trace->setOrientation(channel->getOrientation());
+
     trace->setBuffer(buffer_size, buffer);
     delete[] buffer;
 
     component->addTrace(std::move(trace));
 
     ++_alreadyRead;
+    ++i;
   }
 
   auto &info = component->getInfo();

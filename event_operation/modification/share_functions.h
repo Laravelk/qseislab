@@ -8,9 +8,9 @@ namespace Data {
 class SeismComponent;
 }
 
-namespace EventOperation {
-namespace Modefication {
+// namespace EventOperation {
+// namespace Modefication {
 bool rotateDataWithTransitionMatrix(Data::SeismComponent *const,
                                     const Eigen::MatrixXf &);
-}
-} // namespace EventOperation
+//}
+//} // namespace EventOperation

@@ -7,21 +7,22 @@ SeismTrace::SeismTrace() {}
 
 SeismTrace::SeismTrace(const SeismTrace &other)
     : _maxValue(other._maxValue), _bufferSize(other._bufferSize),
+      _orientation(other._orientation),
       _buffer(std::make_unique<float[]>(_bufferSize)) {
   for (uint32_t i = 0; i < _bufferSize; ++i) {
     _buffer[i] = other._buffer[i];
   }
 }
 
-// void SeismTrace::triggerChange() const { emit changed(); }
-
 float SeismTrace::getMaxValue() const { return _maxValue; }
 
 int SeismTrace::getBufferSize() const { return static_cast<int>(_bufferSize); }
 
-// const std::unique_ptr<float[]> &SeismTrace::getBuffer() const {
-//  return _buffer;
-//}
+const Point &SeismTrace::getOrientation() const { return _orientation; }
+
+void SeismTrace::setOrientation(const Point &orientation) {
+  _orientation = orientation;
+}
 
 void SeismTrace::setBuffer(uint32_t size, float *buffer) {
   assert(0 <= size);

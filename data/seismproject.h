@@ -39,7 +39,7 @@ public:
   void setFileInfo(const QFileInfo &);
   const QFileInfo &getFileInfo();
 
-  void setSettings(const ProjectSettings &); // надо ли?
+  //  void setSettings(const ProjectSettings &); // надо ли?
   ProjectSettings &getSettings();
   const ProjectSettings &getSettings() const;
 
