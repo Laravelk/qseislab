@@ -6,23 +6,27 @@
 #include <QBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QTableWidget>
+//#include <QTableWidget>
 
 typedef Data::SeismReceiver SeismReceiver;
 typedef Data::SeismChannelReceiver SeismChannelReceiver;
 
 namespace ReceiverOperation {
 InfoReceiver::InfoReceiver(SeismReceiver const *const receiver, QWidget *parent)
-    : QDialog(parent), _nameLineEdit(new QLineEdit(receiver->getName())),
-      _channelsTable(new QTableWidget()) {
+    : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
+      _nameLineEdit(new QLineEdit(receiver->getName())),
+      //      _channelsTable(new QTableWidget())
+      _channelsTable(
+          new TableAssistant(TableAssistant::ForReceiverChannels, this)) {
 
   // Setting`s
   setWindowTitle("Receiver Info");
   setMinimumWidth(440);
 
-  initChannelssTable(_channelsTable);
+  //  initChannelssTable(_channelsTable);
   for (auto &channel : receiver->getChannels()) {
-    insertChannelInTable(channel);
+    //    insertChannelInTable(channel);
+    _channelsTable->add<SeismChannelReceiver>(channel);
   }
 
   QPushButton *saveButton = new QPushButton("Save");
@@ -54,57 +58,57 @@ InfoReceiver::InfoReceiver(SeismReceiver const *const receiver, QWidget *parent)
   // Layout`s end
 }
 
-void InfoReceiver::initChannelssTable(QTableWidget *table) {
-  table->setEditTriggers(QAbstractItemView::NoEditTriggers);
-  table->setColumnCount(8);
+// void InfoReceiver::initChannelssTable(QTableWidget *table) {
+//  table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+//  table->setColumnCount(8);
 
-  table->setHorizontalHeaderLabels(QStringList() << "Name"
-                                                 << "Channel-Num"
-                                                 << "Axis-Num"
-                                                 << "Orientation"
-                                                 << "Motion"
-                                                 << "P-Station-Correction"
-                                                 << "S-Station-Correction"
-                                                 << "Well-ChannelNum");
-}
+//  table->setHorizontalHeaderLabels(QStringList() << "Name"
+//                                                 << "Channel-Num"
+//                                                 << "Axis-Num"
+//                                                 << "Orientation"
+//                                                 << "Motion"
+//                                                 << "P-Station-Correction"
+//                                                 << "S-Station-Correction"
+//                                                 << "Well-ChannelNum");
+//}
 
-void InfoReceiver::insertChannelInTable(
-    const std::shared_ptr<Data::SeismChannelReceiver> &channel) {
-  _channelsTable->insertRow(_channelsTable->rowCount());
+// void InfoReceiver::insertChannelInTable(
+//    const std::shared_ptr<Data::SeismChannelReceiver> &channel) {
+//  _channelsTable->insertRow(_channelsTable->rowCount());
 
-  int insertRow = _channelsTable->rowCount() - 1;
+//  int insertRow = _channelsTable->rowCount() - 1;
 
-  _channelsTable->setItem(insertRow, 0,
-                          new QTableWidgetItem(channel->getName()));
+//  _channelsTable->setItem(insertRow, 0,
+//                          new QTableWidgetItem(channel->getName()));
 
-  _channelsTable->setItem(insertRow, 1,
-                          new QTableWidgetItem(channel->getChannelNum()));
+//  _channelsTable->setItem(insertRow, 1,
+//                          new QTableWidgetItem(channel->getChannelNum()));
 
-  _channelsTable->setItem(insertRow, 2,
-                          new QTableWidgetItem(channel->getAxisNum()));
+//  _channelsTable->setItem(insertRow, 2,
+//                          new QTableWidgetItem(channel->getAxisNum()));
 
-  _channelsTable->setItem(
-      insertRow, 3,
-      new QTableWidgetItem(
-          QString("%1 %2 %3")
-              .arg(static_cast<double>(std::get<0>(channel->getOrientation())),
-                   0, 'f', 2)
-              .arg(static_cast<double>(std::get<1>(channel->getOrientation())),
-                   0, 'f', 2)
-              .arg(static_cast<double>(std::get<2>(channel->getOrientation())),
-                   0, 'f', 2)));
+//  _channelsTable->setItem(
+//      insertRow, 3,
+//      new QTableWidgetItem(
+//          QString("%1 %2 %3")
+//              .arg(static_cast<double>(std::get<0>(channel->getOrientation())),
+//                   0, 'f', 2)
+//              .arg(static_cast<double>(std::get<1>(channel->getOrientation())),
+//                   0, 'f', 2)
+//              .arg(static_cast<double>(std::get<2>(channel->getOrientation())),
+//                   0, 'f', 2)));
 
-  _channelsTable->setItem(insertRow, 4,
-                          new QTableWidgetItem(channel->getMotion()));
+//  _channelsTable->setItem(insertRow, 4,
+//                          new QTableWidgetItem(channel->getMotion()));
 
-  _channelsTable->setItem(
-      insertRow, 5, new QTableWidgetItem(channel->getPStationCorrection()));
+//  _channelsTable->setItem(
+//      insertRow, 5, new QTableWidgetItem(channel->getPStationCorrection()));
 
-  _channelsTable->setItem(
-      insertRow, 6, new QTableWidgetItem(channel->getSStationCorrection()));
+//  _channelsTable->setItem(
+//      insertRow, 6, new QTableWidgetItem(channel->getSStationCorrection()));
 
-  _channelsTable->setItem(insertRow, 7,
-                          new QTableWidgetItem(channel->getWellChannelNum()));
-}
+//  _channelsTable->setItem(insertRow, 7,
+//                          new QTableWidgetItem(channel->getWellChannelNum()));
+//}
 
 } // namespace ReceiverOperation

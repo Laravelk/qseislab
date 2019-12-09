@@ -1,5 +1,7 @@
 #pragma once
 
+#include "share_view/tableassistant.h"
+
 #include <QDialog>
 
 #include <memory>
@@ -19,11 +21,12 @@ public:
   InfoReceiver(Data::SeismReceiver const *const, QWidget *parent = nullptr);
 
 private:
-  void initChannelssTable(QTableWidget *);
-  void
-  insertChannelInTable(const std::shared_ptr<Data::SeismChannelReceiver> &);
+  //  void initChannelssTable(QTableWidget *);
+  //  void
+  //  insertChannelInTable(const std::shared_ptr<Data::SeismChannelReceiver> &);
 
   QLineEdit *_nameLineEdit;
-  QTableWidget *_channelsTable;
+  //  QTableWidget *_channelsTable;
+  TableAssistant *_channelsTable;
 };
 } // namespace ReceiverOperation

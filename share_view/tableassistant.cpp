@@ -15,6 +15,7 @@
 typedef Data::SeismHorizon SeismHorizon;
 typedef Data::SeismWell SeismWell;
 typedef Data::SeismReceiver SeismReceiver;
+typedef Data::SeismChannelReceiver SeismChannelReceiver;
 
 TableAssistant::TableAssistant(Mode mode, QWidget *parent)
     : QFrame(parent), _mode(mode), _table(new QTableWidget()) {
@@ -34,6 +35,9 @@ TableAssistant::TableAssistant(Mode mode, QWidget *parent)
     break;
   case ForReceivers:
     forReceivers();
+    break;
+  case ForReceiverChannels:
+    forReceiverChannels();
     break;
   default:
     assert(false && "Unsupported TableAssistant`s mode");
@@ -314,3 +318,64 @@ void TableAssistant::update<SeismReceiver>(
   _table->setSortingEnabled(true);
 }
 // Receivers end
+
+// Receiver-Channels
+void TableAssistant::forReceiverChannels() {
+  assert(ForReceiverChannels == _mode);
+
+  _table->setColumnCount(11);
+
+  _table->setHorizontalHeaderLabels(QStringList() << "Name"
+                                                  << "Channel-Num"
+                                                  << "Axis-Num"
+                                                  << "N - Orientation"
+                                                  << "E - Orientation"
+                                                  << "D -Orientation"
+                                                  << "Motion"
+                                                  << "P-Station-Correction"
+                                                  << "S-Station-Correction"
+                                                  << "Well-ChannelNum"
+                                                  << "");
+
+  _table->resizeColumnsToContents();
+
+  auto horizontalHeaderObjectTable = _table->horizontalHeader();
+  horizontalHeaderObjectTable->setSectionResizeMode(
+      10, QHeaderView::Stretch); // stretching pred-last section
+  horizontalHeaderObjectTable->setDefaultAlignment(Qt::AlignLeft);
+}
+
+template <>
+void TableAssistant::add<SeismChannelReceiver>(
+    SeismChannelReceiver const *const channel) {
+  assert(ForReceiverChannels == _mode);
+
+  _table->setSortingEnabled(false);
+
+  _table->insertRow(_table->rowCount());
+  int row = _table->rowCount() - 1;
+
+  _table->setItem(row, 0, new QTableWidgetItem(channel->getName()));
+  _table->setItem(row, 1, new QTableWidgetItem(channel->getChannelNum()));
+  _table->setItem(row, 2, new QTableWidgetItem(channel->getAxisNum()));
+  auto &orientation = channel->getOrientation();
+  _table->setItem(row, 3,
+                  new QTableWidgetItem(QString::number(
+                      static_cast<double>(std::get<0>(orientation)))));
+  _table->setItem(row, 4,
+                  new QTableWidgetItem(QString::number(
+                      static_cast<double>(std::get<1>(orientation)))));
+  _table->setItem(row, 5,
+                  new QTableWidgetItem(QString::number(
+                      static_cast<double>(std::get<2>(orientation)))));
+  _table->setItem(row, 6, new QTableWidgetItem(channel->getMotion()));
+  _table->setItem(row, 7,
+                  new QTableWidgetItem(channel->getPStationCorrection()));
+  _table->setItem(row, 8,
+                  new QTableWidgetItem(channel->getSStationCorrection()));
+  _table->setItem(row, 9, new QTableWidgetItem(channel->getWellChannelNum()));
+
+  _table->resizeColumnsToContents();
+  _table->setSortingEnabled(true);
+}
+// Receiver-Channels end

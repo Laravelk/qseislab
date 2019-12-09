@@ -192,10 +192,29 @@ void SeismReceiver::addChannel(
   _channels.push_back(channel);
 }
 
-const std::vector<std::shared_ptr<SeismChannelReceiver>> &
+const std::vector<const SeismChannelReceiver *>
 SeismReceiver::getChannels() const {
-  return _channels;
+  std::vector<SeismChannelReceiver const *> vec;
+  for (auto &channel : _channels) {
+    vec.push_back(channel.get());
+  }
+
+  return vec;
 }
+
+const std::vector<SeismChannelReceiver *> SeismReceiver::getChannels() {
+  std::vector<SeismChannelReceiver *> vec;
+  for (auto &channel : _channels) {
+    vec.push_back(channel.get());
+  }
+
+  return vec;
+}
+
+// const std::vector<std::shared_ptr<SeismChannelReceiver>> &
+// SeismReceiver::getChannels() const {
+//  return _channels;
+//}
 
 QJsonObject &SeismReceiver::writeToJson(QJsonObject &json) {
   json["uuid"] = _uuid.toString();

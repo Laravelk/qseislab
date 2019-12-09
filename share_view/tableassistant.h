@@ -9,7 +9,7 @@ class QTableWidget;
 class TableAssistant : public QFrame {
   Q_OBJECT
 public:
-  enum Mode { ForHorizons, ForWells, ForReceivers };
+  enum Mode { ForHorizons, ForWells, ForReceivers, ForReceiverChannels };
 
   explicit TableAssistant(Mode, QWidget *parent = nullptr);
 
@@ -27,6 +27,7 @@ private:
   void forHorizons();
   void forWells();
   void forReceivers();
+  void forReceiverChannels();
 
   Mode _mode;
   QTableWidget *_table;
