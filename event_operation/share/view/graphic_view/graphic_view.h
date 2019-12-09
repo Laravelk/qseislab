@@ -40,6 +40,7 @@ public:
       scene()->removeItem(pick);
     }
     _wavePicks.clear();
+    std::cerr << "wave picks after clear size " << _wavePicks.size() << std::endl;
   }
 
   void clearHistoryOfTransformations();
@@ -88,7 +89,7 @@ private:
 signals:
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
   void removePick(Data::SeismWavePick::Type, int);
-  void addPick(Data::SeismWavePick::Type, int, int, int, int, int);
+  void addPickSignal(Data::SeismWavePick::Type, int, int, int, int);
 
 private:
   QGraphicsRectItem *rect;

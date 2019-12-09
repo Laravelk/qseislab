@@ -12,9 +12,11 @@ CustomIndividualUndoCommand *get(Data::SeismEvent::TransformOperation oper,
     case TransformOperation::MovePick:
         return new MovePick(shareUuid, event, settings.getMovePickParameters());
         break;
-
     case TransformOperation::RemovePick:
         return new RemovePick(shareUuid, event, settings.getRemovePickParameters());
+        break;
+    case TransformOperation::AddPick:
+        return new AddPick(shareUuid, event, settings.getAddPickParameters());
         break;
     }
 

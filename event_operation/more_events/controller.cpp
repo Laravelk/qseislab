@@ -165,6 +165,27 @@ Controller::Controller(
       _stacks_map[_currentEventUuid]->push(command);
           });
 
+  connect(_view.get(), &View::addPick, [this](auto type, auto num, auto l_val, auto arrival, auto r_val) {
+      int idx = 0;
+      auto &event = _events_map[_currentEventUuid];
+      for (auto &component : event->getComponents()) {
+          if (num == idx) {
+            Data::ProjectSettings setting;
+            AddPick::Parameters parameters;
+            parameters.setNumber(num);
+            parameters.setLeftValue(l_val);
+            parameters.setRightValue(r_val);
+            parameters.setPickArrivalValue(arrival);
+            parameters.setTypePick(type);
+            setting.setAddPickParameters(parameters);
+            auto command = UndoCommandGetter::get(Data::SeismEvent::TransformOperation::AddPick,QUuid(), event.get(), setting);
+            _stacks_map[_currentEventUuid]->push(command);
+            break;
+          }
+          idx++;
+      }
+  });
+
   connect(_view.get(), &View::undoClicked, [this]() {
     if (!_currentEventUuid.isNull()) {
       _stacks_map[_currentEventUuid]->undo();

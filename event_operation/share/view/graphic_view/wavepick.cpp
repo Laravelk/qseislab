@@ -134,14 +134,16 @@ void WavePick::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
 void WavePick::mouseDoubleClickEvent(
     QGraphicsSceneMouseEvent *event) // second variant delete pick
 {
-  if (_isEditable) {
-    emit needDelete();
-  }
+//    std::cerr << _isEditable;
+
+//  if (_isEditable) {
+//    emit needDelete();
+//    return;
+//  }
   qreal newX = QPointF(_chart->mapToValue(mapToParent(event->pos()) -
                                           event->buttonDownPos(Qt::LeftButton)))
                    .x();
   _anchor = QPointF(newX, _anchor.y());
-  emit changed();
 }
 
 void WavePick::updateBorders() {

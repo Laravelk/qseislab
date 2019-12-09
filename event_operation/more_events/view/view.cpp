@@ -151,6 +151,10 @@ View::View(const std::set<QString> &globalEventNames,
           &EventOperation::GraphicController::clickOnPolarAnalysisInGraph,
           [this]() { emit clickOnPolarAnalysisInGraph(); });
 
+  connect(_graphicEvent, &EventOperation::GraphicController::addPick, [this](auto type, auto num, auto l_val, auto arrival, auto r_val){
+        emit addPick(type, num, l_val, arrival, r_val);
+  });
+
   connect(_okButton, &QPushButton::clicked, [this]() {
     if (allValid()) {
       accept();

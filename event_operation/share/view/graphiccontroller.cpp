@@ -46,6 +46,10 @@ GraphicController::GraphicController(QWidget *parent)
                                rightBorderPos);
           });
 
+  connect(_view, &GraphicView::addPickSignal, [this](auto type, auto num, auto l_val, auto arrival, auto r_val) {
+        emit addPick(type, num, l_val, arrival, r_val);
+  });
+
   connect(_view, &GraphicView::removePick,
           [this](Data::SeismWavePick::Type type, int componentAmount) {
             emit removePick(type, componentAmount);
@@ -184,6 +188,9 @@ GraphicController::GraphicController(QWidget *parent)
 }
 
 void GraphicController::update(SeismEvent const *const event) {
+//    static int i = 0;
+//    i++;
+//    std::cerr << i << std::endl;
     bool isAnotherEvent = false;
     if (_event != event) {
         isAnotherEvent = true;

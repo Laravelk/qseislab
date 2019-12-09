@@ -41,6 +41,21 @@ const RemovePick::Parameters &ProjectSettings::getRemovePickParameters() const
     return _removePickParameters;
 }
 
+void ProjectSettings::setAddPickParameters(const AddPick::Parameters &addPickParameters)
+{
+    _addPickParameters =  addPickParameters;
+}
+
+AddPick::Parameters &ProjectSettings::getAddPickParameters()
+{
+    return _addPickParameters;
+}
+
+const AddPick::Parameters &ProjectSettings::getAddPickParameters() const
+{
+    return _addPickParameters;
+}
+
 void ProjectSettings::setMovePickParameters(const MovePick::Parameters &movePickParameters)
 {
     _movePickParameters = movePickParameters;

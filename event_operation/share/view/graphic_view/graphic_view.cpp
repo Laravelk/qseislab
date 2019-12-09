@@ -41,6 +41,7 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
   WavePick *rightBorder = new WavePick(
       type, rect, chart(), QPointF(rightBorderPos, pos.y()), _sizeWaveItem,
       _colorData->getBorderPickColor(type), pick, rangeX);
+  pick->setBorders(leftBorder, rightBorder);
   connect(pick, &WavePick::changed, [this, pick, leftBorder, rightBorder]() {
       leftBorder->setRightBorderValue(pick->getXPos());
       rightBorder->setLeftBorderValue(pick->getXPos());
@@ -67,21 +68,9 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
           });
 
   connect(pick, &WavePick::needDelete, [this, pick, leftBorder, rightBorder]() {
-    if (_editMode) {
-      _wavePicks.removeOne(pick);
-      _wavePicks.removeOne(leftBorder);
-      _wavePicks.removeOne(rightBorder);
-      scene()->removeItem(pick);
-      scene()->removeItem(leftBorder);
-      scene()->removeItem(rightBorder);
-      repaint();
+//      std::cerr << "del pick" << std::endl;
       emit removePick(pick->getType(), pick->getComponentAmount());
-      delete pick;
-      delete leftBorder;
-      delete rightBorder;
-    }
   });
-  pick->setBorders(leftBorder, rightBorder);
   _wavePicks.push_back(leftBorder);
   _wavePicks.push_back(rightBorder);
   _wavePicks.push_back(pick);
@@ -142,7 +131,6 @@ void GraphicView::useHistoryOfTransformations()
     for (auto &wave : _wavePicks) {
       wave->updateGeometry();
     }
-    std::cerr << std::endl;
 }
 
 bool GraphicView::viewportEvent(QEvent *event) {
@@ -170,6 +158,8 @@ void GraphicView::mousePressEvent(QMouseEvent *event) {
     QPointF pos = calculatePickPosition(chart()->mapToValue(event->pos()));
     if (checkAvailability(Data::SeismWavePick::PWAVE,
                           static_cast<int>(pos.y()))) {
+      emit addPickSignal(Data::SeismWavePick::PWAVE, pos.y() ,(pos.x() - 0.025) * MICROSECONDS_IN_SECOND, pos.x() * MICROSECONDS_IN_SECOND,
+                           (pos.x() + 0.025) * MICROSECONDS_IN_SECOND);
       addPick(Data::SeismWavePick::PWAVE, pos, _rangeX, pos.x() - 0.025,
               pos.x() + 0.025);
     }
@@ -181,6 +171,8 @@ void GraphicView::mousePressEvent(QMouseEvent *event) {
     QPointF pos = calculatePickPosition(chart()->mapToValue(event->pos()));
     if (checkAvailability(Data::SeismWavePick::SWAVE,
                           static_cast<int>(pos.y()))) {
+        emit addPickSignal(Data::SeismWavePick::SWAVE, pos.y() ,(pos.x() - 0.025) * MICROSECONDS_IN_SECOND, pos.x() * MICROSECONDS_IN_SECOND,
+                           (pos.x() + 0.025) * MICROSECONDS_IN_SECOND);
       addPick(Data::SeismWavePick::SWAVE, pos, _rangeX, pos.x() - 0.025,
               pos.x() + 0.025);
     }
@@ -287,11 +279,12 @@ void GraphicView::keyPressEvent(QKeyEvent *event) {
     scrollContentsBy(0, -10);
     break;
   case Qt::Key_Alt: {
+//      std::cerr << _wavePicks.size() << std::endl;
+      for (auto &pick : _wavePicks) {
+        pick->setEditable(true);
+      }
     _editMode = true;
     _status->setPlainText(EDIT_MODE_STRING);
-    for (auto &pick : _wavePicks) {
-      pick->setEditable(true);
-    }
     break;
   }
   default:

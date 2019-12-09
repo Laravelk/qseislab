@@ -51,7 +51,8 @@ public:
   void emitChanged() {
       emit changed();
   }
-  void setEditable(bool status) {_isEditable = status; }
+  void setEditable(bool status) {
+      _isEditable = status; }
 
 signals:
   void changed();
@@ -79,7 +80,6 @@ private:
   qreal _valueRightBorder;
   QRectF _rect;
   QBrush _brush;
-
 private:
   void updateBorders();
 };
