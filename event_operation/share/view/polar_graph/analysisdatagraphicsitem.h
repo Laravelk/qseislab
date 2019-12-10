@@ -22,6 +22,7 @@ public:
     AnalysisDataGraphicsItem(QPolarChart *parent);
     void setText(const QString &text);
     void setAnchor(QPointF point);
+    void setRectAnchor(QPointF point);
     void updateGeometry();
 
     QRectF boundingRect() const override;
@@ -32,6 +33,7 @@ private:
     QString _text;
     QRectF _textRect;
     QPointF _anchor;
+    QPointF _rectAnchor;
     QRectF _rect;
     QFont _font;
     QPolarChart *_chart;

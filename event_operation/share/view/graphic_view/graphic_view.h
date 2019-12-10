@@ -40,7 +40,7 @@ public:
       scene()->removeItem(pick);
     }
     _wavePicks.clear();
-    std::cerr << "wave picks after clear size " << _wavePicks.size() << std::endl;
+//    std::cerr << "wave picks after clear size " << _wavePicks.size() << std::endl;
   }
 
   void clearHistoryOfTransformations();

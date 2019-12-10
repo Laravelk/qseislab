@@ -1,6 +1,7 @@
 #include "analysisdatagraphicsitem.h"
 
 #include <QPainter>
+#include <iostream> // TODO: delete
 
 namespace EventOperation {
 
@@ -20,7 +21,11 @@ void AnalysisDataGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphi
     Q_UNUSED(option)
     Q_UNUSED(widget)
     QPainterPath path;
+//    _rect.setX(mapFromParent(_chart->mapToPosition(_rectAnchor)).x());
+//    _rect.setY(mapFromParent(_chart->mapToPosition(_rectAnchor)).y());
     path.addRoundedRect(_rect, 5, 5);
+
+//    std::cerr << _textRect.x() << " " << _textRect.y() << std::endl;
 
     QPointF anchor = mapFromParent(_chart->mapToPosition(_anchor));
     if (!_rect.contains(anchor)) {
@@ -53,6 +58,8 @@ void AnalysisDataGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphi
         point2.setX(x2);
         point2.setY(y2);
 
+//        std::cerr << x1 << " " << y1 << " " << x2 << " " << y2 << std::endl;
+
         path.moveTo(point1);
         path.lineTo(anchor);
         path.lineTo(point2);
@@ -81,6 +88,11 @@ void AnalysisDataGraphicsItem::setText(const QString &text)
 void AnalysisDataGraphicsItem::setAnchor(QPointF point)
 {
     _anchor = point;
+}
+
+void AnalysisDataGraphicsItem::setRectAnchor(QPointF point)
+{
+    _rectAnchor = point;
 }
 
 void AnalysisDataGraphicsItem::updateGeometry()

@@ -20,17 +20,12 @@ void AddPick::undo()
 void AddPick::redo()
 {
     int idx = 0;
-    for (auto &component : _event->getComponents()) {
-        if (idx == _parameters.getNumber()) {
-            Data::SeismWavePick pick(_parameters.getTypePick(), _parameters.getPickArrival());
-            pick.setPolarizationLeftBorder(_parameters.getLeftValue());
-            pick.setPolarizationRightBorder(_parameters.getRightValue());
-            component->addWavePick(pick);
-            _addedPick = pick;
-            break;
-        }
-        idx++;
-    }
+    auto &component = _event->getComponents()[_parameters.getNumber()];
+    Data::SeismWavePick pick(_parameters.getTypePick(), _parameters.getPickArrival());
+    pick.setPolarizationLeftBorder(_parameters.getLeftValue());
+    pick.setPolarizationRightBorder(_parameters.getRightValue());
+    component->addWavePick(pick);
+    _addedPick = pick;
     _event->changeTrigger();
 }
 

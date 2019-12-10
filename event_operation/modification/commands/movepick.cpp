@@ -10,27 +10,21 @@ MovePick::MovePick(const QUuid &uuid, Data::SeismEvent *event, const Parameters 
 void MovePick::undo()
 {
     int idx = 0;
-    for (auto &component : _event->getComponents()) {
-        if (_parameters.getNumber() == idx) {
-            for (auto &picksMapElement : component->getWavePicks()) {
-                if (_parameters.getTypePick() == picksMapElement.first) {
-                    auto &pick = picksMapElement.second;
-                    pick.setArrival(_beforeRedoPick.getArrival());
-                    pick.setPolarizationLeftBorder(_beforeRedoPick.getPolarizationLeftBorder());
-                    pick.setPolarizationRightBorder(_beforeRedoPick.getPolarizationRightBorder());
-                }
-            }
+    auto &component = _event->getComponents()[_parameters.getNumber()];
+    for (auto &picksMapElement : component->getWavePicks()) {
+        if (_parameters.getTypePick() == picksMapElement.first) {
+            auto &pick = picksMapElement.second;
+            pick.setArrival(_beforeRedoPick.getArrival());
+            pick.setPolarizationLeftBorder(_beforeRedoPick.getPolarizationLeftBorder());
+            pick.setPolarizationRightBorder(_beforeRedoPick.getPolarizationRightBorder());
         }
-        idx++;
     }
     _event->changeTrigger();
 }
 
 void MovePick::redo()
 {
-    int idx = 0;
-    for (auto &component : _event->getComponents()) {
-        if (_parameters.getNumber() == idx) {
+    auto &component = _event->getComponents()[_parameters.getNumber()];
         for (auto &picksMapElement : component->getWavePicks()) {
             if (_parameters.getTypePick() == picksMapElement.first) {
                 auto &pick = picksMapElement.second;
@@ -39,9 +33,6 @@ void MovePick::redo()
                 pick.setPolarizationLeftBorder(_parameters.getLeftValue());
                 pick.setPolarizationRightBorder(_parameters.getRightValue());
             }
-        }
-        }
-        idx++;
     }
     _event->changeTrigger();
 }

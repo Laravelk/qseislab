@@ -148,6 +148,12 @@ void PolarGraph::mousePressEvent(QMouseEvent *event)
     if (_dataItem != nullptr) {
         _dataItem->hide();
     }
+    if (_info != nullptr) {
+        _info->hide();
+    }
+    if (_infoRect != nullptr) {
+        _infoRect->hide();
+    }
     QChartView::mousePressEvent(event);
 }
 
@@ -195,14 +201,30 @@ void PolarGraph::findPolarizationAnalysisDataForClickedPoint(const QPointF &poin
         qreal dataIncidenceInRadian = static_cast<qreal>(data.getIncidenceInRadian());
           if ((std::fabs(dataPolarAngle - point.x()) < std::numeric_limits<qreal>::epsilon())    &&
                   (std::fabs(dataIncidenceInRadian - point.y()) < std::numeric_limits<qreal>::epsilon())) {
-              if (_dataItem == nullptr) {
-                  _dataItem = new AnalysisDataGraphicsItem(_polarChart);
-                  _dataItem->setZValue(999999);
+//              if (_dataItem == nullptr) {
+//                  _dataItem = new AnalysisDataGraphicsItem(_polarChart);
+//                  _dataItem->setZValue(999999);
+//              }
+//              _dataItem->setAnchor(QPointF(dataPolarAngle, dataIncidenceInRadian));
+//              _dataItem->setRectAnchor(QPointF(100,20));
+//              _dataItem->setText(QString("PolarAngle: %1 \nIncidence: %2 ").arg(dataPolarAngle).arg(dataIncidenceInRadian));
+//              _dataItem->updateGeometry();
+//              _dataItem->show();
+
+              if (_infoRect == nullptr) {
+                  _infoRect = new QGraphicsRectItem(QRect(80,20,110,35),_polarChart);
               }
-              _dataItem->setAnchor(QPointF(dataPolarAngle, dataIncidenceInRadian));
-              _dataItem->setText(QString("PolarAngle: %1 \nIncidence: %2 ").arg(dataPolarAngle).arg(dataIncidenceInRadian));
-              _dataItem->updateGeometry();
-              _dataItem->show();
+
+              if (_info == nullptr) {
+                  _info = new QGraphicsTextItem(_polarChart);
+                  _info->setX(81);
+                  _info->setY(21);
+              }
+
+              _info->setPlainText(QString("PolarAngle: %1 \nIncidence: %2 ").arg(dataPolarAngle).arg(dataIncidenceInRadian));
+
+              _info->show();
+              _infoRect->show();
               break;
           }
     }

@@ -49,7 +49,9 @@ private:
   QValueAxis *_radialAxis;
   QWidget *_allView;
   QGraphicsTextItem *_status;
+  QGraphicsTextItem *_info = nullptr;
   QGraphicsRectItem *_statusRect;
+  QGraphicsRectItem *_infoRect = nullptr;
   QList<QScatterSeries *> _seriesList;
   QList<Data::SeismPolarizationAnalysisData> _dataList;
   AnalysisDataGraphicsItem *_dataItem = nullptr;

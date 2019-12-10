@@ -8,32 +8,17 @@ RemovePick::RemovePick(const QUuid &uuid, Data::SeismEvent *event, const RemoveP
 
 void RemovePick::undo()
 {
-    int idx = 0;
-    for (auto &component : _event->getComponents()) {
-        if (_parameters.getNum() == idx) {
-            component->addWavePick(_deletedPick);
-            break;
-        }
-        idx++;
-    }
+    auto &component = _event->getComponents()[_parameters.getNum()];
+    component->addWavePick(_deletedPick);
     _event->changeTrigger();
 }
 
 void RemovePick::redo()
 {
-    int idx = 0;
-    for (auto &component : _event->getComponents()) {
-        if (_parameters.getNum() == idx) {
-            for (auto &pickMapElement : component->getWavePicks()) {
-                if (_parameters.getType() == pickMapElement.first) {
-                    _deletedPick = pickMapElement.second;
-                }
-            }
-            component->removeWavePick(_parameters.getType());
-            break;
-        }
-        idx++;
-    }
+    auto &component = _event->getComponents()[_parameters.getNum()];
+    auto &map = component->getWavePicks();
+    _deletedPick = map[_parameters.getType()];
+    component->removeWavePick(_parameters.getType());
     _event->changeTrigger();
 }
 
