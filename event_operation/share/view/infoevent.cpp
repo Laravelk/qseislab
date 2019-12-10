@@ -19,6 +19,13 @@ InfoEvent::InfoEvent(QWidget *parent)
   //  setFixedWidth(250);
   setFrameStyle(1);
 
+  QBrush brush(Qt::transparent);
+  QPalette palette;
+  palette.setBrush(QPalette::Base, brush);
+  _nameEdit->setPalette(palette);
+  _stampDateEdit->setPalette(palette);
+  _stampTimeEdit->setPalette(palette);
+
   _nameEdit->setMaxLength(60);
 
   _stampDateEdit->setDisplayFormat("dd.MM.yy");
