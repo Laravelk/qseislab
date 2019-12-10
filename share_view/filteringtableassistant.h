@@ -38,7 +38,7 @@ signals:
 
 protected:
   void focusInEvent(QFocusEvent *event) override;
-  //  void focusOutEvent(QFocusEvent *event) override;
+  void focusOutEvent(QFocusEvent *event) override;
 
 private:
   void clearObjectTable();

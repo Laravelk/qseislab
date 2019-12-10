@@ -114,10 +114,10 @@ Controller::Controller(QObject *parent)
   connect(_mainWindow.get(), &View::eventPageChanged, [this](auto &uuid) {
     _currentOneEventFocus = uuid;
     if (_currentOneEventFocus.isNull()) {
-      std::cout << "share" << std::endl;
+      //      std::cout << "share" << std::endl;
       _mainWindow->updateUndoStack(_shareEventStack.get());
     } else {
-      std::cout << "ind" << std::endl;
+      //      std::cout << "ind" << std::endl;
       _mainWindow->updateUndoStack(_eventStacks[_currentOneEventFocus].get());
     }
   });

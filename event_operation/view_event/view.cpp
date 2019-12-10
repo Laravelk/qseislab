@@ -6,7 +6,7 @@
 #include <assert.h>
 
 //#include "data/seismevent.h" // TODO: delete
-// #include <iostream> // TODO: delete
+#include <iostream> // TODO: delete
 
 typedef Data::SeismEvent SeismEvent;
 
@@ -88,6 +88,7 @@ void View::settingEventInfo(SeismEvent *const event) const {
 ChartGesture *View::getChartGesture() { return _graphicEvent->getModel(); }
 
 void View::focusInEvent(QFocusEvent *event) {
+  std::cout << "capture focus in view-event page" << std::endl;
   emit captureFocus();
   QWidget::focusInEvent(event);
 }

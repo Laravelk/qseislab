@@ -311,7 +311,7 @@ void GraphicController::addTraceSeries(
   for (unsigned j = 0; j < component->getTraces().size(); ++j, ++idx) {
     _norm = component->getMaxValue() /* NORMED*/;
     QLineSeries *series = new QLineSeries;
-    //    series->setUseOpenGL(true); // NOTE: COMMENT FOR RELEASE
+    series->setUseOpenGL(true); // NOTE: COMMENT FOR RELEASE
     auto trace = component->getTraces().at(j);
     float tmp = 0;
     for (int k = 0; k < trace->getBufferSize(); k++) {
@@ -352,11 +352,11 @@ void GraphicController::addWiggle(bool flag) {
   for (auto series : _allSeries) {
     double seriesYZeroCord = TRACE_OFFSET * (idx) + numberOfComponent;
     QLineSeries *medianSeries = new QLineSeries();
-    //    medianSeries->setUseOpenGL(true);
+    medianSeries->setUseOpenGL(true);
     medianSeries->append(0, seriesYZeroCord);
     medianSeries->append(_rangeAxisX, seriesYZeroCord);
     QLineSeries *newSeries = new QLineSeries;
-    //    newSeries->setUseOpenGL(true);
+    newSeries->setUseOpenGL(true);
     QPointF lp = series->at(0);
     if (flag == true) {
       for (auto &point : series->points()) {
@@ -399,7 +399,7 @@ void GraphicController::addWiggle(bool flag) {
     upperArea->setBrush(QBrush(upperAreaColor)); // TODO: delete
     upperArea->setUpperSeries(newSeries);
     upperArea->setLowerSeries(medianSeries);
-    //    upperArea->setUseOpenGL(true);
+    upperArea->setUseOpenGL(true);
     settingAreaSeries(upperArea);
     _chart->addSeries(upperArea);
     upperArea->attachAxis(_axisX);

@@ -15,13 +15,12 @@
 
 #include <iostream> // TODO: remove
 
-// NOTE: попробовтаь переделать на QSortFilterProxyModel
-
 typedef Data::SeismEvent SeismEvent;
 
 FilteringTableAssistant::FilteringTableAssistant(Mode mode, QWidget *parent)
     : QFrame(parent), _mode(mode), _filterTable(new QTableWidget()),
       _objectsTable(new QTableWidget()) {
+
   // Settings
   switch (_mode) {
   case ForEvents:
@@ -125,16 +124,17 @@ bool FilteringTableAssistant::remove(const QUuid &uuid) {
 }
 
 void FilteringTableAssistant::focusInEvent(QFocusEvent *event) {
-  std::cout << "here" << std::endl;
+  std::cout << "capture focus in table" << std::endl;
   emit captureFocus();
 
   QFrame::focusInEvent(event);
 }
 
-// void FilteringTableAssistant::focusOutEvent(QFocusEvent *event) {
-//  emit freeFocus();
-//  QFrame::focusOutEvent(event);
-//}
+void FilteringTableAssistant::focusOutEvent(QFocusEvent *event) {
+  //  emit freeFocus();
+  std::cout << "free focus in table" << std::endl;
+  QFrame::focusOutEvent(event);
+}
 
 void FilteringTableAssistant::clearObjectTable() {
   const int end = _objectsTable->rowCount();
