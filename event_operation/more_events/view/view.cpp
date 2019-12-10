@@ -91,7 +91,7 @@ View::View(const std::set<QString> &globalEventNames,
       nextFocusRow = allCount - selectedCount - 1;
     }
 
-    for (auto& item : selectedEvents) {
+    for (auto &item : selectedEvents) {
       auto name = item->text();
       removeLocal(name);
       updateRepetition(name);
@@ -343,7 +343,7 @@ void View::addLocal(const QString &name) {
 void View::removeLocal(const QString &name) { _localEventNames[name] -= 1; }
 
 QBrush View::updateRepetition(const QString &name) {
-  QBrush brush(Qt::white);
+  QBrush brush(Qt::transparent);
   if (_globalEventNames.end() != _globalEventNames.find(name)) {
     brush.setColor(Qt::red);
     for (int i = 0; i < _eventList->count(); ++i) {
@@ -374,7 +374,7 @@ QBrush View::updateRepetition(const QString &name) {
 }
 
 bool View::allValid() const {
-  QBrush validBrush(Qt::white);
+  QBrush validBrush(Qt::transparent);
   for (int i = 0; i < _eventList->count(); ++i) {
     auto item = _eventList->item(i);
     if (validBrush != item->background()) {

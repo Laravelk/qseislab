@@ -417,7 +417,8 @@ void FilteringTableAssistant::add<SeismEvent>(SeismEvent const *const event) {
 
   QPushButton *removeButton = new QPushButton();
   QIcon icon(":/icons/remove.png");
-  removeButton->setStyleSheet("background-color:white; border-style: outset");
+  removeButton->setStyleSheet(
+      "background-color:transparent; border-style: outset");
   removeButton->setIcon(icon);
   _objectsTable->setCellWidget(row, 13, removeButton);
   connect(removeButton, &QPushButton::clicked,

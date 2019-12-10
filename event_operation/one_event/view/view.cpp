@@ -249,7 +249,7 @@ void View::updateRepetition(const QString &name) {
     }
   }
   _isValid = true;
-  _infoEvent->setBrush(Qt::white);
+  _infoEvent->setBrush(Qt::transparent);
 }
 
 } // namespace OneEvent

@@ -126,7 +126,8 @@ void TableAssistant::add<SeismHorizon>(SeismHorizon const *const horizon) {
 
   QPushButton *removeButton = new QPushButton();
   QIcon icon(":/icons/remove.png");
-  removeButton->setStyleSheet("background-color:white; border-style: outset");
+  removeButton->setStyleSheet(
+      "background-color:transparent; border-style: outset");
   removeButton->setIcon(icon);
   _table->setCellWidget(row, 6, removeButton);
   connect(removeButton, &QPushButton::clicked,
@@ -200,7 +201,8 @@ template <> void TableAssistant::add<SeismWell>(SeismWell const *const well) {
 
   QPushButton *removeButton = new QPushButton();
   QIcon icon(":/icons/remove.png");
-  removeButton->setStyleSheet("background-color:white; border-style: outset");
+  removeButton->setStyleSheet(
+      "background-color:transparent; border-style: outset");
   removeButton->setIcon(icon);
   _table->setCellWidget(row, 4, removeButton);
   connect(removeButton, &QPushButton::clicked,
@@ -282,7 +284,8 @@ void TableAssistant::add<SeismReceiver>(SeismReceiver const *const receiver) {
 
   QPushButton *removeButton = new QPushButton();
   QIcon icon(":/icons/remove.png");
-  removeButton->setStyleSheet("background-color:white; border-style: outset");
+  removeButton->setStyleSheet(
+      "background-color:transparent; border-style: outset");
   removeButton->setIcon(icon);
   _table->setCellWidget(row, 6, removeButton);
   connect(removeButton, &QPushButton::clicked,

@@ -69,10 +69,10 @@ GraphicController::GraphicController(QWidget *parent)
 
   connect(_tabWidget, &QTabWidget::tabBarClicked, [this](int index) {
     if (POLAR_ANALYSIS_INDEX_IN_TAB == index) {
-//            std::cerr << "HH ";
-            emit clickOnPolarAnalysisInGraph();
+      //            std::cerr << "HH ";
+      emit clickOnPolarAnalysisInGraph();
     } else {
-        showWarningAboutUnvalidDataOnGraph(false);
+      showWarningAboutUnvalidDataOnGraph(false);
     }
   });
 
@@ -158,26 +158,26 @@ GraphicController::GraphicController(QWidget *parent)
 }
 
 void GraphicController::update(SeismEvent const *const event) {
-    bool isAnotherEvent = false;
-    if (_event != event) {
-        isAnotherEvent = true;
-    }
-    _event = event;
-    _view->chart()->removeAllSeries();
-    _view->clearView();
-    _allSeries.clear();
-    if (isAnotherEvent) {
-//        _view->clearHistoryOfTransformations();
-        setInterval(event);
-        setAxesY(event->getComponentAmount());
-        _chart->setReceiverCount(event->getComponentAmount());
-        _rangeAxisX = 0;
-        getRangeX(event);
-        _view->setCountOfComponents(event->getComponentAmount());
-        _view->setRangeX(_rangeAxisX);
-        _chart->axisX()->setMin(0);
-        _chart->axisX()->setMax(_rangeAxisX);
-        _view->resetItemSize();
+  bool isAnotherEvent = false;
+  if (_event != event) {
+    isAnotherEvent = true;
+  }
+  _event = event;
+  _view->chart()->removeAllSeries();
+  _view->clearView();
+  _allSeries.clear();
+  if (isAnotherEvent) {
+    //        _view->clearHistoryOfTransformations();
+    setInterval(event);
+    setAxesY(event->getComponentAmount());
+    _chart->setReceiverCount(event->getComponentAmount());
+    _rangeAxisX = 0;
+    getRangeX(event);
+    _view->setCountOfComponents(event->getComponentAmount());
+    _view->setRangeX(_rangeAxisX);
+    _chart->axisX()->setMin(0);
+    _chart->axisX()->setMax(_rangeAxisX);
+    _view->resetItemSize();
   }
   int componentAmount = 0;
   for (auto &component : event->getComponents()) {
@@ -190,9 +190,8 @@ void GraphicController::update(SeismEvent const *const event) {
   updateSeries();
 }
 
-void GraphicController::updatePolarGraph(const Data::SeismEvent * const event)
-{
-    _polarGraph->update(event);
+void GraphicController::updatePolarGraph(const Data::SeismEvent *const event) {
+  _polarGraph->update(event);
 }
 
 void GraphicController::updateEventName(const QString &name) {
@@ -240,23 +239,22 @@ void GraphicController::setWiggle(const int status) {
   }
 }
 
-void GraphicController::showWarningAboutUnvalidDataOnGraph(bool show)
-{
-    QPalette paletteTabWidget = _tabWidget->palette();
-    QPalette paletteGraph = _polarGraph->palette();
-    if (!show) {
-        paletteTabWidget.setColor(_tabWidget->backgroundRole(), Qt::white);
-        paletteGraph.setColor(_polarGraph->backgroundRole(), Qt::white);
-        _tabWidget->setPalette(paletteTabWidget);
-        _polarGraph->setGraphColor(Qt::white);
-        _polarGraph->setPalette(paletteGraph);
-    } else {
-        paletteTabWidget.setColor(_tabWidget->backgroundRole(), Qt::yellow);
-        paletteGraph.setColor(_polarGraph->backgroundRole(), Qt::gray);
-        _polarGraph->setGraphColor(Qt::gray);
-        _polarGraph->setPalette(Qt::yellow);
-        _tabWidget->setPalette(paletteTabWidget);
-   }
+void GraphicController::showWarningAboutUnvalidDataOnGraph(bool show) {
+  QPalette paletteTabWidget = _tabWidget->palette();
+  QPalette paletteGraph = _polarGraph->palette();
+  if (!show) {
+    paletteTabWidget.setColor(_tabWidget->backgroundRole(), Qt::white);
+    paletteGraph.setColor(_polarGraph->backgroundRole(), Qt::white);
+    _tabWidget->setPalette(paletteTabWidget);
+    _polarGraph->setGraphColor(Qt::white);
+    _polarGraph->setPalette(paletteGraph);
+  } else {
+    paletteTabWidget.setColor(_tabWidget->backgroundRole(), Qt::yellow);
+    paletteGraph.setColor(_polarGraph->backgroundRole(), Qt::gray);
+    _polarGraph->setGraphColor(Qt::gray);
+    _polarGraph->setPalette(Qt::yellow);
+    _tabWidget->setPalette(paletteTabWidget);
+  }
 }
 
 void GraphicController::clear() {
@@ -313,7 +311,7 @@ void GraphicController::addTraceSeries(
   for (unsigned j = 0; j < component->getTraces().size(); ++j, ++idx) {
     _norm = component->getMaxValue() /* NORMED*/;
     QLineSeries *series = new QLineSeries;
-    series->setUseOpenGL(true); // NOTE: COMMENT FOR RELEASE
+    //    series->setUseOpenGL(true); // NOTE: COMMENT FOR RELEASE
     auto trace = component->getTraces().at(j);
     float tmp = 0;
     for (int k = 0; k < trace->getBufferSize(); k++) {
@@ -354,11 +352,11 @@ void GraphicController::addWiggle(bool flag) {
   for (auto series : _allSeries) {
     double seriesYZeroCord = TRACE_OFFSET * (idx) + numberOfComponent;
     QLineSeries *medianSeries = new QLineSeries();
-    medianSeries->setUseOpenGL(true);
+    //    medianSeries->setUseOpenGL(true);
     medianSeries->append(0, seriesYZeroCord);
     medianSeries->append(_rangeAxisX, seriesYZeroCord);
     QLineSeries *newSeries = new QLineSeries;
-    newSeries->setUseOpenGL(true);
+    //    newSeries->setUseOpenGL(true);
     QPointF lp = series->at(0);
     if (flag == true) {
       for (auto &point : series->points()) {
@@ -401,7 +399,7 @@ void GraphicController::addWiggle(bool flag) {
     upperArea->setBrush(QBrush(upperAreaColor)); // TODO: delete
     upperArea->setUpperSeries(newSeries);
     upperArea->setLowerSeries(medianSeries);
-    upperArea->setUseOpenGL(true);
+    //    upperArea->setUseOpenGL(true);
     settingAreaSeries(upperArea);
     _chart->addSeries(upperArea);
     upperArea->attachAxis(_axisX);

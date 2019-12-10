@@ -18,6 +18,8 @@ class RotateData : public CustomIndividualUndoCommand {
 public:
   class Parameters {
   public:
+    // TODO:
+    //  как реализовать, куда стоит настройка поварачивать? (enum....)
     explicit Parameters(); // NOTE: default: to e-basis
 
     void setMatrixsBasisTo(const std::vector<Eigen::Matrix3f> &);

@@ -101,7 +101,7 @@ void InfoEvent::clear() {
   _allInfoUpdate = false;
   _nameEdit->clear();
   QPalette palette;
-  palette.setBrush(QPalette::Base, Qt::white);
+  palette.setBrush(QPalette::Base, Qt::transparent);
   _nameEdit->setPalette(palette);
 
   _receiverAmountLabel->clear();
