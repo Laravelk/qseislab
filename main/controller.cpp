@@ -24,102 +24,104 @@ using namespace ProjectOperation;
 namespace Main {
 Controller::Controller(QObject *parent)
     : QObject(parent), _shareEventStack(std::make_unique<QUndoStack>()),
-      _mainWindow(std::make_unique<View>()) {
+      _mainWindow(std::make_unique<View>(_shareEventStack.get())) {
 
-  _mainWindow->updateUndoStack(_shareEventStack.get());
+  //  _mainWindow->updateUndoStack(_shareEventStack.get());
 
   // share-undo/redo connecting
-  connect(_mainWindow.get(), &View::changeEventFocus,
-          [this](auto &eventFocus) { _eventFocus = eventFocus; });
+  //  connect(_mainWindow.get(), &View::changeEventFocus,
+  //          [this](auto &eventFocus) { _eventFocus = eventFocus; });
 
   connect(_mainWindow.get(), &View::undoClicked, [this]() {
-    if (!_currentOneEventFocus.isNull()) {
-      _eventStacks[_currentOneEventFocus]->undo();
-    } else {
-      _shareEventStack->undo();
-    }
+    //    if (!_currentOneEventFocus.isNull()) {
+    //      _eventStacks[_currentOneEventFocus]->undo();
+    //    } else {
+    _shareEventStack->undo();
+    //    }
   });
   connect(_mainWindow.get(), &View::redoClicked, [this]() {
-    if (!_currentOneEventFocus.isNull()) {
-      _eventStacks[_currentOneEventFocus]->redo();
-    } else {
-      _shareEventStack->redo();
-    }
+    //    if (!_currentOneEventFocus.isNull()) {
+    //      _eventStacks[_currentOneEventFocus]->redo();
+    //    } else {
+    _shareEventStack->redo();
+    //    }
   });
 
-  connect(_mainWindow.get(), &View::eventTransformSettingsClicked, this,
+  connect(_mainWindow.get(), &View::eventActionSettingsClicked, this,
           &Controller::handleEventTransformSettingsClicked);
 
-  connect(_mainWindow.get(), &View::eventTransformClicked, [this](auto oper) {
-    if (!_currentOneEventFocus.isNull()) {
-      auto command = UndoCommandGetter::get(
-          oper, QUuid(), _project->get<SeismEvent>(_currentOneEventFocus).get(),
-          _project->getSettings());
-      _eventStacks[_currentOneEventFocus]->push(command);
-    } else {
+  connect(_mainWindow.get(), &View::eventsActionClicked,
+          [this](auto &uuids, auto oper) {
+            //            if (!_currentOneEventFocus.isNull()) {
+            //              auto command = UndoCommandGetter::get(
+            //                  oper, QUuid(),
+            //                  _project->get<SeismEvent>(_currentOneEventFocus).get(),
+            //                  _project->getSettings());
+            //              _eventStacks[_currentOneEventFocus]->push(command);
+            //            } else {
 
-      if (!_eventFocus.empty()) {
-        auto shareCommand = new ShareUndoCommand(_eventFocus);
-        _shareEventStack->push(shareCommand);
+            if (!uuids.empty()) {
+              auto shareCommand = new ShareUndoCommand(uuids);
+              _shareEventStack->push(shareCommand);
 
-        auto shareUuid = shareCommand->getUuid();
+              auto shareUuid = shareCommand->getUuid();
 
-        for (auto &eventUuid : _eventFocus) {
-          auto command = UndoCommandGetter::get(
-              oper, shareUuid, _project->get<SeismEvent>(eventUuid).get(),
-              _project->getSettings());
-          _eventStacks[eventUuid]->push(command);
-        }
+              for (auto &eventUuid : uuids) {
+                auto command = UndoCommandGetter::get(
+                    oper, shareUuid, _project->get<SeismEvent>(eventUuid).get(),
+                    _project->getSettings());
+                _eventStacks[eventUuid]->push(command);
+              }
 
-        connect(shareCommand, &ShareUndoCommand::applyUndo,
-                [this](auto &shareUuid, auto &eventUuids) {
-                  std::set<QUuid> uuidsForRemove;
+              connect(shareCommand, &ShareUndoCommand::applyUndo,
+                      [this](auto &shareUuid, auto &eventUuids) {
+                        std::set<QUuid> uuidsForRemove;
 
-                  for (auto &eventUuid : eventUuids) {
-                    auto &stack = _eventStacks[eventUuid];
-                    bool undoApplied = stack->tryUndo(shareUuid);
-                    if (!undoApplied) {
-                      uuidsForRemove.insert(eventUuid);
-                    }
-                  }
+                        for (auto &eventUuid : eventUuids) {
+                          auto &stack = _eventStacks[eventUuid];
+                          bool undoApplied = stack->tryUndo(shareUuid);
+                          if (!undoApplied) {
+                            uuidsForRemove.insert(eventUuid);
+                          }
+                        }
 
-                  for (auto &uuid : uuidsForRemove) {
-                    eventUuids.erase(uuid);
-                  }
-                });
-        connect(shareCommand, &ShareUndoCommand::applyRedo,
-                [this](auto &shareUuid, auto &eventUuids) {
-                  std::set<QUuid> uuidsForRemove;
+                        for (auto &uuid : uuidsForRemove) {
+                          eventUuids.erase(uuid);
+                        }
+                      });
+              connect(shareCommand, &ShareUndoCommand::applyRedo,
+                      [this](auto &shareUuid, auto &eventUuids) {
+                        std::set<QUuid> uuidsForRemove;
 
-                  for (auto &eventUuid : eventUuids) {
-                    auto &stack = _eventStacks[eventUuid];
-                    bool redoApplied = stack->tryRedo(shareUuid);
-                    if (!redoApplied) {
-                      uuidsForRemove.insert(eventUuid);
-                    }
-                  }
+                        for (auto &eventUuid : eventUuids) {
+                          auto &stack = _eventStacks[eventUuid];
+                          bool redoApplied = stack->tryRedo(shareUuid);
+                          if (!redoApplied) {
+                            uuidsForRemove.insert(eventUuid);
+                          }
+                        }
 
-                  for (auto &uuid : uuidsForRemove) {
-                    eventUuids.erase(uuid);
-                  }
-                });
-      }
-    }
-  });
+                        for (auto &uuid : uuidsForRemove) {
+                          eventUuids.erase(uuid);
+                        }
+                      });
+            }
+            //            }
+          });
 
   connect(_mainWindow.get(), &View::addEventsClicked, this,
           &Controller::handleAddEventsClicked);
   connect(_mainWindow.get(), &View::addEventClicked, this,
           &Controller::handleAddEventClicked);
 
-  connect(_mainWindow.get(), &View::eventPageChanged, [this](auto &uuid) {
-    _currentOneEventFocus = uuid;
-    if (_currentOneEventFocus.isNull()) {
-      _mainWindow->updateUndoStack(_shareEventStack.get());
-    } else {
-      _mainWindow->updateUndoStack(_eventStacks[_currentOneEventFocus].get());
-    }
-  });
+  //  connect(_mainWindow.get(), &View::eventPageChanged, [this](auto &uuid) {
+  //    _currentOneEventFocus = uuid;
+  //    if (_currentOneEventFocus.isNull()) {
+  //      _mainWindow->updateUndoStack(_shareEventStack.get());
+  //    } else {
+  //      _mainWindow->updateUndoStack(_eventStacks[_currentOneEventFocus].get());
+  //    }
+  //  });
 
   connect(_mainWindow.get(), &View::eventPageClosed,
           [this](auto &uuid) { _oneViewEventControllers.erase(uuid); });
@@ -236,9 +238,9 @@ void Controller::handleAddEventsClicked() {
               }
             });
 
-    connect(_moreEventsController.get(),
-            &MoreEvents::Controller::eventTransformSettingsClicked, this,
-            &Controller::handleEventTransformSettingsClicked);
+    //    connect(_moreEventsController.get(),
+    //            &MoreEvents::Controller::eventTransformSettingsClicked, this,
+    //            &Controller::handleEventTransformSettingsClicked);
 
     connect(_moreEventsController.get(), &MoreEvents::Controller::finished,
             [this] { _moreEventsController.reset(); });
@@ -283,7 +285,24 @@ void Controller::handleViewEventClicked(const QUuid &uuid) {
 
     _oneViewEventControllers[uuid] = std::make_unique<ViewEvent::Controller>(
         _project->getAllMap<SeismEvent>(), _project->getAllMap<SeismWell>(),
-        event, this);
+        event, _eventStacks[uuid].get(), this);
+
+    connect(_oneViewEventControllers[uuid].get(),
+            &ViewEvent::Controller::undoClicked,
+            [this](auto &uuid) { _eventStacks[uuid]->undo(); });
+
+    connect(_oneViewEventControllers[uuid].get(),
+            &ViewEvent::Controller::redoClicked,
+            [this](auto &uuid) { _eventStacks[uuid]->redo(); });
+
+    connect(_oneViewEventControllers[uuid].get(),
+            &ViewEvent::Controller::eventActionClicked,
+            [this](auto &uuid, auto oper) {
+              auto command = UndoCommandGetter::get(
+                  oper, QUuid(), _project->get<SeismEvent>(uuid).get(),
+                  _project->getSettings());
+              _eventStacks[uuid]->push(command);
+            });
 
     auto &viewEventController = _oneViewEventControllers[uuid];
     _mainWindow->addEventPage(viewEventController->getView(), event.get());

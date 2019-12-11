@@ -13,7 +13,8 @@ typedef Data::SeismEvent SeismEvent;
 typedef Data::SeismProject SeismProject;
 
 namespace Main {
-View::View(QWidget *parent) : QMainWindow(parent) {
+View::View(QUndoStack const *const undoStack, QWidget *parent)
+    : QMainWindow(parent) {
   setWindowTitle("MainWindow");
 
   QAction *act;
@@ -46,53 +47,40 @@ View::View(QWidget *parent) : QMainWindow(parent) {
   QMenu *editMenu = new QMenu("&Edit");
   editMenu->setDisabled(true);
   connect(this, &View::projectPresence, editMenu, &QMenu::setEnabled);
-  _undoAction = editMenu->addAction(QIcon(":/icons/undo.png"), "Undo",
-                                    [this] { emit undoClicked(); });
-  _undoAction->setDisabled(true);
-  _redoAction = editMenu->addAction(QIcon(":/icons/redo.png"), "Redo",
-                                    [this] { emit redoClicked(); });
-  _redoAction->setDisabled(true);
+  auto undoAction = editMenu->addAction(QIcon(":/icons/undo.png"), "Undo",
+                                        [this] { emit undoClicked(); });
+  undoAction->setEnabled(undoStack->canUndo());
+  connect(undoStack, &QUndoStack::canUndoChanged, undoAction,
+          &QAction::setEnabled);
 
-  QMenu *actionMenu = new QMenu("Action");
-  actionMenu->addAction("Process Events",
-                        [this] { emit processEventsClicked(); });
-  //  actionMenu->addAction("Rotate", [this] {
-  //    emit eventTransformClicked(
-  //        SeismEvent::TransformOperation::RotateDataToEBasis);
-  //  });
-  QMenu *testMultMenu = new QMenu("Test Mult");
-  testMultMenu->addAction(QIcon(":/icons/test_mult.png"), "Apply", [this] {
-    emit eventTransformClicked(SeismEvent::TransformOperation::TestMultiplier);
-  });
-  testMultMenu->addAction(QIcon(":/icons/settings.png"), "Parameters", [this] {
-    emit eventTransformSettingsClicked(
-        SeismEvent::TransformOperation::TestMultiplier);
-  });
+  auto redoAction = editMenu->addAction(QIcon(":/icons/redo.png"), "Redo",
+                                        [this] { emit redoClicked(); });
+  redoAction->setEnabled(undoStack->canRedo());
+  connect(undoStack, &QUndoStack::canRedoChanged, redoAction,
+          &QAction::setEnabled);
 
-  actionMenu->addMenu(testMultMenu);
+  editMenu->addAction("Process Events",
+                      [this] { emit processEventsClicked(); });
 
-  QMenu *rotateMenu = new QMenu("Rotate");
-  rotateMenu->addAction(QIcon(":/icons/rotate.png"), "Apply", [this] {
-    emit eventTransformClicked(SeismEvent::TransformOperation::RotateData);
-  });
-  rotateMenu->addAction(QIcon(":/icons/settings.png"), "Parameters", [this] {
-    emit eventTransformSettingsClicked(
-        SeismEvent::TransformOperation::RotateData);
-  });
-  actionMenu->addMenu(rotateMenu);
+  QMenu *parametersMenu = new QMenu("Parameters");
+  parametersMenu->setIcon(QIcon(":/icons/settings.png"));
 
-  QMenu *fFilteringMenu = new QMenu("FFiltering");
-  fFilteringMenu->addAction(QIcon(":/icons/ffilter.png"), "Apply", [this] {
-    emit eventTransformClicked(SeismEvent::TransformOperation::FFilteringData);
-  });
-  fFilteringMenu->addAction(
-      QIcon(":/icons/settings.png"), "Parameters", [this] {
-        emit eventTransformSettingsClicked(
-            SeismEvent::TransformOperation::FFilteringData);
+  parametersMenu->addAction(
+      QIcon(":/icons/test_mult.png"), "Test Mult", [this] {
+        emit eventActionSettingsClicked(
+            SeismEvent::TransformOperation::TestMultiplier);
       });
-  actionMenu->addMenu(fFilteringMenu);
 
-  editMenu->addMenu(actionMenu);
+  parametersMenu->addAction(QIcon(":/icons/rotate.png"), "Rotate", [this] {
+    emit eventActionSettingsClicked(SeismEvent::TransformOperation::RotateData);
+  });
+
+  parametersMenu->addAction(QIcon(":/icons/ffilter.png"), "FFilter", [this] {
+    emit eventActionSettingsClicked(
+        SeismEvent::TransformOperation::FFilteringData);
+  });
+
+  editMenu->addMenu(parametersMenu);
 
   QMenu *viewMenu = new QMenu("&Data");
   viewMenu->setDisabled(true);
@@ -126,30 +114,29 @@ View::View(QWidget *parent) : QMainWindow(parent) {
 }
 
 void View::viewAboutProject(Data::SeismProject const *const project) {
-
   InfoProject *infoProject = new InfoProject(project, this);
   infoProject->setModal(true);
   infoProject->show();
 }
 
-void View::updateUndoStack(QUndoStack const *const undoStack) {
-  if (nullptr != _currentUndoStack) {
-    disconnect(_currentUndoStack, &QUndoStack::canUndoChanged, _undoAction,
-               &QAction::setEnabled);
-    disconnect(_currentUndoStack, &QUndoStack::canRedoChanged, _redoAction,
-               &QAction::setEnabled);
-  }
+// void View::updateUndoStack(QUndoStack const *const undoStack) {
+//  if (nullptr != _currentUndoStack) {
+//    disconnect(_currentUndoStack, &QUndoStack::canUndoChanged, _undoAction,
+//               &QAction::setEnabled);
+//    disconnect(_currentUndoStack, &QUndoStack::canRedoChanged, _redoAction,
+//               &QAction::setEnabled);
+//  }
 
-  _currentUndoStack = undoStack;
+//  _currentUndoStack = undoStack;
 
-  _undoAction->setEnabled(_currentUndoStack->canUndo());
-  connect(_currentUndoStack, &QUndoStack::canUndoChanged, _undoAction,
-          &QAction::setEnabled);
+//  _undoAction->setEnabled(_currentUndoStack->canUndo());
+//  connect(_currentUndoStack, &QUndoStack::canUndoChanged, _undoAction,
+//          &QAction::setEnabled);
 
-  _redoAction->setEnabled(_currentUndoStack->canRedo());
-  connect(_currentUndoStack, &QUndoStack::canRedoChanged, _redoAction,
-          &QAction::setEnabled);
-}
+//  _redoAction->setEnabled(_currentUndoStack->canRedo());
+//  connect(_currentUndoStack, &QUndoStack::canRedoChanged, _redoAction,
+//          &QAction::setEnabled);
+//}
 
 void View::addEventPage(QWidget *eventPage, SeismEvent const *const event) {
   assert(nullptr != _workPage);
@@ -173,10 +160,18 @@ void View::loadProject(Data::SeismProject const *const project) {
           [this](const QUuid uuid) { emit viewEventClicked(uuid); });
   connect(_workPage, &WorkPage::eventPageClosed,
           [this](auto &uuid) { emit eventPageClosed(uuid); });
-  connect(_workPage, &WorkPage::eventSelectionChanged,
-          [this](auto &select) { emit changeEventFocus(select); });
-  connect(_workPage, &WorkPage::eventPageChanged,
-          [this](auto &uuid) { emit eventPageChanged(uuid); });
+  //  connect(_workPage, &WorkPage::eventSelectionChanged,
+  //          [this](auto &select) { emit changeEventFocus(select); });
+  //  connect(_workPage, &WorkPage::eventPageChanged,
+  //          [this](auto &uuid) { emit eventPageChanged(uuid); });
+  connect(_workPage, &WorkPage::eventsActionClicked,
+          [this](auto &uuids, auto oper) {
+            emit eventsActionClicked(uuids, oper);
+          });
+  //  connect(
+  //      _workPage, &WorkPage::eventActionClicked,
+  //      [this](auto &uuid, auto oper) { emit eventActionClicked(uuid, oper);
+  //      });
 
   emit projectPresence(true);
 }

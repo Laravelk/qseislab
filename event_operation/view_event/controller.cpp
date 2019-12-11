@@ -18,7 +18,8 @@ namespace ViewEvent {
 Controller::Controller(
     const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &all_events,
     const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &wells_map,
-    const std::shared_ptr<Data::SeismEvent> &event, QObject *parent)
+    const std::shared_ptr<Data::SeismEvent> &event,
+    QUndoStack const *const undoStack, QObject *parent)
     : QObject(parent), _event(event) {
 
   // prepare data for view
@@ -33,7 +34,15 @@ Controller::Controller(
       eventNames.insert(uuid_event.second->getName());
     }
   }
-  _view = new View(eventNames, _event.get());
+  _view = new View(eventNames, _event.get(), undoStack);
+
+  connect(_view, &View::undoClicked,
+          [this] { emit undoClicked(_event->getUuid()); });
+  connect(_view, &View::redoClicked,
+          [this] { emit redoClicked(_event->getUuid()); });
+  connect(_view, &View::eventActionClicked, [this](auto oper) {
+    emit eventActionClicked(_event->getUuid(), oper);
+  });
 
   connect(_view, &View::infoChanged,
           [this] { _view->settingEventInfo(_event.get()); });

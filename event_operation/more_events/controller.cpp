@@ -98,7 +98,7 @@ Controller::Controller(
       });
 
   connect(_view.get(), &View::updatePolarGraphSignal, [this]() {
-      _view->updatePolarGraph(_events_map.at(_currentEventUuid).get());
+    _view->updatePolarGraph(_events_map.at(_currentEventUuid).get());
   });
 
   connect(_view.get(), &View::createPolarizationAnalysisWindow, [this]() {
@@ -149,41 +149,45 @@ Controller::Controller(
 
   connect(_view.get(), &View::sendPicksInfo,
           [this, settings](const auto type, const auto num, const auto l_val,
-                 const auto pick_val, const auto r_val) {
-
-      auto &event = _events_map[_currentEventUuid];
-      Data::ProjectSettings setting;
-      MovePick::Parameters parameters;
-      parameters.setNumber(num);
-      parameters.setLeftValue(l_val);
-      parameters.setRightValue(r_val);
-      parameters.setPickArrivalValue(pick_val);
-      parameters.setTypePick(type);
-      setting.setMovePickParameters(parameters);
-      auto command = UndoCommandGetter::get(Data::SeismEvent::TransformOperation::MovePick,QUuid(), event.get(), setting);
-      _stacks_map[_currentEventUuid]->push(command);
-          });
-
-  connect(_view.get(), &View::addPick, [this](auto type, auto num, auto l_val, auto arrival, auto r_val) {
-      int idx = 0;
-      auto &event = _events_map[_currentEventUuid];
-      for (auto &component : event->getComponents()) {
-          if (num == idx) {
+                           const auto pick_val, const auto r_val) {
+            auto &event = _events_map[_currentEventUuid];
             Data::ProjectSettings setting;
-            AddPick::Parameters parameters;
+            MovePick::Parameters parameters;
             parameters.setNumber(num);
             parameters.setLeftValue(l_val);
             parameters.setRightValue(r_val);
-            parameters.setPickArrivalValue(arrival);
+            parameters.setPickArrivalValue(pick_val);
             parameters.setTypePick(type);
-            setting.setAddPickParameters(parameters);
-            auto command = UndoCommandGetter::get(Data::SeismEvent::TransformOperation::AddPick,QUuid(), event.get(), setting);
+            setting.setMovePickParameters(parameters);
+            auto command = UndoCommandGetter::get(
+                Data::SeismEvent::TransformOperation::MovePick, QUuid(),
+                event.get(), setting);
             _stacks_map[_currentEventUuid]->push(command);
-            break;
-          }
-          idx++;
-      }
-  });
+          });
+
+  connect(_view.get(), &View::addPick,
+          [this](auto type, auto num, auto l_val, auto arrival, auto r_val) {
+            int idx = 0;
+            auto &event = _events_map[_currentEventUuid];
+            for (auto &component : event->getComponents()) {
+              if (num == idx) {
+                Data::ProjectSettings setting;
+                AddPick::Parameters parameters;
+                parameters.setNumber(num);
+                parameters.setLeftValue(l_val);
+                parameters.setRightValue(r_val);
+                parameters.setPickArrivalValue(arrival);
+                parameters.setTypePick(type);
+                setting.setAddPickParameters(parameters);
+                auto command = UndoCommandGetter::get(
+                    Data::SeismEvent::TransformOperation::AddPick, QUuid(),
+                    event.get(), setting);
+                _stacks_map[_currentEventUuid]->push(command);
+                break;
+              }
+              idx++;
+            }
+          });
 
   connect(_view.get(), &View::undoClicked, [this]() {
     if (!_currentEventUuid.isNull()) {
@@ -198,15 +202,16 @@ Controller::Controller(
 
   connect(_view.get(), &View::removePick,
           [this](const auto type, const auto num) {
-          auto &event = _events_map[_currentEventUuid];
-          Data::ProjectSettings setting;
-          RemovePick::Parameters parameters;
-          parameters.setNum(num);
-          parameters.setType(type);
-          setting.setRemovePickParameters(parameters);
-          auto command = UndoCommandGetter::get(Data::SeismEvent::TransformOperation::RemovePick,QUuid(), event.get(),
-                                                setting);
-          _stacks_map[_currentEventUuid]->push(command);
+            auto &event = _events_map[_currentEventUuid];
+            Data::ProjectSettings setting;
+            RemovePick::Parameters parameters;
+            parameters.setNum(num);
+            parameters.setType(type);
+            setting.setRemovePickParameters(parameters);
+            auto command = UndoCommandGetter::get(
+                Data::SeismEvent::TransformOperation::RemovePick, QUuid(),
+                event.get(), setting);
+            _stacks_map[_currentEventUuid]->push(command);
             _removedPickAndNeedUpdatePolarGraph = true;
 
             if (_polarizationWindow) {
@@ -225,8 +230,8 @@ Controller::Controller(
             }
           });
 
-  connect(_view.get(), &View::eventTransformSettingsClicked,
-          [this](auto oper) { emit eventTransformSettingsClicked(oper); });
+  //  connect(_view.get(), &View::eventTransformSettingsClicked,
+  //          [this](auto oper) { emit eventTransformSettingsClicked(oper); });
 
   connect(_view.get(), &View::finished, this, &Controller::finish);
 }

@@ -25,11 +25,17 @@ public:
   explicit Controller(
       const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
       const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &,
-      const std::shared_ptr<Data::SeismEvent> &, QObject *parent = nullptr);
+      const std::shared_ptr<Data::SeismEvent> &, QUndoStack const *const,
+      QObject *parent = nullptr);
 
   QWidget *getView();
 
 signals:
+  void undoClicked(const QUuid &) const;
+  void redoClicked(const QUuid &) const;
+  void eventActionClicked(const QUuid &,
+                          Data::SeismEvent::TransformOperation) const;
+
   void finished() const;
 
 private:

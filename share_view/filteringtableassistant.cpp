@@ -1,5 +1,7 @@
 #include "filteringtableassistant.h"
 
+#include "customtablewidget.h"
+
 #include "data/seismevent.h"
 #include "parsing/evaluateExpr.h"
 
@@ -7,6 +9,7 @@
 #include <QCheckBox>
 #include <QHeaderView>
 #include <QLineEdit>
+#include <QMenu>
 #include <QPushButton>
 #include <QSplitter>
 #include <QUuid>
@@ -19,7 +22,7 @@ typedef Data::SeismEvent SeismEvent;
 
 FilteringTableAssistant::FilteringTableAssistant(Mode mode, QWidget *parent)
     : QFrame(parent), _mode(mode), _filterTable(new QTableWidget()),
-      _objectsTable(new QTableWidget()) {
+      _objectsTable(new CustomTableWidget()), _context(new QMenu()) {
 
   // Settings
   switch (_mode) {
@@ -28,19 +31,22 @@ FilteringTableAssistant::FilteringTableAssistant(Mode mode, QWidget *parent)
     break;
   }
 
-  connect(_objectsTable, &QTableWidget::itemSelectionChanged, [this] {
-    auto selectedModel = _objectsTable->selectionModel();
+  connect(_objectsTable, &CustomTableWidget::rightClicked,
+          [this](auto &pos) { _context->exec(pos); });
 
-    std::set<QUuid> selectedObjects;
+  //  connect(_objectsTable, &QTableWidget::itemSelectionChanged, [this] {
+  //    auto selectedModel = _objectsTable->selectionModel();
 
-    for (auto &modelItem : selectedModel->selectedRows()) {
-      int row = modelItem.row();
-      selectedObjects.insert(
-          _objectsTable->item(row, 0)->data(Qt::DisplayRole).toUuid());
-    }
+  //    std::set<QUuid> selectedObjects;
 
-    emit objectSelectionChanged(selectedObjects);
-  });
+  //    for (auto &modelItem : selectedModel->selectedRows()) {
+  //      int row = modelItem.row();
+  //      selectedObjects.insert(
+  //          _objectsTable->item(row, 0)->data(Qt::DisplayRole).toUuid());
+  //    }
+
+  //    emit objectSelectionChanged(selectedObjects);
+  //  });
 
   _objectsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
   _objectsTable->setSortingEnabled(true);
@@ -123,11 +129,25 @@ bool FilteringTableAssistant::remove(const QUuid &uuid) {
   return false;
 }
 
-void FilteringTableAssistant::focusInEvent(QFocusEvent *event) {
-  std::cout << "capture focus in table" << std::endl;
-  emit captureFocus();
+// void FilteringTableAssistant::focusInEvent(QFocusEvent *event) {
+//  std::cout << "capture focus in table" << std::endl;
+//  emit captureFocus();
 
-  QFrame::focusInEvent(event);
+//  QFrame::focusInEvent(event);
+//}
+
+std::set<QUuid> FilteringTableAssistant::selectedUuids() const {
+  auto selectedModel = _objectsTable->selectionModel();
+
+  std::set<QUuid> selectedUuids;
+
+  for (auto &modelItem : selectedModel->selectedRows()) {
+    int row = modelItem.row();
+    selectedUuids.insert(
+        _objectsTable->item(row, 0)->data(Qt::DisplayRole).toUuid());
+  }
+
+  return selectedUuids;
 }
 
 void FilteringTableAssistant::clearObjectTable() {
@@ -138,6 +158,23 @@ void FilteringTableAssistant::clearObjectTable() {
 }
 
 void FilteringTableAssistant::forEvents() {
+  // Context-Menu Settings
+  _context->addAction(QIcon(":/icons/test_mult.png"), "Test Mult", [this] {
+    emit eventsActionClicked(selectedUuids(),
+                             SeismEvent::TransformOperation::TestMultiplier);
+  });
+
+  _context->addAction(QIcon(":/icons/rotate.png"), "Rotate", [this] {
+    emit eventsActionClicked(selectedUuids(),
+                             SeismEvent::TransformOperation::RotateData);
+  });
+
+  _context->addAction(QIcon(":/icons/ffilter.png"), "FFilter", [this] {
+    emit eventsActionClicked(selectedUuids(),
+                             SeismEvent::TransformOperation::FFilteringData);
+  });
+  // Context-Menu Settings end
+
   _objectsTable->setColumnCount(14);
   _objectsTable->setColumnHidden(0, true);
   _objectsTable->setColumnHidden(1, true);

@@ -38,8 +38,9 @@ signals:
   void sendEventsAndStacks(
       std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
       std::map<QUuid, std::shared_ptr<CustomIndividualUndoStack>> &) const;
-  void
-      eventTransformSettingsClicked(Data::SeismEvent::TransformOperation) const;
+  //  void
+  //      eventTransformSettingsClicked(Data::SeismEvent::TransformOperation)
+  //      const;
   void finished() const;
 
 private:

@@ -1,5 +1,6 @@
 #include "view.h"
 
+#include "event_operation/share/view/eventtoolswidget.h"
 #include "event_operation/share/view/graphiccontroller.h"
 #include "event_operation/share/view/infoevent.h"
 
@@ -13,15 +14,18 @@ typedef Data::SeismEvent SeismEvent;
 namespace EventOperation {
 namespace ViewEvent {
 View::View(const std::set<QString> &eventNames, SeismEvent const *const event,
-           QWidget *parent)
-    : QWidget(parent), _infoEvent(new InfoEvent()),
-      _graphicEvent(new GraphicController()), _eventNames(eventNames) {
+           QUndoStack const *const undoStack, QWidget *parent)
+    : QWidget(parent), _toolsWidget(new EventToolsWidget()),
+      _infoEvent(new InfoEvent()), _graphicEvent(new GraphicController()),
+      _eventNames(eventNames) {
 
   // Setting`s
   setFocusPolicy(Qt::StrongFocus);
 
   setWindowTitle("SeismWindow");
   setMinimumSize(1300, 590);
+
+  _toolsWidget->connectUndoStack(undoStack);
   // Setting`s end
 
   // Connecting
@@ -29,6 +33,13 @@ View::View(const std::set<QString> &eventNames, SeismEvent const *const event,
   //    updateRepetition(name);
   //    _graphicEvent->updateEventName(name);
   //  });
+  connect(_toolsWidget, &EventToolsWidget::undoClicked,
+          [this] { emit undoClicked(); });
+  connect(_toolsWidget, &EventToolsWidget::redoClicked,
+          [this] { emit redoClicked(); });
+  connect(_toolsWidget, &EventToolsWidget::eventTransformClicked,
+          [this](auto oper) { emit eventActionClicked(oper); });
+
   connect(_infoEvent, &InfoEvent::changed, [this]() { emit infoChanged(); });
 
   connect(_graphicEvent, &EventOperation::GraphicController::sendPicksInfo,
@@ -54,6 +65,7 @@ View::View(const std::set<QString> &eventNames, SeismEvent const *const event,
   mainLayout->addWidget(_graphicEvent, 10);
 
   QVBoxLayout *mainButtonLayout = new QVBoxLayout();
+  mainButtonLayout->addWidget(_toolsWidget);
   mainButtonLayout->addLayout(mainLayout);
   mainButtonLayout->addStretch(1);
 
@@ -87,11 +99,11 @@ void View::settingEventInfo(SeismEvent *const event) const {
 
 ChartGesture *View::getChartGesture() { return _graphicEvent->getModel(); }
 
-void View::focusInEvent(QFocusEvent *event) {
-  std::cout << "capture focus in view-event page" << std::endl;
-  emit captureFocus();
-  QWidget::focusInEvent(event);
-}
+// void View::focusInEvent(QFocusEvent *event) {
+//  std::cout << "capture focus in view-event page" << std::endl;
+//  emit captureFocus();
+//  QWidget::focusInEvent(event);
+//}
 
 void View::updateRepetition(const QString &name) {
   for (auto &globalName : _eventNames) {

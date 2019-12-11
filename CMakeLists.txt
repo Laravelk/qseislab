@@ -147,6 +147,7 @@ set(SOURCES
         main/oil_field_scene/oilfieldwidget.cpp
 
         share_view/tableassistant.cpp
+        share_view/customtablewidget.cpp
         share_view/filteringtableassistant.cpp
         share_view/parsing/evaluateExpr.cpp
 
@@ -275,6 +276,7 @@ set(HEADERS
         main/oil_field_scene/oilfieldwidget.h
 
         share_view/tableassistant.h
+        share_view/customtablewidget.h
         share_view/filteringtableassistant.h
         share_view/parsing/evaluateExpr.h
         share_view/parsing/parser.h

@@ -1,10 +1,14 @@
 #pragma once
 
+#include "data/seismevent.h"
+
 #include <QFrame>
 #include <QTableWidget>
 
 #include <memory>
 #include <set>
+
+class CustomTableWidget;
 
 class FilteringTableAssistant : public QFrame {
   Q_OBJECT
@@ -26,20 +30,26 @@ public:
   void setAll(const std::map<QUuid, std::shared_ptr<T>> &);
 
 signals:
-  void objectSelectionChanged(const std::set<QUuid> &) const;
+  //  void objectSelectionChanged(const std::set<QUuid> &) const;
 
   void viewClicked(const QUuid &);
   void hide(const QUuid &);
   void show(const QUuid &);
   void removeClicked(const QUuid &);
 
-  void captureFocus() const;
-  //  void freeFocus() const;
+  void eventsActionClicked(const std::set<QUuid> &,
+                           Data::SeismEvent::TransformOperation);
 
-protected:
-  void focusInEvent(QFocusEvent *event) override;
+  //  // TODO: remove:
+  //  void captureFocus() const;
+
+  //  // TODO: remove:
+  // protected:
+  //  void focusInEvent(QFocusEvent *event) override;
 
 private:
+  std::set<QUuid> selectedUuids() const;
+
   void clearObjectTable();
   void forEvents();
   void insertRowInFilterTable(const QString &);
@@ -52,5 +62,8 @@ private:
 
   Mode _mode;
   QTableWidget *_filterTable;
-  QTableWidget *_objectsTable;
+  //  QTableWidget *_objectsTable;
+  CustomTableWidget *_objectsTable;
+
+  QMenu *_context;
 };

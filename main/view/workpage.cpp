@@ -31,7 +31,6 @@ WorkPage::WorkPage(QWidget *parent)
           new FilteringTableAssistant(FilteringTableAssistant::ForEvents)) {
 
   // Setting`s
-
   _workPages->setTabsClosable(true);
   _workPages->setTabBarAutoHide(true);
   connect(_workPages, &QTabWidget::tabCloseRequested, [this](auto index) {
@@ -58,14 +57,20 @@ WorkPage::WorkPage(QWidget *parent)
   //    emit eventPageChanged(_pages_uuids_map[_workPages->widget(index)]);
   //  });
 
-  connect(_eventsTable, &FilteringTableAssistant::captureFocus,
-          [this] { emit eventPageChanged(_pages_uuids_map[_oilFieldWidget]); });
+  //  connect(_eventsTable, &FilteringTableAssistant::captureFocus,
+  //          [this] { emit eventPageChanged(_pages_uuids_map[_oilFieldWidget]);
+  //          });
   //  connect(_eventsTable, &FilteringTableAssistant::freeFocus, [this] {
   //    emit eventPageChanged((_pages_uuids_map[_workPages->currentWidget()]));
   //  });
 
-  connect(_eventsTable, &FilteringTableAssistant::objectSelectionChanged,
-          [this](auto &select) { emit eventSelectionChanged(select); });
+  //  connect(_eventsTable, &FilteringTableAssistant::objectSelectionChanged,
+  //          [this](auto &select) { emit eventSelectionChanged(select); });
+
+  connect(_eventsTable, &FilteringTableAssistant::eventsActionClicked,
+          [this](auto &selectedUuids, auto oper) {
+            emit eventsActionClicked(selectedUuids, oper);
+          });
 
   connect(_eventsTable, &FilteringTableAssistant::viewClicked,
           [this](auto &uuid) { emit viewEventClicked(uuid); });
@@ -149,9 +154,9 @@ void WorkPage::addEventPage(QWidget *page, SeismEvent const *const event) {
   _workPages->setCurrentWidget(page);
 
   // TODO: очень плохо - не надо так!
-  auto eventPage = static_cast<EventOperation::ViewEvent::View *>(page);
-  connect(eventPage, &EventOperation::ViewEvent::View::captureFocus,
-          [this, event] { emit eventPageChanged(event->getUuid()); });
+  //  auto eventPage = static_cast<EventOperation::ViewEvent::View *>(page);
+  //  connect(eventPage, &EventOperation::ViewEvent::View::captureFocus,
+  //          [this, event] { emit eventPageChanged(event->getUuid()); });
 }
 
 void WorkPage::setFocusEventPage(QWidget *page) {

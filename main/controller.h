@@ -68,8 +68,8 @@ private:
            std::unique_ptr<ProjectOperation::SettingDialog>>
       _projectSettingViews;
 
-  std::set<QUuid> _eventFocus;
-  QUuid _currentOneEventFocus;
+  //  std::set<QUuid> _eventFocus;
+  //  QUuid _currentOneEventFocus;
   std::map<QUuid, std::shared_ptr<CustomIndividualUndoStack>> _eventStacks;
   std::shared_ptr<QUndoStack> _shareEventStack;
 

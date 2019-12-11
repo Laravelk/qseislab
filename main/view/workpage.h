@@ -48,9 +48,15 @@ public:
   void removeReceiver(const QUuid &);                 // TODO: re-see
 
 signals:
-  void eventSelectionChanged(const std::set<QUuid> &) const;
+  //  void eventSelectionChanged(const std::set<QUuid> &) const;
 
-  void eventPageChanged(const QUuid &) const;
+  //  void eventActionClicked(const QUuid &,
+  //                          Data::SeismEvent::TransformOperation) const;
+
+  void eventsActionClicked(const std::set<QUuid> &,
+                           Data::SeismEvent::TransformOperation) const;
+
+  //  void eventPageChanged(const QUuid &) const;
   void eventPageClosed(const QUuid &);
 
   void viewEventClicked(const QUuid &) const;

@@ -70,8 +70,8 @@ View::View(const std::set<QString> &globalEventNames,
           [this]() { emit redoClicked(); });
   connect(_toolsWidget, &EventToolsWidget::eventTransformClicked,
           [this](auto oper) { emit eventTransformClicked(oper); });
-  connect(_toolsWidget, &EventToolsWidget::eventTransformSettingsClicked,
-          [this](auto oper) { emit eventTransformSettingsClicked(oper); });
+  //  connect(_toolsWidget, &EventToolsWidget::eventTransformSettingsClicked,
+  //          [this](auto oper) { emit eventTransformSettingsClicked(oper); });
 
   connect(addEventsButton, &QPushButton::clicked, [this]() {
     _fileDialog->open(this, SLOT(recvFilesPath(const QStringList &)));
@@ -151,9 +151,10 @@ View::View(const std::set<QString> &globalEventNames,
           &EventOperation::GraphicController::clickOnPolarAnalysisInGraph,
           [this]() { emit clickOnPolarAnalysisInGraph(); });
 
-  connect(_graphicEvent, &EventOperation::GraphicController::addPick, [this](auto type, auto num, auto l_val, auto arrival, auto r_val){
-        emit addPick(type, num, l_val, arrival, r_val);
-  });
+  connect(_graphicEvent, &EventOperation::GraphicController::addPick,
+          [this](auto type, auto num, auto l_val, auto arrival, auto r_val) {
+            emit addPick(type, num, l_val, arrival, r_val);
+          });
 
   connect(_okButton, &QPushButton::clicked, [this]() {
     if (allValid()) {
@@ -328,7 +329,7 @@ void View::showWarningWindowAboutValidStatusOfPolarizationAnalysisData() {
   if (reply == QMessageBox::Yes) {
     emit calculatePolarizationAnalysisData();
   } else {
-      emit updatePolarGraphSignal();
+    emit updatePolarGraphSignal();
   }
 }
 

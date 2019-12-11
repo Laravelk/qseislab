@@ -11,18 +11,20 @@ namespace EventOperation {
 EventToolsWidget::EventToolsWidget(QWidget *parent)
     : QWidget(parent), _undoButton(new QPushButton()),
       _redoButton(new QPushButton()), _rotateDataButton(new QPushButton()),
-      _testMultButton(new QPushButton()),
-    _ffilteringButton(new QPushButton()){
+      _testMultButton(new QPushButton()), _ffilteringButton(new QPushButton()) {
 
   // Setting`s
   _undoButton->setIcon(QIcon(":/icons/undo.png"));
   _redoButton->setIcon(QIcon(":/icons/redo.png"));
-  _rotateDataButton->setIcon(QIcon(":/icons/rotate.png"));
-  _testMultButton->setIcon(QIcon(":/icons/test_mult.png"));
-  _ffilteringButton->setText("FFiltering");
 
-  /* test for set setttings */
-  QPushButton *testMultSettingsButton = new QPushButton("test_mult_set");
+  _rotateDataButton->setIcon(QIcon(":/icons/rotate.png"));
+  _rotateDataButton->setToolTip("Rotate");
+
+  _testMultButton->setIcon(QIcon(":/icons/test_mult.png"));
+  _testMultButton->setToolTip("Test Mult");
+
+  _ffilteringButton->setIcon(QIcon(":/icons/ffilter.png"));
+  _ffilteringButton->setToolTip("FFilter");
   // Setting`s end
 
   // Connecting
@@ -35,14 +37,8 @@ EventToolsWidget::EventToolsWidget(QWidget *parent)
   connect(_testMultButton, &QPushButton::clicked, [this]() {
     emit eventTransformClicked(SeismEvent::TransformOperation::TestMultiplier);
   });
-  connect(_ffilteringButton, &QPushButton::clicked, [this]{
-      emit eventTransformClicked(SeismEvent::TransformOperation::FFilteringData);
-  });
-
-  /* test for set setttings */
-  connect(testMultSettingsButton, &QPushButton::clicked, [this]() {
-    emit eventTransformSettingsClicked(
-        SeismEvent::TransformOperation::TestMultiplier);
+  connect(_ffilteringButton, &QPushButton::clicked, [this] {
+    emit eventTransformClicked(SeismEvent::TransformOperation::FFilteringData);
   });
 
   // Connecting end
@@ -54,7 +50,6 @@ EventToolsWidget::EventToolsWidget(QWidget *parent)
   mainLayout->addWidget(_redoButton);
   //  mainLayout->addWidget(_dataToEBasisButton); // TODO: implement!
   mainLayout->addWidget(_testMultButton);
-  mainLayout->addWidget(testMultSettingsButton);
   mainLayout->addWidget(_ffilteringButton);
   mainLayout->addStretch(1);
 

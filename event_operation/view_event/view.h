@@ -5,6 +5,7 @@
 
 #include <QWidget>
 
+#include <QUndoStack>
 #include <memory>
 #include <set>
 
@@ -14,6 +15,7 @@ class SeismWell;
 } // namespace Data
 
 namespace EventOperation {
+class EventToolsWidget;
 class InfoEvent;
 class GraphicController;
 class ChartGesture;
@@ -23,7 +25,7 @@ class View : public QWidget {
 
 public:
   explicit View(const std::set<QString> &, Data::SeismEvent const *const,
-                QWidget *parent = nullptr);
+                QUndoStack const *const, QWidget *parent = nullptr);
 
   //  void update(Data::SeismEvent const *const);
   bool allValid() const;
@@ -37,18 +39,24 @@ public:
 signals:
   void infoChanged() const;
 
+  void eventActionClicked(Data::SeismEvent::TransformOperation) const;
+  void undoClicked() const;
+  void redoClicked() const;
+
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
   void createPolarizationAnalysisWindow();
 
   void finished() const;
 
-  void captureFocus() const;
+  //  void captureFocus() const;
 
-protected:
-  void focusInEvent(QFocusEvent *event) override;
+  // protected:
+  //  void focusInEvent(QFocusEvent *event) override;
 
 private:
   void updateRepetition(const QString &);
+
+  EventToolsWidget *_toolsWidget;
 
   InfoEvent *_infoEvent;
 

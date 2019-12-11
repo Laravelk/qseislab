@@ -16,11 +16,11 @@ class View : public QMainWindow {
   Q_OBJECT
 
 public:
-  explicit View(QWidget *parent = nullptr);
+  explicit View(QUndoStack const *const, QWidget *parent = nullptr);
 
   void viewAboutProject(Data::SeismProject const *const);
 
-  void updateUndoStack(QUndoStack const *const);
+  //  void updateUndoStack(QUndoStack const *const);
 
   void addEventPage(QWidget *, Data::SeismEvent const *const);
   void setFocusEventPage(QWidget *);
@@ -44,9 +44,14 @@ public:
   void closeProject();
 
 signals:
-  void eventTransformClicked(Data::SeismEvent::TransformOperation) const;
-  void
-      eventTransformSettingsClicked(Data::SeismEvent::TransformOperation) const;
+  void eventsActionClicked(const std::set<QUuid> &,
+                           Data::SeismEvent::TransformOperation) const;
+
+  //  void eventActionClicked(const QUuid &,
+  //                          Data::SeismEvent::TransformOperation) const;
+
+  //  void eventTransformClicked(Data::SeismEvent::TransformOperation) const;
+  void eventActionSettingsClicked(Data::SeismEvent::TransformOperation) const;
   void finished() const;
 
   void changeEventFocus(const std::set<QUuid> &) const;
@@ -79,9 +84,9 @@ signals:
 private:
   WorkPage *_workPage{nullptr}; // NOTE: правильно ли хранить этот указатель - ?
 
-  QUndoStack const *_currentUndoStack{nullptr};
-  QAction *_undoAction;
-  QAction *_redoAction;
+  //  QUndoStack const *_currentUndoStack{nullptr};
+  //  QAction *_undoAction;
+  //  QAction *_redoAction;
 };
 
 } // namespace Main
