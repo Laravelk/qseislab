@@ -15,9 +15,9 @@ RotateDataSettingDialog::RotateDataSettingDialog(QWidget *parent)
 
   // Connecting
   connect(_toEBasisButton, &QRadioButton::clicked,
-          [this] { this->hasChanged(); });
+          [this] { this->hasChanged(true); });
   connect(_toReceiverBasisButton, &QRadioButton::clicked,
-          [this] { this->hasChanged(); });
+          [this] { this->hasChanged(true); });
   // Connecting end
 
   // Layout`s
@@ -35,6 +35,7 @@ void RotateDataSettingDialog::update(
     const Data::ProjectSettings &projectSettings) {
   _toEBasisButton->setDown(false);
   _toReceiverBasisButton->setDown(false);
+  this->hasChanged(false);
 }
 
 void RotateDataSettingDialog::setSettings(

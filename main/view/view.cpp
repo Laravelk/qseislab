@@ -81,6 +81,17 @@ View::View(QWidget *parent) : QMainWindow(parent) {
   });
   actionMenu->addMenu(rotateMenu);
 
+  QMenu *fFilteringMenu = new QMenu("FFiltering");
+  fFilteringMenu->addAction(QIcon(":/icons/ffilter.png"), "Apply", [this] {
+    emit eventTransformClicked(SeismEvent::TransformOperation::FFilteringData);
+  });
+  fFilteringMenu->addAction(
+      QIcon(":/icons/settings.png"), "Parameters", [this] {
+        emit eventTransformSettingsClicked(
+            SeismEvent::TransformOperation::FFilteringData);
+      });
+  actionMenu->addMenu(fFilteringMenu);
+
   editMenu->addMenu(actionMenu);
 
   QMenu *viewMenu = new QMenu("&Data");

@@ -26,5 +26,5 @@ SettingDialog::SettingDialog(QWidget *parent)
   _buttonsLayout->addWidget(_cancelButton);
 }
 
-void SettingDialog::hasChanged() { _applyButton->setEnabled(true); }
+void SettingDialog::hasChanged(bool b) { _applyButton->setEnabled(b); }
 } // namespace ProjectOperation

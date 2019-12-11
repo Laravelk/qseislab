@@ -30,7 +30,7 @@ find_package(Qt5 COMPONENTS ${_Q_MODULES} REQUIRED)
 
 # Bad way
 #set(Boost_INCLUDE_DIR "C:/Program Files/boost_1_71_0/boost_1_71_0")
-#set(Boost_INCLUDE_DIR "C:/Users/seismuser/all/boost_1_71_0/boost_1_71_0")
+set(Boost_INCLUDE_DIR "C:/Users/seismuser/all/boost_1_71_0/boost_1_71_0")
 find_package(Boost REQUIRED)
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
@@ -167,6 +167,7 @@ set(SOURCES
         project_operation/project_settings/settingdialog.cpp
         project_operation/project_settings/testmultipliersettingdialog.cpp
         project_operation/project_settings/rotatedatasettingdialog.cpp
+        project_operation/project_settings/ffilteringdatasettingdialog.cpp
 )
 
 set(HEADERS
@@ -295,6 +296,7 @@ set(HEADERS
         project_operation/project_settings/settingdialog.h
         project_operation/project_settings/testmultipliersettingdialog.h
         project_operation/project_settings/rotatedatasettingdialog.h
+        project_operation/project_settings/ffilteringdatasettingdialog.h
 )
 
 add_executable(qseislab ${SOURCES} ${HEADERS} resources/resources.qrc)

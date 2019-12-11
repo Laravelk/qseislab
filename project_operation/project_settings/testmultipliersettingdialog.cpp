@@ -14,7 +14,8 @@ TestMultiplierSettingDialog::TestMultiplierSettingDialog(QWidget *parent)
   // Setting`s end
 
   // Connecting
-  connect(_multEdit, &QLineEdit::textChanged, [this] { this->hasChanged(); });
+  connect(_multEdit, &QLineEdit::textChanged,
+          [this] { this->hasChanged(true); });
   // Connecting end
 
   // Layout`s
@@ -31,6 +32,7 @@ void TestMultiplierSettingDialog::update(
     const Data::ProjectSettings &projectSettings) {
   _multEdit->setText(
       QString::number(projectSettings.getTestMultParameters().getMult()));
+  this->hasChanged(false);
 }
 
 void TestMultiplierSettingDialog::setSettings(

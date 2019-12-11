@@ -4,36 +4,36 @@
 
 class FFilteringDataCommand : public CustomIndividualUndoCommand {
 public:
-    class Parameters {
-    public:
-        int getF1() const;
-        void setF1(int);
+  class Parameters {
+  public:
+    int getF1() const;
+    void setF1(int);
 
-        int getF2() const;
-        void setF2(int);
+    int getF2() const;
+    void setF2(int);
 
-        int getF3() const;
-        void setF3(int);
+    int getF3() const;
+    void setF3(int);
 
-        int getF4() const;
-        void setF4(int);
+    int getF4() const;
+    void setF4(int);
 
-    private:
-        // TODO: начальные значения какие поставить???
-        int _F1;
-        int _F2;
-        int _F3;
-        int _F4;
-    };
+  private:
+    // TODO: начальные значения какие поставить??? (from SeiSee)
+    int _F1 = 10;
+    int _F2 = 20;
+    int _F3 = 70;
+    int _F4 = 1000;
+  };
 
-    explicit FFilteringDataCommand(const QUuid &, Data::SeismEvent *, const Parameters &);
+  explicit FFilteringDataCommand(const QUuid &, Data::SeismEvent *,
+                                 const Parameters &);
 
-    void undo() override;
-    void redo() override;
+  void undo() override;
+  void redo() override;
 
-    bool is(Data::SeismEvent::TransformOperation) const override;
+  bool is(Data::SeismEvent::TransformOperation) const override;
 
 private:
-    Data::SeismEvent *_event;
+  Data::SeismEvent *_event;
 };
-

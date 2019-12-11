@@ -22,7 +22,7 @@ signals:
   void apply() const;
 
 protected:
-  void hasChanged();
+  void hasChanged(bool);
 
   QHBoxLayout *_buttonsLayout;
 
