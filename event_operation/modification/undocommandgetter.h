@@ -6,7 +6,7 @@
 #include <iostream>
 
 class CustomIndividualUndoCommand;
-using TransformOperation = Data::SeismEvent::TransformOperation;
+
 
 namespace UndoCommandGetter {
 // template <typename... Args>

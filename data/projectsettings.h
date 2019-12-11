@@ -5,6 +5,7 @@
 #include "event_operation/modification/commands/removepick.h"
 #include "event_operation/modification/commands/addpick.h"
 #include "event_operation/modification/commands/rotatedatatoebasis.h"
+#include "event_operation/modification/commands/ffilteringdatacommand.h"
 
 
 namespace Data {
@@ -32,6 +33,10 @@ public:
   AddPick::Parameters &getAddPickParameters();
   const AddPick::Parameters &getAddPickParameters() const;
 
+  void setFFilteringParameters(const FFilteringDataCommand::Parameters &);
+  FFilteringDataCommand::Parameters &getFFilteringParameters();
+  const FFilteringDataCommand::Parameters &getFFilteringParameters() const;
+
 private:
   TestIndividualCommand::Parameters _testMultParameters;
 
@@ -40,5 +45,7 @@ private:
   MovePick::Parameters _movePickParameters;
   RemovePick::Parameters _removePickParameters;
   AddPick::Parameters _addPickParameters;
+
+  FFilteringDataCommand::Parameters _ffilteringParameters;
 };
 } // namespace Data

@@ -73,4 +73,16 @@ void ProjectSettings::setMovePickParameters(const MovePick::Parameters &movePick
 {
     _movePickParameters = movePickParameters;
 }
+
+void ProjectSettings::setFFilteringParameters(const FFilteringDataCommand::Parameters & ffilteringParameters) {
+    _ffilteringParameters = ffilteringParameters;
+}
+
+FFilteringDataCommand::Parameters &ProjectSettings::getFFilteringParameters() {
+    return _ffilteringParameters;
+}
+
+const FFilteringDataCommand::Parameters &ProjectSettings::getFFilteringParameters() const {
+    return _ffilteringParameters;
+}
 } // namespace Data

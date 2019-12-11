@@ -1,5 +1,7 @@
 #include "undocommandgetter.h"
 
+using TransformOperation = Data::SeismEvent::TransformOperation;
+
 namespace UndoCommandGetter {
 CustomIndividualUndoCommand *get(Data::SeismEvent::TransformOperation oper,
                                  const QUuid &shareUuid,
@@ -15,7 +17,9 @@ CustomIndividualUndoCommand *get(Data::SeismEvent::TransformOperation oper,
         return new RemovePick(shareUuid, event, settings.getRemovePickParameters());
     case TransformOperation::AddPick:
         return new AddPick(shareUuid, event, settings.getAddPickParameters());
-    }
+    case TransformOperation::FFilteringData:
+        return new FFilteringDataCommand(shareUuid, event, settings.getFFilteringParameters());
+}
 
     std::cerr << "UndoCommandGetter::get ::return nullptr" << std::endl;
     return nullptr;

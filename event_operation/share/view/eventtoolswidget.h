@@ -35,5 +35,7 @@ private:
 
   QPushButton *_rotateDataButton;
   QPushButton *_testMultButton;
+
+  QPushButton *_ffilteringButton;
 };
 } // namespace EventOperation

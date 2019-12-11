@@ -11,13 +11,15 @@ namespace EventOperation {
 EventToolsWidget::EventToolsWidget(QWidget *parent)
     : QWidget(parent), _undoButton(new QPushButton()),
       _redoButton(new QPushButton()), _rotateDataButton(new QPushButton()),
-      _testMultButton(new QPushButton()) {
+      _testMultButton(new QPushButton()),
+    _ffilteringButton(new QPushButton()){
 
   // Setting`s
   _undoButton->setIcon(QIcon(":/icons/undo.png"));
   _redoButton->setIcon(QIcon(":/icons/redo.png"));
   _rotateDataButton->setIcon(QIcon(":/icons/rotate.png"));
   _testMultButton->setIcon(QIcon(":/icons/test_mult.png"));
+  _ffilteringButton->setText("FFiltering");
 
   /* test for set setttings */
   QPushButton *testMultSettingsButton = new QPushButton("test_mult_set");
@@ -32,6 +34,9 @@ EventToolsWidget::EventToolsWidget(QWidget *parent)
   });
   connect(_testMultButton, &QPushButton::clicked, [this]() {
     emit eventTransformClicked(SeismEvent::TransformOperation::TestMultiplier);
+  });
+  connect(_ffilteringButton, &QPushButton::clicked, [this]{
+      emit eventTransformClicked(SeismEvent::TransformOperation::FFilteringData);
   });
 
   /* test for set setttings */
@@ -50,6 +55,7 @@ EventToolsWidget::EventToolsWidget(QWidget *parent)
   //  mainLayout->addWidget(_dataToEBasisButton); // TODO: implement!
   mainLayout->addWidget(_testMultButton);
   mainLayout->addWidget(testMultSettingsButton);
+  mainLayout->addWidget(_ffilteringButton);
   mainLayout->addStretch(1);
 
   setLayout(mainLayout);

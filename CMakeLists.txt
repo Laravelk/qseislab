@@ -50,6 +50,7 @@ set(SOURCES
         event_operation/modification/commands/movepick.cpp
         event_operation/modification/commands/removepick.cpp
         event_operation/modification/commands/addpick.cpp
+        event_operation/modification/commands/ffilteringdatacommand.cpp
 
 
 
@@ -176,6 +177,7 @@ set(HEADERS
         event_operation/modification/commands/movepick.h
         event_operation/modification/commands/removepick.h
         event_operation/modification/commands/addpick.h
+        event_operation/modification/commands/ffilteringdatacommand.h
 
         event_operation/one_event/controller.h
         event_operation/one_event/view/filemanager.h
