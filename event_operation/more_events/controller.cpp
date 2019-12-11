@@ -1,6 +1,6 @@
 #include "controller.h"
 
-//#include "data/projectsettings.h"
+#include "data/projectsettings.h"
 
 #include "data/seismevent.h"
 #include "data/seismwell.h"
@@ -97,6 +97,10 @@ Controller::Controller(
         _view->update(_events_map);
       });
 
+  connect(_view.get(), &View::updatePolarGraphSignal, [this]() {
+      _view->updatePolarGraph(_events_map.at(_currentEventUuid).get());
+  });
+
   connect(_view.get(), &View::createPolarizationAnalysisWindow, [this]() {
     _polarizationWindow =
         new PolarizationAnalysisWindow(_events_map.at(_currentEventUuid));
@@ -114,6 +118,7 @@ Controller::Controller(
           _events_map.at(_currentEventUuid).get());
     }
     _calculatePolarization->calculate();
+    _removedPickAndNeedUpdatePolarGraph = false;
     _view->updatePolarGraph(_events_map.at(_currentEventUuid).get());
   });
 
@@ -143,70 +148,42 @@ Controller::Controller(
           [this](auto &uuid) { _events_map.erase(uuid); });
 
   connect(_view.get(), &View::sendPicksInfo,
-          [this](const auto type, const auto num, const auto l_val,
+          [this, settings](const auto type, const auto num, const auto l_val,
                  const auto pick_val, const auto r_val) {
-            int idx = 0;
-            for (auto &component :
-                 _events_map.at(_currentEventUuid)->getComponents()) {
-              if (num == idx) {
 
-                auto &picks_map = component->getWavePicks();
-                auto itr_pic = picks_map.find(type);
-                if (itr_pic != picks_map.end()) {
-                  std::cout << "here 2" << std::endl;
-                  auto &pick = itr_pic->second;
-                  pick.setValidDataStatus(false);
-                  pick.setArrival(pick_val);
-                  pick.setPolarizationLeftBorder(l_val);
-                  pick.setPolarizationRightBorder(r_val);
-                } else {
-                  std::cout << "here" << std::endl;
-                  auto pick = Data::SeismWavePick(type, pick_val);
-                  pick.setPolarizationLeftBorder(l_val);
-                  pick.setPolarizationRightBorder(r_val);
-                  component->addWavePick(pick);
-                }
-                _events_map.at(_currentEventUuid)->changeTrigger();
-                break;
-
-                //                Data::SeismWavePick wavePick =
-                //                    Data::SeismWavePick(type, pick_val);
-
-                //                // wavePick.setPolarizationLeftBorder(l_val);
-                //                // wavePick.setPolarizationRightBorder(r_val);
-
-                //                Data::SeismWavePick oldWavePick;
-                //                for (auto &pick : component->getWavePicks()) {
-                //                  if (type == pick.first) {
-                //                    oldWavePick = pick.second;
-                //                    break;
-                //                  }
-                //                }
-
-                //                //                Data::SeismWavePick
-                //                oldWavePick =
-                //                // component->getWavePick(type);
-                //                wavePick.setPolarizationAnalysisData(
-                // oldWavePick.getPolarizationAnalysisData());
-                //                wavePick.setPolarizationLeftBorder(l_val);
-                //                wavePick.setPolarizationRightBorder(r_val);
-                //                if (oldWavePick.getPolarizationLeftBorder() !=
-                //                        wavePick.getPolarizationLeftBorder()
-                //                        ||
-                //                    oldWavePick.getPolarizationRightBorder()
-                //                    !=
-                //                        wavePick.getPolarizationRightBorder()
-                //                        ||
-                //                    oldWavePick.getArrival() !=
-                //                    wavePick.getArrival()) {
-                //                  wavePick.setValidDataStatus(false);
-                //                }
-                //                component->addWavePick(wavePick);
-                //                break;
-              }
-              ++idx;
-            }
+      auto &event = _events_map[_currentEventUuid];
+      Data::ProjectSettings setting;
+      MovePick::Parameters parameters;
+      parameters.setNumber(num);
+      parameters.setLeftValue(l_val);
+      parameters.setRightValue(r_val);
+      parameters.setPickArrivalValue(pick_val);
+      parameters.setTypePick(type);
+      setting.setMovePickParameters(parameters);
+      auto command = UndoCommandGetter::get(Data::SeismEvent::TransformOperation::MovePick,QUuid(), event.get(), setting);
+      _stacks_map[_currentEventUuid]->push(command);
           });
+
+  connect(_view.get(), &View::addPick, [this](auto type, auto num, auto l_val, auto arrival, auto r_val) {
+      int idx = 0;
+      auto &event = _events_map[_currentEventUuid];
+      for (auto &component : event->getComponents()) {
+          if (num == idx) {
+            Data::ProjectSettings setting;
+            AddPick::Parameters parameters;
+            parameters.setNumber(num);
+            parameters.setLeftValue(l_val);
+            parameters.setRightValue(r_val);
+            parameters.setPickArrivalValue(arrival);
+            parameters.setTypePick(type);
+            setting.setAddPickParameters(parameters);
+            auto command = UndoCommandGetter::get(Data::SeismEvent::TransformOperation::AddPick,QUuid(), event.get(), setting);
+            _stacks_map[_currentEventUuid]->push(command);
+            break;
+          }
+          idx++;
+      }
+  });
 
   connect(_view.get(), &View::undoClicked, [this]() {
     if (!_currentEventUuid.isNull()) {
@@ -221,18 +198,19 @@ Controller::Controller(
 
   connect(_view.get(), &View::removePick,
           [this](const auto type, const auto num) {
+          auto &event = _events_map[_currentEventUuid];
+          Data::ProjectSettings setting;
+          RemovePick::Parameters parameters;
+          parameters.setNum(num);
+          parameters.setType(type);
+          setting.setRemovePickParameters(parameters);
+          auto command = UndoCommandGetter::get(Data::SeismEvent::TransformOperation::RemovePick,QUuid(), event.get(),
+                                                setting);
+          _stacks_map[_currentEventUuid]->push(command);
             _removedPickAndNeedUpdatePolarGraph = true;
-            int idx = 0;
+
             if (_polarizationWindow) {
               _polarizationWindow->setDefault();
-            }
-            for (auto &component :
-                 _events_map.at(_currentEventUuid)->getComponents()) {
-              if (num == idx) {
-                component->removeWavePick(type);
-                break;
-              }
-              idx++;
             }
           });
 

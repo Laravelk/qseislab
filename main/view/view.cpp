@@ -68,6 +68,7 @@ View::View(QWidget *parent) : QMainWindow(parent) {
     emit eventTransformSettingsClicked(
         SeismEvent::TransformOperation::TestMultiplier);
   });
+
   actionMenu->addMenu(testMultMenu);
 
   QMenu *rotateMenu = new QMenu("Rotate");

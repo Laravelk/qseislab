@@ -23,17 +23,15 @@ void PolarizationAnalysisCompute::calculate() {
       const int LAST_NUMBER_OF_ELEMENT_IN_ARRAY =
           static_cast<const int>((pick.getPolarizationRightBorder() + 0.99f) /
                                  component->getSampleInterval());
-      Eigen::MatrixXf *matrix =
+      Eigen::MatrixXf matrix =
           getPointMatrix(component, FIRST_NUMBER_OF_ELEMENT_IN_ARRAY,
                          LAST_NUMBER_OF_ELEMENT_IN_ARRAY);
-      Data::SeismPolarizationAnalysisData *data =
-          calculatePolarizationData(*matrix);
-      data->setValid(true);
-//      component->removeWavePick(pick.getType());
+      Data::SeismPolarizationAnalysisData data =
+          calculatePolarizationData(matrix);
+      data.setValid(true);
       pick.setPolarizationAnalysisData(data);
-      std::cerr << pick.getType();
-
-//      component->addWavePick(pick);
+      _currentlyMap[std::make_pair(numberOfComponent, pick.getType())] =
+              pick.getPolarizationAnalysisData();
     }
     ++numberOfComponent;
   }
@@ -59,24 +57,30 @@ void PolarizationAnalysisCompute::calculate() {
 //    calculate();
 //}
 
-Eigen::MatrixXf *PolarizationAnalysisCompute::getPointMatrix(
+Eigen::MatrixXf PolarizationAnalysisCompute::getPointMatrix(
     Data::SeismComponent *const component, int firstIndex, int lastIndex) {
   const float MAX_VALUE = component->getMaxValue();
-  Eigen::MatrixXf *pointMatrix = new Eigen::MatrixXf(3, lastIndex - firstIndex);
+  Eigen::MatrixXf pointMatrix(3, lastIndex - firstIndex);
   auto bufferX = component->getTraces().at(0)->getBuffer();
   auto bufferY = component->getTraces().at(1)->getBuffer();
   auto bufferZ = component->getTraces().at(2)->getBuffer();
 
-  for (unsigned long i = static_cast<unsigned long>(firstIndex), rowNumber = 0;
-       i < static_cast<unsigned long>(lastIndex); i++, rowNumber++) {
-    (*pointMatrix)(0, static_cast<long>(rowNumber)) = bufferX[i] / MAX_VALUE;
-    (*pointMatrix)(1, static_cast<long>(rowNumber)) = bufferY[i] / MAX_VALUE;
-    (*pointMatrix)(2, static_cast<long>(rowNumber)) = bufferZ[i] / MAX_VALUE;
+  Eigen::RowVectorXf vectorX(lastIndex - firstIndex);
+  Eigen::RowVectorXf vectorY(lastIndex - firstIndex);
+  Eigen::RowVectorXf vectorZ(lastIndex - firstIndex);
+
+  for (int i  = firstIndex;
+       i < lastIndex; i++) {
+      vectorX[i - firstIndex] = bufferX[i] / MAX_VALUE;
+      vectorY[i - firstIndex] = bufferY[i] / MAX_VALUE;
+      vectorZ[i - firstIndex] = bufferZ[i] / MAX_VALUE;
   }
+
+  pointMatrix << vectorX, vectorY, vectorZ;
   return pointMatrix;
 }
 
-Data::SeismPolarizationAnalysisData *
+Data::SeismPolarizationAnalysisData
 PolarizationAnalysisCompute::calculatePolarizationData(
     const Eigen::MatrixXf &matrix) {
   Eigen::BDCSVD<Eigen::MatrixXf> *svd = new Eigen::BDCSVD<Eigen::MatrixXf>(
@@ -97,7 +101,7 @@ PolarizationAnalysisCompute::calculatePolarizationData(
   const double pIncidenceDegrees =
       pIncidenceInRadian * DEGREES_COEFFICIENT / M_PI;
 
-  return new Data::SeismPolarizationAnalysisData(
+  return Data::SeismPolarizationAnalysisData(
       maxSingularValue, pAzimutInRadian, pIncidenceInRadian, pAzimutDegrees,
       pIncidenceDegrees);
 }

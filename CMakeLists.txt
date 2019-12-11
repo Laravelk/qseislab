@@ -30,7 +30,7 @@ find_package(Qt5 COMPONENTS ${_Q_MODULES} REQUIRED)
 
 # Bad way
 #set(Boost_INCLUDE_DIR "C:/Program Files/boost_1_71_0/boost_1_71_0")
-set(Boost_INCLUDE_DIR "C:/Users/seismuser/all/boost_1_71_0/boost_1_71_0")
+#set(Boost_INCLUDE_DIR "C:/Users/seismuser/all/boost_1_71_0/boost_1_71_0")
 find_package(Boost REQUIRED)
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
@@ -47,6 +47,10 @@ set(SOURCES
         event_operation/modification/undocommandgetter.cpp
         event_operation/modification/commands/rotatedatatoebasis.cpp
         event_operation/modification/commands/testindividualcommand.cpp
+        event_operation/modification/commands/movepick.cpp
+        event_operation/modification/commands/removepick.cpp
+        event_operation/modification/commands/addpick.cpp
+
 
 
         event_operation/one_event/controller.cpp
@@ -69,17 +73,19 @@ set(SOURCES
         event_operation/share/view/graphiccontroller.cpp
         event_operation/share/view/chartgesture.cpp
         event_operation/share/view/eventtoolswidget.cpp
-        event_operation/share/view/graphic_view/pipes2dname.cpp
         event_operation/share/view/3dscene/polarizationanalysiswindow.cpp
         event_operation/share/view/graphic_view/viewoperation.cpp
 
 
         event_operation/share/view/polar_graph/polargraph.cpp # test
+        event_operation/share/view/polar_graph/analysisdatagraphicsitem.cpp
+
 
         event_operation/share/view/tools_view/wigglewidget.cpp
         event_operation/share/view/tools_view/hidecomponentwidget.cpp
         event_operation/share/view/tools_view/clippingwidget.cpp
         event_operation/share/view/tools_view/gainwidget.cpp
+        event_operation/share/view/tools_view/hidewavepointswidget.cpp
 
 
         horizon_operation/controller.cpp
@@ -116,6 +122,7 @@ set(SOURCES
         data/seismwell.cpp
         data/seismreceiver.cpp
         data/seismchannelreceiver.cpp
+        data/projectsettings.cpp
         data/io/segyreader.cpp
         data/io/seismcomponentreader.cpp
         data/io/seismcomponentwriter.cpp
@@ -166,8 +173,9 @@ set(HEADERS
         event_operation/modification/undocommandgetter.h
         event_operation/modification/commands/rotatedatatoebasis.h
         event_operation/modification/commands/testindividualcommand.h
-
-
+        event_operation/modification/commands/movepick.h
+        event_operation/modification/commands/removepick.h
+        event_operation/modification/commands/addpick.h
 
         event_operation/one_event/controller.h
         event_operation/one_event/view/filemanager.h
@@ -181,7 +189,6 @@ set(HEADERS
         event_operation/view_event/controller.h
         event_operation/view_event/view.h
 
-
         event_operation/share/polarizationanalysiscompute.h # test
 
         event_operation/share/model.h
@@ -191,17 +198,18 @@ set(HEADERS
         event_operation/share/view/graphiccontroller.h
         event_operation/share/view/chartgesture.h
         event_operation/share/view/eventtoolswidget.h
-        event_operation/share/view/graphic_view/pipes2dname.h
         event_operation/share/view/graphic_view/viewoperation.h
         event_operation/share/view/3dscene/polarizationanalysiswindow.h
 
         event_operation/share/view/polar_graph/polargraph.h # test
+        event_operation/share/view/polar_graph/analysisdatagraphicsitem.h
 
 
         event_operation/share/view/tools_view/wigglewidget.h
         event_operation/share/view/tools_view/hidecomponentwidget.h
         event_operation/share/view/tools_view/clippingwidget.h
         event_operation/share/view/tools_view/gainwidget.h
+        event_operation/share/view/tools_view/hidewavepointswidget.h
 
 
         horizon_operation/controller.h
@@ -238,6 +246,7 @@ set(HEADERS
         data/seismwell.h
         data/seismreceiver.h
         data/seismchannelreceiver.h
+        data/projectsettings.h
         data/io/segy_files_params.h
         data/io/abstractsegyreader.h
         data/io/segyreader.h

@@ -33,11 +33,11 @@ public:
   void setValidDataStatus(bool);
   bool getValidDataStatus();
 
-  const std::optional<SeismPolarizationAnalysisData*>
+  const std::optional<SeismPolarizationAnalysisData>
   getPolarizationAnalysisData() const;
 
-  void setPolarizationAnalysisData(SeismPolarizationAnalysisData *);
-  void setPolarizationAnalysisData(const std::optional<SeismPolarizationAnalysisData*> &);
+  void setPolarizationAnalysisData(SeismPolarizationAnalysisData &);
+  void setPolarizationAnalysisData(const std::optional<SeismPolarizationAnalysisData> &);
 
   QJsonObject &writeToJson(QJsonObject &) const noexcept(false);
 
@@ -48,7 +48,7 @@ private:
   int _polarizationLeftBorder;
   int _polarizationRightBorder;
 
-  std::optional<SeismPolarizationAnalysisData*> _polarizationData = std::nullopt;
+  std::optional<SeismPolarizationAnalysisData> _polarizationData = std::nullopt;
 
   static std::map<Type, std::string> _make_enum_strings_map();
   static std::map<std::string, Type> _make_strings_enum_map();

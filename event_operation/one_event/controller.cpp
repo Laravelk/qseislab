@@ -116,7 +116,12 @@ Controller::Controller(
     }
     //      _calculatePolarization->calculate(_events_map.at(_currentEventUuid));
     _calculatePolarization->calculate();
+    _removedPickAndNeedUpdatePolarGraph = false;
     _view->updatePolarGraph(_event.get());
+  });
+
+  connect(_view.get(), &View::updatePolarGraphSignal, [this]() {
+      _view->updatePolarGraph(_event.get());
   });
 
   connect(_view.get(), &View::clickOnPolarAnalysisInGraph, [this]() {
@@ -133,6 +138,12 @@ Controller::Controller(
             int idx = 0;
             for (auto &component : this->_event->getComponents()) {
               if (num == idx) {
+//                    auto &pick = component->getWavePicks()[type];
+//                    pick.setArrival(pick_val);
+//                    pick.setPolarizationLeftBorder(l_val);
+//                    pick.setPolarizationRightBorder(r_val);
+//                    pick.setValidDataStatus(false);
+//                    break;
                 auto &picks_map = component->getWavePicks();
                 auto itr_pic = picks_map.find(type);
                 if (itr_pic != picks_map.end()) {
@@ -149,24 +160,6 @@ Controller::Controller(
                 }
                 _event->changeTrigger();
                 break;
-
-                //                Data::SeismWavePick wavePick =
-                //                    Data::SeismWavePick(type, pick_val);
-                //                wavePick.setPolarizationLeftBorder(l_val);
-                //                wavePick.setPolarizationRightBorder(r_val);
-
-                //                //                auto &pick =
-                //                component->getWavePicks()[type];
-                //                // pick.setValidDataStatus(false);
-                //                //                pick.setArrival(pick_val);
-                //                // pick.setPolarizationLeftBorder(l_val);
-                //                // pick.setPolarizationRightBorder(r_val);
-                //                //
-                //                _events_map.at(_currentEventUuid)->changeTrigger();
-                //                //                break;
-
-                //                component->addWavePick(wavePick);
-                //                break;
               }
               ++idx;
             }
@@ -177,7 +170,6 @@ Controller::Controller(
 
   connect(_view.get(), &View::eventTransformClicked,
           [this, &wells_map](auto oper) {
-              // TODO: implement!
 //            CustomIndividualUndoCommand *command =
 //                UndoCommandGetter::get(oper, QUuid(), _event.get());
 //            _undoStack->push(command);

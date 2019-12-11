@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../chartgesture.h"
-#include "pipes2dname.h"
 #include "wavepick.h"
 #include "viewoperation.h"
 #include <QtCharts/QChartView>
@@ -41,6 +40,7 @@ public:
       scene()->removeItem(pick);
     }
     _wavePicks.clear();
+//    std::cerr << "wave picks after clear size " << _wavePicks.size() << std::endl;
   }
 
   void clearHistoryOfTransformations();
@@ -79,7 +79,6 @@ private:
   bool _isAddSWaveTriggerPressed = false;
   ChartGesture *_chart;
   QList<WavePick *> _wavePicks;
-  QList<Pipes2DName *> _pipesName;
   QPointF calculatePickPosition(QPointF);
   bool checkAvailability(Data::SeismWavePick::Type, int);
   QGraphicsTextItem *_status;
@@ -90,6 +89,7 @@ private:
 signals:
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
   void removePick(Data::SeismWavePick::Type, int);
+  void addPickSignal(Data::SeismWavePick::Type, int, int, int, int);
 
 private:
   QGraphicsRectItem *rect;
@@ -138,6 +138,5 @@ private:
   };
 
   ColorData *_colorData;
-  QWidget *_viewport;
 };
 } // namespace EventOperation

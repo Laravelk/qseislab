@@ -20,13 +20,16 @@ public:
   double getAzimutDegrees() const;
   double getIncidenceDegrees() const;
 
+  SeismPolarizationAnalysisData &operator=(SeismPolarizationAnalysisData const &pick);
+
+
   void print();
 
 private:
   bool _isValid;
   double _maxSingularValue;
   double _pAzimutInRadian;
-  double _pIncidenceInRadian;;
+  double _pIncidenceInRadian;
 
   const double DEGREES_COEFFICIENT = 180;
 };

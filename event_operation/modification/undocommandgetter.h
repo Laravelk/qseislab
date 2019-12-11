@@ -1,7 +1,6 @@
 #pragma once
 
 #include "data/projectsettings.h"
-
 #include "data/seismevent.h"
 
 #include <iostream>

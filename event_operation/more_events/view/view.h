@@ -15,8 +15,10 @@
 #include <set>
 
 namespace Data {
-// class SeismEvent;
+class SeismEvent;
 class SeismWell;
+class SeismReceiver;
+class ProjectSettings;
 } // namespace Data
 
 namespace EventOperation {
@@ -59,8 +61,6 @@ signals:
 
   void sendWellUuidAndFilePaths(const QUuid &, const QStringList &) const;
 
-  void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
-
   void undoClicked() const;
   void redoClicked() const;
 
@@ -70,8 +70,12 @@ signals:
 
 
   void removePick(Data::SeismWavePick::Type, int);
+  void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
+  void addPick(Data::SeismWavePick::Type, int, int, int, int);
+
   void createPolarizationAnalysisWindow();
   void calculatePolarizationAnalysisData();
+  void updatePolarGraphSignal();
   void clickOnPolarAnalysisInGraph();
 
 private slots:
