@@ -7,8 +7,8 @@ namespace Data {
 
 SeismPolarizationAnalysisData::SeismPolarizationAnalysisData(double maxSingularValue, double pAzimutInRadian,
                                                              double pIncidenceInRadian, double pAzimutDegrees,
-                                                             double pIncidenceDegrees)
-    : _maxSingularValue(maxSingularValue), _pAzimutInRadian(pAzimutInRadian), _pIncidenceInRadian(pIncidenceInRadian) {}
+                                                             double pIncidenceDegrees, QVector3D eigenVector)
+    : _maxSingularValue(maxSingularValue), _pAzimutInRadian(pAzimutInRadian), _pIncidenceInRadian(pIncidenceInRadian), _eigenVector(eigenVector) {}
 
 void SeismPolarizationAnalysisData::setValid(const bool validStatus) {
   _isValid = validStatus;
@@ -33,6 +33,7 @@ SeismPolarizationAnalysisData &SeismPolarizationAnalysisData::operator=(const Se
         this->_pIncidenceInRadian = pick._pIncidenceInRadian;
         this->_isValid = pick._isValid;
         this->_maxSingularValue = pick._maxSingularValue;
+        this->_eigenVector = pick._eigenVector;
     }
     return *this;
 }
@@ -65,6 +66,16 @@ void SeismPolarizationAnalysisData::print()
     std::cerr << "maxSing " << _maxSingularValue << " AzimputInRadian " << _pAzimutInRadian << " IncendceInRadian " <<
                  _pIncidenceInRadian << std::endl;
 
+}
+
+QVector3D SeismPolarizationAnalysisData::getEigenVector() const
+{
+    return _eigenVector;
+}
+
+void SeismPolarizationAnalysisData::setEigenVector(const QVector3D &value)
+{
+    _eigenVector = value;
 }
 
 } // namespace Data

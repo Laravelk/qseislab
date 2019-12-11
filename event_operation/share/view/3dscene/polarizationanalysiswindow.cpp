@@ -337,26 +337,36 @@ void PolarizationAnalysisWindow::drawTraces(
   int lastElement = lastElementNumber(component);
   int pickIndex = 0;
   float maxValue = component->getMaxValue();
+  Data::SeismWavePick::Type type;
   Data::SeismWavePick pick;
   if (_currentWaveTypeString == P_WAVE_STRING) {
-    pickIndex = 1;
+     type = Data::SeismWavePick::PWAVE;
   } else {
-    pickIndex = 2;
+     type = Data::SeismWavePick::SWAVE;
   }
-  //  switch (pickIndex) {
-  //  case SeismWavePick::PWAVE:
-  //    pick = component->getWavePick(SeismWavePick::PWAVE);
-  //    break;
-  //  case Data::SeismWavePick::SWAVE:
-  //    pick = component->getWavePick(SeismWavePick::SWAVE);
-  //  }
-
   for (auto &type_pick : component->getWavePicks()) {
-    if (pickIndex == type_pick.first) {
+    if (type == type_pick.first) {
       pick = type_pick.second;
     }
   }
 
+  // compute eigen line by eigen vector
+   if (pick.getPolarizationAnalysisData() != std::nullopt) {
+     Data::SeismPolarizationAnalysisData data = pick.getPolarizationAnalysisData().value();
+     QVector3D eigenVector = data.getEigenVector();
+     float cx1 = -2;
+     float cy1 = -2;
+     float cz1 = -2;
+     float cx2 = 2;
+     float cy2 = 2;
+     float cz2 = 2;
+
+     QVector3D point1(eigenVector.x() * cx1, eigenVector.y() * cy1, eigenVector.z() * cz1);
+     QVector3D point2(eigenVector.x() * cx2, eigenVector.y() * cy2, eigenVector.z() * cz2);
+
+     _eigenVectorLine = drawLine(point1, point2, Qt::blue, _scene);
+   }
+ // end compute
   firstElement = static_cast<int>(pick.getPolarizationLeftBorder() /
                                   component->getInfo().getSampleInterval());
   lastElement = static_cast<int>(pick.getPolarizationRightBorder() /
@@ -465,6 +475,13 @@ void PolarizationAnalysisWindow::clearScene() {
     _curves.removeOne(curve);
     delete (curve);
     curve = nullptr;
+  }
+  if (_eigenVectorLine != nullptr) {
+      for (auto &component : _eigenVectorLine->components()) {
+          _eigenVectorLine->removeComponent(component);
+      }
+      delete _eigenVectorLine;
+      _eigenVectorLine = nullptr;
   }
 };
 

@@ -17,6 +17,7 @@ void MovePick::undo()
             pick.setArrival(_beforeRedoPick.getArrival());
             pick.setPolarizationLeftBorder(_beforeRedoPick.getPolarizationLeftBorder());
             pick.setPolarizationRightBorder(_beforeRedoPick.getPolarizationRightBorder());
+            pick.setValidDataStatus(_beforeRedoPick.getValidDataStatus());
         }
     }
     _event->changeTrigger();
@@ -32,6 +33,7 @@ void MovePick::redo()
                 pick.setArrival(_parameters.getPickArrival());
                 pick.setPolarizationLeftBorder(_parameters.getLeftValue());
                 pick.setPolarizationRightBorder(_parameters.getRightValue());
+                pick.setValidDataStatus(false);
             }
     }
     _event->changeTrigger();

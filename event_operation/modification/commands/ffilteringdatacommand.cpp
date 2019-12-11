@@ -1,5 +1,7 @@
 #include "ffilteringdatacommand.h"
 
+
+
 FFilteringDataCommand::FFilteringDataCommand(const QUuid &shareUuid, Data::SeismEvent *event, const FFilteringDataCommand::Parameters &parameters)
     : CustomIndividualUndoCommand(shareUuid),
       _event(event)

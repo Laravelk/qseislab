@@ -53,6 +53,7 @@ private:
   void clearScene();
   QList<Qt3DCore::QEntity *> _curves;
   QList<Qt3DCore::QEntity *> _arrows;
+  Qt3DCore::QEntity * _eigenVectorLine = nullptr;
   const QString P_WAVE_STRING = "PWAVE";
   const QString S_WAVE_STRING = "SWAVE";
   const QString DEFAULT_WAVE_STRING = "Type Wave...";

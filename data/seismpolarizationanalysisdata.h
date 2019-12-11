@@ -1,12 +1,14 @@
 #pragma once
 
+#include <QVector3D>
+
 namespace Data {
 class SeismPolarizationAnalysisData {
 public:
   explicit SeismPolarizationAnalysisData(double maxSingularValue, double pAzimutInRadian,
                                 double pIncidenceInRadian,
                                 double pAzimutDegrees,
-                                double pIncidenceDegrees);
+                                double pIncidenceDegrees, QVector3D eigenVector);
 
   void setValid(const bool validStatus);
   void setMaxSingularVale(const double value);
@@ -25,11 +27,15 @@ public:
 
   void print();
 
+  QVector3D getEigenVector() const;
+  void setEigenVector(const QVector3D &value);
+
 private:
   bool _isValid;
   double _maxSingularValue;
   double _pAzimutInRadian;
   double _pIncidenceInRadian;
+  QVector3D _eigenVector;
 
   const double DEGREES_COEFFICIENT = 180;
 };

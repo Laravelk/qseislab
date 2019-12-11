@@ -25,9 +25,9 @@ GraphicController::GraphicController(QWidget *parent)
       _hideComponentWidget(new HideComponentWidget()),
       _clippingWidget(new ClippingWidget()), _gainWidget(new GainWidget()),
       _addWaveButton(new QPushButton("+")),
-      _polarizationEventButton(new QPushButton("Polarization Analysis")),
+      _polarizationEventButton(new QPushButton("Hodogram")),
       _tabWidget(new QTabWidget()),
-      _calculatePolarizationAnalysisDataButton(new QPushButton("Calculate")),
+      _calculatePolarizationAnalysisDataButton(new QPushButton("Compute")),
       _polarChart(new QPolarChart()), _hideWavePointsWidget(new HideWavePointsWidget()) {
 
   _view = new GraphicView(_chart);
@@ -176,8 +176,8 @@ GraphicController::GraphicController(QWidget *parent)
   QWidget *polarGraphWidget = new QWidget();
   polarGraphWidget->setLayout(polarGraphLayout);
 
-  _tabWidget->addTab(graphWidget, "graphic");
-  _tabWidget->addTab(polarGraphWidget, "polar");
+  _tabWidget->addTab(graphWidget, "Traces");
+  _tabWidget->addTab(polarGraphWidget, "Polarization Analysis Data");
 
   QHBoxLayout *mainLayout = new QHBoxLayout();
   mainLayout->addWidget(_tabWidget, 1);
