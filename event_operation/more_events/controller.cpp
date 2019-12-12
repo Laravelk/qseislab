@@ -218,9 +218,17 @@ Controller::Controller(
           [this, &settings](auto oper) {
             if (!_currentEventUuid.isNull()) {
               auto &event = _events_map[_currentEventUuid];
-
+              Data::ProjectSettings setting;
+              FFilteringDataCommand::Parameters parameters;
+              // F1 - F4?
+              parameters.setF1(10);
+              parameters.setF2(20);
+              parameters.setF3(50);
+              parameters.setF4(60);
+              setting.setFFilteringParameters(parameters);
+              // TEST TODO: delete
               auto command =
-                  UndoCommandGetter::get(oper, QUuid(), event.get(), settings);
+                  UndoCommandGetter::get(oper, QUuid(), event.get(), setting);
               _stacks_map[_currentEventUuid]->push(command);
             }
           });

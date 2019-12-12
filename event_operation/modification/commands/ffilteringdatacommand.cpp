@@ -5,7 +5,7 @@
 
 FFilteringDataCommand::FFilteringDataCommand(const QUuid &shareUuid, Data::SeismEvent *event, const FFilteringDataCommand::Parameters &parameters)
     : CustomIndividualUndoCommand(shareUuid),
-      _event(event)
+      _event(event), _parameters(parameters)
 {}
 
 void FFilteringDataCommand::undo() {
@@ -15,14 +15,46 @@ void FFilteringDataCommand::undo() {
 void FFilteringDataCommand::redo() {
     Eigen::FFT <float> fft;
     fillOldDataList();
-    int idx = 0;
+    std::cerr << "affter fill" << std::endl;
     for (auto &oldDataMapElement : _oldDataMap) {
         for (auto &trace : oldDataMapElement.second) {
+        auto &traceOwner = _event->getComponents()[oldDataMapElement.first];
         std::vector<float> timevec = trace;
         std::vector<std::complex<float>> freqvec;
         fft.fwd(freqvec, timevec);
 
+        int indexF1 = static_cast<int>(_parameters.getF1() * trace.size() *
+                                      traceOwner->getSampleInterval() / MICROSECONDS_IN_SECONDS);
+        int indexF2 = static_cast<int>(_parameters.getF2() * trace.size() *
+                                                        traceOwner->getSampleInterval() / MICROSECONDS_IN_SECONDS);
+        int indexF3 = static_cast<int>(_parameters.getF3() * trace.size() * traceOwner->getSampleInterval() / MICROSECONDS_IN_SECONDS);
+        int indexF4 = static_cast<int>(_parameters.getF4() * trace.size() * traceOwner->getSampleInterval() / MICROSECONDS_IN_SECONDS);
+
+        std::cerr << indexF1 << " " << indexF2 << " " << indexF3 << " " << indexF4 << std::endl;
+
         // scalar f1 - f4 zone
+        for (int i = 0; i < indexF1; i++) {
+            freqvec[i] = 0;
+        }
+
+        float h = indexF2 - indexF1;
+        for (int i = indexF1; i < indexF2; i++) {
+            float scalar = (i - indexF1) / h;
+            freqvec[i] *= scalar;
+        }
+
+        float d = indexF4 - indexF3;
+        for (int i = indexF3; i < indexF4; i++) {
+            float scalar = (i - indexF3) / d;
+            freqvec[i] *= scalar;
+        }
+
+        for (int i = indexF4; i < trace.size(); i++) {
+            freqvec[i] = 0;
+        }
+
+        fft.inv(timevec, freqvec);
+
 
         // end zone
 
@@ -32,6 +64,7 @@ void FFilteringDataCommand::redo() {
 
         }
     }
+    _event->changeTrigger();
 }
 
 bool FFilteringDataCommand::is(Data::SeismEvent::TransformOperation oper) const {
@@ -92,14 +125,4 @@ int FFilteringDataCommand::Parameters::getF4() const {
 
 void FFilteringDataCommand::Parameters::setF4(int f4) {
     _F4 = f4;
-}
-
-int FFilteringDataCommand::Parameters::getSampleInterval() const
-{
-    return _sampleInterval;
-}
-
-void FFilteringDataCommand::Parameters::setSampleInterval(int value)
-{
-    _sampleInterval = value;
 }

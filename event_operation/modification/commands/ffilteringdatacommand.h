@@ -21,16 +21,12 @@ public:
         int getF4() const;
         void setF4(int);
 
-        int getSampleInterval() const;
-        void setSampleInterval(int);
-
     private:
         // TODO: начальные значения какие поставить???
         int _F1;
         int _F2;
         int _F3;
         int _F4;
-        int _sampleInterval;
     };
 
     explicit FFilteringDataCommand(const QUuid &, Data::SeismEvent *, const Parameters &);
@@ -42,8 +38,10 @@ public:
 
 private:
     Data::SeismEvent *_event;
-
+    FFilteringDataCommand::Parameters _parameters;
     std::map<int, std::vector<std::vector<float>>> _oldDataMap;
+
+    const int MICROSECONDS_IN_SECONDS = 1000000;
 
     void fillOldDataList();
 };
