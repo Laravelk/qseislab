@@ -58,7 +58,7 @@ private:
   int _pWaveArrival;
   int _sWaveArrival;
   float _rangeAxisX;
-  float _clipping = 10.0f;
+  float _clipping = 1.0f;
   float _gain = 1.0f;
   bool _hideAxisX = false;
   bool _hideAxisY = false;
