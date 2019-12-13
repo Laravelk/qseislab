@@ -49,7 +49,6 @@ public:
   ChartGesture *getChartGesture();
 
   void setAddPolarizationWindowButtonEnable(bool enable);
-  //  PolarGraph *getPolarGraph() { return _polarGraph; }
   void showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
 
 signals:
@@ -68,9 +67,8 @@ signals:
   void eventTransformClicked(Data::SeismEvent::TransformOperation) const;
   void eventTransformSettingsClicked(Data::SeismEvent::TransformOperation) const;
 
-
-  void removePick(Data::SeismWavePick::Type, int);
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
+  void removePick(Data::SeismWavePick::Type, int);
   void addPick(Data::SeismWavePick::Type, int, int, int, int);
 
   void createPolarizationAnalysisWindow();

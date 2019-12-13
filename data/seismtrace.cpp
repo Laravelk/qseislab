@@ -26,9 +26,7 @@ void SeismTrace::setOrientation(const Point &orientation) {
 
 void SeismTrace::setBuffer(uint32_t size, float *buffer) {
   assert(0 <= size);
-
   _bufferSize = size;
-
   _buffer.reset();
   _buffer = std::make_unique<float[]>(_bufferSize);
   for (uint32_t i = 0; i < _bufferSize; ++i) {

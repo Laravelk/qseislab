@@ -405,30 +405,25 @@ void PolarizationAnalysisWindow::update() {
 void PolarizationAnalysisWindow::changeWaveBox() {
   QList<QString> waveTypeList;
   int itemCount = _waveTypeBox->count();
+  _waveTypeBox->setCurrentIndex(0);
   for (int i = 0; i < itemCount; i++) {
     _waveTypeBox->removeItem(1);
   }
   if (DEFAULT_RECEIVER_STRING != _currentReceiverNumberString) {
-    int index = 0;
-    for (auto &component : _event->getComponents()) {
-      if (index == _currentReceiverNumberString.toInt()) {
-        for (auto &pick : component->getWavePicks()) {
-          if (Data::SeismWavePick::PWAVE == pick.first) {
-            waveTypeList.append(P_WAVE_STRING);
-          }
-          if (Data::SeismWavePick::SWAVE == pick.first) {
-            waveTypeList.append(S_WAVE_STRING);
-          }
-        }
+    auto &component = _event->getComponents()[_currentReceiverNumberString.toInt()];
+    for (auto &pick : component->getWavePicks()) {
+      if (Data::SeismWavePick::PWAVE == pick.first) {
+        waveTypeList.append(P_WAVE_STRING);
       }
-      index++;
+      if (Data::SeismWavePick::SWAVE == pick.first) {
+        waveTypeList.append(S_WAVE_STRING);
+      }
     }
   } else {
     waveTypeList.append(P_WAVE_STRING);
     waveTypeList.append(S_WAVE_STRING);
   }
   _waveTypeBox->addItems(waveTypeList);
-  _waveTypeBox->setCurrentIndex(0);
   _currentWaveTypeString = DEFAULT_WAVE_STRING;
 }
 

@@ -10,6 +10,7 @@ namespace EventOperation {
 GraphicView::GraphicView(QChart *chart, QWidget *parent)
     : QChartView(chart, parent), _zoomIsTouching(false),
       _colorData(new ColorData) {
+  setFrameStyle(1);
   chart->setAnimationOptions(QChart::NoAnimation);
   chart->setMargins(QMargins(0, 0, 0, 0));
   setDragMode(QGraphicsView::NoDrag);
@@ -19,6 +20,7 @@ GraphicView::GraphicView(QChart *chart, QWidget *parent)
   rect = scene()->addRect(chart->plotArea());
   rect->setFlag(QGraphicsItem::ItemClipsChildrenToShape);
   rect->setZValue(10);
+//  rect->hide();
   _status = new QGraphicsTextItem(OVERVIEW_MODE_STRING, this->chart());
   _status->setPos(QPointF(20, 450));
   _status->show();

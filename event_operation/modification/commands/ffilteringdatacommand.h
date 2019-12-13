@@ -39,7 +39,7 @@ public:
 private:
     Data::SeismEvent *_event;
     FFilteringDataCommand::Parameters _parameters;
-    std::map<int, std::vector<std::vector<float>>> _oldDataMap;
+    std::vector<std::vector<float>> _oldTraces;
 
     const int MICROSECONDS_IN_SECONDS = 1000000;
 

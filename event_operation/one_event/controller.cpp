@@ -54,6 +54,44 @@ Controller::Controller(
   connect(_model, &Model::notify,
           [this](auto &msg) { _view->setNotification(msg); });
 
+  connect(_view.get(), &View::removePick,
+          [this](const auto type, const auto num) {
+          auto &event = _event;
+          Data::ProjectSettings setting;
+          RemovePick::Parameters parameters;
+          parameters.setNum(num);
+          parameters.setType(type);
+          setting.setRemovePickParameters(parameters);
+          auto command = UndoCommandGetter::get(Data::SeismEvent::TransformOperation::RemovePick,QUuid(), event.get(),
+                                                setting);
+          _undoStack->push(command);
+            _removedPickAndNeedUpdatePolarGraph = true;
+
+            if (_polarizationWindow) {
+              _polarizationWindow->setDefault();
+            }
+          });
+
+  connect(_view.get(), &View::addPick, [this](auto type, auto num, auto l_val, auto arrival, auto r_val) {
+      int idx = 0;
+      for (auto &component : _event->getComponents()) {
+          if (num == idx) {
+            Data::ProjectSettings setting;
+            AddPick::Parameters parameters;
+            parameters.setNumber(num);
+            parameters.setLeftValue(l_val);
+            parameters.setRightValue(r_val);
+            parameters.setPickArrivalValue(arrival);
+            parameters.setTypePick(type);
+            setting.setAddPickParameters(parameters);
+            auto command = UndoCommandGetter::get(Data::SeismEvent::TransformOperation::AddPick,QUuid(), _event.get(), setting);
+            _undoStack->push(command);
+            break;
+          }
+          idx++;
+      }
+  });
+
   connect(_view.get(), &View::sendWellUuidAndFilePath,
           [this, &wells_map, &receivers](auto &wellUuid, auto &filePath) {
             //            auto components =

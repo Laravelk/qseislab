@@ -13,6 +13,8 @@ PolarGraph::PolarGraph(QPolarChart *chart, QWidget *parent)
     : QChartView(chart), _polarChart(chart),
        _angularAxis(new QValueAxis()),
       _radialAxis(new QValueAxis), _rect(new QGraphicsRectItem) {
+
+  setFrameStyle(1);
   const qreal angularMin = 0;
   const qreal angularMax = 360;
 
@@ -34,18 +36,15 @@ PolarGraph::PolarGraph(QPolarChart *chart, QWidget *parent)
 
   this->setRenderHint(QPainter::Antialiasing);
 
-  //  _statusRect = new QGraphicsRectItem(20, 442, 133, 20, _polarChart);
     _statusRect = new QGraphicsRectItem(WARNING_STATUS_RECT, _polarChart);
     _statusRect->setZValue(11);
     _statusRect->setBrush(Qt::yellow);
     _status = new QGraphicsTextItem(WARNING_STATUS, _polarChart);
-  //  _status->setPos(20, 440);
     _status->setPos(QPointF(20, 415));
     _status->setZValue(12);
 
    _status->hide();
    _statusRect->hide();
-//    _polarChart->scene()->addItem(_rect);
 }
 
 QWidget *PolarGraph::getView() const { return _allView; }

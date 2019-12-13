@@ -49,7 +49,12 @@ signals:
 
   void sendWellUuidAndFilePath(const QUuid &, const QString &) const;
   void sendWellUuidForRemove(const QUuid &) const;
+
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
+  void addPick(Data::SeismWavePick::Type, int, int, int, int);
+  void removePick(Data::SeismWavePick::Type, int);
+
+
   void createPolarizationAnalysisWindow();
   void calculatePolarizationAnalysisData();
   void clickOnPolarAnalysisInGraph();

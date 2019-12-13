@@ -1,6 +1,7 @@
 #include "ffilteringdatacommand.h"
 
 #include <unsupported/Eigen/FFT>
+#include <math.h>
 #include <iostream> // TODO: delete
 
 FFilteringDataCommand::FFilteringDataCommand(const QUuid &shareUuid, Data::SeismEvent *event, const FFilteringDataCommand::Parameters &parameters)
@@ -9,59 +10,86 @@ FFilteringDataCommand::FFilteringDataCommand(const QUuid &shareUuid, Data::Seism
 {}
 
 void FFilteringDataCommand::undo() {
-    // TODO: implement
+    uint traceNumberInVector = 0;
+    for (auto &component : _event->getComponents()) {
+        for (auto &trace : component->getTraces()) {
+            auto oldBuffer = _oldTraces.at(traceNumberInVector);
+            auto bufferInTrace = trace->getBuffer();
+            for (uint i = 0; i < oldBuffer.size(); i++) {
+                bufferInTrace[i] = oldBuffer[i];
+            }
+            traceNumberInVector++;
+        }
+    }
+    _event->changeTrigger();
 }
 
 void FFilteringDataCommand::redo() {
     Eigen::FFT <float> fft;
     fillOldDataList();
-    std::cerr << "affter fill" << std::endl;
-    for (auto &oldDataMapElement : _oldDataMap) {
-        for (auto &trace : oldDataMapElement.second) {
-        auto &traceOwner = _event->getComponents()[oldDataMapElement.first];
-        std::vector<float> timevec = trace;
-        std::vector<std::complex<float>> freqvec;
-        fft.fwd(freqvec, timevec);
+//    std::cerr << "affter fill" << std::endl;
+    uint traceNumberInVector = 0;
+    for (auto &component : _event->getComponents()) {
+        float sampleInterval = component->getSampleInterval();
+        for (auto &trace : component->getTraces()) {
+            std::vector<float> timevec = _oldTraces.at(traceNumberInVector);
+            std::vector<std::complex<float>> freqvec;
+            traceNumberInVector++;
 
-        int indexF1 = static_cast<int>(_parameters.getF1() * trace.size() *
-                                      traceOwner->getSampleInterval() / MICROSECONDS_IN_SECONDS);
-        int indexF2 = static_cast<int>(_parameters.getF2() * trace.size() *
-                                                        traceOwner->getSampleInterval() / MICROSECONDS_IN_SECONDS);
-        int indexF3 = static_cast<int>(_parameters.getF3() * trace.size() * traceOwner->getSampleInterval() / MICROSECONDS_IN_SECONDS);
-        int indexF4 = static_cast<int>(_parameters.getF4() * trace.size() * traceOwner->getSampleInterval() / MICROSECONDS_IN_SECONDS);
+            fft.fwd(freqvec, timevec);
 
-        std::cerr << indexF1 << " " << indexF2 << " " << indexF3 << " " << indexF4 << std::endl;
+//            std::cerr << "F " << _parameters.getF1() << " " << _parameters.getF2() << " " << _parameters.getF3() << " " << _parameters.getF4() << std::endl << std::endl;
 
-        // scalar f1 - f4 zone
-        for (int i = 0; i < indexF1; i++) {
-            freqvec[i] = 0;
-        }
+            uint indexF1 = static_cast<uint>(ceil((_parameters.getF1() * static_cast<float>(timevec.size()) *
+                                                sampleInterval) /
+                                                    static_cast<float>(MICROSECONDS_IN_SECONDS)));
+            uint indexF2 = static_cast<uint>(ceil((_parameters.getF2() * static_cast<float>(timevec.size()) *
+                                              sampleInterval) /
+                                                  static_cast<float>(MICROSECONDS_IN_SECONDS)));
+            uint indexF3 =static_cast<uint>(ceil((_parameters.getF3() * static_cast<float>(timevec.size()) *
+                                             sampleInterval) /
+                                                 static_cast<float>(MICROSECONDS_IN_SECONDS)));
+            uint indexF4 = static_cast<uint>(ceil((_parameters.getF4() * static_cast<float>(timevec.size()) *
+                                              sampleInterval) /
+                                                  static_cast<float>(MICROSECONDS_IN_SECONDS)));
+//            std::cerr << "indexes: " << indexF1 << " " << indexF2 << " " << indexF3 << " " << indexF4 << std::endl << std::endl;
 
-        float h = indexF2 - indexF1;
-        for (int i = indexF1; i < indexF2; i++) {
-            float scalar = (i - indexF1) / h;
-            freqvec[i] *= scalar;
-        }
+            // scalar f1 - f4 zone
+            for (uint i = 0; i < indexF1; i++) {
+                freqvec[i] = 0;
+            }
 
-        float d = indexF4 - indexF3;
-        for (int i = indexF3; i < indexF4; i++) {
-            float scalar = (i - indexF3) / d;
-            freqvec[i] *= scalar;
-        }
+            float h = indexF2 - indexF1;
+            for (uint i = indexF1; i < indexF2; i++) {
+                float scalar = (i - indexF1) / h;
+                freqvec[i] *= scalar;
+            }
 
-        for (int i = indexF4; i < trace.size(); i++) {
-            freqvec[i] = 0;
-        }
+            float d = indexF4 - indexF3;
+            for (uint i = indexF3; i < indexF4; i++) {
+                float scalar = (i - indexF3) / d;
+                freqvec[i] *= scalar;
+            }
 
-        fft.inv(timevec, freqvec);
+            for (uint i = indexF4; i < timevec.size(); i++) {
+                freqvec[i] = 0;
+            }
 
 
-        // end zone
+            float *backArray = new float[indexF4 - indexF1];
+            for (uint i = indexF4, j = 0; i >= indexF1; i--, j++) {
+//                std::cerr << freqvec[i].real() << " " << i << " " << j << std::endl;
+                backArray[j] = freqvec[i].real();
+            }
 
-        // go to real part
+            fft.inv(timevec, freqvec);
 
-//        fft.inv(); // go back
+            auto bufferInTrace = trace->getBuffer();
+            for (uint i = 0; i < timevec.size(); i++) {
+                bufferInTrace[i] = timevec[i];
+            }
 
+            delete [] backArray;
         }
     }
     _event->changeTrigger();
@@ -73,25 +101,14 @@ bool FFilteringDataCommand::is(Data::SeismEvent::TransformOperation oper) const 
 
 void FFilteringDataCommand::fillOldDataList()
 {
-    int idx = 0;
     for (auto &component : _event->getComponents()) {
-        std::vector<std::vector<float>> traces;
         for (auto &trace : component->getTraces()) {
             std::vector<float> buffer;
             for (int i = 0; i < trace->getBufferSize(); i++) {
                 buffer.push_back(trace->getBuffer()[i]);
             }
-            traces.push_back(buffer);
+            _oldTraces.push_back(buffer);
         }
-        _oldDataMap[idx] = traces;
-//        if (idx == 0) {
-//            std::cerr << "HEREREEEE";
-//            for (int i = 0; i < 20; i++) {
-//            std::cerr << traces[0][i] << " ";
-//            }
-//            std::cerr << std::endl << std::endl << std::endl;
-//        }
-        idx++;
     }
 }
 

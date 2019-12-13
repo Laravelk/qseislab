@@ -59,7 +59,10 @@ GraphicController::GraphicController(QWidget *parent)
   //  _allView = new QWidget();
   //  _allView->setMinimumWidth(900);
 
+  _calculatePolarizationAnalysisDataButton->setMinimumSize(135, 20);
+
   QMenu *addWaveButtonMenu = new QMenu(_addWaveButton);
+  addWaveButtonMenu->setMinimumSize(135,20);
   _addPWave = new QAction("PWAVE", _addWaveButton);
   _addSWave = new QAction("SWAVE", _addWaveButton);
   addWaveButtonMenu->addAction(_addPWave);
@@ -176,6 +179,7 @@ GraphicController::GraphicController(QWidget *parent)
   QWidget *polarGraphWidget = new QWidget();
   polarGraphWidget->setLayout(polarGraphLayout);
 
+  _tabWidget->setStyleSheet("background-color: white");
   _tabWidget->addTab(graphWidget, "Traces");
   _tabWidget->addTab(polarGraphWidget, "Polarization Analysis Data");
 
