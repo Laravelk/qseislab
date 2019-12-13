@@ -12,6 +12,8 @@
 #include "project_operation/project_settings/rotatedatasettingdialog.h"
 #include "project_operation/project_settings/testmultipliersettingdialog.h"
 
+#include <QMessageBox>
+
 typedef Data::SeismEvent SeismEvent;
 typedef Data::SeismHorizon SeismHorizon;
 typedef Data::SeismReceiver SeismReceiver;
@@ -36,7 +38,52 @@ Controller::Controller(QObject *parent)
     //    if (!_currentOneEventFocus.isNull()) {
     //      _eventStacks[_currentOneEventFocus]->undo();
     //    } else {
-    _shareEventStack->undo();
+
+    // NOTE: bad way!
+    auto index = _shareEventStack->index();
+    if (0 != index) {
+      --index;
+    }
+    auto shareCommand =
+        static_cast<const ShareUndoCommand *>(_shareEventStack->command(index));
+
+    auto eventsAmount = shareCommand->getAppliedUuids().size();
+    if (1 < eventsAmount) {
+      QMessageBox *msg = new QMessageBox(QMessageBox::Warning, "Warning",
+                                         "Вы пытаетесь отменить общую команду",
+                                         QMessageBox::Ok | QMessageBox::Cancel);
+      auto res = msg->exec();
+      if (QMessageBox::Ok == res) {
+        std::cout << "Ok clicked" << std::endl;
+
+        _shareEventStack->undo();
+
+      } else if (QMessageBox::Cancel == res) {
+        // skip ...
+        std::cout << "Cancel clicked" << std::endl;
+      }
+
+    } else if (1 == eventsAmount) {
+      auto &appliedUuid =
+          *shareCommand->getAppliedUuids().begin(); // NOTE: ???? (по-другому?)
+      if (_currentOneEventFocus != appliedUuid) {
+        QMessageBox *msg =
+            new QMessageBox(QMessageBox::Warning, "Warning",
+                            "Вы пытаетесь отменить команду другого "
+                            "ивента",
+                            QMessageBox::Ok | QMessageBox::Cancel);
+        auto res = msg->exec();
+        if (QMessageBox::Ok == res) {
+          _shareEventStack->undo();
+          handleViewEventClicked(appliedUuid);
+        }
+      } else {
+        _shareEventStack->undo();
+      }
+    }
+
+    //    _shareEventStack->undo();
+
     //    }
   });
   connect(_mainWindow.get(), &View::redoClicked, [this]() {
@@ -114,14 +161,14 @@ Controller::Controller(QObject *parent)
   connect(_mainWindow.get(), &View::addEventClicked, this,
           &Controller::handleAddEventClicked);
 
-  //  connect(_mainWindow.get(), &View::eventPageChanged, [this](auto &uuid) {
-  //    _currentOneEventFocus = uuid;
-  //    if (_currentOneEventFocus.isNull()) {
-  //      _mainWindow->updateUndoStack(_shareEventStack.get());
-  //    } else {
-  //      _mainWindow->updateUndoStack(_eventStacks[_currentOneEventFocus].get());
-  //    }
-  //  });
+  connect(_mainWindow.get(), &View::eventPageChanged, [this](auto &uuid) {
+    _currentOneEventFocus = uuid;
+    //    if (_currentOneEventFocus.isNull()) {
+    //      _mainWindow->updateUndoStack(_shareEventStack.get());
+    //    } else {
+    //      _mainWindow->updateUndoStack(_eventStacks[_currentOneEventFocus].get());
+    //    }
+  });
 
   connect(_mainWindow.get(), &View::eventPageClosed,
           [this](auto &uuid) { _oneViewEventControllers.erase(uuid); });

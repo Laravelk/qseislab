@@ -164,10 +164,10 @@ void FilteringTableAssistant::forEvents() {
                              SeismEvent::TransformOperation::TestMultiplier);
   });
 
-  _context->addAction(QIcon(":/icons/rotate.png"), "Rotate", [this] {
-    emit eventsActionClicked(selectedUuids(),
-                             SeismEvent::TransformOperation::RotateData);
-  });
+  //  _context->addAction(QIcon(":/icons/rotate.png"), "Rotate", [this] {
+  //    emit eventsActionClicked(selectedUuids(),
+  //                             SeismEvent::TransformOperation::RotateData);
+  //  });
 
   _context->addAction(QIcon(":/icons/ffilter.png"), "FFilter", [this] {
     emit eventsActionClicked(selectedUuids(),

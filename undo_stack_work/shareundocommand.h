@@ -19,6 +19,8 @@ public:
 
   const QUuid &getUuid() const;
 
+  const std::set<QUuid> &getAppliedUuids() const;
+
   void undo() override;
 
   void redo() override;

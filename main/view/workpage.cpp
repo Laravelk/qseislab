@@ -53,9 +53,9 @@ WorkPage::WorkPage(QWidget *parent)
   // Setting`s end
 
   // Connecting
-  //  connect(_workPages, &QTabWidget::currentChanged, [this](auto index) {
-  //    emit eventPageChanged(_pages_uuids_map[_workPages->widget(index)]);
-  //  });
+  connect(_workPages, &QTabWidget::currentChanged, [this](auto index) {
+    emit eventPageChanged(_pages_uuids_map[_workPages->widget(index)]);
+  });
 
   //  connect(_eventsTable, &FilteringTableAssistant::captureFocus,
   //          [this] { emit eventPageChanged(_pages_uuids_map[_oilFieldWidget]);

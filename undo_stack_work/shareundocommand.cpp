@@ -14,10 +14,16 @@ ShareUndoCommand::ShareUndoCommand(const std::set<QUuid> &eventUuids,
 
 const QUuid &ShareUndoCommand::getUuid() const { return _uuid; }
 
+const std::set<QUuid> &ShareUndoCommand::getAppliedUuids() const {
+  return _eventUuids;
+}
+
 void ShareUndoCommand::undo() {
-    std::cout << "size eventUUids (before share undo) == " << _eventUuids.size() << std::endl;
-    emit applyUndo(_uuid, _eventUuids);
-    std::cout << "size eventUUids (after share undo) == " << _eventUuids.size() << std::endl;
+  std::cout << "size eventUUids (before share undo) == " << _eventUuids.size()
+            << std::endl;
+  emit applyUndo(_uuid, _eventUuids);
+  std::cout << "size eventUUids (after share undo) == " << _eventUuids.size()
+            << std::endl;
 }
 
 void ShareUndoCommand::redo() { emit applyRedo(_uuid, _eventUuids); }

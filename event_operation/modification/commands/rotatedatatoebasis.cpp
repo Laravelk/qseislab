@@ -78,21 +78,22 @@ RotateData::RotateData(const QUuid &shareUuid, Data::SeismEvent *event,
 //}
 
 void RotateData::undo() {
-  unsigned long i = 0;
-  for (auto &component : _event->getComponents()) {
-    rotateDataWithTransitionMatrix(component, _originalTransitionMatrixs[i]);
-    ++i;
-  }
+  //  unsigned long i = 0;
+  //  for (auto &component : _event->getComponents()) {
+  //    rotateDataWithTransitionMatrix(component,
+  //    _originalTransitionMatrixs[i]);
+  //    ++i;
+  //  }
   //  _event->removeTransformOperation(SeismEvent::RotateDataToEBasis);
 }
 
 void RotateData::redo() {
-  unsigned long i = 0;
-  for (auto &component : _event->getComponents()) {
-    rotateDataWithTransitionMatrix(component,
-                                   _originalTransitionMatrixs[i].transpose());
-    ++i;
-  }
+  //  unsigned long i = 0;
+  //  for (auto &component : _event->getComponents()) {
+  //    rotateDataWithTransitionMatrix(component,
+  //                                   _originalTransitionMatrixs[i].transpose());
+  //    ++i;
+  //  }
   //  _event->addTransformOperation(SeismEvent::RotateDataToEBasis);
 }
 
