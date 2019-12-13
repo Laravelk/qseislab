@@ -1,8 +1,6 @@
 #include "controller.h"
 
 #include "event_operation/modification/undocommandgetter.h"
-#include "undo_stack_work/customindividualundocommand.h"
-#include "undo_stack_work/shareundocommand.h"
 
 #include <assert.h>
 
@@ -254,16 +252,6 @@ void Controller::handleAddEventsClicked() {
         _project->getAllMap<SeismEvent>(), _project->getAllMap<SeismWell>(),
         _project->getAll<SeismReceiver>(), _project->getSettings(), this);
 
-    //    connect(_moreEventsController.get(),
-    //            &MoreEvents::Controller::sendEventsAndStacks,
-    //            [this](auto &events_map, auto &stacks_map) {
-    //              for (auto &uuid_event : events_map) {
-    //                _project->add(uuid_event.second);
-    //              }
-    //              for (auto &uuid_stack : stacks_map) {
-    //                _eventStacks[uuid_stack.first] = uuid_stack.second;
-    //              }
-    //            });
     connect(_moreEventsController.get(),
             &MoreEvents::Controller::sendEventsAndStack,
             [this](auto &events_map, auto &stack) {
@@ -271,10 +259,6 @@ void Controller::handleAddEventsClicked() {
                 _project->add(uuid_event.second);
               }
             });
-
-    //    connect(_moreEventsController.get(),
-    //            &MoreEvents::Controller::eventTransformSettingsClicked,
-    //            this, &Controller::handleEventTransformSettingsClicked);
 
     connect(_moreEventsController.get(), &MoreEvents::Controller::finished,
             [this] { _moreEventsController.reset(); });
@@ -317,38 +301,16 @@ void Controller::handleViewEventClicked(const QUuid &uuid) {
   if (_oneViewEventControllers.find(uuid) == _oneViewEventControllers.end()) {
     auto &event = _project->get<SeismEvent>(uuid);
 
-    //    _oneViewEventControllers[uuid] =
-    //    std::make_unique<ViewEvent::Controller>(
-    //        _project->getAllMap<SeismEvent>(),
-    //        _project->getAllMap<SeismWell>(), event, _eventStacks[uuid].get(),
-    //        this);
     _oneViewEventControllers[uuid] = std::make_unique<ViewEvent::Controller>(
         _project->getAllMap<SeismEvent>(), _project->getAllMap<SeismWell>(),
-        event, _undoStack.get(), this);
+        _project->getSettings(), event, this);
 
-    //    connect(_oneViewEventControllers[uuid].get(),
-    //            &ViewEvent::Controller::undoClicked,
-    //            [this](auto &uuid) { _eventStacks[uuid]->undo(); });
-
-    //    connect(_oneViewEventControllers[uuid].get(),
-    //            &ViewEvent::Controller::redoClicked,
-    //            [this](auto &uuid) { _eventStacks[uuid]->redo(); });
-
-    //    connect(_oneViewEventControllers[uuid].get(),
-    //            &ViewEvent::Controller::eventActionClicked,
-    //            [this](auto &uuid, auto oper) {
-    //              auto command = UndoCommandGetter::get(
-    //                  oper, QUuid(), _project->get<SeismEvent>(uuid).get(),
-    //                  _project->getSettings());
-    //              _eventStacks[uuid]->push(command);
-    //            });
     connect(_oneViewEventControllers[uuid].get(),
             &ViewEvent::Controller::eventActionClicked,
             [this](auto &uuid, auto oper) {
               auto command = UndoCommandGetter::get(
                   oper, _project->get<SeismEvent>(uuid).get(),
                   _project->getSettings());
-              //                _eventStacks[uuid]->push(command);
               _undoStack->push(command);
             });
 

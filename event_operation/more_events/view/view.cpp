@@ -72,8 +72,6 @@ View::View(const std::set<QString> &globalEventNames,
           [this]() { emit redoClicked(); });
   connect(_toolsWidget, &EventToolsWidget::eventTransformClicked,
           [this](auto oper) { emit eventTransformClicked(oper); });
-  //  connect(_toolsWidget, &EventToolsWidget::eventTransformSettingsClicked,
-  //          [this](auto oper) { emit eventTransformSettingsClicked(oper); });
 
   connect(addEventsButton, &QPushButton::clicked, [this]() {
     _fileDialog->open(this, SLOT(recvFilesPath(const QStringList &)));
@@ -182,17 +180,6 @@ View::View(const std::set<QString> &globalEventNames,
   leftLayout->addStretch(1);
 
   QHBoxLayout *buttonsLayout = new QHBoxLayout();
-  //  _undoButton = new QPushButton("Undo");
-  //  _redoButton = new QPushButton("Redo");
-  //  _undoButton->setDisabled(true);
-  //  _redoButton->setDisabled(true);
-
-  //  connect(_undoButton, &QPushButton::clicked, [this]() { emit undoClicked();
-  //  }); connect(_redoButton, &QPushButton::clicked, [this]() { emit
-  //  redoClicked(); }); buttonsLayout->addWidget(_undoButton);
-  //  buttonsLayout->addWidget(_redoButton);
-
-  //  buttonsLayout->addWidget(_toolsWidget);
   buttonsLayout->addStretch(1);
   buttonsLayout->addWidget(_okButton);
   buttonsLayout->addWidget(_cancelButton);
@@ -200,7 +187,6 @@ View::View(const std::set<QString> &globalEventNames,
   QVBoxLayout *graphicLayout = new QVBoxLayout();
   graphicLayout->addStretch(1);
   graphicLayout->addWidget(_graphicEvent);
-  //  graphicLayout->addLayout(buttonsLayout);
 
   QHBoxLayout *mainLayout = new QHBoxLayout();
   mainLayout->addLayout(leftLayout);
@@ -215,44 +201,6 @@ View::View(const std::set<QString> &globalEventNames,
   setLayout(mainButtonLayout);
   // Layout`s end
 }
-
-// void View::loadEvent(SeismEvent const *const event,
-//                     QUndoStack const *const undoStack) {
-//  //  connect(undoStack, &QUndoStack::canUndoChanged, _undoButton,
-//  //          &QPushButton::setEnabled);
-//  //  connect(undoStack, &QUndoStack::canRedoChanged, _redoButton,
-//  //          &QPushButton::setEnabled);
-//  //  _undoButton->setEnabled(undoStack->canUndo());
-//  //  _redoButton->setEnabled(undoStack->canRedo());
-
-//  _toolsWidget->setEnabled(true);
-//  _toolsWidget->update(event);
-//  _toolsWidget->connectUndoStack(undoStack);
-
-//  _infoEvent->setEnabled(true);
-//  _infoEvent->update(event);
-//  _graphicEvent->update(event);
-//  _graphicEvent->show();
-//}
-
-// void View::unloadEvent(QUndoStack const *const undoStack) {
-//  //  disconnect(undoStack, &QUndoStack::canUndoChanged, _undoButton,
-//  //             &QPushButton::setEnabled);
-//  //  disconnect(undoStack, &QUndoStack::canRedoChanged, _redoButton,
-//  //             &QPushButton::setEnabled);
-
-//  //  _undoButton->setDisabled(true);
-//  //  _redoButton->setDisabled(true);
-
-//  _toolsWidget->setDisabled(true);
-//  _toolsWidget->disconnectUndoStack(undoStack);
-
-//  _infoEvent->clear();
-//  _graphicEvent->clear();
-//  _graphicEvent->hide();
-
-//  _infoEvent->setDisabled(true);
-//}
 
 void View::loadEvent(SeismEvent const *const event) {
   _toolsWidget->setEnabled(true);

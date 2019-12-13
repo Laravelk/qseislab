@@ -64,21 +64,21 @@ FFilteringDataSettingDialog::FFilteringDataSettingDialog(QWidget *parent)
 }
 
 void FFilteringDataSettingDialog::update(
-    const Data::ProjectSettings &projectSettings) {
+    Data::ProjectSettings const *const projectSettings) {
   _f1Edit->setText(
-      QString::number(projectSettings.getFFilteringParameters().getF1()));
+      QString::number(projectSettings->getFFilteringParameters().getF1()));
   _f2Edit->setText(
-      QString::number(projectSettings.getFFilteringParameters().getF2()));
+      QString::number(projectSettings->getFFilteringParameters().getF2()));
   _f3Edit->setText(
-      QString::number(projectSettings.getFFilteringParameters().getF3()));
+      QString::number(projectSettings->getFFilteringParameters().getF3()));
   _f4Edit->setText(
-      QString::number(projectSettings.getFFilteringParameters().getF4()));
+      QString::number(projectSettings->getFFilteringParameters().getF4()));
   this->hasChanged(false);
 }
 
 void FFilteringDataSettingDialog::setSettings(
-    Data::ProjectSettings &projectSettings) {
-  auto fFilteringParameters = projectSettings.getFFilteringParameters();
+    Data::ProjectSettings *const projectSettings) {
+  auto fFilteringParameters = projectSettings->getFFilteringParameters();
   fFilteringParameters.setF1(_f1Edit->text().toInt());
   fFilteringParameters.setF2(_f2Edit->text().toInt());
   fFilteringParameters.setF3(_f3Edit->text().toInt());

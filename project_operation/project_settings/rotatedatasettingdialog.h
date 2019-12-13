@@ -10,9 +10,9 @@ class RotateDataSettingDialog : public SettingDialog {
 public:
   explicit RotateDataSettingDialog(QWidget *parent = nullptr);
 
-  void update(const Data::ProjectSettings &) override;
+  void update(Data::ProjectSettings const *const) override;
 
-  void setSettings(Data::ProjectSettings &) override;
+  void setSettings(Data::ProjectSettings *const) override;
 
 private:
   QRadioButton *_toEBasisButton;

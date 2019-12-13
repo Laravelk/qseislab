@@ -133,9 +133,6 @@ set(SOURCES
         data/io/horizonreadergrd.cpp
 
         main.cpp
-        undo_stack_work/customindividualundostack.cpp
-        undo_stack_work/customindividualundocommand.cpp
-        undo_stack_work/shareundocommand.cpp
         undo_stack_work/eventoperationundocommand.cpp
 
 
@@ -264,10 +261,6 @@ set(HEADERS
         data/io/pointwriter.h
         data/io/horizonreadergrd.h
 
-
-        undo_stack_work/customindividualundostack.h
-        undo_stack_work/customindividualundocommand.h
-        undo_stack_work/shareundocommand.h
         undo_stack_work/customundocommand.h
         undo_stack_work/eventoperationundocommand.h
 

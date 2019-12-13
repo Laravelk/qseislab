@@ -1,6 +1,6 @@
 #pragma once
 
-#include "undo_stack_work/customindividualundostack.h"
+#include "data/seismevent.h"
 
 #include <QObject>
 
@@ -9,8 +9,8 @@
 class QUndoStack;
 
 namespace Data {
-class SeismEvent;
 class SeismWell;
+class ProjectSettings;
 } // namespace Data
 
 namespace EventOperation {
@@ -25,7 +25,7 @@ public:
   explicit Controller(
       const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
       const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &,
-      const std::shared_ptr<Data::SeismEvent> &, QUndoStack const *const,
+      Data::ProjectSettings *const, const std::shared_ptr<Data::SeismEvent> &,
       QObject *parent = nullptr);
 
   QWidget *getView();

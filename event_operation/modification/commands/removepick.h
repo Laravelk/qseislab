@@ -30,7 +30,5 @@ protected:
 
 private:
   Parameters _parameters;
-  //  Data::SeismEvent *_event;
-  //  Data::SeismWavePick _deletedPick;
   std::map<QUuid, Data::SeismWavePick> _deletedPicks;
 };

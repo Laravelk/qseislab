@@ -7,51 +7,24 @@
 using TransformOperation = Data::SeismEvent::TransformOperation;
 
 namespace UndoCommandGetter {
-// CustomIndividualUndoCommand *get(Data::SeismEvent::TransformOperation oper,
-//                                 const QUuid &shareUuid,
-//                                 Data::SeismEvent *event,
-//                                 const Data::ProjectSettings &settings) {
-//  switch (oper) {
-//  case TransformOperation::TestMultiplier:
-//    return new TestIndividualCommand(shareUuid, event,
-//                                     settings.getTestMultParameters());
-//  case TransformOperation::RotateData:
-//    return new RotateData(shareUuid, event,
-//    settings.getRotateDataParameters());
-//  case TransformOperation::MovePick:
-//    return new MovePick(shareUuid, event, settings.getMovePickParameters());
-//  case TransformOperation::RemovePick:
-//    return new RemovePick(shareUuid, event,
-//    settings.getRemovePickParameters());
-//  case TransformOperation::AddPick:
-//    return new AddPick(shareUuid, event, settings.getAddPickParameters());
-//  case TransformOperation::FFilteringData:
-//    return new FFilteringDataCommand(shareUuid, event,
-//                                     settings.getFFilteringParameters());
-//  }
-
-//  std::cerr << "UndoCommandGetter::get ::return nullptr" << std::endl;
-//  return nullptr;
-//}
-
 EventOperationUndoCommand *get(Data::SeismEvent::TransformOperation oper,
                                const std::set<Data::SeismEvent *> &events,
-                               const Data::ProjectSettings &settings) {
+                               Data::ProjectSettings const *const settings) {
 
   switch (oper) {
   case TransformOperation::TestMultiplier:
-    return new TestIndividualCommand(events, settings.getTestMultParameters());
+    return new TestIndividualCommand(events, settings->getTestMultParameters());
   case TransformOperation::RotateData:
-    return new RotateData(events, settings.getRotateDataParameters());
+    return new RotateData(events, settings->getRotateDataParameters());
   case TransformOperation::MovePick:
-    return new MovePick(events, settings.getMovePickParameters());
+    return new MovePick(events, settings->getMovePickParameters());
   case TransformOperation::RemovePick:
-    return new RemovePick(events, settings.getRemovePickParameters());
+    return new RemovePick(events, settings->getRemovePickParameters());
   case TransformOperation::AddPick:
-    return new AddPick(events, settings.getAddPickParameters());
+    return new AddPick(events, settings->getAddPickParameters());
   case TransformOperation::FFilteringData:
     return new FFilteringDataCommand(events,
-                                     settings.getFFilteringParameters());
+                                     settings->getFFilteringParameters());
   }
 
   std::cerr << "UndoCommandGetter::get ::return nullptr" << std::endl;
@@ -60,7 +33,7 @@ EventOperationUndoCommand *get(Data::SeismEvent::TransformOperation oper,
 
 EventOperationUndoCommand *get(Data::SeismEvent::TransformOperation oper,
                                Data::SeismEvent *event,
-                               const Data::ProjectSettings &settings) {
+                               Data::ProjectSettings const *const settings) {
   std::set<Data::SeismEvent *> events;
   events.insert(event);
   return get(oper, events, settings);

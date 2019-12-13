@@ -1,5 +1,6 @@
 #include "controller.h"
 
+#include "data/projectsettings.h"
 #include "data/seismevent.h"
 #include "data/seismwell.h"
 #include "event_operation/share/view/3dscene/polarizationanalysiswindow.h"
@@ -18,8 +19,8 @@ namespace ViewEvent {
 Controller::Controller(
     const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &all_events,
     const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &wells_map,
-    const std::shared_ptr<Data::SeismEvent> &event,
-    QUndoStack const *const undoStack, QObject *parent)
+    Data::ProjectSettings *const settings,
+    const std::shared_ptr<Data::SeismEvent> &event, QObject *parent)
     : QObject(parent), _event(event) {
 
   // prepare data for view
@@ -34,7 +35,7 @@ Controller::Controller(
       eventNames.insert(uuid_event.second->getName());
     }
   }
-  _view = new View(eventNames, _event.get(), undoStack);
+  _view = new View(eventNames, _event.get());
 
   connect(_view, &View::undoClicked,
           [this] { emit undoClicked(_event->getUuid()); });
@@ -59,19 +60,46 @@ Controller::Controller(
   });
 
   connect(_view, &View::sendPicksInfo,
-          [this](const auto type, const auto num, const auto l_val,
-                 const auto pick_val, const auto r_val) {
-            int idx = 0;
-            for (auto &component : this->_event->getComponents()) {
-              if (num == idx) {
-                Data::SeismWavePick wavePick =
-                    Data::SeismWavePick(type, pick_val);
-                wavePick.setPolarizationLeftBorder(l_val);
-                wavePick.setPolarizationRightBorder(r_val);
-                component->addWavePick(wavePick);
-                break;
-              }
-              ++idx;
+          [this, settings](const auto type, const auto num, const auto l_val,
+                           const auto pick_val, const auto r_val) {
+            auto &movePickParameters = settings->getMovePickParameters();
+            movePickParameters.setNumber(num);
+            movePickParameters.setLeftValue(l_val);
+            movePickParameters.setRightValue(r_val);
+            movePickParameters.setPickArrivalValue(pick_val);
+            movePickParameters.setTypePick(type);
+
+            emit eventActionClicked(_event->getUuid(),
+                                    SeismEvent::TransformOperation::MovePick);
+          });
+
+  connect(_view, &View::addPick,
+          [this, settings](auto type, auto num, auto l_val, auto arrival,
+                           auto r_val) {
+            auto &addPickParameters = settings->getAddPickParameters();
+            addPickParameters.setNumber(num);
+            addPickParameters.setLeftValue(l_val);
+            addPickParameters.setRightValue(r_val);
+            addPickParameters.setPickArrivalValue(arrival);
+            addPickParameters.setTypePick(type);
+
+            emit eventActionClicked(_event->getUuid(),
+                                    SeismEvent::TransformOperation::AddPick);
+          });
+
+  connect(_view, &View::removePick,
+          [this, settings](const auto type, const auto num) {
+            auto &removePickParameters = settings->getRemovePickParameters();
+            removePickParameters.setNum(num);
+            removePickParameters.setType(type);
+
+            emit eventActionClicked(_event->getUuid(),
+                                    SeismEvent::TransformOperation::RemovePick);
+
+            //            _removedPickAndNeedUpdatePolarGraph = true; // ????
+
+            if (_polarizationWindow) {
+              _polarizationWindow->setDefault();
             }
           });
 }

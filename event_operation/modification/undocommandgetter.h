@@ -8,18 +8,12 @@ class ProjectSettings;
 class EventOperationUndoCommand;
 
 namespace UndoCommandGetter {
-
-// CustomIndividualUndoCommand *get(Data::SeismEvent::TransformOperation oper,
-//                                 const QUuid &shareUuid,
-//                                 Data::SeismEvent *event,
-//                                 const Data::ProjectSettings &settings);
-
 EventOperationUndoCommand *get(Data::SeismEvent::TransformOperation oper,
                                const std::set<Data::SeismEvent *> &events,
-                               const Data::ProjectSettings &settings);
+                               Data::ProjectSettings const *const settings);
 
 EventOperationUndoCommand *get(Data::SeismEvent::TransformOperation oper,
                                Data::SeismEvent *event,
-                               const Data::ProjectSettings &settings);
+                               Data::ProjectSettings const *const settings);
 
 } // namespace UndoCommandGetter

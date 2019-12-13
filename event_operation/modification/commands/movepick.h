@@ -39,7 +39,5 @@ protected:
 
 private:
   Parameters _parameters;
-  //  Data::SeismEvent *_event;
-  //  Data::SeismWavePick _beforeRedoPick;
   std::map<QUuid, Data::SeismWavePick> _beforeRedoPicks;
 };

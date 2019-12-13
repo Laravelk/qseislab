@@ -10,9 +10,9 @@ class FFilteringDataSettingDialog : public SettingDialog {
 public:
   explicit FFilteringDataSettingDialog(QWidget *parent = nullptr);
 
-  void update(const Data::ProjectSettings &) override;
+  void update(Data::ProjectSettings const *const) override;
 
-  void setSettings(Data::ProjectSettings &) override;
+  void setSettings(Data::ProjectSettings *const) override;
 
 private:
   QLineEdit *_f1Edit;

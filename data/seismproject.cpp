@@ -7,7 +7,8 @@
 #include <iostream> // TODO: remove
 
 namespace Data {
-SeismProject::SeismProject(QObject *parent) : QObject(parent) {
+SeismProject::SeismProject(QObject *parent)
+    : QObject(parent), _settings(std::make_shared<ProjectSettings>()) {
   // NOTE: hard-code insert events
   //  for (int i = 0; i < 4; ++i) {
   //    std::unique_ptr<SeismEvent> event = std::make_unique<SeismEvent>();
@@ -53,7 +54,8 @@ SeismProject::SeismProject(QObject *parent) : QObject(parent) {
 
 SeismProject::SeismProject(const QJsonObject &json, const QFileInfo &fileInfo,
                            QObject *parent)
-    : QObject(parent), _fileInfo(fileInfo) {
+    : QObject(parent), _fileInfo(fileInfo),
+      _settings(std::make_shared<ProjectSettings>()) {
 
   std::string err_msg;
 
@@ -281,9 +283,11 @@ const QFileInfo &SeismProject::getFileInfo() { return _fileInfo; }
 //  _setting = settings;
 //}
 
-ProjectSettings &SeismProject::getSettings() { return _setting; }
+ProjectSettings *SeismProject::getSettings() { return _settings.get(); }
 
-const ProjectSettings &SeismProject::getSettings() const { return _setting; }
+ProjectSettings const *SeismProject::getSettings() const {
+  return _settings.get();
+}
 
 void SeismProject::processEvents() {
   for (auto &itr : _events_map) {

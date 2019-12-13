@@ -1,6 +1,5 @@
 #pragma once
 
-#include "undo_stack_work/customindividualundostack.h"
 #include "view/view.h"
 
 #include <QUndoCommand>
@@ -29,16 +28,12 @@ public:
       const std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
       const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &,
       const std::list<std::shared_ptr<Data::SeismReceiver>> &,
-      const Data::ProjectSettings &, QObject *parent = nullptr);
+      Data::ProjectSettings *const, QObject *parent = nullptr);
 
   void start();
   void finish(int);
 
 signals:
-  //  void sendEventsAndStacks(
-  //      std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
-  //      std::map<QUuid, std::shared_ptr<CustomIndividualUndoStack>> &) const;
-
   void sendEventsAndStack(std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
                           std::shared_ptr<QUndoStack> &) const;
 
@@ -57,7 +52,6 @@ private:
   bool _removedPickAndNeedUpdatePolarGraph = false;
 
   std::map<QUuid, std::shared_ptr<Data::SeismEvent>> _events_map;
-  //  std::map<QUuid, std::shared_ptr<CustomIndividualUndoStack>> _stacks_map;
 
   std::shared_ptr<QUndoStack> _undoStack;
 

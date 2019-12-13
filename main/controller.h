@@ -2,7 +2,6 @@
 
 #include "data/seismevent.h"
 #include "data/seismproject.h"
-#include "undo_stack_work/customindividualundostack.h"
 #include "view/view.h"
 
 #include "event_operation/more_events/controller.h"

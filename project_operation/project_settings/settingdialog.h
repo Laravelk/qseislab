@@ -14,9 +14,9 @@ class SettingDialog : public QDialog {
 public:
   SettingDialog(QWidget *parent = nullptr);
 
-  virtual void update(const Data::ProjectSettings &) = 0;
+  virtual void update(Data::ProjectSettings const *const) = 0;
 
-  virtual void setSettings(Data::ProjectSettings &) = 0;
+  virtual void setSettings(Data::ProjectSettings *const) = 0;
 
 signals:
   void apply() const;

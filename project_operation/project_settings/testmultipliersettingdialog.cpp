@@ -29,16 +29,16 @@ TestMultiplierSettingDialog::TestMultiplierSettingDialog(QWidget *parent)
 }
 
 void TestMultiplierSettingDialog::update(
-    const Data::ProjectSettings &projectSettings) {
+    Data::ProjectSettings const *const projectSettings) {
   _multEdit->setText(
-      QString::number(projectSettings.getTestMultParameters().getMult()));
+      QString::number(projectSettings->getTestMultParameters().getMult()));
   this->hasChanged(false);
 }
 
 void TestMultiplierSettingDialog::setSettings(
-    Data::ProjectSettings &projectSettings) {
+    Data::ProjectSettings *const projectSettings) {
   auto mult = _multEdit->text().toInt();
-  projectSettings.getTestMultParameters().setMult(mult);
+  projectSettings->getTestMultParameters().setMult(mult);
 }
 
 } // namespace ProjectOperation

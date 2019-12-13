@@ -6,7 +6,6 @@
 
 #include <assert.h>
 
-//#include "data/seismevent.h" // TODO: delete
 #include <iostream> // TODO: delete
 
 typedef Data::SeismEvent SeismEvent;
@@ -14,7 +13,7 @@ typedef Data::SeismEvent SeismEvent;
 namespace EventOperation {
 namespace ViewEvent {
 View::View(const std::set<QString> &eventNames, SeismEvent const *const event,
-           QUndoStack const *const undoStack, QWidget *parent)
+           QWidget *parent)
     : QWidget(parent), _toolsWidget(new EventToolsWidget()),
       _infoEvent(new InfoEvent()), _graphicEvent(new GraphicController()),
       _eventNames(eventNames) {
@@ -24,15 +23,9 @@ View::View(const std::set<QString> &eventNames, SeismEvent const *const event,
 
   setWindowTitle("SeismWindow");
   setMinimumSize(1300, 590);
-
-  //  _toolsWidget->connectUndoStack(undoStack);
   // Setting`s end
 
   // Connecting
-  //  connect(_infoEvent, &InfoEvent::nameChanged, [this](auto &name) {
-  //    updateRepetition(name);
-  //    _graphicEvent->updateEventName(name);
-  //  });
   connect(_toolsWidget, &EventToolsWidget::undoClicked,
           [this] { emit undoClicked(); });
   connect(_toolsWidget, &EventToolsWidget::redoClicked,
@@ -46,6 +39,13 @@ View::View(const std::set<QString> &eventNames, SeismEvent const *const event,
           [this](auto type, auto num, auto l_val, auto pick_val, auto r_val) {
             emit sendPicksInfo(type, num, l_val, pick_val, r_val);
           });
+  connect(_graphicEvent, &EventOperation::GraphicController::removePick,
+          [this](auto type, auto num) { emit removePick(type, num); });
+  connect(_graphicEvent, &EventOperation::GraphicController::addPick,
+          [this](auto type, auto num, auto l_val, auto arrival, auto r_val) {
+            emit addPick(type, num, l_val, arrival, r_val);
+          });
+
   connect(_graphicEvent,
           &EventOperation::GraphicController::
               createPolarizationAnalysisWindowClicked,
@@ -75,11 +75,6 @@ View::View(const std::set<QString> &eventNames, SeismEvent const *const event,
 
 bool View::allValid() const { return _isValid; }
 
-// void View::update(SeismEvent const *const event) {
-//  _infoEvent->update(event);
-//  _graphicEvent->update(event);
-//}
-
 void View::updateInfoEvent(Data::SeismEvent const *const event) {
   auto &name = event->getName();
   updateRepetition(name);
@@ -88,7 +83,6 @@ void View::updateInfoEvent(Data::SeismEvent const *const event) {
 }
 
 void View::updateDataEvent(Data::SeismEvent const *const event) {
-  //  _toolsWidget->update(event);
   _infoEvent->update(event);
   _graphicEvent->update(event);
 }
@@ -98,12 +92,6 @@ void View::settingEventInfo(SeismEvent *const event) const {
 }
 
 ChartGesture *View::getChartGesture() { return _graphicEvent->getModel(); }
-
-// void View::focusInEvent(QFocusEvent *event) {
-//  std::cout << "capture focus in view-event page" << std::endl;
-//  emit captureFocus();
-//  QWidget::focusInEvent(event);
-//}
 
 void View::updateRepetition(const QString &name) {
   for (auto &globalName : _eventNames) {

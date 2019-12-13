@@ -69,9 +69,6 @@ EventToolsWidget::EventToolsWidget(QWidget *parent)
       _testMultButton(new QPushButton()), _ffilteringButton(new QPushButton()) {
 
   // Setting`s
-  //  _undoButton->setIcon(QIcon(":/icons/undo.png"));
-  //  _redoButton->setIcon(QIcon(":/icons/redo.png"));
-
   _rotateDataButton->setIcon(QIcon(":/icons/rotate.png"));
   _rotateDataButton->setToolTip("Rotate");
 
@@ -83,10 +80,6 @@ EventToolsWidget::EventToolsWidget(QWidget *parent)
   // Setting`s end
 
   // Connecting
-  //  connect(_undoButton, &QPushButton::clicked, [this] { emit undoClicked();
-  //  }); connect(_redoButton, &QPushButton::clicked, [this] { emit
-  //  redoClicked(); });
-
   connect(_rotateDataButton, &QPushButton::clicked, [this]() {
     emit eventTransformClicked(SeismEvent::TransformOperation::RotateData);
   });
@@ -101,9 +94,6 @@ EventToolsWidget::EventToolsWidget(QWidget *parent)
 
   // Layout`s
   QHBoxLayout *mainLayout = new QHBoxLayout();
-
-  //  mainLayout->addWidget(_undoButton);
-  //  mainLayout->addWidget(_redoButton);
   //  mainLayout->addWidget(_rotateDataButton); // TODO: implement!
   mainLayout->addWidget(_testMultButton);
   mainLayout->addWidget(_ffilteringButton);
@@ -119,22 +109,5 @@ void EventToolsWidget::update(SeismEvent const *const event) {
   _testMultButton->setDisabled(
       event->isTransformBy(SeismEvent::TransformOperation::TestMultiplier));
 }
-
-// void EventToolsWidget::connectUndoStack(QUndoStack const *const undoStack) {
-//  connect(undoStack, &QUndoStack::canUndoChanged, _undoButton,
-//          &QPushButton::setEnabled);
-//  connect(undoStack, &QUndoStack::canRedoChanged, _redoButton,
-//          &QPushButton::setEnabled);
-//  _undoButton->setEnabled(undoStack->canUndo());
-//  _redoButton->setEnabled(undoStack->canRedo());
-//}
-
-// void EventToolsWidget::disconnectUndoStack(QUndoStack const *const undoStack)
-// {
-//  disconnect(undoStack, &QUndoStack::canUndoChanged, _undoButton,
-//             &QPushButton::setEnabled);
-//  disconnect(undoStack, &QUndoStack::canRedoChanged, _redoButton,
-//             &QPushButton::setEnabled);
-//}
 
 } // namespace EventOperation

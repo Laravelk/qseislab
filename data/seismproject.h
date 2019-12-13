@@ -39,9 +39,8 @@ public:
   void setFileInfo(const QFileInfo &);
   const QFileInfo &getFileInfo();
 
-  //  void setSettings(const ProjectSettings &); // надо ли?
-  ProjectSettings &getSettings();
-  const ProjectSettings &getSettings() const;
+  ProjectSettings *getSettings();
+  ProjectSettings const *getSettings() const;
 
   template <typename T> void add(const std::shared_ptr<T> &);
   template <typename T> void update(const std::shared_ptr<T> &);
@@ -84,7 +83,7 @@ private:
   QDateTime _dateTime;
   QFileInfo _fileInfo;
 
-  ProjectSettings _setting;
+  std::shared_ptr<ProjectSettings> _settings;
 
   std::map<QUuid, std::shared_ptr<SeismEvent>> _events_map;
 

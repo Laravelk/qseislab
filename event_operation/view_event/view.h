@@ -25,9 +25,8 @@ class View : public QWidget {
 
 public:
   explicit View(const std::set<QString> &, Data::SeismEvent const *const,
-                QUndoStack const *const, QWidget *parent = nullptr);
+                QWidget *parent = nullptr);
 
-  //  void update(Data::SeismEvent const *const);
   bool allValid() const;
 
   void updateInfoEvent(Data::SeismEvent const *const);
@@ -44,14 +43,12 @@ signals:
   void redoClicked() const;
 
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
+  void removePick(Data::SeismWavePick::Type, int);
+  void addPick(Data::SeismWavePick::Type, int, int, int, int);
+
   void createPolarizationAnalysisWindow();
 
   void finished() const;
-
-  //  void captureFocus() const;
-
-  // protected:
-  //  void focusInEvent(QFocusEvent *event) override;
 
 private:
   void updateRepetition(const QString &);

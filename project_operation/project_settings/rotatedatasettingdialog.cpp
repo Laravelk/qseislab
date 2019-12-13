@@ -32,14 +32,14 @@ RotateDataSettingDialog::RotateDataSettingDialog(QWidget *parent)
 }
 
 void RotateDataSettingDialog::update(
-    const Data::ProjectSettings &projectSettings) {
+    Data::ProjectSettings const *const projectSettings) {
   _toEBasisButton->setDown(false);
   _toReceiverBasisButton->setDown(false);
   this->hasChanged(false);
 }
 
 void RotateDataSettingDialog::setSettings(
-    Data::ProjectSettings &projectSettings) {
+    Data::ProjectSettings *const projectSettings) {
   //    auto mult = _multEdit->text().toInt();
   //    projectSettings.getTestMultParameters().setMult(mult);
   std::vector<Eigen::Matrix3f> matrixs;
@@ -52,6 +52,6 @@ void RotateDataSettingDialog::setSettings(
   } else if (_toReceiverBasisButton->isDown()) {
     //      matrix << ...
   }
-  projectSettings.getRotateDataParameters().setMatrixsBasisTo(matrixs);
+  projectSettings->getRotateDataParameters().setMatrixsBasisTo(matrixs);
 }
 } // namespace ProjectOperation

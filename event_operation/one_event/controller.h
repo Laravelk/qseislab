@@ -1,7 +1,6 @@
 #pragma once
 
 #include "event_operation/share/polarizationanalysiscompute.h"
-#include "undo_stack_work/customindividualundostack.h"
 
 #include "view/view.h"
 

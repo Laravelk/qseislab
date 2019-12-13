@@ -18,20 +18,11 @@ public:
 
   void update(Data::SeismEvent const *const);
 
-  // TODO: remove...
-  //  void connectUndoStack(QUndoStack const *const);
-  //  void disconnectUndoStack(QUndoStack const *const);
-  // ...
-
 signals:
   void undoClicked() const;
   void redoClicked() const;
 
   void eventTransformClicked(Data::SeismEvent::TransformOperation) const;
-  //  void
-  //      eventTransformSettingsClicked(Data::SeismEvent::TransformOperation)
-  //      const;
-  //  void dataToEBasisClicked() const;
 
 private:
   QPushButton *_undoButton;

@@ -35,11 +35,6 @@ public:
   explicit View(const std::set<QString> &, const std::map<QUuid, QString> &,
                 QUndoStack const *const, QWidget *parent = nullptr);
 
-  // TODO: remove ...
-  //  void loadEvent(Data::SeismEvent const *const, QUndoStack const *const);
-  //  void unloadEvent(QUndoStack const *const);
-  // ...
-
   void loadEvent(Data::SeismEvent const *const);
   void unloadEvent();
 
@@ -87,9 +82,6 @@ private:
   void removeLocal(const QString &);
   QBrush updateRepetition(const QString &);
   bool allValid() const;
-
-  //  QPushButton *_undoButton;
-  //  QPushButton *_redoButton;
 
   EventToolsWidget *_toolsWidget;
 
