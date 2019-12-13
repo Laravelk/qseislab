@@ -1,12 +1,13 @@
 #pragma once
 
-#include "event_operation/modification/commands/testindividualcommand.h"
+#include "event_operation/modification/commands/addpick.h"
+#include "event_operation/modification/commands/ffilteringdatacommand.h"
 #include "event_operation/modification/commands/movepick.h"
 #include "event_operation/modification/commands/removepick.h"
-#include "event_operation/modification/commands/addpick.h"
 #include "event_operation/modification/commands/rotatedatatoebasis.h"
-#include "event_operation/modification/commands/ffilteringdatacommand.h"
+#include "event_operation/modification/commands/testindividualcommand.h"
 
+#include "event_operation/modification/commands/newtestindividualcommand.h"
 
 namespace Data {
 class ProjectSettings {
@@ -17,6 +18,10 @@ public:
   TestIndividualCommand::Parameters &getTestMultParameters();
   const TestIndividualCommand::Parameters &getTestMultParameters() const;
 
+  void setNewTestMultParameters(const NewTestIndividualCommand::Parameters &);
+  NewTestIndividualCommand::Parameters &getNewTestMultParameters();
+  const NewTestIndividualCommand::Parameters &getNewTestMultParameters() const;
+
   void setRotateDataParameters(const RotateData::Parameters &);
   RotateData::Parameters &getRotateDataParameters();
   const RotateData::Parameters &getRotateDataParameters() const;
@@ -25,7 +30,8 @@ public:
   MovePick::Parameters &getMovePickParameters();
   const MovePick::Parameters &getMovePickParameters() const;
 
-  void setRemovePickParameters(const RemovePick::Parameters &removePickParameters);
+  void
+  setRemovePickParameters(const RemovePick::Parameters &removePickParameters);
   RemovePick::Parameters &getRemovePickParameters();
   const RemovePick::Parameters &getRemovePickParameters() const;
 
@@ -39,6 +45,8 @@ public:
 
 private:
   TestIndividualCommand::Parameters _testMultParameters;
+
+  NewTestIndividualCommand::Parameters _newTestMultParameters;
 
   RotateData::Parameters _rotateDataParameters;
 

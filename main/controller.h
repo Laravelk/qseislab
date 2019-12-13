@@ -41,6 +41,9 @@ private slots:
   void
       handleEventTransformSettingsClicked(Data::SeismEvent::TransformOperation);
 
+  void handleUndoClicked();
+  void handleRedoClicked();
+
   void handleAddEventsClicked();
   void handleAddEventClicked();
   void handleViewEventClicked(const QUuid &);
@@ -71,6 +74,8 @@ private:
   QUuid _currentOneEventFocus;
   std::map<QUuid, std::shared_ptr<CustomIndividualUndoStack>> _eventStacks;
   std::shared_ptr<QUndoStack> _shareEventStack;
+
+  std::shared_ptr<QUndoStack> _undoStack;
 
   std::unique_ptr<View> _mainWindow;
 

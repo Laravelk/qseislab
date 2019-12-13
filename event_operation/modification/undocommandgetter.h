@@ -1,37 +1,27 @@
 #pragma once
 
 #include "data/projectsettings.h"
-#include "data/seismevent.h"
+//#include "data/seismevent.h"
 
-#include <iostream>
+//#include <iostream>
 
 class CustomIndividualUndoCommand;
 
+class EventOperationUndoCommand;
+
+namespace Data {
+class SeismEvent;
+}
 
 namespace UndoCommandGetter {
-// template <typename... Args>
-// CustomIndividualUndoCommand *get(Data::SeismEvent::TransformOperation oper,
-//                                 const QUuid &shareUuid,
-//                                 Data::SeismEvent *event, Args... args) {
-//  switch (oper) {
-//  case TransformOperation::TestMultiplier:
-//    return new TestIndividualCommand(shareUuid, event, args...);
-//    break;
-//  }
-
-//  std::cerr << "UndoCommandGetter::get ::return nullptr" << std::endl;
-//  return nullptr;
-//}
 
 CustomIndividualUndoCommand *get(Data::SeismEvent::TransformOperation oper,
                                  const QUuid &shareUuid,
                                  Data::SeismEvent *event,
                                  const Data::ProjectSettings &settings);
 
-// template <typename... Args>
-// CustomIndividualUndoCommand *get(Data::SeismEvent::TransformOperation oper,
-//                                 Data::SeismEvent *event, Args... args) {
-//  return get(oper, QUuid(), event, args...);
-//}
+EventOperationUndoCommand *get(Data::SeismEvent::TransformOperation oper,
+                               const std::set<Data::SeismEvent *> &events,
+                               const Data::ProjectSettings &settings);
 
 } // namespace UndoCommandGetter

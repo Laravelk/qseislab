@@ -14,6 +14,9 @@
 
 #include <QMessageBox>
 
+#include "undo_stack_work/customundocommand.h"
+#include "undo_stack_work/eventoperationundocommand.h"
+
 typedef Data::SeismEvent SeismEvent;
 typedef Data::SeismHorizon SeismHorizon;
 typedef Data::SeismReceiver SeismReceiver;
@@ -26,134 +29,31 @@ using namespace ProjectOperation;
 namespace Main {
 Controller::Controller(QObject *parent)
     : QObject(parent), _shareEventStack(std::make_unique<QUndoStack>()),
-      _mainWindow(std::make_unique<View>(_shareEventStack.get())) {
+      _undoStack(std::make_unique<QUndoStack>()),
+      _mainWindow(std::make_unique<View>(_undoStack.get())) {
 
-  //  _mainWindow->updateUndoStack(_shareEventStack.get());
+  connect(_mainWindow.get(), &View::undoClicked, this,
+          &Controller::handleUndoClicked);
 
-  // share-undo/redo connecting
-  //  connect(_mainWindow.get(), &View::changeEventFocus,
-  //          [this](auto &eventFocus) { _eventFocus = eventFocus; });
-
-  connect(_mainWindow.get(), &View::undoClicked, [this]() {
-    //    if (!_currentOneEventFocus.isNull()) {
-    //      _eventStacks[_currentOneEventFocus]->undo();
-    //    } else {
-
-    // NOTE: bad way!
-    auto index = _shareEventStack->index();
-    if (0 != index) {
-      --index;
-    }
-    auto shareCommand =
-        static_cast<const ShareUndoCommand *>(_shareEventStack->command(index));
-
-    auto eventsAmount = shareCommand->getAppliedUuids().size();
-    if (1 < eventsAmount) {
-      QMessageBox *msg = new QMessageBox(QMessageBox::Warning, "Warning",
-                                         "Вы пытаетесь отменить общую команду",
-                                         QMessageBox::Ok | QMessageBox::Cancel);
-      auto res = msg->exec();
-      if (QMessageBox::Ok == res) {
-        std::cout << "Ok clicked" << std::endl;
-
-        _shareEventStack->undo();
-
-      } else if (QMessageBox::Cancel == res) {
-        // skip ...
-        std::cout << "Cancel clicked" << std::endl;
-      }
-
-    } else if (1 == eventsAmount) {
-      auto &appliedUuid =
-          *shareCommand->getAppliedUuids().begin(); // NOTE: ???? (по-другому?)
-      if (_currentOneEventFocus != appliedUuid) {
-        QMessageBox *msg =
-            new QMessageBox(QMessageBox::Warning, "Warning",
-                            "Вы пытаетесь отменить команду другого "
-                            "ивента",
-                            QMessageBox::Ok | QMessageBox::Cancel);
-        auto res = msg->exec();
-        if (QMessageBox::Ok == res) {
-          _shareEventStack->undo();
-          handleViewEventClicked(appliedUuid);
-        }
-      } else {
-        _shareEventStack->undo();
-      }
-    }
-
-    //    _shareEventStack->undo();
-
-    //    }
-  });
-  connect(_mainWindow.get(), &View::redoClicked, [this]() {
-    //    if (!_currentOneEventFocus.isNull()) {
-    //      _eventStacks[_currentOneEventFocus]->redo();
-    //    } else {
-    _shareEventStack->redo();
-    //    }
-  });
+  connect(_mainWindow.get(), &View::redoClicked, this,
+          &Controller::handleRedoClicked);
 
   connect(_mainWindow.get(), &View::eventActionSettingsClicked, this,
           &Controller::handleEventTransformSettingsClicked);
 
   connect(_mainWindow.get(), &View::eventsActionClicked,
           [this](auto &uuids, auto oper) {
-            //            if (!_currentOneEventFocus.isNull()) {
-            //              auto command = UndoCommandGetter::get(
-            //                  oper, QUuid(),
-            //                  _project->get<SeismEvent>(_currentOneEventFocus).get(),
-            //                  _project->getSettings());
-            //              _eventStacks[_currentOneEventFocus]->push(command);
-            //            } else {
-
             if (!uuids.empty()) {
-              auto shareCommand = new ShareUndoCommand(uuids);
-              _shareEventStack->push(shareCommand);
-
-              auto shareUuid = shareCommand->getUuid();
-
-              for (auto &eventUuid : uuids) {
-                auto command = UndoCommandGetter::get(
-                    oper, shareUuid, _project->get<SeismEvent>(eventUuid).get(),
-                    _project->getSettings());
-                _eventStacks[eventUuid]->push(command);
+              std::set<Data::SeismEvent *> events;
+              for (auto &uuid : uuids) {
+                events.insert(_project->get<SeismEvent>(uuid).get());
               }
 
-              connect(shareCommand, &ShareUndoCommand::applyUndo,
-                      [this](auto &shareUuid, auto &eventUuids) {
-                        std::set<QUuid> uuidsForRemove;
+              auto command =
+                  UndoCommandGetter::get(oper, events, _project->getSettings());
 
-                        for (auto &eventUuid : eventUuids) {
-                          auto &stack = _eventStacks[eventUuid];
-                          bool undoApplied = stack->tryUndo(shareUuid);
-                          if (!undoApplied) {
-                            uuidsForRemove.insert(eventUuid);
-                          }
-                        }
-
-                        for (auto &uuid : uuidsForRemove) {
-                          eventUuids.erase(uuid);
-                        }
-                      });
-              connect(shareCommand, &ShareUndoCommand::applyRedo,
-                      [this](auto &shareUuid, auto &eventUuids) {
-                        std::set<QUuid> uuidsForRemove;
-
-                        for (auto &eventUuid : eventUuids) {
-                          auto &stack = _eventStacks[eventUuid];
-                          bool redoApplied = stack->tryRedo(shareUuid);
-                          if (!redoApplied) {
-                            uuidsForRemove.insert(eventUuid);
-                          }
-                        }
-
-                        for (auto &uuid : uuidsForRemove) {
-                          eventUuids.erase(uuid);
-                        }
-                      });
+              _undoStack->push(command);
             }
-            //            }
           });
 
   connect(_mainWindow.get(), &View::addEventsClicked, this,
@@ -161,14 +61,8 @@ Controller::Controller(QObject *parent)
   connect(_mainWindow.get(), &View::addEventClicked, this,
           &Controller::handleAddEventClicked);
 
-  connect(_mainWindow.get(), &View::eventPageChanged, [this](auto &uuid) {
-    _currentOneEventFocus = uuid;
-    //    if (_currentOneEventFocus.isNull()) {
-    //      _mainWindow->updateUndoStack(_shareEventStack.get());
-    //    } else {
-    //      _mainWindow->updateUndoStack(_eventStacks[_currentOneEventFocus].get());
-    //    }
-  });
+  connect(_mainWindow.get(), &View::eventPageChanged,
+          [this](auto &uuid) { _currentOneEventFocus = uuid; });
 
   connect(_mainWindow.get(), &View::eventPageClosed,
           [this](auto &uuid) { _oneViewEventControllers.erase(uuid); });
@@ -268,6 +162,94 @@ void Controller::handleEventTransformSettingsClicked(
   }
 }
 
+void Controller::handleUndoClicked() {
+  auto index = _undoStack->index();
+  if (0 != index) {
+    --index;
+  }
+  auto command =
+      static_cast<const CustomUndoCommand *>(_undoStack->command(index));
+
+  switch (command->getType()) {
+  case CustomUndoCommand::EventOperation:
+    auto eventOperationCommand =
+        static_cast<const EventOperationUndoCommand *>(command);
+
+    if (eventOperationCommand->isCommon()) {
+      QMessageBox *msg = new QMessageBox(QMessageBox::Warning, "Warning",
+                                         "Вы пытаетесь отменить общую команду ",
+                                         QMessageBox::Ok | QMessageBox::Cancel);
+      auto res = msg->exec();
+      if (QMessageBox::Ok == res) {
+        _undoStack->undo();
+      }
+    } else {
+      auto appliedEventUuid = *eventOperationCommand->getEventUuids().begin();
+      if (_currentOneEventFocus != appliedEventUuid) {
+        QMessageBox *msg =
+            new QMessageBox(QMessageBox::Warning, "Warning",
+                            "Вы пытаетесь отменить команду другого "
+                            "ивента",
+                            QMessageBox::Ok | QMessageBox::Cancel);
+        auto res = msg->exec();
+        if (QMessageBox::Cancel == res) {
+          break;
+        }
+      }
+      _undoStack->undo();
+      handleViewEventClicked(appliedEventUuid);
+    }
+
+    break;
+    //  case CustomUndoCommand::RemoveSeismObject:
+    // TODO: implement!
+    //    break;
+  }
+}
+
+void Controller::handleRedoClicked() {
+  auto index = _undoStack->index();
+  auto command =
+      static_cast<const CustomUndoCommand *>(_undoStack->command(index));
+
+  switch (command->getType()) {
+  case CustomUndoCommand::EventOperation:
+    auto eventOperationCommand =
+        static_cast<const EventOperationUndoCommand *>(command);
+
+    if (eventOperationCommand->isCommon()) {
+      QMessageBox *msg =
+          new QMessageBox(QMessageBox::Warning, "Warning",
+                          "Вы пытаетесь применить общую команду ",
+                          QMessageBox::Ok | QMessageBox::Cancel);
+      auto res = msg->exec();
+      if (QMessageBox::Ok == res) {
+        _undoStack->redo();
+      }
+    } else {
+      auto appliedEventUuid = *eventOperationCommand->getEventUuids().begin();
+      if (_currentOneEventFocus != appliedEventUuid) {
+        QMessageBox *msg =
+            new QMessageBox(QMessageBox::Warning, "Warning",
+                            "Вы пытаетесь применить команду другого "
+                            "ивента",
+                            QMessageBox::Ok | QMessageBox::Cancel);
+        auto res = msg->exec();
+        if (QMessageBox::Cancel == res) {
+          break;
+        }
+      }
+      _undoStack->redo();
+      handleViewEventClicked(appliedEventUuid);
+    }
+
+    break;
+    //  case CustomUndoCommand::RemoveSeismObject:
+    // TODO: implement!
+    //    break;
+  }
+}
+
 void Controller::handleAddEventsClicked() {
   if (!_moreEventsController) {
     _moreEventsController = std::make_unique<MoreEvents::Controller>(
@@ -286,8 +268,8 @@ void Controller::handleAddEventsClicked() {
             });
 
     //    connect(_moreEventsController.get(),
-    //            &MoreEvents::Controller::eventTransformSettingsClicked, this,
-    //            &Controller::handleEventTransformSettingsClicked);
+    //            &MoreEvents::Controller::eventTransformSettingsClicked,
+    //            this, &Controller::handleEventTransformSettingsClicked);
 
     connect(_moreEventsController.get(), &MoreEvents::Controller::finished,
             [this] { _moreEventsController.reset(); });

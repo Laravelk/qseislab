@@ -51,6 +51,7 @@ set(SOURCES
         event_operation/modification/commands/removepick.cpp
         event_operation/modification/commands/addpick.cpp
         event_operation/modification/commands/ffilteringdatacommand.cpp
+        event_operation/modification/commands/newtestindividualcommand.cpp
 
 
 
@@ -135,6 +136,7 @@ set(SOURCES
         undo_stack_work/customindividualundostack.cpp
         undo_stack_work/customindividualundocommand.cpp
         undo_stack_work/shareundocommand.cpp
+        undo_stack_work/eventoperationundocommand.cpp
 
 
         main/controller.cpp
@@ -180,6 +182,8 @@ set(HEADERS
         event_operation/modification/commands/removepick.h
         event_operation/modification/commands/addpick.h
         event_operation/modification/commands/ffilteringdatacommand.h
+        event_operation/modification/commands/newtestindividualcommand.h
+
 
         event_operation/one_event/controller.h
         event_operation/one_event/view/filemanager.h
@@ -264,6 +268,8 @@ set(HEADERS
         undo_stack_work/customindividualundostack.h
         undo_stack_work/customindividualundocommand.h
         undo_stack_work/shareundocommand.h
+        undo_stack_work/customundocommand.h
+        undo_stack_work/eventoperationundocommand.h
 
 
         main/controller.h

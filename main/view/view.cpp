@@ -92,7 +92,7 @@ View::View(QUndoStack const *const undoStack, QWidget *parent)
   viewMenu->addAction("Wells", [this] { emit wellsClicked(); });
 
   QMenu *eventMenu = new QMenu("Event");
-  eventMenu->addAction("Add Event", [this] { emit addEventClicked(); });
+  //  eventMenu->addAction("Add Event", [this] { emit addEventClicked(); });
   eventMenu->addAction("Add Events", [this] { emit addEventsClicked(); });
 
   viewMenu->addMenu(eventMenu);
