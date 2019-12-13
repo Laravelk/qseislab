@@ -167,26 +167,20 @@ Controller::Controller(
 
   connect(_view.get(), &View::addPick,
           [this](auto type, auto num, auto l_val, auto arrival, auto r_val) {
-            int idx = 0;
             auto &event = _events_map[_currentEventUuid];
-            for (auto &component : event->getComponents()) {
-              if (num == idx) {
-                Data::ProjectSettings setting;
-                AddPick::Parameters parameters;
-                parameters.setNumber(num);
-                parameters.setLeftValue(l_val);
-                parameters.setRightValue(r_val);
-                parameters.setPickArrivalValue(arrival);
-                parameters.setTypePick(type);
-                setting.setAddPickParameters(parameters);
-                auto command = UndoCommandGetter::get(
-                    Data::SeismEvent::TransformOperation::AddPick, QUuid(),
-                    event.get(), setting);
-                _stacks_map[_currentEventUuid]->push(command);
-                break;
-              }
-              idx++;
-            }
+            auto &component = event->getComponents()[num];
+            Data::ProjectSettings setting;
+            AddPick::Parameters parameters;
+            parameters.setNumber(num);
+            parameters.setLeftValue(l_val);
+            parameters.setRightValue(r_val);
+            parameters.setPickArrivalValue(arrival);
+            parameters.setTypePick(type);
+            setting.setAddPickParameters(parameters);
+            auto command = UndoCommandGetter::get(
+                Data::SeismEvent::TransformOperation::AddPick, QUuid(),
+                event.get(), setting);
+            _stacks_map[_currentEventUuid]->push(command);
           });
 
   connect(_view.get(), &View::undoClicked, [this]() {
@@ -223,9 +217,17 @@ Controller::Controller(
           [this, &settings](auto oper) {
             if (!_currentEventUuid.isNull()) {
               auto &event = _events_map[_currentEventUuid];
-
+              Data::ProjectSettings setting;
+              FFilteringDataCommand::Parameters parameters;
+              // F1 - F4?
+              parameters.setF1(10);
+              parameters.setF2(50);
+              parameters.setF3(150);
+              parameters.setF4(200);
+              setting.setFFilteringParameters(parameters);
+              // TEST TODO: delete
               auto command =
-                  UndoCommandGetter::get(oper, QUuid(), event.get(), settings);
+                  UndoCommandGetter::get(oper, QUuid(), event.get(), setting);
               _stacks_map[_currentEventUuid]->push(command);
             }
           });

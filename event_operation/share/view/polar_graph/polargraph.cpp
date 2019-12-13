@@ -5,11 +5,16 @@
 #include <limits>
 #include <iostream> // TODO: delete
 
+#include "event_operation/share/view/graphic_view/graphic_view.h"
+
+
 namespace EventOperation {
-PolarGraph::PolarGraph(QPolarChart *chart,QWidget *parent)
+PolarGraph::PolarGraph(QPolarChart *chart, QWidget *parent)
     : QChartView(chart), _polarChart(chart),
        _angularAxis(new QValueAxis()),
       _radialAxis(new QValueAxis), _rect(new QGraphicsRectItem) {
+
+  setFrameStyle(1);
   const qreal angularMin = 0;
   const qreal angularMax = 360;
 
@@ -31,16 +36,15 @@ PolarGraph::PolarGraph(QPolarChart *chart,QWidget *parent)
 
   this->setRenderHint(QPainter::Antialiasing);
 
-  //  _statusRect = new QGraphicsRectItem(20, 442, 133, 20, _polarChart);
     _statusRect = new QGraphicsRectItem(WARNING_STATUS_RECT, _polarChart);
     _statusRect->setZValue(11);
     _statusRect->setBrush(Qt::yellow);
     _status = new QGraphicsTextItem(WARNING_STATUS, _polarChart);
-  //  _status->setPos(20, 440);
     _status->setPos(QPointF(20, 415));
     _status->setZValue(12);
 
-//    _polarChart->scene()->addItem(_rect);
+   _status->hide();
+   _statusRect->hide();
 }
 
 QWidget *PolarGraph::getView() const { return _allView; }
@@ -49,15 +53,18 @@ void PolarGraph::update(Data::SeismEvent const * const event) {
   _polarChart->removeAllSeries();
   _seriesList.clear();
   _dataList.clear();
-  QScatterSeries *validSeries = new QScatterSeries();
+  QScatterSeries *validPWaveSeries = new QScatterSeries();
+  validPWaveSeries->setColor(Qt::darkRed);
+  QScatterSeries *validSWaveSeries = new QScatterSeries();
+  validSWaveSeries->setColor(Qt::darkBlue);
   QScatterSeries *unValidSeries = new QScatterSeries();
   unValidSeries->setColor(Qt::gray);
   for (auto &component : event->getComponents()) {
     for (auto &pick : component->getWavePicks()) {
-      if (((Data::SeismWavePick::Type::PWAVE == pick.first) && _hidePWave)
-              || ((Data::SeismWavePick::Type::SWAVE == pick.first) && _hideSWave)) {
-          continue;
-      }
+//      if (((Data::SeismWavePick::Type::PWAVE == pick.first) && _hidePWave)
+//              || ((Data::SeismWavePick::Type::SWAVE == pick.first) && _hideSWave)) {
+//          continue;
+//      }
       if (pick.second.getPolarizationAnalysisData() != std::nullopt) {
         Data::SeismPolarizationAnalysisData data =
             pick.second.getPolarizationAnalysisData().value();
@@ -66,7 +73,11 @@ void PolarGraph::update(Data::SeismEvent const * const event) {
                 ? std::fmod(data.getAzimutDegrees(), 360)
                 : 360 + std::fmod(data.getAzimutDegrees(), 360);
         if (data.isValid()) {
-            validSeries->append(polarAngle, data.getIncidenceInRadian());
+            if (pick.first == Data::SeismWavePick::PWAVE) {
+                validPWaveSeries->append(polarAngle, data.getIncidenceInRadian());
+            } else {
+                validSWaveSeries->append(polarAngle, data.getIncidenceInRadian());
+            }
         }
         else {
            unValidSeries->append(polarAngle, data.getIncidenceInRadian());
@@ -75,8 +86,25 @@ void PolarGraph::update(Data::SeismEvent const * const event) {
       }
     }
   }
-  _seriesList.append(validSeries);
-  connect(validSeries, &QScatterSeries::clicked, [this](const QPointF &point) {
+  if (!_hidePWave) {
+    _seriesList.append(validPWaveSeries);
+    _polarChart->addSeries(validPWaveSeries);
+    validPWaveSeries->attachAxis(_radialAxis);
+    validPWaveSeries->attachAxis(_angularAxis);
+  }
+  if (!_hideSWave) {
+    _seriesList.append(validSWaveSeries);
+    _polarChart->addSeries(validSWaveSeries);
+    validSWaveSeries->attachAxis(_radialAxis);
+    validSWaveSeries->attachAxis(_angularAxis);
+  }
+
+  // connet zone
+  connect(validPWaveSeries, &QScatterSeries::clicked, [this](const QPointF &point) {
+      handleClickedPoint(point);
+  });
+
+  connect(validSWaveSeries, &QScatterSeries::clicked, [this](const QPointF &point) {
       handleClickedPoint(point);
   });
 
@@ -84,7 +112,8 @@ void PolarGraph::update(Data::SeismEvent const * const event) {
       handleClickedPoint(point);
   });
 
-  _status->setPlainText(NORMAL_STATUS);
+  // end connect zone
+
   _statusRect->hide();
   _statusRect->setBrush(Qt::white);
 
@@ -98,11 +127,6 @@ void PolarGraph::update(Data::SeismEvent const * const event) {
       unValidSeries->attachAxis(_angularAxis);
       _seriesList.append(unValidSeries);
   }
-  _polarChart->addSeries(validSeries);
-  _seriesList.append(validSeries);
-  validSeries->attachAxis(_radialAxis);
-  validSeries->attachAxis(_angularAxis);
-
 }
 
 void PolarGraph::setGraphColor(const QBrush &color)
@@ -134,7 +158,7 @@ void PolarGraph::keyPressEvent(QKeyEvent *event)
     switch (event->key()) {
     case Qt::Key_Alt: {
       _altIsTouch = true;
-      _status->setPlainText(ALT_IS_TOUCHING_STATUS);
+//      _status->setPlainText(ALT_IS_TOUCHING_STATUS);
       break;
     }
     default:
@@ -162,7 +186,7 @@ void PolarGraph::keyReleaseEvent(QKeyEvent *event)
     switch (event->key()) {
     case Qt::Key_Alt:
       _altIsTouch = false;
-      _status->setPlainText(NORMAL_STATUS);
+//      _status->setPlainText(NORMAL_STATUS);
       break;
     default:
       QChartView::keyReleaseEvent(event);
@@ -201,16 +225,6 @@ void PolarGraph::findPolarizationAnalysisDataForClickedPoint(const QPointF &poin
         qreal dataIncidenceInRadian = static_cast<qreal>(data.getIncidenceInRadian());
           if ((std::fabs(dataPolarAngle - point.x()) < std::numeric_limits<qreal>::epsilon())    &&
                   (std::fabs(dataIncidenceInRadian - point.y()) < std::numeric_limits<qreal>::epsilon())) {
-//              if (_dataItem == nullptr) {
-//                  _dataItem = new AnalysisDataGraphicsItem(_polarChart);
-//                  _dataItem->setZValue(999999);
-//              }
-//              _dataItem->setAnchor(QPointF(dataPolarAngle, dataIncidenceInRadian));
-//              _dataItem->setRectAnchor(QPointF(100,20));
-//              _dataItem->setText(QString("PolarAngle: %1 \nIncidence: %2 ").arg(dataPolarAngle).arg(dataIncidenceInRadian));
-//              _dataItem->updateGeometry();
-//              _dataItem->show();
-
               if (_infoRect == nullptr) {
                   _infoRect = new QGraphicsRectItem(QRect(80,20,110,35),_polarChart);
               }

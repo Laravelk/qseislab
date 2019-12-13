@@ -138,5 +138,10 @@ private:
   };
 
   ColorData *_colorData;
+
+public:
+  const ColorData* getColorData() {
+    return _colorData;
+  }
 };
 } // namespace EventOperation

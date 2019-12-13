@@ -121,6 +121,14 @@ View::View(const std::set<QString> &eventNames,
       setNotification("There is invalid event-info");
     }
   });
+
+  connect(_graphicEvent, &EventOperation::GraphicController::addPick, [this](auto type, auto num, auto l_val, auto arrival, auto r_val){
+        emit addPick(type, num, l_val, arrival, r_val);
+  });
+
+  connect(_graphicEvent, &EventOperation::GraphicController::removePick,
+          [this](auto type, auto num) { emit removePick(type, num); });
+
   connect(_cancelButton, &QPushButton::clicked, this, &View::reject);
   // Connecting end
 

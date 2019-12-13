@@ -85,17 +85,17 @@ PolarizationAnalysisCompute::calculatePolarizationData(
     const Eigen::MatrixXf &matrix) {
   Eigen::BDCSVD<Eigen::MatrixXf> *svd = new Eigen::BDCSVD<Eigen::MatrixXf>(
       matrix, Eigen::ComputeFullV | Eigen::ComputeFullU);
-  Eigen::Vector3f column1, column2, column3;
-  column1 = svd->matrixU().col(0);
-  column2 = svd->matrixU().col(1);
-  column3 = svd->matrixU().col(2);
+  Eigen::Vector3f vectorWithTheBiggestEigenValue, column2, column3;
+  vectorWithTheBiggestEigenValue = svd->matrixU().col(0);
+
+  QVector3D eigenVector(vectorWithTheBiggestEigenValue[0], vectorWithTheBiggestEigenValue[1], vectorWithTheBiggestEigenValue[2]);
 
   const double maxSingularValue = static_cast<double>(svd->singularValues()[0]);
   const double pAzimutInRadian =
-      static_cast<double>(std::atan((column1[1] * sgn(column1[0]))) /
-                          (column1[2] * sgn(column1[0])));
+      static_cast<double>(std::atan((vectorWithTheBiggestEigenValue[1] * sgn(vectorWithTheBiggestEigenValue[0]))) /
+                          (vectorWithTheBiggestEigenValue[2] * sgn(vectorWithTheBiggestEigenValue[0])));
   const double pIncidenceInRadian =
-      static_cast<double>(std::acos(qAbs(column1[0])));
+      static_cast<double>(std::acos(qAbs(vectorWithTheBiggestEigenValue[0])));
 
   const double pAzimutDegrees = pAzimutInRadian * DEGREES_COEFFICIENT / M_PI;
   const double pIncidenceDegrees =
@@ -103,7 +103,7 @@ PolarizationAnalysisCompute::calculatePolarizationData(
 
   return Data::SeismPolarizationAnalysisData(
       maxSingularValue, pAzimutInRadian, pIncidenceInRadian, pAzimutDegrees,
-      pIncidenceDegrees);
+      pIncidenceDegrees, eigenVector);
 }
 
 } // namespace EventOperation
