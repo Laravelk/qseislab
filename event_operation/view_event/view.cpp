@@ -25,7 +25,7 @@ View::View(const std::set<QString> &eventNames, SeismEvent const *const event,
   setWindowTitle("SeismWindow");
   setMinimumSize(1300, 590);
 
-  _toolsWidget->connectUndoStack(undoStack);
+  //  _toolsWidget->connectUndoStack(undoStack);
   // Setting`s end
 
   // Connecting

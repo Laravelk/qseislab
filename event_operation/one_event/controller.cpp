@@ -16,6 +16,8 @@
 
 #include <iostream> // TODO: remove
 
+#include "data/projectsettings.h"
+
 typedef Data::IO::SegyReader SegyReader;
 typedef Data::SeismEvent SeismEvent;
 
@@ -27,8 +29,9 @@ Controller::Controller(
     const std::list<std::shared_ptr<Data::SeismReceiver>> &receivers,
     QObject *parent)
     : QObject(parent), _model(new Model(new SegyReader(), this)),
-      _event(std::make_shared<SeismEvent>()),
-      _undoStack(std::make_shared<CustomIndividualUndoStack>()) {
+      _event(std::make_shared<SeismEvent>())
+//    ,_undoStack(std::make_shared<CustomIndividualUndoStack>())
+{
 
   // prepare data for view
   std::map<QUuid, QString> wellNames_map;
@@ -40,7 +43,8 @@ Controller::Controller(
     eventNames.insert(uuid_event.second->getInfo().getName());
   }
 
-  _view = std::make_unique<View>(eventNames, wellNames_map, _undoStack.get());
+  //  _view = std::make_unique<View>(eventNames, wellNames_map,
+  //  _undoStack.get());
 
   connect(_view.get(), &View::infoChanged,
           [this] { _view->settingEventInfo(_event.get()); });
@@ -54,43 +58,48 @@ Controller::Controller(
   connect(_model, &Model::notify,
           [this](auto &msg) { _view->setNotification(msg); });
 
-  connect(_view.get(), &View::removePick,
-          [this](const auto type, const auto num) {
-          auto &event = _event;
-          Data::ProjectSettings setting;
-          RemovePick::Parameters parameters;
-          parameters.setNum(num);
-          parameters.setType(type);
-          setting.setRemovePickParameters(parameters);
-          auto command = UndoCommandGetter::get(Data::SeismEvent::TransformOperation::RemovePick,QUuid(), event.get(),
-                                                setting);
-          _undoStack->push(command);
-            _removedPickAndNeedUpdatePolarGraph = true;
+  //  connect(_view.get(), &View::removePick,
+  //          [this](const auto type, const auto num) {
+  //            auto &event = _event;
+  //            Data::ProjectSettings setting;
+  //            RemovePick::Parameters parameters;
+  //            parameters.setNum(num);
+  //            parameters.setType(type);
+  //            setting.setRemovePickParameters(parameters);
+  //            auto command = UndoCommandGetter::get(
+  //                Data::SeismEvent::TransformOperation::RemovePick, QUuid(),
+  //                event.get(), setting);
+  //            _undoStack->push(command);
+  //            _removedPickAndNeedUpdatePolarGraph = true;
 
-            if (_polarizationWindow) {
-              _polarizationWindow->setDefault();
-            }
-          });
+  //            if (_polarizationWindow) {
+  //              _polarizationWindow->setDefault();
+  //            }
+  //          });
 
-  connect(_view.get(), &View::addPick, [this](auto type, auto num, auto l_val, auto arrival, auto r_val) {
-      int idx = 0;
-      for (auto &component : _event->getComponents()) {
-          if (num == idx) {
-            Data::ProjectSettings setting;
-            AddPick::Parameters parameters;
-            parameters.setNumber(num);
-            parameters.setLeftValue(l_val);
-            parameters.setRightValue(r_val);
-            parameters.setPickArrivalValue(arrival);
-            parameters.setTypePick(type);
-            setting.setAddPickParameters(parameters);
-            auto command = UndoCommandGetter::get(Data::SeismEvent::TransformOperation::AddPick,QUuid(), _event.get(), setting);
-            _undoStack->push(command);
-            break;
-          }
-          idx++;
-      }
-  });
+  //  connect(_view.get(), &View::addPick,
+  //          [this](auto type, auto num, auto l_val, auto arrival, auto r_val)
+  //          {
+  //            int idx = 0;
+  //            for (auto &component : _event->getComponents()) {
+  //              if (num == idx) {
+  //                Data::ProjectSettings setting;
+  //                AddPick::Parameters parameters;
+  //                parameters.setNumber(num);
+  //                parameters.setLeftValue(l_val);
+  //                parameters.setRightValue(r_val);
+  //                parameters.setPickArrivalValue(arrival);
+  //                parameters.setTypePick(type);
+  //                setting.setAddPickParameters(parameters);
+  //                auto command = UndoCommandGetter::get(
+  //                    Data::SeismEvent::TransformOperation::AddPick, QUuid(),
+  //                    _event.get(), setting);
+  //                _undoStack->push(command);
+  //                break;
+  //              }
+  //              idx++;
+  //            }
+  //          });
 
   connect(_view.get(), &View::sendWellUuidAndFilePath,
           [this, &wells_map, &receivers](auto &wellUuid, auto &filePath) {
@@ -158,9 +167,8 @@ Controller::Controller(
     _view->updatePolarGraph(_event.get());
   });
 
-  connect(_view.get(), &View::updatePolarGraphSignal, [this]() {
-      _view->updatePolarGraph(_event.get());
-  });
+  connect(_view.get(), &View::updatePolarGraphSignal,
+          [this]() { _view->updatePolarGraph(_event.get()); });
 
   connect(_view.get(), &View::clickOnPolarAnalysisInGraph, [this]() {
     if (!checkPolarizationAnalysisDataValid() ||
@@ -176,12 +184,13 @@ Controller::Controller(
             int idx = 0;
             for (auto &component : this->_event->getComponents()) {
               if (num == idx) {
-//                    auto &pick = component->getWavePicks()[type];
-//                    pick.setArrival(pick_val);
-//                    pick.setPolarizationLeftBorder(l_val);
-//                    pick.setPolarizationRightBorder(r_val);
-//                    pick.setValidDataStatus(false);
-//                    break;
+                //                    auto &pick =
+                //                    component->getWavePicks()[type];
+                //                    pick.setArrival(pick_val);
+                //                    pick.setPolarizationLeftBorder(l_val);
+                //                    pick.setPolarizationRightBorder(r_val);
+                //                    pick.setValidDataStatus(false);
+                //                    break;
                 auto &picks_map = component->getWavePicks();
                 auto itr_pic = picks_map.find(type);
                 if (itr_pic != picks_map.end()) {
@@ -203,14 +212,16 @@ Controller::Controller(
             }
           });
 
-  connect(_view.get(), &View::undoClicked, [this]() { _undoStack->undo(); });
-  connect(_view.get(), &View::redoClicked, [this]() { _undoStack->redo(); });
+  //  connect(_view.get(), &View::undoClicked, [this]() { _undoStack->undo();
+  //  }); connect(_view.get(), &View::redoClicked, [this]() {
+  //  _undoStack->redo(); });
 
   connect(_view.get(), &View::eventTransformClicked,
           [this, &wells_map](auto oper) {
-//            CustomIndividualUndoCommand *command =
-//                UndoCommandGetter::get(oper, QUuid(), _event.get());
-//            _undoStack->push(command);
+            //            CustomIndividualUndoCommand *command =
+            //                UndoCommandGetter::get(oper, QUuid(),
+            //                _event.get());
+            //            _undoStack->push(command);
           });
 
   connect(_view.get(), &View::finished, this, &Controller::finish);
@@ -223,7 +234,7 @@ void Controller::start() {
 
 void Controller::finish(int result) {
   if (QDialog::Accepted == result) {
-    emit sendEventAndStack(_event, _undoStack);
+    //    emit sendEventAndStack(_event, _undoStack);
   }
 
   emit finished();

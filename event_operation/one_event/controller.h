@@ -36,8 +36,8 @@ public:
   void finish(int);
 
 signals:
-  void sendEventAndStack(std::shared_ptr<Data::SeismEvent> &,
-                         std::shared_ptr<CustomIndividualUndoStack> &);
+  //  void sendEventAndStack(std::shared_ptr<Data::SeismEvent> &,
+  //                         std::shared_ptr<CustomIndividualUndoStack> &);
   void finished() const;
 
 private:
@@ -56,7 +56,7 @@ private:
   bool _removedPickAndNeedUpdatePolarGraph = false;
 
   std::shared_ptr<Data::SeismEvent> _event;
-  std::shared_ptr<CustomIndividualUndoStack> _undoStack;
+  //  std::shared_ptr<CustomIndividualUndoStack> _undoStack;
 };
 
 } // namespace OneEvent

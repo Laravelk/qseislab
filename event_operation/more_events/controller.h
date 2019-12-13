@@ -35,13 +35,18 @@ public:
   void finish(int);
 
 signals:
-  void sendEventsAndStacks(
-      std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
-      std::map<QUuid, std::shared_ptr<CustomIndividualUndoStack>> &) const;
-  //  void
-  //      eventTransformSettingsClicked(Data::SeismEvent::TransformOperation)
-  //      const;
+  //  void sendEventsAndStacks(
+  //      std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
+  //      std::map<QUuid, std::shared_ptr<CustomIndividualUndoStack>> &) const;
+
+  void sendEventsAndStack(std::map<QUuid, std::shared_ptr<Data::SeismEvent>> &,
+                          std::shared_ptr<QUndoStack> &) const;
+
   void finished() const;
+
+private slots:
+  void handleUndoClicked();
+  void handleRedoClicked();
 
 private:
   Model *_model;
@@ -52,7 +57,9 @@ private:
   bool _removedPickAndNeedUpdatePolarGraph = false;
 
   std::map<QUuid, std::shared_ptr<Data::SeismEvent>> _events_map;
-  std::map<QUuid, std::shared_ptr<CustomIndividualUndoStack>> _stacks_map;
+  //  std::map<QUuid, std::shared_ptr<CustomIndividualUndoStack>> _stacks_map;
+
+  std::shared_ptr<QUndoStack> _undoStack;
 
   QUuid _currentEventUuid;
 

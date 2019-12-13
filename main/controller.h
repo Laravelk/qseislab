@@ -72,8 +72,8 @@ private:
       _projectSettingViews;
 
   QUuid _currentOneEventFocus;
-  std::map<QUuid, std::shared_ptr<CustomIndividualUndoStack>> _eventStacks;
-  std::shared_ptr<QUndoStack> _shareEventStack;
+  //  std::map<QUuid, std::shared_ptr<CustomIndividualUndoStack>> _eventStacks;
+  //  std::shared_ptr<QUndoStack> _shareEventStack;
 
   std::shared_ptr<QUndoStack> _undoStack;
 

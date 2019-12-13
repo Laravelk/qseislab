@@ -13,12 +13,15 @@ class EventToolsWidget : public QWidget {
   Q_OBJECT
 
 public:
+  explicit EventToolsWidget(QUndoStack const *const, QWidget *parent = nullptr);
   explicit EventToolsWidget(QWidget *parent = nullptr);
 
   void update(Data::SeismEvent const *const);
 
-  void connectUndoStack(QUndoStack const *const);
-  void disconnectUndoStack(QUndoStack const *const);
+  // TODO: remove...
+  //  void connectUndoStack(QUndoStack const *const);
+  //  void disconnectUndoStack(QUndoStack const *const);
+  // ...
 
 signals:
   void undoClicked() const;

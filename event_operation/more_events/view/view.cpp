@@ -22,11 +22,13 @@ typedef Data::SeismEvent SeismEvent;
 namespace EventOperation {
 namespace MoreEvents {
 View::View(const std::set<QString> &globalEventNames,
-           const std::map<QUuid, QString> &wellNames_map, QWidget *parent)
+           const std::map<QUuid, QString> &wellNames_map,
+           QUndoStack const *const undoStack, QWidget *parent)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint),
-      _toolsWidget(new EventToolsWidget()), _infoEvent(new InfoEvent()),
-      _wellNames(new QComboBox()), _fileDialog(new QFileDialog(this)),
-      _eventList(new QListWidget()), _graphicEvent(new GraphicController(this)),
+      _toolsWidget(new EventToolsWidget(undoStack)),
+      _infoEvent(new InfoEvent()), _wellNames(new QComboBox()),
+      _fileDialog(new QFileDialog(this)), _eventList(new QListWidget()),
+      _graphicEvent(new GraphicController(this)),
       _okButton(new QPushButton("Ok")),
       _cancelButton(new QPushButton("Cancel")),
       _globalEventNames(globalEventNames) {
@@ -214,36 +216,67 @@ View::View(const std::set<QString> &globalEventNames,
   // Layout`s end
 }
 
-void View::loadEvent(SeismEvent const *const event,
-                     QUndoStack const *const undoStack) {
-  //  connect(undoStack, &QUndoStack::canUndoChanged, _undoButton,
-  //          &QPushButton::setEnabled);
-  //  connect(undoStack, &QUndoStack::canRedoChanged, _redoButton,
-  //          &QPushButton::setEnabled);
-  //  _undoButton->setEnabled(undoStack->canUndo());
-  //  _redoButton->setEnabled(undoStack->canRedo());
+// void View::loadEvent(SeismEvent const *const event,
+//                     QUndoStack const *const undoStack) {
+//  //  connect(undoStack, &QUndoStack::canUndoChanged, _undoButton,
+//  //          &QPushButton::setEnabled);
+//  //  connect(undoStack, &QUndoStack::canRedoChanged, _redoButton,
+//  //          &QPushButton::setEnabled);
+//  //  _undoButton->setEnabled(undoStack->canUndo());
+//  //  _redoButton->setEnabled(undoStack->canRedo());
 
+//  _toolsWidget->setEnabled(true);
+//  _toolsWidget->update(event);
+//  _toolsWidget->connectUndoStack(undoStack);
+
+//  _infoEvent->setEnabled(true);
+//  _infoEvent->update(event);
+//  _graphicEvent->update(event);
+//  _graphicEvent->show();
+//}
+
+// void View::unloadEvent(QUndoStack const *const undoStack) {
+//  //  disconnect(undoStack, &QUndoStack::canUndoChanged, _undoButton,
+//  //             &QPushButton::setEnabled);
+//  //  disconnect(undoStack, &QUndoStack::canRedoChanged, _redoButton,
+//  //             &QPushButton::setEnabled);
+
+//  //  _undoButton->setDisabled(true);
+//  //  _redoButton->setDisabled(true);
+
+//  _toolsWidget->setDisabled(true);
+//  _toolsWidget->disconnectUndoStack(undoStack);
+
+//  _infoEvent->clear();
+//  _graphicEvent->clear();
+//  _graphicEvent->hide();
+
+//  _infoEvent->setDisabled(true);
+//}
+
+void View::loadEvent(SeismEvent const *const event) {
   _toolsWidget->setEnabled(true);
   _toolsWidget->update(event);
-  _toolsWidget->connectUndoStack(undoStack);
 
   _infoEvent->setEnabled(true);
   _infoEvent->update(event);
+
+  // update focus on event-list ....
+  for (int i = 0; i < _eventList->count(); ++i) {
+    auto item = _eventList->item(i);
+    if (event->getUuid() == item->data(Qt::DecorationRole).toUuid()) {
+      _eventList->setCurrentRow(i);
+      break;
+    }
+  }
+  // ....
+
   _graphicEvent->update(event);
   _graphicEvent->show();
 }
 
-void View::unloadEvent(QUndoStack const *const undoStack) {
-  //  disconnect(undoStack, &QUndoStack::canUndoChanged, _undoButton,
-  //             &QPushButton::setEnabled);
-  //  disconnect(undoStack, &QUndoStack::canRedoChanged, _redoButton,
-  //             &QPushButton::setEnabled);
-
-  //  _undoButton->setDisabled(true);
-  //  _redoButton->setDisabled(true);
-
+void View::unloadEvent() {
   _toolsWidget->setDisabled(true);
-  _toolsWidget->disconnectUndoStack(undoStack);
 
   _infoEvent->clear();
   _graphicEvent->clear();

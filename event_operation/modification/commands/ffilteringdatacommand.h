@@ -1,11 +1,11 @@
 #pragma once
 
-#include "undo_stack_work/customindividualundocommand.h"
+#include "undo_stack_work/eventoperationundocommand.h"
 
 #include <QList>
 #include <vector>
 
-class FFilteringDataCommand : public CustomIndividualUndoCommand {
+class FFilteringDataCommand : public EventOperationUndoCommand {
 public:
   class Parameters {
   public:
@@ -29,20 +29,18 @@ public:
     int _F4 = 1000;
   };
 
-  explicit FFilteringDataCommand(const QUuid &, Data::SeismEvent *,
+  explicit FFilteringDataCommand(const std::set<Data::SeismEvent *> &,
                                  const Parameters &);
 
-  void undo() override;
-  void redo() override;
-
-  bool is(Data::SeismEvent::TransformOperation) const override;
+protected:
+  void redoForOne(Data::SeismEvent *) override;
+  void undoForOne(Data::SeismEvent *) override;
 
 private:
-  Data::SeismEvent *_event;
   FFilteringDataCommand::Parameters _parameters;
-  std::vector<std::vector<float>> _oldTraces;
+  std::map<QUuid, std::vector<std::vector<float>>> _oldEventsTraces;
 
   const int MICROSECONDS_IN_SECONDS = 1000000;
 
-  void fillOldDataList();
+  void fillOldDataList(Data::SeismEvent *);
 };

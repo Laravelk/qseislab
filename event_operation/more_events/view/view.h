@@ -33,10 +33,15 @@ class View : public QDialog {
 
 public:
   explicit View(const std::set<QString> &, const std::map<QUuid, QString> &,
-                QWidget *parent = nullptr);
+                QUndoStack const *const, QWidget *parent = nullptr);
 
-  void loadEvent(Data::SeismEvent const *const, QUndoStack const *const);
-  void unloadEvent(QUndoStack const *const);
+  // TODO: remove ...
+  //  void loadEvent(Data::SeismEvent const *const, QUndoStack const *const);
+  //  void unloadEvent(QUndoStack const *const);
+  // ...
+
+  void loadEvent(Data::SeismEvent const *const);
+  void unloadEvent();
 
   void updateInfoEvent(Data::SeismEvent const *const);
   void updateDataEvent(Data::SeismEvent const *const);

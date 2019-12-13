@@ -1,48 +1,34 @@
 #include "removepick.h"
 
-RemovePick::RemovePick(const QUuid &uuid, Data::SeismEvent *event, const RemovePick::Parameters &param) : CustomIndividualUndoCommand(uuid), _event(event),
-    _parameters(param)
-{
+#include "data/seismevent.h"
 
+RemovePick::RemovePick(const std::set<Data::SeismEvent *> &events,
+                       const RemovePick::Parameters &parameters)
+    : EventOperationUndoCommand(events), _parameters(parameters) {}
+
+void RemovePick::redoForOne(Data::SeismEvent *event) {
+  auto &component = event->getComponents()[_parameters.getNum()];
+  auto &map = component->getWavePicks();
+  _deletedPicks[event->getUuid()] = map[_parameters.getType()];
+  component->removeWavePick(_parameters.getType());
+  event->changeTrigger();
 }
 
-void RemovePick::undo()
-{
-    auto &component = _event->getComponents()[_parameters.getNum()];
-    component->addWavePick(_deletedPick);
-    _event->changeTrigger();
+void RemovePick::undoForOne(Data::SeismEvent *event) {
+  auto &component = event->getComponents()[_parameters.getNum()];
+  auto &pick = _deletedPicks[event->getUuid()];
+  component->addWavePick(pick);
+  event->changeTrigger();
 }
 
-void RemovePick::redo()
-{
-    auto &component = _event->getComponents()[_parameters.getNum()];
-    auto &map = component->getWavePicks();
-    _deletedPick = map[_parameters.getType()];
-    component->removeWavePick(_parameters.getType());
-    _event->changeTrigger();
+Data::SeismWavePick::Type RemovePick::Parameters::getType() const {
+  return type;
 }
 
-bool RemovePick::is(Data::SeismEvent::TransformOperation oper) const
-{
-   return oper == Data::SeismEvent::TransformOperation::RemovePick;
+void RemovePick::Parameters::setType(const Data::SeismWavePick::Type &value) {
+  type = value;
 }
 
-Data::SeismWavePick::Type RemovePick::Parameters::getType() const
-{
-    return type;
-}
+int RemovePick::Parameters::getNum() const { return num; }
 
-void RemovePick::Parameters::setType(const Data::SeismWavePick::Type &value)
-{
-    type = value;
-}
-
-int RemovePick::Parameters::getNum() const
-{
-    return num;
-}
-
-void RemovePick::Parameters::setNum(int value)
-{
-    num = value;
-}
+void RemovePick::Parameters::setNum(int value) { num = value; }

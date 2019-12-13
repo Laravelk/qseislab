@@ -35,7 +35,7 @@ View::View(const std::set<QString> &eventNames,
   setWindowTitle("SeismWindow");
 
   _toolsWidget->setDisabled(true);
-  _toolsWidget->connectUndoStack(undoStack);
+  //  _toolsWidget->connectUndoStack(undoStack);
 
   _infoEvent->setDisabled(true);
 
@@ -122,9 +122,10 @@ View::View(const std::set<QString> &eventNames,
     }
   });
 
-  connect(_graphicEvent, &EventOperation::GraphicController::addPick, [this](auto type, auto num, auto l_val, auto arrival, auto r_val){
-        emit addPick(type, num, l_val, arrival, r_val);
-  });
+  connect(_graphicEvent, &EventOperation::GraphicController::addPick,
+          [this](auto type, auto num, auto l_val, auto arrival, auto r_val) {
+            emit addPick(type, num, l_val, arrival, r_val);
+          });
 
   connect(_graphicEvent, &EventOperation::GraphicController::removePick,
           [this](auto type, auto num) { emit removePick(type, num); });
@@ -169,17 +170,17 @@ void View::updatePolarGraph(const Data::SeismEvent *const event) {
 }
 
 void View::showWarningWindowAboutValidStatusOfPolarizationAnalysisData() {
-    QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(
-        this, QString::fromUtf8("Предупреждение"),
-        QString::fromUtf8("Не актуальные данные поляризационного анализа. "
-                          "Пересчитать?"),
-        QMessageBox::Yes | QMessageBox::No);
-    if (reply == QMessageBox::Yes) {
-      emit calculatePolarizationAnalysisData();
-    } else {
-        emit updatePolarGraphSignal();
-    }
+  QMessageBox::StandardButton reply;
+  reply = QMessageBox::question(
+      this, QString::fromUtf8("Предупреждение"),
+      QString::fromUtf8("Не актуальные данные поляризационного анализа. "
+                        "Пересчитать?"),
+      QMessageBox::Yes | QMessageBox::No);
+  if (reply == QMessageBox::Yes) {
+    emit calculatePolarizationAnalysisData();
+  } else {
+    emit updatePolarGraphSignal();
+  }
 }
 
 void View::updateDataEvent(Data::SeismEvent const *const event) {

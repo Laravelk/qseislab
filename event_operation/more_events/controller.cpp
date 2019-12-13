@@ -10,10 +10,11 @@
 #include "event_operation/share/polarizationanalysiscompute.h"
 #include "event_operation/share/view/polar_graph/polargraph.h"
 
-//#include "event_operation/modification/testmultiplier.h"
 #include "event_operation/modification/undocommandgetter.h"
 
 #include "data/io/segyreader.h"
+
+#include <QMessageBox>
 
 #include <iostream> // TODO: remove
 
@@ -27,7 +28,8 @@ Controller::Controller(
     const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &wells_map,
     const std::list<std::shared_ptr<Data::SeismReceiver>> &receivers,
     const Data::ProjectSettings &settings, QObject *parent)
-    : QObject(parent), _model(new Model(new SegyReader(), this)) {
+    : QObject(parent), _model(new Model(new SegyReader(), this)),
+      _undoStack(std::make_unique<QUndoStack>()) {
 
   // prepare data for view
   std::map<QUuid, QString> wellNames_map;
@@ -38,7 +40,7 @@ Controller::Controller(
   for (auto &uuid_event : all_events) {
     eventNames.insert(uuid_event.second->getName());
   }
-  _view = std::make_unique<View>(eventNames, wellNames_map);
+  _view = std::make_unique<View>(eventNames, wellNames_map, _undoStack.get());
 
   connect(_model, &Model::notify,
           [this](auto &msg) { _view->setNotification(msg); });
@@ -49,53 +51,55 @@ Controller::Controller(
     }
   });
 
-  connect(
-      _view.get(), &View::sendWellUuidAndFilePaths,
-      [this, &receivers](auto &wellUuid, auto &filePaths) {
-        for (auto &path : filePaths) {
-          std::list<std::shared_ptr<Data::SeismReceiver>> receiversByWell;
-          for (auto &receiver : receivers) {
-            if (wellUuid == receiver->getSourseWell()->getUuid()) {
-              receiversByWell.push_back(receiver);
+  connect(_view.get(), &View::sendWellUuidAndFilePaths,
+          [this, &receivers](auto &wellUuid, auto &filePaths) {
+            for (auto &path : filePaths) {
+              std::list<std::shared_ptr<Data::SeismReceiver>> receiversByWell;
+              for (auto &receiver : receivers) {
+                if (wellUuid == receiver->getSourseWell()->getUuid()) {
+                  receiversByWell.push_back(receiver);
+                }
+              }
+
+              auto components =
+                  _model->getSeismComponents(receiversByWell, path);
+
+              //              auto components =
+              //                  _model->getSeismComponents(wells_map.at(wellUuid),
+              //                  path);
+              if (!components.empty()) {
+                std::shared_ptr<SeismEvent> event =
+                    std::make_shared<SeismEvent>();
+
+                connect(event.get(), &Data::SeismEvent::infoChanged,
+                        [this](auto event) {
+                          if (event->getUuid() == _currentEventUuid) {
+                            _view->updateInfoEvent(event);
+                          }
+                        });
+
+                connect(event.get(), &Data::SeismEvent::dataChanged,
+                        [this](auto event) {
+                          if (event->getUuid() == _currentEventUuid) {
+                            _view->updateDataEvent(event);
+                          }
+                        });
+
+                auto info = event->getInfo();
+                info.setName(QFileInfo(path).baseName());
+                event->setInfo(info);
+
+                for (auto &component : components) {
+                  event->addComponent(std::move(component));
+                }
+                auto &uuid = event->getUuid();
+                _events_map[uuid] = event;
+                //            _stacks_map[uuid] =
+                //            std::make_shared<CustomIndividualUndoStack>();
+              }
             }
-          }
-
-          auto components = _model->getSeismComponents(receiversByWell, path);
-
-          //              auto components =
-          //                  _model->getSeismComponents(wells_map.at(wellUuid),
-          //                  path);
-          if (!components.empty()) {
-            std::shared_ptr<SeismEvent> event = std::make_shared<SeismEvent>();
-
-            connect(event.get(), &Data::SeismEvent::infoChanged,
-                    [this](auto event) {
-                      if (event->getUuid() == _currentEventUuid) {
-                        _view->updateInfoEvent(event);
-                      }
-                    });
-
-            connect(event.get(), &Data::SeismEvent::dataChanged,
-                    [this](auto event) {
-                      if (event->getUuid() == _currentEventUuid) {
-                        _view->updateDataEvent(event);
-                      }
-                    });
-
-            auto info = event->getInfo();
-            info.setName(QFileInfo(path).baseName());
-            event->setInfo(info);
-
-            for (auto &component : components) {
-              event->addComponent(std::move(component));
-            }
-            auto &uuid = event->getUuid();
-            _events_map[uuid] = event;
-            _stacks_map[uuid] = std::make_shared<CustomIndividualUndoStack>();
-          }
-        }
-        _view->update(_events_map);
-      });
+            _view->update(_events_map);
+          });
 
   connect(_view.get(), &View::updatePolarGraphSignal, [this]() {
     _view->updatePolarGraph(_events_map.at(_currentEventUuid).get());
@@ -132,15 +136,17 @@ Controller::Controller(
 
   connect(_view.get(), &View::changeCurrentEvent, [this](auto &uuid) {
     _currentEventUuid = uuid;
-    _view->loadEvent(_events_map[_currentEventUuid].get(),
-                     _stacks_map[_currentEventUuid].get());
+    //    _view->loadEvent(_events_map[_currentEventUuid].get(),
+    //                     _stacks_map[_currentEventUuid].get());
+    _view->loadEvent(_events_map[_currentEventUuid].get());
   });
 
   connect(_view.get(), &View::hideCurrentEvent, [this]() {
-    auto &stack = _stacks_map[_currentEventUuid];
-    if (stack) {
-      _view->unloadEvent(stack.get());
-    }
+    //    auto &stack = _stacks_map[_currentEventUuid];
+    //    if (stack) {
+    //      _view->unloadEvent(stack.get());
+    //    }
+    _view->unloadEvent();
     _currentEventUuid = QUuid();
   });
 
@@ -159,10 +165,17 @@ Controller::Controller(
             parameters.setPickArrivalValue(pick_val);
             parameters.setTypePick(type);
             setting.setMovePickParameters(parameters);
+            //            auto command = UndoCommandGetter::get(
+            //                Data::SeismEvent::TransformOperation::MovePick,
+            //                QUuid(), event.get(), setting);
+            //            _stacks_map[_currentEventUuid]->push(command);
+
+            // ....
             auto command = UndoCommandGetter::get(
-                Data::SeismEvent::TransformOperation::MovePick, QUuid(),
-                event.get(), setting);
-            _stacks_map[_currentEventUuid]->push(command);
+                Data::SeismEvent::TransformOperation::MovePick, event.get(),
+                setting);
+            _undoStack->push(command);
+            // ....
           });
 
   connect(_view.get(), &View::addPick,
@@ -177,22 +190,33 @@ Controller::Controller(
             parameters.setPickArrivalValue(arrival);
             parameters.setTypePick(type);
             setting.setAddPickParameters(parameters);
+            //            auto command = UndoCommandGetter::get(
+            //                Data::SeismEvent::TransformOperation::AddPick,
+            //                QUuid(), event.get(), setting);
+            //            _stacks_map[_currentEventUuid]->push(command);
+
+            // ....
             auto command = UndoCommandGetter::get(
-                Data::SeismEvent::TransformOperation::AddPick, QUuid(),
-                event.get(), setting);
-            _stacks_map[_currentEventUuid]->push(command);
+                Data::SeismEvent::TransformOperation::AddPick, event.get(),
+                setting);
+            _undoStack->push(command);
+            // ....
           });
 
-  connect(_view.get(), &View::undoClicked, [this]() {
-    if (!_currentEventUuid.isNull()) {
-      _stacks_map[_currentEventUuid]->undo();
-    }
-  });
-  connect(_view.get(), &View::redoClicked, [this]() {
-    if (!_currentEventUuid.isNull()) {
-      _stacks_map[_currentEventUuid]->redo();
-    }
-  });
+  //  connect(_view.get(), &View::undoClicked, [this]() {
+  //    if (!_currentEventUuid.isNull()) {
+  //      _stacks_map[_currentEventUuid]->undo();
+  //    }
+  //  });
+  //  connect(_view.get(), &View::redoClicked, [this]() {
+  //    if (!_currentEventUuid.isNull()) {
+  //      _stacks_map[_currentEventUuid]->redo();
+  //    }
+  //  });
+  connect(_view.get(), &View::undoClicked, this,
+          &Controller::handleUndoClicked);
+  connect(_view.get(), &View::redoClicked, this,
+          &Controller::handleRedoClicked);
 
   connect(_view.get(), &View::removePick,
           [this](const auto type, const auto num) {
@@ -202,10 +226,18 @@ Controller::Controller(
             parameters.setNum(num);
             parameters.setType(type);
             setting.setRemovePickParameters(parameters);
+            //            auto command = UndoCommandGetter::get(
+            //                Data::SeismEvent::TransformOperation::RemovePick,
+            //                QUuid(), event.get(), setting);
+            //            _stacks_map[_currentEventUuid]->push(command);
+
+            // ....
             auto command = UndoCommandGetter::get(
-                Data::SeismEvent::TransformOperation::RemovePick, QUuid(),
-                event.get(), setting);
-            _stacks_map[_currentEventUuid]->push(command);
+                Data::SeismEvent::TransformOperation::RemovePick, event.get(),
+                setting);
+            _undoStack->push(command);
+            // ....
+
             _removedPickAndNeedUpdatePolarGraph = true;
 
             if (_polarizationWindow) {
@@ -213,29 +245,121 @@ Controller::Controller(
             }
           });
 
-  connect(_view.get(), &View::eventTransformClicked,
-          [this, &settings](auto oper) {
-            if (!_currentEventUuid.isNull()) {
-              auto &event = _events_map[_currentEventUuid];
-              Data::ProjectSettings setting;
-              FFilteringDataCommand::Parameters parameters;
-              // F1 - F4?
-              parameters.setF1(10);
-              parameters.setF2(50);
-              parameters.setF3(150);
-              parameters.setF4(200);
-              setting.setFFilteringParameters(parameters);
-              // TEST TODO: delete
-              auto command =
-                  UndoCommandGetter::get(oper, QUuid(), event.get(), setting);
-              _stacks_map[_currentEventUuid]->push(command);
-            }
-          });
+  connect(
+      _view.get(), &View::eventTransformClicked, [this, &settings](auto oper) {
+        if (!_currentEventUuid.isNull()) {
+          auto &event = _events_map[_currentEventUuid];
+
+          // ....
+          auto command = UndoCommandGetter::get(oper, event.get(), settings);
+          _undoStack->push(command);
+          // ....
+        }
+      });
 
   //  connect(_view.get(), &View::eventTransformSettingsClicked,
   //          [this](auto oper) { emit eventTransformSettingsClicked(oper); });
 
   connect(_view.get(), &View::finished, this, &Controller::finish);
+}
+
+void Controller::start() {
+  //  _view->setModal(true); // TODO: uncomment
+  _view->show();
+}
+
+void Controller::finish(int result) {
+  if (QDialog::Accepted == result) {
+    //    emit sendEventsAndStacks(_events_map, _stacks_map);
+    emit sendEventsAndStack(_events_map, _undoStack);
+  }
+
+  emit finished();
+}
+
+void Controller::handleUndoClicked() {
+  auto index = _undoStack->index() - 1;
+  auto command =
+      static_cast<const CustomUndoCommand *>(_undoStack->command(index));
+
+  switch (command->getType()) {
+  case CustomUndoCommand::EventOperation:
+    auto eventOperationCommand =
+        static_cast<const EventOperationUndoCommand *>(command);
+
+    if (eventOperationCommand->isCommon()) {
+      QMessageBox *msg = new QMessageBox(QMessageBox::Warning, "Warning",
+                                         "Вы пытаетесь отменить общую команду ",
+                                         QMessageBox::Ok | QMessageBox::Cancel);
+      auto res = msg->exec();
+      if (QMessageBox::Ok == res) {
+        _undoStack->undo();
+      }
+    } else {
+      auto appliedEventUuid = *eventOperationCommand->getEventUuids().begin();
+      if (_currentEventUuid != appliedEventUuid) {
+        QMessageBox *msg =
+            new QMessageBox(QMessageBox::Warning, "Warning",
+                            "Вы пытаетесь отменить команду другого "
+                            "ивента",
+                            QMessageBox::Ok | QMessageBox::Cancel);
+        auto res = msg->exec();
+        if (QMessageBox::Cancel == res) {
+          break;
+        }
+      }
+      _undoStack->undo();
+      _view->loadEvent(_events_map[appliedEventUuid].get());
+    }
+
+    break;
+    //  case CustomUndoCommand::RemoveSeismObject:
+    // TODO: implement!
+    //    break;
+  }
+}
+
+void Controller::handleRedoClicked() {
+  auto index = _undoStack->index();
+  auto command =
+      static_cast<const CustomUndoCommand *>(_undoStack->command(index));
+
+  switch (command->getType()) {
+  case CustomUndoCommand::EventOperation:
+    auto eventOperationCommand =
+        static_cast<const EventOperationUndoCommand *>(command);
+
+    if (eventOperationCommand->isCommon()) {
+      QMessageBox *msg =
+          new QMessageBox(QMessageBox::Warning, "Warning",
+                          "Вы пытаетесь применить общую команду ",
+                          QMessageBox::Ok | QMessageBox::Cancel);
+      auto res = msg->exec();
+      if (QMessageBox::Ok == res) {
+        _undoStack->redo();
+      }
+    } else {
+      auto appliedEventUuid = *eventOperationCommand->getEventUuids().begin();
+      if (_currentEventUuid != appliedEventUuid) {
+        QMessageBox *msg =
+            new QMessageBox(QMessageBox::Warning, "Warning",
+                            "Вы пытаетесь применить команду другого "
+                            "ивента",
+                            QMessageBox::Ok | QMessageBox::Cancel);
+        auto res = msg->exec();
+        if (QMessageBox::Cancel == res) {
+          break;
+        }
+      }
+      _undoStack->redo();
+      _view->loadEvent(_events_map[appliedEventUuid].get());
+    }
+
+    break;
+    //  case CustomUndoCommand::RemoveSeismObject:
+    // TODO: implement!
+    //    break;
+  }
 }
 
 bool Controller::checkPolarizationAnalysisDataValid() {
@@ -248,19 +372,6 @@ bool Controller::checkPolarizationAnalysisDataValid() {
     }
   }
   return true;
-}
-
-void Controller::start() {
-  //  _view->setModal(true); // TODO: uncomment
-  _view->show();
-}
-
-void Controller::finish(int result) {
-  if (QDialog::Accepted == result) {
-    emit sendEventsAndStacks(_events_map, _stacks_map);
-  }
-
-  emit finished();
 }
 
 } // namespace MoreEvents

@@ -1,53 +1,40 @@
 #pragma once
-#include <QUndoCommand>
-
-#include <memory>
 
 #include "data/seismwavepick.h"
-#include "undo_stack_work/customindividualundocommand.h"
+#include "undo_stack_work/eventoperationundocommand.h"
 
-namespace Data {
-class SeismEvent;
-class SeismWell;
-class SeismReceiver;
-class SeismWavePick;
-} // namespace Data
-
-class AddPick : public CustomIndividualUndoCommand
-{
+class AddPick : public EventOperationUndoCommand {
 public:
+  class Parameters {
+  public:
+    int getNumber() const;
+    int getLeftValue() const;
+    int getPickArrival() const;
+    int getRightValue() const;
+    Data::SeismWavePick::Type getTypePick() const;
 
-    class Parameters {
-    public:
-        int getNumber() const;
-        int getLeftValue() const;
-        int getPickArrival() const;
-        int getRightValue() const;
-        Data::SeismWavePick::Type getTypePick() const;
+    void setNumber(int);
+    void setLeftValue(int);
+    void setPickArrivalValue(int);
+    void setRightValue(int);
+    void setTypePick(Data::SeismWavePick::Type);
 
-        void setNumber(int);
-        void setLeftValue(int);
-        void setPickArrivalValue(int);
-        void setRightValue(int);
-        void setTypePick(Data::SeismWavePick::Type);
-    private:
-        Data::SeismWavePick::Type type;
-        int num;
-        int l_val;
-        int pick_arrival;
-        int r_val;
-    };
+  private:
+    Data::SeismWavePick::Type type;
+    int num;
+    int l_val;
+    int pick_arrival;
+    int r_val;
+  };
 
-    explicit AddPick(const QUuid &, Data::SeismEvent *, const Parameters &);
+  explicit AddPick(const std::set<Data::SeismEvent *> &, const Parameters &);
 
-    void undo() override;
-    void redo() override;
-
-    bool is(Data::SeismEvent::TransformOperation) const override;
+protected:
+  void redoForOne(Data::SeismEvent *) override;
+  void undoForOne(Data::SeismEvent *) override;
 
 private:
-
-    Parameters _parameters;
-    Data::SeismEvent *_event;
-    Data::SeismWavePick _addedPick;
+  Parameters _parameters;
+  std::map<QUuid, Data::SeismWavePick>
+      _addedPicks; // NOTE: можно и без этого обойтись // TODO: remove
 };

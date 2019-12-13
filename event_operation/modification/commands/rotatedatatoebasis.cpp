@@ -15,39 +15,39 @@ typedef Data::SeismReceiver SeismReceiver;
 
 // namespace EventOperation {
 // namespace Modefication {
-RotateData::RotateData(const QUuid &shareUuid, Data::SeismEvent *event,
-                       const Parameters &parameters)
-    : CustomIndividualUndoCommand(shareUuid), _event(event) {
+// RotateData::RotateData(const QUuid &shareUuid, Data::SeismEvent *event,
+//                       const Parameters &parameters)
+//    : CustomIndividualUndoCommand(shareUuid), _event(event) {
 
-  setText("Rotate Data to E-Basis");
+//  setText("Rotate Data to E-Basis");
 
-  //  for (auto &matrix : parameters.getRotateMatrixs()) {
-  //    _originalTransitionMatrixs.push_back(matrix.replicate(3, 3));
-  //  }
+//  for (auto &matrix : parameters.getRotateMatrixs()) {
+//    _originalTransitionMatrixs.push_back(matrix.replicate(3, 3));
+//  }
 
-  //  for (auto &component : _event->getComponents()) {
-  //    auto &receiver =
-  //        findReceiver(parameters.getReceivers(),
-  //        component->getReceiverUuid());
+//  for (auto &component : _event->getComponents()) {
+//    auto &receiver =
+//        findReceiver(parameters.getReceivers(),
+//        component->getReceiverUuid());
 
-  //    int size = receiver->getChannelAmount();
+//    int size = receiver->getChannelAmount();
 
-  //    Eigen::MatrixXf transitionMatrix(size, size);
+//    Eigen::MatrixXf transitionMatrix(size, size);
 
-  //    int row = 0;
-  //    for (auto &channel : receiver->getChannels()) {
-  //      auto &orientation = channel->getOrientation();
-  //      Eigen::VectorXf b_basis_vec(size);
-  //      b_basis_vec(0) = std::get<0>(orientation);
-  //      b_basis_vec(1) = std::get<1>(orientation);
-  //      b_basis_vec(2) = std::get<2>(orientation);
-  //      transitionMatrix.row(row) = b_basis_vec;
-  //      ++row;
-  //    }
+//    int row = 0;
+//    for (auto &channel : receiver->getChannels()) {
+//      auto &orientation = channel->getOrientation();
+//      Eigen::VectorXf b_basis_vec(size);
+//      b_basis_vec(0) = std::get<0>(orientation);
+//      b_basis_vec(1) = std::get<1>(orientation);
+//      b_basis_vec(2) = std::get<2>(orientation);
+//      transitionMatrix.row(row) = b_basis_vec;
+//      ++row;
+//    }
 
-  //    _originalTransitionMatrixs.push_back(transitionMatrix);
-  //  }
-}
+//    _originalTransitionMatrixs.push_back(transitionMatrix);
+//  }
+//}
 
 // RotateDataToEBasis::RotateDataToEBasis(
 //    SeismEvent *event,
@@ -77,28 +77,28 @@ RotateData::RotateData(const QUuid &shareUuid, Data::SeismEvent *event,
 //  }
 //}
 
-void RotateData::undo() {
-  //  unsigned long i = 0;
-  //  for (auto &component : _event->getComponents()) {
-  //    rotateDataWithTransitionMatrix(component,
-  //    _originalTransitionMatrixs[i]);
-  //    ++i;
-  //  }
-  //  _event->removeTransformOperation(SeismEvent::RotateDataToEBasis);
-}
+RotateData::RotateData(const std::set<Data::SeismEvent *> &events,
+                       const RotateData::Parameters &parameters)
+    : EventOperationUndoCommand(events) {}
 
-void RotateData::redo() {
+void RotateData::redoForOne(Data::SeismEvent *event) {
   //  unsigned long i = 0;
-  //  for (auto &component : _event->getComponents()) {
+  //  for (auto &component : event->getComponents()) {
   //    rotateDataWithTransitionMatrix(component,
   //                                   _originalTransitionMatrixs[i].transpose());
   //    ++i;
   //  }
-  //  _event->addTransformOperation(SeismEvent::RotateDataToEBasis);
+  //  event->addTransformOperation(SeismEvent::RotateDataToEBasis);
 }
 
-bool RotateData::is(SeismEvent::TransformOperation oper) const {
-  return oper == Data::SeismEvent::TransformOperation::RotateData;
+void RotateData::undoForOne(Data::SeismEvent *event) {
+  //  unsigned long i = 0;
+  //  for (auto &component : event->getComponents()) {
+  //    rotateDataWithTransitionMatrix(component,
+  //    _originalTransitionMatrixs[i]);
+  //    ++i;
+  //  }
+  //  event->removeTransformOperation(SeismEvent::RotateDataToEBasis);
 }
 
 // const std::shared_ptr<SeismReceiver> &RotateDataToEBasis::findReceiver(

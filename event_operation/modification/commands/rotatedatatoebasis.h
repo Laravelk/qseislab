@@ -1,20 +1,14 @@
 #pragma once
 
-#include "undo_stack_work/customindividualundocommand.h"
+#include "undo_stack_work/eventoperationundocommand.h"
 
 #include <Eigen/Dense>
 
 #include <memory>
 
-namespace Data {
-class SeismEvent;
-// class SeismWell;
-class SeismReceiver;
-} // namespace Data
-
 // namespace EventOperation {
 // namespace Modefication {
-class RotateData : public CustomIndividualUndoCommand {
+class RotateData : public EventOperationUndoCommand {
 public:
   class Parameters {
   public:
@@ -30,17 +24,11 @@ public:
   };
 
   // TODO: implement!!
-  explicit RotateData(const QUuid &, Data::SeismEvent *, const Parameters &);
+  explicit RotateData(const std::set<Data::SeismEvent *> &, const Parameters &);
 
-  //  RotateDataToEBasis(Data::SeismEvent *,
-  //                     const std::map<QUuid, std::shared_ptr<Data::SeismWell>>
-  //                     &);
-
-  void undo() override;
-
-  void redo() override;
-
-  bool is(Data::SeismEvent::TransformOperation) const override;
+protected:
+  void redoForOne(Data::SeismEvent *) override;
+  void undoForOne(Data::SeismEvent *) override;
 
 private:
   //  const std::shared_ptr<Data::SeismReceiver> &

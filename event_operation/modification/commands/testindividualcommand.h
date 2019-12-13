@@ -1,8 +1,8 @@
 #pragma once
 
-#include "undo_stack_work/customindividualundocommand.h"
+#include "undo_stack_work/eventoperationundocommand.h"
 
-class TestIndividualCommand : public CustomIndividualUndoCommand {
+class TestIndividualCommand : public EventOperationUndoCommand {
 public:
   class Parameters {
   public:
@@ -13,14 +13,12 @@ public:
     int _mult = 5;
   };
 
-  explicit TestIndividualCommand(const QUuid &, Data::SeismEvent *,
+  explicit TestIndividualCommand(const std::set<Data::SeismEvent *> &,
                                  const Parameters &);
 
-  void undo() override;
-
-  void redo() override;
-
-  bool is(Data::SeismEvent::TransformOperation) const override;
+protected:
+  void redoForOne(Data::SeismEvent *) override;
+  void undoForOne(Data::SeismEvent *) override;
 
 private:
   Data::SeismEvent *_event;
