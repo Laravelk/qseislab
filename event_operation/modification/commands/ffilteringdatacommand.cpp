@@ -71,12 +71,13 @@ void FFilteringDataCommand::redoForOne(Data::SeismEvent *event) {
         freqvec[i] = 0;
       }
 
-      float *backArray = new float[indexF4 - indexF1];
-      for (uint i = indexF4, j = 0; i >= indexF1; i--, j++) {
-        //                std::cerr << freqvec[i].real() << " " << i << " " << j
-        //                << std::endl;
-        backArray[j] = freqvec[i].real();
-      }
+      //      float *backArray = new float[indexF4 - indexF1];
+      //      for (uint i = indexF4, j = 0; i >= indexF1; i--, j++) {
+      //        //                std::cerr << freqvec[i].real() << " " << i <<
+      //        " " << j
+      //        //                << std::endl;
+      //        backArray[j] = freqvec[i].real();
+      //      }
 
       fft.inv(timevec, freqvec);
 
@@ -85,7 +86,7 @@ void FFilteringDataCommand::redoForOne(Data::SeismEvent *event) {
         bufferInTrace[i] = timevec[i];
       }
 
-      delete[] backArray;
+      //      delete[] backArray;
     }
   }
   event->changeTrigger();
