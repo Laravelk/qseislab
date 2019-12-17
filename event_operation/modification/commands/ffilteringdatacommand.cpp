@@ -47,8 +47,19 @@ void FFilteringDataCommand::redoForOne(Data::SeismEvent *event) {
           ceil((_parameters.getF4() * static_cast<float>(timevec.size()) *
                 sampleInterval) /
                static_cast<float>(MICROSECONDS_IN_SECONDS)));
-      //            std::cerr << "indexes: " << indexF1 << " " << indexF2 << " "
-      //            << indexF3 << " " << indexF4 << std::endl << std::endl;
+                  std::cerr << "indexes: " << indexF1 << " " << indexF2 << " "
+                  << indexF3 << " " << indexF4 << std::endl << std::endl;
+
+      // check
+
+      if (indexF1 < 0 || !(indexF1 < indexF2) || !(indexF2 < indexF3) || !(indexF3 < indexF4)
+              || indexF4 > timevec.size() / 2) {
+          return;
+      }
+
+      // end check zone
+
+      std::cerr << "scalling start" << std::endl;
 
       // scalar f1 - f4 zone
       for (uint i = 0; i < indexF1; i++) {
@@ -71,11 +82,30 @@ void FFilteringDataCommand::redoForOne(Data::SeismEvent *event) {
         freqvec[i] = 0;
       }
 
-      float *backArray = new float[indexF4 - indexF1];
+      std::cerr << "after scalling" << std::endl;
+
+      std::vector<float> backArray;
       for (uint i = indexF4, j = 0; i >= indexF1; i--, j++) {
         //                std::cerr << freqvec[i].real() << " " << i << " " << j
         //                << std::endl;
-        backArray[j] = freqvec[i].real();
+        backArray.push_back(freqvec[i].real());
+//        std::cerr << backArray.size() << std::endl;
+      }
+
+      if (1 == (indexF4 - indexF1) % 2) {
+        backArray.push_back(0);
+      }
+
+      if (static_cast<int>(indexF1) - (static_cast<int>(indexF4) - static_cast<int>(indexF1)) > 0) {
+          std::cerr << backArray.size() << " " << indexF1 << std::endl;
+        for (uint i = indexF1 - (indexF4 - indexF1), j = 0; i <= indexF1; i++, j++) {
+            freqvec[i] = backArray[j];
+        }
+      } else if (freqvec.size() - (indexF4 - indexF1) > 0) {
+          std::cerr << backArray.size() << " " << indexF4 - indexF1 << std::endl;
+          for (uint i = indexF4 + 1, j = 0; i <= indexF4 + (indexF4 - indexF1) + 1; i++, j++) {
+            freqvec[i + freqvec.size() / 2] = backArray[j];
+          }
       }
 
       fft.inv(timevec, freqvec);
@@ -84,8 +114,9 @@ void FFilteringDataCommand::redoForOne(Data::SeismEvent *event) {
       for (uint i = 0; i < timevec.size(); i++) {
         bufferInTrace[i] = timevec[i];
       }
+      std::cerr << "after inv" << std::endl;
 
-      delete[] backArray;
+      backArray.clear();
     }
   }
   event->changeTrigger();
@@ -96,12 +127,14 @@ void FFilteringDataCommand::undoForOne(Data::SeismEvent *event) {
   auto oldTraces = _oldEventsTraces.at(event->getUuid());
   for (auto &component : event->getComponents()) {
     for (auto &trace : component->getTraces()) {
+      if (oldTraces.size() > traceNumberInVector) {
       auto oldBuffer = oldTraces.at(traceNumberInVector);
       auto bufferInTrace = trace->getBuffer();
       for (uint i = 0; i < oldBuffer.size(); i++) {
         bufferInTrace[i] = oldBuffer[i];
       }
       traceNumberInVector++;
+      }
     }
   }
   event->changeTrigger();
