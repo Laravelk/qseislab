@@ -1,6 +1,7 @@
 #include "controller.h"
 
 #include "event_operation/modification/undocommandgetter.h"
+#include "undo_stack_work/commands/addobjectstoprojectcommand.h"
 
 #include <assert.h>
 
@@ -168,10 +169,10 @@ void Controller::handleUndoClicked() {
 
   switch (command->getType()) {
   case CustomUndoCommand::EventOperation:
-    auto eventOperationCommand =
-        static_cast<const EventOperationUndoCommand *>(command);
+    //    auto eventOperationCommand =
+    //        static_cast<const EventOperationUndoCommand *>(command);
 
-    if (eventOperationCommand->isCommon()) {
+    if (static_cast<const EventOperationUndoCommand *>(command)->isCommon()) {
       QMessageBox *msg = new QMessageBox(QMessageBox::Warning, "Warning",
                                          "Вы пытаетесь отменить общую команду ",
                                          QMessageBox::Ok | QMessageBox::Cancel);
@@ -180,7 +181,10 @@ void Controller::handleUndoClicked() {
         _undoStack->undo();
       }
     } else {
-      auto appliedEventUuid = *eventOperationCommand->getEventUuids().begin();
+      auto appliedEventUuid =
+          *static_cast<const EventOperationUndoCommand *>(command)
+               ->getEventUuids()
+               .begin();
       if (_currentOneEventFocus != appliedEventUuid) {
         QMessageBox *msg =
             new QMessageBox(QMessageBox::Warning, "Warning",
@@ -197,9 +201,16 @@ void Controller::handleUndoClicked() {
     }
 
     break;
-    //  case CustomUndoCommand::RemoveSeismObject:
-    // TODO: implement!
-    //    break;
+  case CustomUndoCommand::RemoveSeismObject:
+    QMessageBox *msg =
+        new QMessageBox(QMessageBox::Warning, "Warning",
+                        "Вы пытаетесь отменить добавление объекта ",
+                        QMessageBox::Ok | QMessageBox::Cancel);
+    auto res = msg->exec();
+    if (QMessageBox::Ok == res) {
+      _undoStack->undo();
+    }
+    break;
   }
 }
 
@@ -210,10 +221,10 @@ void Controller::handleRedoClicked() {
 
   switch (command->getType()) {
   case CustomUndoCommand::EventOperation:
-    auto eventOperationCommand =
-        static_cast<const EventOperationUndoCommand *>(command);
+    //    auto eventOperationCommand =
+    //        static_cast<const EventOperationUndoCommand *>(command);
 
-    if (eventOperationCommand->isCommon()) {
+    if (static_cast<const EventOperationUndoCommand *>(command)->isCommon()) {
       QMessageBox *msg =
           new QMessageBox(QMessageBox::Warning, "Warning",
                           "Вы пытаетесь применить общую команду ",
@@ -223,7 +234,10 @@ void Controller::handleRedoClicked() {
         _undoStack->redo();
       }
     } else {
-      auto appliedEventUuid = *eventOperationCommand->getEventUuids().begin();
+      auto appliedEventUuid =
+          *static_cast<const EventOperationUndoCommand *>(command)
+               ->getEventUuids()
+               .begin();
       if (_currentOneEventFocus != appliedEventUuid) {
         QMessageBox *msg =
             new QMessageBox(QMessageBox::Warning, "Warning",
@@ -240,9 +254,16 @@ void Controller::handleRedoClicked() {
     }
 
     break;
-    //  case CustomUndoCommand::RemoveSeismObject:
-    // TODO: implement!
-    //    break;
+  case CustomUndoCommand::RemoveSeismObject:
+    QMessageBox *msg =
+        new QMessageBox(QMessageBox::Warning, "Warning",
+                        "Вы пытаетесь применить добавление объекта ",
+                        QMessageBox::Ok | QMessageBox::Cancel);
+    auto res = msg->exec();
+    if (QMessageBox::Ok == res) {
+      _undoStack->redo();
+    }
+    break;
   }
 }
 
@@ -255,9 +276,11 @@ void Controller::handleAddEventsClicked() {
     connect(_moreEventsController.get(),
             &MoreEvents::Controller::sendEventsAndStack,
             [this](auto &events_map, auto &stack) {
-              for (auto &uuid_event : events_map) {
-                _project->add(uuid_event.second);
-              }
+              //              for (auto &uuid_event : events_map) {
+              //                _project->add(uuid_event.second);
+              //              }
+              _undoStack->push(new AddObjectsToProjectCommand<SeismEvent>(
+                  _project, events_map));
             });
 
     connect(_moreEventsController.get(), &MoreEvents::Controller::finished,

@@ -145,6 +145,10 @@ void View::addEventPage(QWidget *eventPage, SeismEvent const *const event) {
   _workPage->addEventPage(eventPage, event);
 }
 
+void View::closeEventPage(const QUuid &uuid) {
+  _workPage->closeEventPage(uuid);
+}
+
 void View::setFocusEventPage(QWidget *page) {
   _workPage->setFocusEventPage(page);
 }

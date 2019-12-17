@@ -27,6 +27,7 @@ public:
   void loadProject(Data::SeismProject const *const);
 
   void addEventPage(QWidget *, Data::SeismEvent const *const);
+  void closeEventPage(const QUuid &);
   void setFocusEventPage(QWidget *);
   //  QUuid getFocusEventPage() const;
 
