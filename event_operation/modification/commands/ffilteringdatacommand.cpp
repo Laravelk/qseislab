@@ -82,6 +82,7 @@ void FFilteringDataCommand::redoForOne(Data::SeismEvent *event) {
         freqvec[i] = 0;
       }
 
+<<<<<<< HEAD
       std::cerr << "after scalling" << std::endl;
 
       std::vector<float> backArray;
@@ -99,7 +100,7 @@ void FFilteringDataCommand::redoForOne(Data::SeismEvent *event) {
       if (static_cast<int>(indexF1) - (static_cast<int>(indexF4) - static_cast<int>(indexF1)) > 0) {
           std::cerr << backArray.size() << " " << indexF1 << std::endl;
         for (uint i = indexF1 - (indexF4 - indexF1), j = 0; i <= indexF1; i++, j++) {
-            freqvec[i] = backArray[j];
+            freqvec[i + freqvec.size() / 2] = backArray[j];
         }
       } else if (freqvec.size() - (indexF4 - indexF1) > 0) {
           std::cerr << backArray.size() << " " << indexF4 - indexF1 << std::endl;
