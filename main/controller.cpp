@@ -2,6 +2,7 @@
 
 #include "event_operation/modification/undocommandgetter.h"
 #include "undo_stack_work/commands/addobjectstoprojectcommand.h"
+#include "undo_stack_work/commands/removeobjectfromprojectcommand.h"
 
 #include <assert.h>
 
@@ -69,8 +70,16 @@ Controller::Controller(QObject *parent)
 
   connect(_mainWindow.get(), &View::viewEventClicked, this,
           &Controller::handleViewEventClicked);
-  connect(_mainWindow.get(), &View::removeEventClicked,
-          [this](auto uuid) { _project->remove<SeismEvent>(uuid); });
+
+  // TODO: refactor to handleRemoveObject<SeismEvent>
+  // TODO: for every object type removing
+  connect(_mainWindow.get(), &View::removeEventClicked, [this](auto uuid) {
+    _oneViewEventControllers.erase(uuid);
+    _undoStack->push(
+        new RemoveObjectFromProjectCommand<SeismEvent>(_project, uuid));
+    //    _project->remove<SeismEvent>(uuid);
+  });
+
   connect(_mainWindow.get(), &View::processEventsClicked,
           [this] { _project->processEvents(); });
 
@@ -167,16 +176,19 @@ void Controller::handleUndoClicked() {
   auto command =
       static_cast<const CustomUndoCommand *>(_undoStack->command(index));
 
+  QMessageBox *msg;
+  int res;
+
   switch (command->getType()) {
   case CustomUndoCommand::EventOperation:
     //    auto eventOperationCommand =
     //        static_cast<const EventOperationUndoCommand *>(command);
 
     if (static_cast<const EventOperationUndoCommand *>(command)->isCommon()) {
-      QMessageBox *msg = new QMessageBox(QMessageBox::Warning, "Warning",
-                                         "Вы пытаетесь отменить общую команду ",
-                                         QMessageBox::Ok | QMessageBox::Cancel);
-      auto res = msg->exec();
+      msg = new QMessageBox(QMessageBox::Warning, "Warning",
+                            "Вы пытаетесь отменить общую команду ",
+                            QMessageBox::Ok | QMessageBox::Cancel);
+      res = msg->exec();
       if (QMessageBox::Ok == res) {
         _undoStack->undo();
       }
@@ -186,12 +198,11 @@ void Controller::handleUndoClicked() {
                ->getEventUuids()
                .begin();
       if (_currentOneEventFocus != appliedEventUuid) {
-        QMessageBox *msg =
-            new QMessageBox(QMessageBox::Warning, "Warning",
-                            "Вы пытаетесь отменить команду другого "
-                            "ивента",
-                            QMessageBox::Ok | QMessageBox::Cancel);
-        auto res = msg->exec();
+        msg = new QMessageBox(QMessageBox::Warning, "Warning",
+                              "Вы пытаетесь отменить команду другого "
+                              "ивента",
+                              QMessageBox::Ok | QMessageBox::Cancel);
+        res = msg->exec();
         if (QMessageBox::Cancel == res) {
           break;
         }
@@ -201,12 +212,20 @@ void Controller::handleUndoClicked() {
     }
 
     break;
+  case CustomUndoCommand::AddSeismObject:
+    msg = new QMessageBox(QMessageBox::Warning, "Warning",
+                          "Вы пытаетесь отменить добавление объекта ",
+                          QMessageBox::Ok | QMessageBox::Cancel);
+    res = msg->exec();
+    if (QMessageBox::Ok == res) {
+      _undoStack->undo();
+    }
+    break;
   case CustomUndoCommand::RemoveSeismObject:
-    QMessageBox *msg =
-        new QMessageBox(QMessageBox::Warning, "Warning",
-                        "Вы пытаетесь отменить добавление объекта ",
-                        QMessageBox::Ok | QMessageBox::Cancel);
-    auto res = msg->exec();
+    msg = new QMessageBox(QMessageBox::Warning, "Warning",
+                          "Вы пытаетесь отменить удаление объекта ",
+                          QMessageBox::Ok | QMessageBox::Cancel);
+    res = msg->exec();
     if (QMessageBox::Ok == res) {
       _undoStack->undo();
     }
@@ -219,17 +238,19 @@ void Controller::handleRedoClicked() {
   auto command =
       static_cast<const CustomUndoCommand *>(_undoStack->command(index));
 
+  QMessageBox *msg;
+  int res;
+
   switch (command->getType()) {
   case CustomUndoCommand::EventOperation:
     //    auto eventOperationCommand =
     //        static_cast<const EventOperationUndoCommand *>(command);
 
     if (static_cast<const EventOperationUndoCommand *>(command)->isCommon()) {
-      QMessageBox *msg =
-          new QMessageBox(QMessageBox::Warning, "Warning",
-                          "Вы пытаетесь применить общую команду ",
-                          QMessageBox::Ok | QMessageBox::Cancel);
-      auto res = msg->exec();
+      msg = new QMessageBox(QMessageBox::Warning, "Warning",
+                            "Вы пытаетесь применить общую команду ",
+                            QMessageBox::Ok | QMessageBox::Cancel);
+      res = msg->exec();
       if (QMessageBox::Ok == res) {
         _undoStack->redo();
       }
@@ -239,12 +260,11 @@ void Controller::handleRedoClicked() {
                ->getEventUuids()
                .begin();
       if (_currentOneEventFocus != appliedEventUuid) {
-        QMessageBox *msg =
-            new QMessageBox(QMessageBox::Warning, "Warning",
-                            "Вы пытаетесь применить команду другого "
-                            "ивента",
-                            QMessageBox::Ok | QMessageBox::Cancel);
-        auto res = msg->exec();
+        msg = new QMessageBox(QMessageBox::Warning, "Warning",
+                              "Вы пытаетесь применить команду другого "
+                              "ивента",
+                              QMessageBox::Ok | QMessageBox::Cancel);
+        res = msg->exec();
         if (QMessageBox::Cancel == res) {
           break;
         }
@@ -254,12 +274,21 @@ void Controller::handleRedoClicked() {
     }
 
     break;
+  case CustomUndoCommand::AddSeismObject:
+    msg = new QMessageBox(QMessageBox::Warning, "Warning",
+                          "Вы пытаетесь применить добавление объекта",
+                          QMessageBox::Ok | QMessageBox::Cancel);
+    res = msg->exec();
+    if (QMessageBox::Ok == res) {
+      _undoStack->redo();
+    }
+    break;
+
   case CustomUndoCommand::RemoveSeismObject:
-    QMessageBox *msg =
-        new QMessageBox(QMessageBox::Warning, "Warning",
-                        "Вы пытаетесь применить добавление объекта ",
-                        QMessageBox::Ok | QMessageBox::Cancel);
-    auto res = msg->exec();
+    msg = new QMessageBox(QMessageBox::Warning, "Warning",
+                          "Вы пытаетесь применить удаление объекта",
+                          QMessageBox::Ok | QMessageBox::Cancel);
+    res = msg->exec();
     if (QMessageBox::Ok == res) {
       _undoStack->redo();
     }
@@ -339,8 +368,10 @@ void Controller::handleViewEventClicked(const QUuid &uuid) {
 
     auto &viewEventController = _oneViewEventControllers[uuid];
     _mainWindow->addEventPage(viewEventController->getView(), event.get());
+    std::cout << "here" << std::endl;
   } else {
     _mainWindow->setFocusEventPage(_oneViewEventControllers[uuid]->getView());
+    std::cout << "2 here" << std::endl;
   }
 }
 

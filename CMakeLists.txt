@@ -264,6 +264,7 @@ set(HEADERS
         undo_stack_work/customundocommand.h
         undo_stack_work/eventoperationundocommand.h
         undo_stack_work/commands/addobjectstoprojectcommand.h
+        undo_stack_work/commands/removeobjectfromprojectcommand.h
 
 
         main/controller.h

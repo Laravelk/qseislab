@@ -13,7 +13,7 @@ public:
   explicit AddObjectsToProjectCommand(
       const std::shared_ptr<Data::SeismProject> &project,
       const std::map<QUuid, std::shared_ptr<T>> &objects)
-      : CustomUndoCommand(RemoveSeismObject), _project(project),
+      : CustomUndoCommand(AddSeismObject), _project(project),
         _objects(objects) {}
 
   void redo() override {
