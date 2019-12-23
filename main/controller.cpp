@@ -77,7 +77,6 @@ Controller::Controller(QObject *parent)
     _oneViewEventControllers.erase(uuid);
     _undoStack->push(
         new RemoveObjectFromProjectCommand<SeismEvent>(_project, uuid));
-    //    _project->remove<SeismEvent>(uuid);
   });
 
   connect(_mainWindow.get(), &View::processEventsClicked,
@@ -120,6 +119,8 @@ void Controller::recvProject(const std::shared_ptr<SeismProject> &project) {
   connect(_project.get(), &SeismProject::removedEvent, [this](auto &uuid) {
     //    _eventStacks.erase(uuid);
     _mainWindow->removeEvent(uuid);
+
+    //    _oneViewEventControllers.erase(uuid);
   });
   connect(_project.get(), &SeismProject::processedEvents, [this] {
     // TODO:
