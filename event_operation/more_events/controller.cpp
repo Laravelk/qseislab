@@ -207,7 +207,15 @@ Controller::Controller(
         if (!_currentEventUuid.isNull()) {
           auto &event = _events_map[_currentEventUuid];
           auto command = UndoCommandGetter::get(oper, event.get(), settings);
-          _undoStack->push(command);
+          // TODO: переделать!!
+          if (nullptr == command) {
+            QMessageBox *msg = new QMessageBox(
+                QMessageBox::Critical, "Error",
+                "Некорректные настройки для этой операции", QMessageBox::Ok);
+            msg->exec();
+          } else {
+            _undoStack->push(command);
+          }
         }
       });
 

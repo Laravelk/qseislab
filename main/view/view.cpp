@@ -71,10 +71,9 @@ View::View(QUndoStack const *const undoStack, QWidget *parent)
             SeismEvent::TransformOperation::TestMultiplier);
       });
 
-  //  parametersMenu->addAction(QIcon(":/icons/rotate.png"), "Rotate", [this] {
-  //    emit
-  //    eventActionSettingsClicked(SeismEvent::TransformOperation::RotateData);
-  //  });
+  parametersMenu->addAction(QIcon(":/icons/rotate.png"), "Rotate", [this] {
+    emit eventActionSettingsClicked(SeismEvent::TransformOperation::RotateData);
+  });
 
   parametersMenu->addAction(QIcon(":/icons/ffilter.png"), "FFilter", [this] {
     emit eventActionSettingsClicked(

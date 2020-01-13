@@ -11,24 +11,29 @@ EventOperationUndoCommand *get(Data::SeismEvent::TransformOperation oper,
                                const std::set<Data::SeismEvent *> &events,
                                Data::ProjectSettings const *const settings) {
 
-  switch (oper) {
-  case TransformOperation::TestMultiplier:
-    return new TestIndividualCommand(events, settings->getTestMultParameters());
-  case TransformOperation::RotateData:
-    return new RotateData(events, settings->getRotateDataParameters());
-  case TransformOperation::MovePick:
-    return new MovePick(events, settings->getMovePickParameters());
-  case TransformOperation::RemovePick:
-    return new RemovePick(events, settings->getRemovePickParameters());
-  case TransformOperation::AddPick:
-    return new AddPick(events, settings->getAddPickParameters());
-  case TransformOperation::FFilteringData:
-    return new FFilteringDataCommand(events,
-                                     settings->getFFilteringParameters());
-  }
+  try {
+    switch (oper) {
+    case TransformOperation::TestMultiplier:
+      return new TestIndividualCommand(events,
+                                       settings->getTestMultParameters());
+    case TransformOperation::RotateData:
+      return new RotateData(events, settings->getRotateDataParameters());
+    case TransformOperation::MovePick:
+      return new MovePick(events, settings->getMovePickParameters());
+    case TransformOperation::RemovePick:
+      return new RemovePick(events, settings->getRemovePickParameters());
+    case TransformOperation::AddPick:
+      return new AddPick(events, settings->getAddPickParameters());
+    case TransformOperation::FFilteringData:
+      return new FFilteringDataCommand(events,
+                                       settings->getFFilteringParameters());
+    }
 
-  std::cerr << "UndoCommandGetter::get ::return nullptr" << std::endl;
-  return nullptr;
+    std::cerr << "UndoCommandGetter::get ::return nullptr" << std::endl;
+    return nullptr;
+  } catch (const std::exception &) {
+    return nullptr;
+  }
 }
 
 EventOperationUndoCommand *get(Data::SeismEvent::TransformOperation oper,

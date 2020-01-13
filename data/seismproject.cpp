@@ -21,35 +21,35 @@ SeismProject::SeismProject(QObject *parent)
   //  }
   //   end...
 
-  //   NOTE: hard-code insert wells
-  std::shared_ptr<SeismWell> well = std::make_shared<SeismWell>();
-  well->setName("Mon_TOOLS_233");
-  well->addPoint(Point(0, 0, 0));
-  auto uuid = well->getUuid();
-  for (int j = 0; j < 8; ++j) {
-    auto receiver = std::make_shared<Data::SeismReceiver>(well.get());
-    for (int i = 0; i < 3; ++i) {
-      receiver->addChannel(std::make_shared<Data::SeismChannelReceiver>());
-    }
-    //    well->addReceiver(receiver);
-    _receivers.push_back(receiver);
-  }
-  _wells_map[uuid] = std::move(well);
+  //  //   NOTE: hard-code insert wells
+  //  std::shared_ptr<SeismWell> well = std::make_shared<SeismWell>();
+  //  well->setName("Mon_TOOLS_233");
+  //  well->addPoint(Point(0, 0, 0));
+  //  auto uuid = well->getUuid();
+  //  for (int j = 0; j < 8; ++j) {
+  //    auto receiver = std::make_shared<Data::SeismReceiver>(well.get());
+  //    for (int i = 0; i < 3; ++i) {
+  //      receiver->addChannel(std::make_shared<Data::SeismChannelReceiver>());
+  //    }
+  //    //    well->addReceiver(receiver);
+  //    _receivers.push_back(receiver);
+  //  }
+  //  _wells_map[uuid] = std::move(well);
 
-  well = std::make_shared<SeismWell>();
-  well->setName("Mon_TOOLS_244");
-  well->addPoint(Point(0, 0, 0));
-  uuid = well->getUuid();
-  for (int j = 0; j < 8; ++j) {
-    auto receiver = std::make_shared<Data::SeismReceiver>(well.get());
-    for (int i = 0; i < 3; ++i) {
-      receiver->addChannel(std::make_shared<Data::SeismChannelReceiver>());
-    }
-    //    well->addReceiver(receiver);
-    _receivers.push_back(receiver);
-  }
-  _wells_map[uuid] = std::move(well);
-  // end...
+  //  well = std::make_shared<SeismWell>();
+  //  well->setName("Mon_TOOLS_244");
+  //  well->addPoint(Point(0, 0, 0));
+  //  uuid = well->getUuid();
+  //  for (int j = 0; j < 8; ++j) {
+  //    auto receiver = std::make_shared<Data::SeismReceiver>(well.get());
+  //    for (int i = 0; i < 3; ++i) {
+  //      receiver->addChannel(std::make_shared<Data::SeismChannelReceiver>());
+  //    }
+  //    //    well->addReceiver(receiver);
+  //    _receivers.push_back(receiver);
+  //  }
+  //  _wells_map[uuid] = std::move(well);
+  //  // end...
 }
 
 SeismProject::SeismProject(const QJsonObject &json, const QFileInfo &fileInfo,
@@ -426,6 +426,25 @@ void SeismProject::setAllMap<SeismHorizon>(
     emit addedHorizon(uuid_horizon.second);
   }
 }
+
+template <>
+void SeismProject::updateMap<SeismHorizon>(
+    std::map<QUuid, std::shared_ptr<SeismHorizon>> &horizons_map) {
+
+  //    for(auto& uuid_horizon : _horizons_map) {
+  //        if(horizons_map.find)
+  //    }
+
+  //    for (auto &uuid_horizon : _horizons_map) {
+  //        emit removedHorizon(uuid_horizon.first);
+  //    }
+
+  //    _horizons_map = horizons_map;
+
+  //    for (auto &uuid_horizon : _horizons_map) {
+  //        emit addedHorizon(uuid_horizon.second);
+  //    }
+}
 // end of Horizon template`s
 
 // Well template`s
@@ -549,6 +568,9 @@ void SeismProject::add<SeismReceiver>(
   //  _receivers_map[uuid] = receiver;
   _receivers.push_back(receiver);
 
+  _settings->getRotateDataParameters().setReceivers(
+      _receivers); // TODO: переделать!!!
+
   emit addedReceiver(receiver);
 
   //    connect(event.get(), &SeismEvent::infoChanged,
@@ -574,6 +596,9 @@ template <> bool SeismProject::remove<SeismReceiver>(const QUuid &uuid) {
       return true;
     }
   }
+
+  _settings->getRotateDataParameters().setReceivers(
+      _receivers); // TODO: переделать!!!
 
   //  if (_receivers_map.erase(uuid)) {
   //    _isSaved = false;
@@ -627,6 +652,9 @@ void SeismProject::setAll<SeismReceiver>(
   for (auto &receiver : _receivers) {
     emit addedReceiver(receiver);
   }
+
+  _settings->getRotateDataParameters().setReceivers(
+      _receivers); // TODO: переделать!!!
 }
 
 // end of Receiver template`s

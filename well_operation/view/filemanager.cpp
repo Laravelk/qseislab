@@ -4,7 +4,7 @@
 
 namespace WellOperation {
 FileManager::FileManager(QWidget *parent)
-    : QFrame(parent), _label(new QLabel("Horizon file: ", this)),
+    : QFrame(parent), _label(new QLabel("Well file: ", this)),
       _fileName(new QLabel(this)),
       _browseButton(new QPushButton("Browse", this)),
       _fileDialog(new QFileDialog(this)) {

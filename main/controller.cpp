@@ -53,7 +53,18 @@ Controller::Controller(QObject *parent)
               auto command =
                   UndoCommandGetter::get(oper, events, _project->getSettings());
 
-              _undoStack->push(command);
+              // TODO: переделать!!
+              if (nullptr == command) {
+                QMessageBox *msg =
+                    new QMessageBox(QMessageBox::Critical, "Error",
+                                    "Некорректные настройки для этой операции",
+                                    QMessageBox::Ok);
+                msg->exec();
+              } else {
+                _undoStack->push(command);
+              }
+
+              //              _undoStack->push(command);
             }
           });
 
@@ -364,7 +375,16 @@ void Controller::handleViewEventClicked(const QUuid &uuid) {
               auto command = UndoCommandGetter::get(
                   oper, _project->get<SeismEvent>(uuid).get(),
                   _project->getSettings());
-              _undoStack->push(command);
+              if (nullptr == command) {
+                QMessageBox *msg =
+                    new QMessageBox(QMessageBox::Critical, "Error",
+                                    "Некорректные настройки для этой операции",
+                                    QMessageBox::Ok);
+                msg->exec();
+              } else {
+
+                _undoStack->push(command);
+              }
             });
 
     auto &viewEventController = _oneViewEventControllers[uuid];

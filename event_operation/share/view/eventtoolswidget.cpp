@@ -55,7 +55,7 @@ EventToolsWidget::EventToolsWidget(QUndoStack const *const undoStack,
 
   mainLayout->addWidget(_undoButton);
   mainLayout->addWidget(_redoButton);
-  //  mainLayout->addWidget(_rotateDataButton); // TODO: implement!
+  mainLayout->addWidget(_rotateDataButton); // TODO: implement!
   mainLayout->addWidget(_testMultButton);
   mainLayout->addWidget(_ffilteringButton);
   mainLayout->addStretch(1);
@@ -94,7 +94,7 @@ EventToolsWidget::EventToolsWidget(QWidget *parent)
 
   // Layout`s
   QHBoxLayout *mainLayout = new QHBoxLayout();
-  //  mainLayout->addWidget(_rotateDataButton); // TODO: implement!
+  mainLayout->addWidget(_rotateDataButton); // TODO: implement!
   mainLayout->addWidget(_testMultButton);
   mainLayout->addWidget(_ffilteringButton);
   mainLayout->addStretch(1);

@@ -6,6 +6,10 @@
 
 #include <memory>
 
+namespace Data {
+class SeismReceiver;
+}
+
 // namespace EventOperation {
 // namespace Modefication {
 class RotateData : public EventOperationUndoCommand {
@@ -16,11 +20,22 @@ public:
     //  как реализовать, куда стоит настройка поварачивать? (enum....)
     explicit Parameters(); // NOTE: default: to e-basis
 
-    void setMatrixsBasisTo(const std::vector<Eigen::Matrix3f> &);
-    const std::vector<Eigen::Matrix3f> &MatrixsBasisTo() const;
+    //    void setMatrixsBasisTo(const std::vector<Eigen::Matrix3f> &);
+    //    const std::vector<Eigen::Matrix3f> &MatrixsBasisTo() const;
+
+    bool getToEbasis() const;
+    void setToEbasis(bool);
+
+    void setReceivers(const std::list<std::shared_ptr<Data::SeismReceiver>> &);
+    const std::list<std::shared_ptr<Data::SeismReceiver>> &getReceivers() const;
 
   private:
-    std::vector<Eigen::Matrix3f> _matrixsBasisTo;
+    //    std::vector<Eigen::Matrix3f> _matrixsBasisTo;
+
+    bool _toEBasis{false};
+
+    std::list<std::shared_ptr<Data::SeismReceiver>>
+        _receivers; // TODO: этот ли контейнер?
   };
 
   // TODO: implement!!
@@ -35,13 +50,17 @@ private:
   //  findReceiver(const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &,
   //               const QUuid &);
 
-  //  const std::shared_ptr<Data::SeismReceiver> &
-  //  findReceiver(const std::list<std::shared_ptr<Data::SeismReceiver>> &,
-  //               const QUuid &);
+  const std::shared_ptr<Data::SeismReceiver> &
+  findReceiver(const std::list<std::shared_ptr<Data::SeismReceiver>> &,
+               const QUuid &);
 
-  Data::SeismEvent *_event;
+  //  Data::SeismEvent *_event;
 
-  std::vector<Eigen::Matrix3f> _originalTransitionMatrixs;
+  //  std::vector<Eigen::Matrix3f> _originalTransitionMatrixs;
+
+  bool _toEbasis{false};
+
+  std::map<QUuid, std::vector<Eigen::Matrix3f>> _originalTransitionMatrixs;
 };
 //} // namespace Modefication
 //} // namespace EventOperation
