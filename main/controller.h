@@ -61,20 +61,17 @@ private slots:
   void deleteCloseProjectController(bool);
 
 private:
-  ProjectOperation::SettingDialog *
-      getSettingDialog(Data::SeismEvent::TransformOperation) const;
+  //  ProjectOperation::SettingDialog *
+  //      getSettingDialog(Data::SeismEvent::TransformOperation) const;
 
   std::shared_ptr<Data::SeismProject> _project;
+
+  QUuid _currentOneEventFocus;
+  std::shared_ptr<QUndoStack> _undoStack;
 
   std::map<Data::SeismEvent::TransformOperation,
            std::unique_ptr<ProjectOperation::SettingDialog>>
       _projectSettingViews;
-
-  QUuid _currentOneEventFocus;
-  //  std::map<QUuid, std::shared_ptr<CustomIndividualUndoStack>> _eventStacks;
-  //  std::shared_ptr<QUndoStack> _shareEventStack;
-
-  std::shared_ptr<QUndoStack> _undoStack;
 
   std::unique_ptr<View> _mainWindow;
 

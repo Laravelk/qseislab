@@ -28,9 +28,7 @@ using namespace ProjectOperation;
 
 namespace Main {
 Controller::Controller(QObject *parent)
-    : QObject(parent),
-      //    _shareEventStack(std::make_unique<QUndoStack>()),
-      _undoStack(std::make_unique<QUndoStack>()),
+    : QObject(parent), _undoStack(std::make_unique<QUndoStack>()),
       _mainWindow(std::make_unique<View>(_undoStack.get())) {
 
   connect(_mainWindow.get(), &View::undoClicked, this,
@@ -50,21 +48,31 @@ Controller::Controller(QObject *parent)
                 events.insert(_project->get<SeismEvent>(uuid).get());
               }
 
-              auto command =
-                  UndoCommandGetter::get(oper, events, _project->getSettings());
+              auto settings = _project->getSettings();
 
-              // TODO: переделать!!
-              if (nullptr == command) {
-                QMessageBox *msg =
-                    new QMessageBox(QMessageBox::Critical, "Error",
-                                    "Некорректные настройки для этой операции",
-                                    QMessageBox::Ok);
-                msg->exec();
-              } else {
-                _undoStack->push(command);
+              auto settingDialog = ProjectOperation::getSettingDialog(oper);
+              settingDialog->update(settings);
+              connect(settingDialog, &ProjectOperation::SettingDialog::apply,
+                      [this, settingDialog, settings] {
+                        settingDialog->setSettings(settings);
+                      });
+              settingDialog->setModal(true);
+              int res = settingDialog->exec();
+              if (QDialog::Accepted == res) {
+                auto command = UndoCommandGetter::get(oper, events,
+                                                      _project->getSettings());
+
+                // TODO: переделать!!
+                if (nullptr == command) {
+                  QMessageBox *msg = new QMessageBox(
+                      QMessageBox::Critical, "Error",
+                      "Некорректные настройки для этой операции",
+                      QMessageBox::Ok);
+                  msg->exec();
+                } else {
+                  _undoStack->push(command);
+                }
               }
-
-              //              _undoStack->push(command);
             }
           });
 
@@ -122,17 +130,10 @@ void Controller::recvProject(const std::shared_ptr<SeismProject> &project) {
   _project = project;
 
   // Event`s connecting
-  connect(_project.get(), &SeismProject::addedEvent, [this](auto &event) {
-    //    _eventStacks[event->getUuid()] =
-    //    std::make_unique<CustomUndoStack>();
-    _mainWindow->addEvent(event.get());
-  });
-  connect(_project.get(), &SeismProject::removedEvent, [this](auto &uuid) {
-    //    _eventStacks.erase(uuid);
-    _mainWindow->removeEvent(uuid);
-
-    //    _oneViewEventControllers.erase(uuid);
-  });
+  connect(_project.get(), &SeismProject::addedEvent,
+          [this](auto &event) { _mainWindow->addEvent(event.get()); });
+  connect(_project.get(), &SeismProject::removedEvent,
+          [this](auto &uuid) { _mainWindow->removeEvent(uuid); });
   connect(_project.get(), &SeismProject::processedEvents, [this] {
     // TODO:
     //  апдейтить каждый эвент, а не загружать каждый
@@ -320,6 +321,7 @@ void Controller::handleAddEventsClicked() {
               //              for (auto &uuid_event : events_map) {
               //                _project->add(uuid_event.second);
               //              }
+
               _undoStack->push(new AddObjectsToProjectCommand<SeismEvent>(
                   _project, events_map));
             });
@@ -588,19 +590,19 @@ void Controller::deleteCloseProjectController(bool closed) {
   }
 }
 
-SettingDialog *
-Controller::getSettingDialog(SeismEvent::TransformOperation oper) const {
-  switch (oper) {
-  case Data::SeismEvent::TransformOperation::TestMultiplier:
-    return new ProjectOperation::TestMultiplierSettingDialog();
-  case Data::SeismEvent::TransformOperation::RotateData:
-    return new ProjectOperation::RotateDataSettingDialog();
-  case Data::SeismEvent::TransformOperation::FFilteringData:
-    return new ProjectOperation::FFilteringDataSettingDialog();
-  }
+// SettingDialog *
+// Controller::getSettingDialog(SeismEvent::TransformOperation oper) const {
+//  switch (oper) {
+//  case Data::SeismEvent::TransformOperation::TestMultiplier:
+//    return new ProjectOperation::TestMultiplierSettingDialog();
+//  case Data::SeismEvent::TransformOperation::RotateData:
+//    return new ProjectOperation::RotateDataSettingDialog();
+//  case Data::SeismEvent::TransformOperation::FFilteringData:
+//    return new ProjectOperation::FFilteringDataSettingDialog();
+//  }
 
-  assert(false & "unsupported setting dialog");
-  return nullptr;
-}
+//  assert(false & "unsupported setting dialog");
+//  return nullptr;
+//}
 
 } // namespace Main

@@ -2,8 +2,6 @@
 
 #include "data/projectsettings.h"
 
-#include <iostream> // TODO: remove
-
 using TransformOperation = Data::SeismEvent::TransformOperation;
 
 namespace UndoCommandGetter {
@@ -29,7 +27,6 @@ EventOperationUndoCommand *get(Data::SeismEvent::TransformOperation oper,
                                        settings->getFFilteringParameters());
     }
 
-    std::cerr << "UndoCommandGetter::get ::return nullptr" << std::endl;
     return nullptr;
   } catch (const std::exception &) {
     return nullptr;
