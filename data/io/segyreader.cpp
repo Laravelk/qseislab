@@ -8,6 +8,8 @@
 #include <assert.h>
 #include <memory>
 
+#include <iostream> // TODO: remove
+
 namespace Data {
 namespace IO {
 void SegyReader::setFilePath(const char *path) {
@@ -31,8 +33,10 @@ void SegyReader::readBinHeader() {
   }
 
   _sam_num = segy_samples(binheader);
-  if (0 >= _sam_num) {
+  if (0 > _sam_num) {
     throw std::runtime_error("segy_samples() -> negative");
+  } else if (0 == _sam_num) {
+    throw std::runtime_error("segy_samples() -> zero");
   }
 
   _format = segy_format(binheader);

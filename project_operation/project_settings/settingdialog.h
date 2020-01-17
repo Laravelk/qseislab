@@ -4,6 +4,8 @@
 #include <QDialog>
 #include <QPushButton>
 
+#include <data/seismevent.h>
+
 namespace Data {
 class ProjectSettings;
 }
@@ -31,4 +33,7 @@ private:
   QPushButton *_applyButton;
   QPushButton *_cancelButton;
 };
+
+SettingDialog *getSettingDialog(Data::SeismEvent::TransformOperation oper);
+
 } // namespace ProjectOperation

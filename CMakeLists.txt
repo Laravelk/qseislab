@@ -54,7 +54,6 @@ set(SOURCES
         event_operation/modification/commands/newtestindividualcommand.cpp
 
 
-
         event_operation/one_event/controller.cpp
         event_operation/one_event/view/filemanager.cpp
         event_operation/one_event/view/wellmanager.cpp

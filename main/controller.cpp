@@ -372,19 +372,45 @@ void Controller::handleViewEventClicked(const QUuid &uuid) {
     connect(_oneViewEventControllers[uuid].get(),
             &ViewEvent::Controller::eventActionClicked,
             [this](auto &uuid, auto oper) {
-              auto command = UndoCommandGetter::get(
-                  oper, _project->get<SeismEvent>(uuid).get(),
-                  _project->getSettings());
-              if (nullptr == command) {
-                QMessageBox *msg =
-                    new QMessageBox(QMessageBox::Critical, "Error",
-                                    "Некорректные настройки для этой операции",
-                                    QMessageBox::Ok);
-                msg->exec();
-              } else {
+              auto settings = _project->getSettings();
 
-                _undoStack->push(command);
+              auto settingDialog = ProjectOperation::getSettingDialog(oper);
+              settingDialog->update(settings);
+              connect(settingDialog, &ProjectOperation::SettingDialog::apply,
+                      [this, settingDialog, settings] {
+                        settingDialog->setSettings(settings);
+                      });
+              settingDialog->setModal(true);
+              int res = settingDialog->exec();
+              if (QDialog::Accepted == res) {
+                auto command = UndoCommandGetter::get(
+                    oper, _project->get<SeismEvent>(uuid).get(),
+                    _project->getSettings());
+                if (nullptr == command) {
+                  QMessageBox *msg = new QMessageBox(
+                      QMessageBox::Critical, "Error",
+                      "Некорректные настройки для этой операции",
+                      QMessageBox::Ok);
+                  msg->exec();
+                } else {
+
+                  _undoStack->push(command);
+                }
               }
+
+              //          auto command = UndoCommandGetter::get(
+              //              oper, _project->get<SeismEvent>(uuid).get(),
+              //              _project->getSettings());
+              //          if (nullptr == command) {
+              //            QMessageBox *msg = new QMessageBox(
+              //                QMessageBox::Critical, "Error",
+              //                "Некорректные настройки для этой операции",
+              //                QMessageBox::Ok);
+              //            msg->exec();
+              //          } else {
+
+              //            _undoStack->push(command);
+              //          }
             });
 
     auto &viewEventController = _oneViewEventControllers[uuid];
