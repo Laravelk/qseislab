@@ -568,8 +568,8 @@ void SeismProject::add<SeismReceiver>(
   //  _receivers_map[uuid] = receiver;
   _receivers.push_back(receiver);
 
-  _settings->getRotateDataParameters().setReceivers(
-      _receivers); // TODO: переделать!!!
+  //  _settings->getRotateDataParameters().setReceivers(
+  //      _receivers); // TODO: переделать!!!
 
   emit addedReceiver(receiver);
 
@@ -597,8 +597,8 @@ template <> bool SeismProject::remove<SeismReceiver>(const QUuid &uuid) {
     }
   }
 
-  _settings->getRotateDataParameters().setReceivers(
-      _receivers); // TODO: переделать!!!
+  //  _settings->getRotateDataParameters().setReceivers(
+  //      _receivers); // TODO: переделать!!!
 
   //  if (_receivers_map.erase(uuid)) {
   //    _isSaved = false;
@@ -653,8 +653,8 @@ void SeismProject::setAll<SeismReceiver>(
     emit addedReceiver(receiver);
   }
 
-  _settings->getRotateDataParameters().setReceivers(
-      _receivers); // TODO: переделать!!!
+  //  _settings->getRotateDataParameters().setReceivers(
+  //      _receivers); // TODO: переделать!!!
 }
 
 // end of Receiver template`s

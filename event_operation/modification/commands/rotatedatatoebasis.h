@@ -16,26 +16,42 @@ class RotateData : public EventOperationUndoCommand {
 public:
   class Parameters {
   public:
+    enum Mode { EBASIS, INDEFINITE, RECEIVERS };
+    /*
+     * дефолтное значение INDEFINITE-ориентации = EBASIS-ориентация
+     */
+
     // TODO:
     //  как реализовать, куда стоит настройка поварачивать? (enum....)
     explicit Parameters(); // NOTE: default: to e-basis
 
-    //    void setMatrixsBasisTo(const std::vector<Eigen::Matrix3f> &);
-    //    const std::vector<Eigen::Matrix3f> &MatrixsBasisTo() const;
+    void setMode(const Mode);
+    Mode getMode() const;
 
-    bool getToEbasis() const;
-    void setToEbasis(bool);
+    void setOrientation(const Eigen::Matrix3f &);
+    const Eigen::Matrix3f &getOrientation() const;
 
-    void setReceivers(const std::list<std::shared_ptr<Data::SeismReceiver>> &);
-    const std::list<std::shared_ptr<Data::SeismReceiver>> &getReceivers() const;
+    //    bool getToEbasis() const;
+    //    void setToEbasis(bool);
+
+    //    void setReceivers(const
+    //    std::list<std::shared_ptr<Data::SeismReceiver>> &); const
+    //    std::list<std::shared_ptr<Data::SeismReceiver>> &getReceivers() const;
+
+    //    void setMatrixsBasisTo(const std::list<Eigen::Matrix3f> &);
+    //    const std::list<Eigen::Matrix3f> &MatrixsBasisTo() const;
 
   private:
-    //    std::vector<Eigen::Matrix3f> _matrixsBasisTo;
+    //    std::list<Eigen::Matrix3f> _matrixsBasisTo;
 
-    bool _toEBasis{false};
+    Mode _mode;
 
-    std::list<std::shared_ptr<Data::SeismReceiver>>
-        _receivers; // TODO: этот ли контейнер?
+    Eigen::Matrix3f _orientation;
+
+    //    bool _toEBasis{false};
+
+    //    std::list<std::shared_ptr<Data::SeismReceiver>>
+    //        _receivers; // TODO: этот ли контейнер?
   };
 
   // TODO: implement!!
@@ -58,9 +74,9 @@ private:
 
   //  std::vector<Eigen::Matrix3f> _originalTransitionMatrixs;
 
-  bool _toEbasis{false};
+  //  bool _toEbasis{false};
 
-  std::map<QUuid, std::vector<Eigen::Matrix3f>> _originalTransitionMatrixs;
+  std::map<QUuid, std::list<Eigen::Matrix3f>> _originalTransitionMatrixs;
 };
 //} // namespace Modefication
 //} // namespace EventOperation

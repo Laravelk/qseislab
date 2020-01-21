@@ -32,6 +32,11 @@ void SegyReader::readBinHeader() {
     throw std::runtime_error("segy_sample_interval()");
   }
 
+  //  int64_t *test_ptr = reinterpret_cast<int64_t *>(binheader + 69);
+
+  //  std::cout << "301 byte == " << (int)*(binheader + 301) << std::endl;
+  //  std::cout << "302 byte == " << (int)*(binheader + 302) << std::endl;
+
   _sam_num = segy_samples(binheader);
   if (0 > _sam_num) {
     throw std::runtime_error("segy_samples() -> negative");

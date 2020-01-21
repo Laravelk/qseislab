@@ -153,39 +153,42 @@ const std::shared_ptr<Data::SeismReceiver> &RotateData::findReceiver(
 
 RotateData::RotateData(const std::set<Data::SeismEvent *> &events,
                        const RotateData::Parameters &parameters)
-    : EventOperationUndoCommand(events), _toEbasis(parameters.getToEbasis()) {
+    : EventOperationUndoCommand(events)
+//    , _toEbasis(parameters.getToEbasis())
+{
 
-  if (!_toEbasis) {
-    throw std::exception();
-  }
+  //  if (!_toEbasis) {
+  //    throw std::exception();
+  //  }
 
   for (auto &event : events) {
 
-    std::vector<Eigen::Matrix3f> originalTransitionMatrixForOneEvent;
+    std::list<Eigen::Matrix3f> originalTransitionMatrixForOneEvent;
 
-    for (auto &component : event->getComponents()) {
-      auto &receiver =
-          findReceiver(parameters.getReceivers(), component->getReceiverUuid());
+    //    for (auto &component : event->getComponents()) {
+    //      auto &receiver =
+    //          findReceiver(parameters.getReceivers(),
+    //          component->getReceiverUuid());
 
-      int size = receiver->getChannelAmount();
+    //      int size = receiver->getChannelAmount();
 
-      std::cout << "size == " << size << std::endl;
+    //      std::cout << "size == " << size << std::endl;
 
-      Eigen::MatrixXf transitionMatrix(size, size);
+    //      Eigen::MatrixXf transitionMatrix(size, size);
 
-      int row = 0;
-      for (auto &channel : receiver->getChannels()) {
-        auto &orientation = channel->getOrientation();
-        Eigen::VectorXf b_basis_vec(size);
-        b_basis_vec(0) = std::get<0>(orientation);
-        b_basis_vec(1) = std::get<1>(orientation);
-        b_basis_vec(2) = std::get<2>(orientation);
-        transitionMatrix.row(row) = b_basis_vec;
-        ++row;
-      }
+    //      int row = 0;
+    //      for (auto &channel : receiver->getChannels()) {
+    //        auto &orientation = channel->getOrientation();
+    //        Eigen::VectorXf b_basis_vec(size);
+    //        b_basis_vec(0) = std::get<0>(orientation);
+    //        b_basis_vec(1) = std::get<1>(orientation);
+    //        b_basis_vec(2) = std::get<2>(orientation);
+    //        transitionMatrix.row(row) = b_basis_vec;
+    //        ++row;
+    //      }
 
-      originalTransitionMatrixForOneEvent.push_back(transitionMatrix);
-    }
+    //      originalTransitionMatrixForOneEvent.push_back(transitionMatrix);
+    //    }
 
     _originalTransitionMatrixs[event->getUuid()] =
         originalTransitionMatrixForOneEvent;
@@ -195,41 +198,65 @@ RotateData::RotateData(const std::set<Data::SeismEvent *> &events,
 void RotateData::redoForOne(Data::SeismEvent *event) {
   unsigned long i = 0;
   for (auto &component : event->getComponents()) {
-    rotateDataWithTransitionMatrix(
-        component, _originalTransitionMatrixs[event->getUuid()][i].transpose());
+    //    rotateDataWithTransitionMatrix(
+    //        component,
+    //        _originalTransitionMatrixs[event->getUuid()][i].transpose());
     ++i;
   }
 
-  _toEbasis = true;
+  //  _toEbasis = true;
   event->changeTrigger();
 }
 
 void RotateData::undoForOne(Data::SeismEvent *event) {
   unsigned long i = 0;
   for (auto &component : event->getComponents()) {
-    rotateDataWithTransitionMatrix(
-        component, _originalTransitionMatrixs[event->getUuid()][i]);
+    //    rotateDataWithTransitionMatrix(
+    //        component, _originalTransitionMatrixs[event->getUuid()][i]);
     ++i;
   }
 
-  _toEbasis = false;
+  //  _toEbasis = false;
   event->changeTrigger();
 }
 
-RotateData::Parameters::Parameters() {}
-
-bool RotateData::Parameters::getToEbasis() const { return _toEBasis; }
-
-void RotateData::Parameters::setToEbasis(bool toEbasis) {
-  _toEBasis = toEbasis;
+RotateData::Parameters::Parameters() {
+  setMode(RotateData::Parameters::Mode::EBASIS);
 }
 
-void RotateData::Parameters::setReceivers(
-    const std::list<std::shared_ptr<Data::SeismReceiver>> &receivers) {
-  _receivers = receivers;
+void RotateData::Parameters::setMode(RotateData::Parameters::Mode mode) {
+  mode = _mode;
+
+  Eigen::Matrix3f orientation;
+
+  switch (_mode) {
+  case EBASIS:
+  case INDEFINITE:
+    //      orientation <<
+    break;
+  case RECEIVERS:
+    break;
+  }
 }
 
-const std::list<std::shared_ptr<Data::SeismReceiver>> &
-RotateData::Parameters::getReceivers() const {
-  return _receivers;
-}
+RotateData::Parameters::Mode RotateData::Parameters::getMode() const {}
+
+void RotateData::Parameters::setOrientation(const Eigen::Matrix3f &) {}
+
+const Eigen::Matrix3f &RotateData::Parameters::getOrientation() const {}
+
+// bool RotateData::Parameters::getToEbasis() const { return _toEBasis; }
+
+// void RotateData::Parameters::setToEbasis(bool toEbasis) {
+//  _toEBasis = toEbasis;
+//}
+
+// void RotateData::Parameters::setReceivers(
+//    const std::list<std::shared_ptr<Data::SeismReceiver>> &receivers) {
+//  _receivers = receivers;
+//}
+
+// const std::list<std::shared_ptr<Data::SeismReceiver>> &
+// RotateData::Parameters::getReceivers() const {
+//  return _receivers;
+//}

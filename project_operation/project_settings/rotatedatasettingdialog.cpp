@@ -37,8 +37,8 @@ void RotateDataSettingDialog::update(
     Data::ProjectSettings const *const projectSettings) {
   //  _toEBasisButton->setDown(false);
   //  _toReceiverBasisButton->setDown(false);
-  _toEBasisButton->setChecked(
-      projectSettings->getRotateDataParameters().getToEbasis());
+  //  _toEBasisButton->setChecked(
+  //      projectSettings->getRotateDataParameters().getToEbasis());
 
   this->hasChanged(false);
 }
@@ -59,7 +59,7 @@ void RotateDataSettingDialog::setSettings(
   //  }
   //  projectSettings->getRotateDataParameters().setMatrixsBasisTo(matrixs);
 
-  projectSettings->getRotateDataParameters().setToEbasis(
-      _toEBasisButton->isChecked());
+  //  projectSettings->getRotateDataParameters().setToEbasis(
+  //      _toEBasisButton->isChecked());
 }
 } // namespace ProjectOperation
