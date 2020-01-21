@@ -261,9 +261,9 @@ const std::vector<SeismComponent *> SeismEvent::getComponents() {
 //  return _components;
 //}
 
-bool SeismEvent::isTransformBy(TransformOperation oper) const {
-  return _appliedOperations.end() != _appliedOperations.find(oper);
-}
+// bool SeismEvent::isTransformBy(TransformOperation oper) const {
+//  return _appliedOperations.end() != _appliedOperations.find(oper);
+//}
 
 void SeismEvent::process() {
   _location = {1.67, 1.113, 1.13}; // TODO: implement!
@@ -310,13 +310,13 @@ QJsonObject &SeismEvent::writeToJson(QJsonObject &json, const QDir &dir) {
   return json;
 }
 
-void SeismEvent::addTransformOperation(TransformOperation oper) {
-  _appliedOperations.insert(oper);
-}
+// void SeismEvent::addTransformOperation(TransformOperation oper) {
+//  _appliedOperations.insert(oper);
+//}
 
-void SeismEvent::removeTransformOperation(TransformOperation oper) {
-  _appliedOperations.erase(oper);
-}
+// void SeismEvent::removeTransformOperation(TransformOperation oper) {
+//  _appliedOperations.erase(oper);
+//}
 
 SeismEvent::Info::Info() : addedDateTime(QDateTime::currentDateTime()) {}
 

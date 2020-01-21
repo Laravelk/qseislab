@@ -104,10 +104,10 @@ EventToolsWidget::EventToolsWidget(QWidget *parent)
 }
 
 void EventToolsWidget::update(SeismEvent const *const event) {
-  _rotateDataButton->setDisabled(
-      event->isTransformBy(SeismEvent::TransformOperation::RotateData));
-  _testMultButton->setDisabled(
-      event->isTransformBy(SeismEvent::TransformOperation::TestMultiplier));
+  //  _rotateDataButton->setDisabled(
+  //      event->isTransformBy(SeismEvent::TransformOperation::RotateData));
+  //  _testMultButton->setDisabled(
+  //      event->isTransformBy(SeismEvent::TransformOperation::TestMultiplier));
 }
 
 } // namespace EventOperation
