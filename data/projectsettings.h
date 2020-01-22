@@ -7,8 +7,6 @@
 #include "event_operation/modification/commands/rotatedatatoebasis.h"
 #include "event_operation/modification/commands/testindividualcommand.h"
 
-//#include "event_operation/modification/commands/newtestindividualcommand.h"
-
 namespace Data {
 class ProjectSettings {
 public:

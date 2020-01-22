@@ -14,7 +14,9 @@ SettingDialog::SettingDialog(QWidget *parent)
   _applyButton->setDisabled(true);
 
   connect(_okButton, &QPushButton::clicked, [this] {
-    emit apply();
+    if (_applyButton->isEnabled()) {
+      emit apply();
+    }
     this->done(QDialog::Accepted);
   });
   connect(_applyButton, &QPushButton::clicked, [this] {

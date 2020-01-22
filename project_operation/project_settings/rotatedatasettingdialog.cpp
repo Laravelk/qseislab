@@ -1,3 +1,4 @@
+
 #include "rotatedatasettingdialog.h"
 
 #include "data/projectsettings.h"
@@ -25,7 +26,7 @@ RotateDataSettingDialog::RotateDataSettingDialog(QWidget *parent)
   // Layout`s
   QVBoxLayout *mainLayout = new QVBoxLayout();
   mainLayout->addWidget(_toEBasisButton);
-  //  mainLayout->addWidget(_toReceiverBasisButton);
+  mainLayout->addWidget(_toReceiverBasisButton);
   mainLayout->addStretch(1);
   mainLayout->addLayout(_buttonsLayout);
 
@@ -35,31 +36,32 @@ RotateDataSettingDialog::RotateDataSettingDialog(QWidget *parent)
 
 void RotateDataSettingDialog::update(
     Data::ProjectSettings const *const projectSettings) {
-  //  _toEBasisButton->setDown(false);
-  //  _toReceiverBasisButton->setDown(false);
-  //  _toEBasisButton->setChecked(
-  //      projectSettings->getRotateDataParameters().getToEbasis());
+
+  switch (projectSettings->getRotateDataParameters().getMode()) {
+  case RotateData::Parameters::Mode::EBASIS:
+    _toEBasisButton->setChecked(true);
+    break;
+  case RotateData::Parameters::Mode::RECEIVERS:
+    _toReceiverBasisButton->setChecked(true);
+    break;
+  case RotateData::Parameters::Mode::INDEFINITE:
+    // TODO: implement!
+    break;
+  }
 
   this->hasChanged(false);
 }
 
 void RotateDataSettingDialog::setSettings(
     Data::ProjectSettings *const projectSettings) {
-  //    auto mult = _multEdit->text().toInt();
-  //  //    projectSettings.getTestMultParameters().setMult(mult);
-  //  std::vector<Eigen::Matrix3f> matrixs;
-  //  if (_toEBasisButton->isDown()) {
-  //    Eigen::Matrix3f matrix;
-  //    matrix << 1, 0, 0, 0, 1, 0, 0, 0, 1;
-  //    for (int i = 0; i < 3; ++i) {
-  //      matrixs.push_back(matrix.replicate(3, 3));
-  //    }
-  //  } else if (_toReceiverBasisButton->isDown()) {
-  //    //      matrix << ...
-  //  }
-  //  projectSettings->getRotateDataParameters().setMatrixsBasisTo(matrixs);
 
-  //  projectSettings->getRotateDataParameters().setToEbasis(
-  //      _toEBasisButton->isChecked());
+  if (_toEBasisButton->isChecked()) {
+    projectSettings->getRotateDataParameters().setMode(
+        RotateData::Parameters::Mode::EBASIS);
+  }
+  if (_toReceiverBasisButton->isChecked()) {
+    projectSettings->getRotateDataParameters().setMode(
+        RotateData::Parameters::Mode::RECEIVERS);
+  }
 }
 } // namespace ProjectOperation

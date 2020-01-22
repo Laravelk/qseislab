@@ -9,4 +9,4 @@ class SeismComponent;
 }
 
 bool rotateDataWithTransitionMatrix(Data::SeismComponent *const,
-                                    const Eigen::MatrixXf &);
+                                    const Eigen::Matrix3f &);
