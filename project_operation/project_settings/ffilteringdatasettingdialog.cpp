@@ -78,7 +78,7 @@ void FFilteringDataSettingDialog::update(
 
 void FFilteringDataSettingDialog::setSettings(
     Data::ProjectSettings *const projectSettings) {
-  auto fFilteringParameters = projectSettings->getFFilteringParameters();
+  auto& fFilteringParameters = projectSettings->getFFilteringParameters();
   fFilteringParameters.setF1(_f1Edit->text().toInt());
   fFilteringParameters.setF2(_f2Edit->text().toInt());
   fFilteringParameters.setF3(_f3Edit->text().toInt());
