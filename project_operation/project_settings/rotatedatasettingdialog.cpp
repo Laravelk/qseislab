@@ -9,6 +9,7 @@
 #include <QDoubleValidator>
 #include <QLabel>
 
+
 #include <iostream> // TODO: remove
 
 
@@ -34,9 +35,13 @@ RotateDataSettingDialog::RotateDataSettingDialog(QWidget *parent)
   connect(_toIndefiniteBasisButton, &QRadioButton::toggled,
           [this](bool checked) { this->hasChanged(true);
             _indefiniteEditWidget->setEnabled(checked);
+            if(checked){
+                this->setCorrect(_indefiniteEditWidget->isCorrect());
+            }
   });
   connect(_indefiniteEditWidget, &IndefiniteBasisEditWidget::changed, [this]{
      this->hasChanged(true);
+      this->setCorrect(_indefiniteEditWidget->isCorrect());
   });
   // Connecting end
 
@@ -95,8 +100,9 @@ void RotateDataSettingDialog::setSettings(
 
 IndefiniteBasisEditWidget::IndefiniteBasisEditWidget(QWidget *parent) : QFrame(parent) {
     auto validator = new QDoubleValidator(-10.0, 10.0, 3);
+    validator->setNotation(QDoubleValidator::StandardNotation);
     for(int i = 0; i < 9; ++i) {
-        crds[i] = new QLineEdit("0,0");
+        crds[i] = new QLineEdit();
         crds[i]->setValidator(validator);
         connect(crds[i], &QLineEdit::textChanged, [this]{
             emit changed();
@@ -132,15 +138,24 @@ Eigen::Matrix3f IndefiniteBasisEditWidget::getBasis() const
     Eigen::Matrix3f matrix;
     for(int i = 0; i < 3; ++i) {
         for(int j = 0; j < 3; ++j) {
-            matrix(i,j) = static_cast<float>(crds[3*i + j]->text().toDouble());
+            matrix(i,j) = static_cast<float>(QLocale::system().toDouble(crds[3*i + j]->text()));
         }
     }
     return matrix;
 }
 
-bool IndefiniteBasisEditWidget::isValid() const{
-    // TODO: implement
-    return false;
+QString IndefiniteBasisEditWidget::isCorrect() const {
+    for(int i = 0; i < 9; ++i) {
+        if(crds[i]->text().isEmpty()) {
+            return QString("Имеются пустые поля");
+        }
+    }
+
+    QString msg;
+    if(0.0 == getBasis().determinant()){
+        msg = "Векторы зависимы";
+    }
+    return msg;
 }
 
 } // namespace ProjectOperation

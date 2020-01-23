@@ -16,7 +16,7 @@ public:
     void setBasis(const Eigen::Matrix3f& );
      Eigen::Matrix3f getBasis() const;
 
-    bool isValid() const;
+    QString isCorrect() const;
 
  signals:
     void changed() const;
