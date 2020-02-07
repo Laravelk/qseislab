@@ -56,6 +56,7 @@ signals:
 
   void eventsActionClicked(const std::set<QUuid> &,
                            Data::SeismEvent::TransformOperation) const;
+  void eventsSaveClicked(const std::set<QUuid> &) const;
 
   void eventPageChanged(const QUuid &) const;
   void eventPageClosed(const QUuid &);

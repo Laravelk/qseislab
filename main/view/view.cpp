@@ -172,6 +172,9 @@ void View::loadProject(Data::SeismProject const *const project) {
           [this](auto &uuids, auto oper) {
             emit eventsActionClicked(uuids, oper);
           });
+  connect(_workPage, &WorkPage::eventsSaveClicked, this, [this](auto& uuids) {
+      emit eventsSaveClicked(uuids);
+  });
   //  connect(
   //      _workPage, &WorkPage::eventActionClicked,
   //      [this](auto &uuid, auto oper) { emit eventActionClicked(uuid, oper);

@@ -87,6 +87,8 @@ set(SOURCES
         event_operation/share/view/tools_view/gainwidget.cpp
         event_operation/share/view/tools_view/hidewavepointswidget.cpp
 
+        event_operation/save_event/controller.cpp
+
 
         horizon_operation/controller.cpp
         horizon_operation/model.cpp
@@ -124,6 +126,7 @@ set(SOURCES
         data/seismchannelreceiver.cpp
         data/projectsettings.cpp
         data/io/segyreader.cpp
+        data/io/segywriter.cpp
         data/io/seismcomponentreader.cpp
         data/io/seismcomponentwriter.cpp
         data/io/pointreader.cpp
@@ -213,6 +216,8 @@ set(HEADERS
         event_operation/share/view/tools_view/gainwidget.h
         event_operation/share/view/tools_view/hidewavepointswidget.h
 
+        event_operation/save_event/controller.h
+
 
         horizon_operation/controller.h
         horizon_operation/model.h
@@ -252,6 +257,7 @@ set(HEADERS
         data/io/segy_files_params.h
         data/io/abstractsegyreader.h
         data/io/segyreader.h
+        data/io/segywriter.h
         data/io/seismcomponentreader.h
         data/io/seismcomponentwriter.h
         data/io/pointreader.h

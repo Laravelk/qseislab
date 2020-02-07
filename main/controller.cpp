@@ -40,6 +40,8 @@ Controller::Controller(QObject *parent)
   connect(_mainWindow.get(), &View::eventActionSettingsClicked, this,
           &Controller::handleEventTransformSettingsClicked);
 
+  connect(_mainWindow.get(), &View::eventsSaveClicked, this, &Controller::handleSaveEventsClicked);
+
   connect(_mainWindow.get(), &View::eventsActionClicked,
           [this](auto &uuids, auto oper) {
             if (!uuids.empty()) {
@@ -422,6 +424,25 @@ void Controller::handleViewEventClicked(const QUuid &uuid) {
     _mainWindow->setFocusEventPage(_oneViewEventControllers[uuid]->getView());
     std::cout << "2 here" << std::endl;
   }
+}
+
+void Controller::handleSaveEventsClicked(const std::set<QUuid> & uuids)
+{
+    if (!_saveEventController) {
+      _saveEventController = std::make_unique<SaveEvent::Controller>(this);
+
+      connect(_saveEventController.get(), &SaveEvent::Controller::finished,
+              [this]() {
+                _saveEventController.reset();
+              });
+
+      std::set<SeismEvent*> events;
+      for(auto& uuid : uuids) {
+          events.insert(_project->get<SeismEvent>(uuid).get());
+      }
+
+      _saveEventController->save(events);
+    }
 }
 
 void Controller::handleHorizonsClicked() {

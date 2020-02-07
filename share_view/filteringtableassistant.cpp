@@ -159,6 +159,13 @@ void FilteringTableAssistant::clearObjectTable() {
 
 void FilteringTableAssistant::forEvents() {
   // Context-Menu Settings
+    _context->addAction("Save", [this]{
+       emit eventsSaveClicked(selectedUuids());
+    });
+
+    _context->addSeparator();
+
+
   _context->addAction(QIcon(":/icons/test_mult.png"), "Test Mult", [this] {
     emit eventsActionClicked(selectedUuids(),
                              SeismEvent::TransformOperation::TestMultiplier);

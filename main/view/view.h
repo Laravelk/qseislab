@@ -47,6 +47,7 @@ public:
 signals:
   void eventsActionClicked(const std::set<QUuid> &,
                            Data::SeismEvent::TransformOperation) const;
+  void eventsSaveClicked(const std::set<QUuid> &) const;
 
   //  void eventActionClicked(const QUuid &,
   //                          Data::SeismEvent::TransformOperation) const;

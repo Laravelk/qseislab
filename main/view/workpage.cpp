@@ -71,6 +71,10 @@ WorkPage::WorkPage(QWidget *parent)
           [this](auto &selectedUuids, auto oper) {
             emit eventsActionClicked(selectedUuids, oper);
           });
+  connect(_eventsTable, &FilteringTableAssistant::eventsSaveClicked,
+          [this](auto &selectedUuids) {
+            emit eventsSaveClicked(selectedUuids);
+          });
 
   connect(_eventsTable, &FilteringTableAssistant::viewClicked,
           [this](auto &uuid) { emit viewEventClicked(uuid); });
