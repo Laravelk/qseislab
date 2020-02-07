@@ -2,7 +2,9 @@
 
 #include <QBoxLayout>
 #include <QDialog>
+#include <QLabel>
 #include <QPushButton>
+#include <QStatusBar>
 
 #include <data/seismevent.h>
 
@@ -25,10 +27,16 @@ signals:
 
 protected:
   void hasChanged(bool);
+  void setCorrect(bool);
+  void setCorrect(const QString& );
 
   QHBoxLayout *_buttonsLayout;
 
 private:
+  bool _isCorrect{true};
+//  QStatusBar* _statusBar;
+  QLabel* _statusMsg;
+
   QPushButton *_okButton;
   QPushButton *_applyButton;
   QPushButton *_cancelButton;

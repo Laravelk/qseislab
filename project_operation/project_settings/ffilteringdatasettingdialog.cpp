@@ -21,10 +21,10 @@ FFilteringDataSettingDialog::FFilteringDataSettingDialog(QWidget *parent)
   // Setting`s end
 
   // Connecting
-  connect(_f1Edit, &QLineEdit::textChanged, [this] { this->hasChanged(true); });
-  connect(_f2Edit, &QLineEdit::textChanged, [this] { this->hasChanged(true); });
-  connect(_f3Edit, &QLineEdit::textChanged, [this] { this->hasChanged(true); });
-  connect(_f4Edit, &QLineEdit::textChanged, [this] { this->hasChanged(true); });
+  connect(_f1Edit, &QLineEdit::textChanged, this, &FFilteringDataSettingDialog::inputChange);
+  connect(_f2Edit, &QLineEdit::textChanged, this, &FFilteringDataSettingDialog::inputChange);
+  connect(_f3Edit, &QLineEdit::textChanged, this, &FFilteringDataSettingDialog::inputChange);
+  connect(_f4Edit, &QLineEdit::textChanged, this, &FFilteringDataSettingDialog::inputChange);
   // Connecting end
 
   // Layout`s
@@ -78,11 +78,35 @@ void FFilteringDataSettingDialog::update(
 
 void FFilteringDataSettingDialog::setSettings(
     Data::ProjectSettings *const projectSettings) {
-  auto fFilteringParameters = projectSettings->getFFilteringParameters();
+  auto& fFilteringParameters = projectSettings->getFFilteringParameters();
   fFilteringParameters.setF1(_f1Edit->text().toInt());
   fFilteringParameters.setF2(_f2Edit->text().toInt());
   fFilteringParameters.setF3(_f3Edit->text().toInt());
   fFilteringParameters.setF4(_f4Edit->text().toInt());
+}
+
+void FFilteringDataSettingDialog::inputChange() {
+    this->hasChanged(true);
+
+    // check correct input
+    auto f1_str = _f1Edit->text();
+    auto f2_str = _f2Edit->text();
+    auto f3_str = _f3Edit->text();
+    auto f4_str = _f4Edit->text();
+
+    int f1 = f1_str.toInt();
+    int f2 = f2_str.toInt();
+    int f3 = f3_str.toInt();
+    int f4 = f4_str.toInt();
+
+    if(f1_str.isEmpty() || f2_str.isEmpty() || f3_str.isEmpty() || f4_str.isEmpty()) {
+         this->setCorrect(QString("Имеются пустые поля"));
+    } else if (0 > f1 || f1 > f2 || f2 > f3 || f3 > f4) {
+       this->setCorrect(QString("Некорректные частоты"));
+    } else {
+        this->setCorrect(true);
+    }
+    // check correct input end
 }
 
 } // namespace ProjectOperation

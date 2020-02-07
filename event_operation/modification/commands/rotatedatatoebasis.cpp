@@ -7,6 +7,8 @@
 
 #include <assert.h>
 
+#include <iostream> // TODO: remove
+
 typedef Data::SeismEvent SeismEvent;
 typedef Data::SeismWell SeismWell;
 typedef Data::SeismReceiver SeismReceiver;
@@ -88,7 +90,7 @@ void RotateData::redoForOne(Data::SeismEvent *event) {
   unsigned long i = 0;
   for (auto &component : event->getComponents()) {
     rotateDataWithTransitionMatrix(
-        component, _originalTransitionMatrixs[event->getUuid()][i].transpose());
+        component, _originalTransitionMatrixs[event->getUuid()][i].inverse());
     rotateDataWithTransitionMatrix(
         component, _rotateOrientationMatrixs[event->getUuid()][i]);
     ++i;
@@ -100,10 +102,10 @@ void RotateData::redoForOne(Data::SeismEvent *event) {
 void RotateData::undoForOne(Data::SeismEvent *event) {
   unsigned long i = 0;
   for (auto &component : event->getComponents()) {
-    rotateDataWithTransitionMatrix(
-        component, _rotateOrientationMatrixs[event->getUuid()][i].transpose());
-    rotateDataWithTransitionMatrix(
-        component, _originalTransitionMatrixs[event->getUuid()][i]);
+      rotateDataWithTransitionMatrix(
+          component, _rotateOrientationMatrixs[event->getUuid()][i].inverse());
+      rotateDataWithTransitionMatrix(
+          component, _originalTransitionMatrixs[event->getUuid()][i]);
     ++i;
   }
 
@@ -119,9 +121,10 @@ void RotateData::Parameters::setMode(RotateData::Parameters::Mode mode) {
 
   switch (_mode) {
   case EBASIS:
+      _orientation << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+      break;
   case INDEFINITE:
-    _orientation << 1, 0, 0, 0, 1, 0, 0, 0, 1;
-    break;
+      break;
   case RECEIVERS:
     _orientation << 0, 0, 0, 0, 0, 0, 0, 0, 0;
     break;
