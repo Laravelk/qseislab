@@ -1,106 +1,110 @@
 #include "analysisdatagraphicsitem.h"
+#include <QtCharts/QChart>
+#include <QtGui/QFontMetrics>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QPainter>
+#include <QtWidgets/QGraphicsSceneMouseEvent>
 
-#include <QPainter>
-#include <iostream> // TODO: delete
+AnalysisDataGraphicItem::AnalysisDataGraphicItem(QChart *chart)
+    : QGraphicsItem(chart), m_chart(chart) {}
 
-namespace EventOperation {
-
-QRectF AnalysisDataGraphicsItem::boundingRect() const
-{
-    QPointF anchor = mapFromParent(_chart->mapToPosition(_anchor));
-    QRectF rect;
-    rect.setLeft(qMin(rect.left(), anchor.x()));
-    rect.setRight(qMax(rect.right(), anchor.x()));
-    rect.setTop(qMin(rect.top(), anchor.y()));
-    rect.setBottom(qMax(rect.bottom(), anchor.y()));
-    return rect;
+QRectF AnalysisDataGraphicItem::boundingRect() const {
+  QPointF anchor = mapFromParent(m_chart->mapToPosition(m_anchor));
+  QRectF rect;
+  rect.setLeft(qMin(m_rect.left(), anchor.x()));
+  rect.setRight(qMax(m_rect.right(), anchor.x()));
+  rect.setTop(qMin(m_rect.top(), anchor.y()));
+  rect.setBottom(qMax(m_rect.bottom(), anchor.y()));
+  return rect;
 }
 
-void AnalysisDataGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
-    Q_UNUSED(option)
-    Q_UNUSED(widget)
-    QPainterPath path;
-//    _rect.setX(mapFromParent(_chart->mapToPosition(_rectAnchor)).x());
-//    _rect.setY(mapFromParent(_chart->mapToPosition(_rectAnchor)).y());
-    path.addRoundedRect(_rect, 5, 5);
+void AnalysisDataGraphicItem::paint(QPainter *painter,
+                                    const QStyleOptionGraphicsItem *option,
+                                    QWidget *widget) {
+  Q_UNUSED(option)
+  Q_UNUSED(widget)
+  QPainterPath path;
+  path.addRoundedRect(m_rect, 5, 5);
 
-//    std::cerr << _textRect.x() << " " << _textRect.y() << std::endl;
+  QPointF anchor = mapFromParent(m_chart->mapToPosition(m_anchor));
+  if (!m_rect.contains(anchor)) {
+    QPointF point1, point2;
 
-    QPointF anchor = mapFromParent(_chart->mapToPosition(_anchor));
-    if (!_rect.contains(anchor)) {
-        QPointF point1, point2;
+    // establish the position of the anchor point in relation to m_rect
+    bool above = anchor.y() <= m_rect.top();
+    bool aboveCenter =
+        anchor.y() > m_rect.top() && anchor.y() <= m_rect.center().y();
+    bool belowCenter =
+        anchor.y() > m_rect.center().y() && anchor.y() <= m_rect.bottom();
+    bool below = anchor.y() > m_rect.bottom();
 
-        // establish the position of the anchor point in relation to m_rect
-        bool above = anchor.y() <= _rect.top();
-        bool aboveCenter = anchor.y() > _rect.top() && anchor.y() <= _rect.center().y();
-        bool belowCenter = anchor.y() > _rect.center().y() && anchor.y() <= _rect.bottom();
-        bool below = anchor.y() > _rect.bottom();
+    bool onLeft = anchor.x() <= m_rect.left();
+    bool leftOfCenter =
+        anchor.x() > m_rect.left() && anchor.x() <= m_rect.center().x();
+    bool rightOfCenter =
+        anchor.x() > m_rect.center().x() && anchor.x() <= m_rect.right();
+    bool onRight = anchor.x() > m_rect.right();
 
-        bool onLeft = anchor.x() <= _rect.left();
-        bool leftOfCenter = anchor.x() > _rect.left() && anchor.x() <= _rect.center().x();
-        bool rightOfCenter = anchor.x() > _rect.center().x() && anchor.x() <= _rect.right();
-        bool onRight = anchor.x() > _rect.right();
+    // get the nearest m_rect corner.
+    qreal x = (onRight + rightOfCenter) * m_rect.width();
+    qreal y = (below + belowCenter) * m_rect.height();
+    bool cornerCase = (above && onLeft) || (above && onRight) ||
+                      (below && onLeft) || (below && onRight);
+    bool vertical = qAbs(anchor.x() - x) > qAbs(anchor.y() - y);
 
-        // get the nearest m_rect corner.
-        qreal x = (onRight + rightOfCenter) * _rect.width();
-        qreal y = (below + belowCenter) * _rect.height();
-        bool cornerCase = (above && onLeft) || (above && onRight) || (below && onLeft) || (below && onRight);
-        bool vertical = qAbs(anchor.x() - x) > qAbs(anchor.y() - y);
+    qreal x1 = x + leftOfCenter * 10 - rightOfCenter * 20 +
+               cornerCase * !vertical * (onLeft * 10 - onRight * 20);
+    qreal y1 = y + aboveCenter * 10 - belowCenter * 20 +
+               cornerCase * vertical * (above * 10 - below * 20);
+    ;
+    point1.setX(x1);
+    point1.setY(y1);
 
-        qreal x1 = x + leftOfCenter * 10 - rightOfCenter * 20 + cornerCase * !vertical * (onLeft * 10 - onRight * 20);
-        qreal y1 = y + aboveCenter * 10 - belowCenter * 20 + cornerCase * vertical * (above * 10 - below * 20);
-        point1.setX(x1);
-        point1.setY(y1);
+    qreal x2 = x + leftOfCenter * 20 - rightOfCenter * 10 +
+               cornerCase * !vertical * (onLeft * 20 - onRight * 10);
+    ;
+    qreal y2 = y + aboveCenter * 20 - belowCenter * 10 +
+               cornerCase * vertical * (above * 20 - below * 10);
+    ;
+    point2.setX(x2);
+    point2.setY(y2);
 
-        qreal x2 = x + leftOfCenter * 20 - rightOfCenter * 10 + cornerCase * !vertical * (onLeft * 20 - onRight * 10);
-        qreal y2 = y + aboveCenter * 20 - belowCenter * 10 + cornerCase * vertical * (above * 20 - below * 10);
-        point2.setX(x2);
-        point2.setY(y2);
-
-//        std::cerr << x1 << " " << y1 << " " << x2 << " " << y2 << std::endl;
-
-        path.moveTo(point1);
-        path.lineTo(anchor);
-        path.lineTo(point2);
-        path = path.simplified();
-    }
-    painter->setBrush(QColor(255, 255, 255));
-    painter->drawPath(path);
-    painter->drawText(_textRect, _text);
+    path.moveTo(point1);
+    path.lineTo(anchor);
+    path.lineTo(point2);
+    path = path.simplified();
+  }
+  painter->setBrush(QColor(255, 255, 255));
+  painter->drawPath(path);
+  painter->drawText(m_textRect, m_text);
 }
 
-AnalysisDataGraphicsItem::AnalysisDataGraphicsItem(QPolarChart *parent) : QGraphicsItem(parent), _chart(parent)
-{
-
+void AnalysisDataGraphicItem::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+  event->setAccepted(true);
 }
 
-void AnalysisDataGraphicsItem::setText(const QString &text)
-{
-    _text = text;
-    QFontMetrics metrics(_font);
-    _textRect = metrics.boundingRect(QRect(0, 0, 150, 150), Qt::AlignLeft, _text);
-    _textRect.translate(5, 5);
-    prepareGeometryChange();
-    _rect = _textRect.adjusted(-5, -5, 5, 5);
+void AnalysisDataGraphicItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
+  if (event->buttons() & Qt::LeftButton) {
+    setPos(mapToParent(event->pos() - event->buttonDownPos(Qt::LeftButton)));
+    event->setAccepted(true);
+  } else {
+    event->setAccepted(false);
+  }
 }
 
-void AnalysisDataGraphicsItem::setAnchor(QPointF point)
-{
-    _anchor = point;
+void AnalysisDataGraphicItem::setText(const QString &text) {
+  m_text = text;
+  QFontMetrics metrics(m_font);
+  m_textRect =
+      metrics.boundingRect(QRect(0, 0, 150, 150), Qt::AlignLeft, m_text);
+  m_textRect.translate(5, 5);
+  prepareGeometryChange();
+  m_rect = m_textRect.adjusted(-5, -5, 5, 5);
 }
 
-void AnalysisDataGraphicsItem::setRectAnchor(QPointF point)
-{
-    _rectAnchor = point;
-}
+void AnalysisDataGraphicItem::setAnchor(QPointF point) { m_anchor = point; }
 
-void AnalysisDataGraphicsItem::updateGeometry()
-{
-    prepareGeometryChange();
-//    setPos(_chart->mapToPosition(_anchor) + QPoint(10, -50));
-    setPos(_anchor);
+void AnalysisDataGraphicItem::updateGeometry() {
+  prepareGeometryChange();
+  setPos(m_chart->mapToPosition(m_anchor) + QPoint(10, -50));
 }
-
-}
-

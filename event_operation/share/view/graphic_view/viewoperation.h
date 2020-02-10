@@ -1,5 +1,6 @@
 #pragma once
 #include <QList>
+#include <QRect>
 
 namespace EventOperation {
 class ViewOperation

@@ -14,16 +14,21 @@ FFilteringDataCommand::FFilteringDataCommand(
 void FFilteringDataCommand::redoForOne(Data::SeismEvent *event) {
   Eigen::FFT<float> fft;
   fillOldDataList(event);
-  //    std::cerr << "affter fill" << std::endl;
   auto oldTraces = _oldEventsTraces.at(event->getUuid());
 
   uint traceNumberInVector = 0;
+  std::vector<std::vector<float>> newData;
   for (auto &component : event->getComponents()) {
     float sampleInterval = component->getSampleInterval();
     for (auto &trace : component->getTraces()) {
       std::vector<float> timevec = oldTraces.at(traceNumberInVector);
       std::vector<std::complex<float>> freqvec;
       traceNumberInVector++;
+
+      if (0 == (timevec.size() % 2)) {
+        timevec.push_back(0);
+      }
+      auto nw = static_cast<unsigned int>(floor(timevec.size() / 2));
 
       fft.fwd(freqvec, timevec);
 
@@ -47,79 +52,89 @@ void FFilteringDataCommand::redoForOne(Data::SeismEvent *event) {
           ceil((_parameters.getF4() * static_cast<float>(timevec.size()) *
                 sampleInterval) /
                static_cast<float>(MICROSECONDS_IN_SECONDS)));
-                  std::cerr << "indexes: " << indexF1 << " " << indexF2 << " "
-                  << indexF3 << " " << indexF4 << std::endl << std::endl;
+      std::cerr << "indexes: " << indexF1 << " " << indexF2 << " " << indexF3
+                << " " << indexF4 << std::endl
+                << std::endl;
 
+      if (indexF1 < 0 || !(indexF1 < indexF2) || !(indexF2 < indexF3) ||
+          !(indexF3 < indexF4) || indexF4 > timevec.size() / 2) {
+        return;
+      }
+
+      uint indexF5 = timevec.size() - indexF4;
+      uint indexF6 = timevec.size() - indexF3;
+      uint indexF7 = timevec.size() - indexF2;
+      uint indexF8 = timevec.size() - indexF1;
       // check
 
-      if (indexF1 < 0 || !(indexF1 < indexF2) || !(indexF2 < indexF3) || !(indexF3 < indexF4)
-              || indexF4 > timevec.size() / 2) {
-          return;
-      }
+      std::cerr << "indexes: " << indexF5 << " " << indexF6 << " " << indexF7
+                << " " << indexF8 << std::endl
+                << std::endl;
 
       // end check zone
 
       std::cerr << "scalling start" << std::endl;
 
       // scalar f1 - f4 zone
-      for (uint i = 0; i < indexF1; i++) {
+      for (uint i = 1; i <= indexF1; i++) {
         freqvec[i] = 0;
       }
 
       float h = indexF2 - indexF1;
-      for (uint i = indexF1; i < indexF2; i++) {
-        float scalar = (i - indexF1) / h;
+      for (uint i = indexF1 + 1; i <= indexF2; i++) {
+        float scalar = (1.0f * i - indexF1) / h;
         freqvec[i] *= scalar;
       }
 
       float d = indexF4 - indexF3;
-      for (uint i = indexF3; i < indexF4; i++) {
-        float scalar = (i - indexF3) / d;
+      for (uint i = indexF3 + 1; i <= indexF4; i++) {
+        float scalar = (1.0f * indexF4 - i) / d;
         freqvec[i] *= scalar;
       }
 
-      for (uint i = indexF4; i < timevec.size(); i++) {
+      for (uint i = indexF4 + 1; i <= indexF5; i++) {
         freqvec[i] = 0;
       }
 
-<<<<<<< HEAD
+      float d2 = indexF6 - indexF5;
+      for (uint i = indexF5; i < indexF6; i++) {
+        float scalar = (1.0f * i - indexF5) / d2;
+        freqvec[i] *= scalar;
+      }
+
+      float h2 = indexF8 - indexF7;
+      for (uint i = indexF7; i < indexF8; i++) {
+        float scalar = (1.0f * indexF8 - i) / h2;
+        freqvec[i] *= scalar;
+      }
+
+      for (uint i = indexF8; i < timevec.size(); i++) {
+        freqvec[i] = 0;
+      }
+
       std::cerr << "after scalling" << std::endl;
-
-      std::vector<float> backArray;
-      for (uint i = indexF4, j = 0; i >= indexF1; i--, j++) {
-        //                std::cerr << freqvec[i].real() << " " << i << " " << j
-        //                << std::endl;
-        backArray.push_back(freqvec[i].real());
-//        std::cerr << backArray.size() << std::endl;
-      }
-
-      if (1 == (indexF4 - indexF1) % 2) {
-        backArray.push_back(0);
-      }
-
-      if (static_cast<int>(indexF1) - (static_cast<int>(indexF4) - static_cast<int>(indexF1)) > 0) {
-          std::cerr << backArray.size() << " " << indexF1 << std::endl;
-        for (uint i = indexF1 - (indexF4 - indexF1), j = 0; i <= indexF1; i++, j++) {
-            freqvec[i + freqvec.size() / 2] = backArray[j];
-        }
-      } else if (freqvec.size() - (indexF4 - indexF1) > 0) {
-          std::cerr << backArray.size() << " " << indexF4 - indexF1 << std::endl;
-          for (uint i = indexF4 + 1, j = 0; i <= indexF4 + (indexF4 - indexF1) + 1; i++, j++) {
-            freqvec[i + freqvec.size() / 2] = backArray[j];
-          }
-      }
 
       fft.inv(timevec, freqvec);
 
-      auto bufferInTrace = trace->getBuffer();
-      for (uint i = 0; i < timevec.size(); i++) {
-        bufferInTrace[i] = timevec[i];
-      }
-      std::cerr << "after inv" << std::endl;
-
-      backArray.clear();
+      newData.push_back(timevec);
     }
   }
+
+  // new data if it's invalid
+
+  int traceNumber = 0;
+  for (auto &component : event->getComponents()) {
+    for (auto &trace : component->getTraces()) {
+      float buffer[trace->getBufferSize()];
+      std::vector<float> timevec = newData.at(traceNumber);
+      for (uint i = 0; i < trace->getBufferSize(); i++) {
+        buffer[i] = timevec[i];
+      }
+      trace->setBuffer(trace->getBufferSize(), buffer);
+      traceNumber++;
+    }
+  }
+
   event->changeTrigger();
 }
 
@@ -129,12 +144,12 @@ void FFilteringDataCommand::undoForOne(Data::SeismEvent *event) {
   for (auto &component : event->getComponents()) {
     for (auto &trace : component->getTraces()) {
       if (oldTraces.size() > traceNumberInVector) {
-      auto oldBuffer = oldTraces.at(traceNumberInVector);
-      auto bufferInTrace = trace->getBuffer();
-      for (uint i = 0; i < oldBuffer.size(); i++) {
-        bufferInTrace[i] = oldBuffer[i];
-      }
-      traceNumberInVector++;
+        auto oldBuffer = oldTraces.at(traceNumberInVector);
+        auto bufferInTrace = trace->getBuffer();
+        for (uint i = 0; i < oldBuffer.size(); i++) {
+          bufferInTrace[i] = oldBuffer[i];
+        }
+        traceNumberInVector++;
       }
     }
   }

@@ -1,42 +1,40 @@
 #pragma once
 
-#include <QBrush>
 #include <QtCharts/QChartGlobal>
-#include <QtCharts/QPolarChart>
+#include <QtGui/QFont>
 #include <QtWidgets/QGraphicsItem>
 
 QT_BEGIN_NAMESPACE
-class QGraphicsSceneEvent;
+class QGraphicsSceneMouseEvent;
 QT_END_NAMESPACE
 
 QT_CHARTS_BEGIN_NAMESPACE
 class QChart;
 QT_CHARTS_END_NAMESPACE
 
-QT_CHARTS_USE_NAMESPACE;
+QT_CHARTS_USE_NAMESPACE
 
-namespace EventOperation {
-class AnalysisDataGraphicsItem : public QGraphicsItem
-{
+class AnalysisDataGraphicItem : public QGraphicsItem {
 public:
-    AnalysisDataGraphicsItem(QPolarChart *parent);
-    void setText(const QString &text);
-    void setAnchor(QPointF point);
-    void setRectAnchor(QPointF point);
-    void updateGeometry();
+  AnalysisDataGraphicItem(QChart *parent);
 
-    QRectF boundingRect() const override;
+  void setText(const QString &text);
+  void setAnchor(QPointF point);
+  void updateGeometry();
 
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
+  QRectF boundingRect() const;
+  void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+             QWidget *widget);
+
+protected:
+  void mousePressEvent(QGraphicsSceneMouseEvent *event);
+  void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
 
 private:
-    QString _text;
-    QRectF _textRect;
-    QPointF _anchor;
-    QPointF _rectAnchor;
-    QRectF _rect;
-    QFont _font;
-    QPolarChart *_chart;
+  QString m_text;
+  QRectF m_textRect;
+  QRectF m_rect;
+  QPointF m_anchor;
+  QFont m_font;
+  QChart *m_chart;
 };
-}
-

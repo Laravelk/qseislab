@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QList>
 #include <QtCharts/QAreaSeries>
 #include <QtCharts/QChartView>
@@ -9,12 +10,11 @@
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QSplineSeries>
 #include <QtCharts/QValueAxis>
-#include <QLabel>
 #include <QtMath>
 #include <memory>
 
-#include "data/seismwavepick.h"
 #include "analysisdatagraphicsitem.h"
+#include "data/seismwavepick.h"
 
 namespace Data {
 class SeismEvent;
@@ -30,9 +30,9 @@ class PolarGraph : public QChartView {
 public:
   PolarGraph(QPolarChart *chart, QWidget *parent = nullptr);
   QWidget *getView() const;
-  void update(const Data::SeismEvent * const);
+  void update(const Data::SeismEvent *const);
   void setGraphColor(const QBrush &);
-  void setScatterColor(const QBrush&);
+  void setScatterColor(const QBrush &);
 
   void hideSWavePoints(bool);
   void hidePWavePoints(bool);
@@ -43,18 +43,33 @@ protected:
   void keyReleaseEvent(QKeyEvent *) override;
 
 private:
+  struct PointInfo {
+    PointInfo(int num, Data::SeismWavePick::Type pointType, double pointPolarAngle,
+                 double pointIncidence) : numberOfComponents(num), type(pointType), polarAngle(pointPolarAngle),
+                 incidence(pointIncidence) {}
+    ~PointInfo() { if (windowWithInfo != nullptr) {
+                        delete windowWithInfo;
+                        }
+                 }
+    int numberOfComponents;
+    Data::SeismWavePick::Type type;
+    double polarAngle;
+    double incidence;
+    bool isShowing = false;
+    AnalysisDataGraphicItem *windowWithInfo = nullptr;
+  };
+
   QPolarChart *_polarChart;
   QGraphicsRectItem *_rect;
   QValueAxis *_angularAxis;
   QValueAxis *_radialAxis;
   QWidget *_allView;
   QGraphicsTextItem *_status;
-  QGraphicsTextItem *_info = nullptr;
   QGraphicsRectItem *_statusRect;
-  QGraphicsRectItem *_infoRect = nullptr;
   QList<QScatterSeries *> _seriesList;
+  std::vector<PointInfo> _infoAboutPoint;
   QList<Data::SeismPolarizationAnalysisData> _dataList;
-  AnalysisDataGraphicsItem *_dataItem = nullptr;
+  AnalysisDataGraphicItem *_dataItem = nullptr;
 
   bool _hideSWave = false;
   bool _hidePWave = false;
@@ -67,6 +82,7 @@ private:
 
   void handleClickedPoint(const QPointF &);
   void findPolarizationAnalysisDataForClickedPoint(const QPointF &);
+  bool compareFloat(float a, float b);
 };
 
 } // namespace EventOperation
