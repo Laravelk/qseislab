@@ -1,6 +1,7 @@
 #include "controller.h"
 
 #include "data/seismevent.h"
+#include "data/io/segywriter.h"
 
 #include <QFileDialog>
 
@@ -30,14 +31,18 @@ void Controller::finish() {
 }
 
 void Controller::recvDirPath(const QString &dir) {
-//    SegyWriter writer;
-//    for(auto event : _events) {
-//        if(!writer.save(dir, event)) {
-//                setNotification("Ивент с именем : " + event->getName() + " не сохранен");
-//        }
-//    }
+    Data::IO::SegyWriter writer;
+    for(auto event : _events) {
+        try {
+            QFileInfo fileInfo(QDir(dir), event->getName() + ".sgy");
+            writer.save(fileInfo, event);
+        } catch (const std::runtime_error& err){
+            setNotification("Ивент с именем : " + event->getName() + " не сохранен\n" + err.what());
+            continue;
+        }
+        setNotification("Ивент с именем : " + event->getName() + " сохранен");
+    }
 
-    setNotification("Hello");
     finish();
 }
 
