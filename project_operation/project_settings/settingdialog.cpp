@@ -65,7 +65,7 @@ SettingDialog *getSettingDialog(Data::SeismEvent::TransformOperation oper) {
     return new ProjectOperation::FFilteringDataSettingDialog();
   }
 
-  assert(false & "unsupported setting dialog");
+//  assert(false & "unsupported setting dialog");
   return nullptr;
 }
 

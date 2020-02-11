@@ -379,13 +379,16 @@ void Controller::handleViewEventClicked(const QUuid &uuid) {
               auto settings = _project->getSettings();
 
               auto settingDialog = ProjectOperation::getSettingDialog(oper);
-              settingDialog->update(settings);
-              connect(settingDialog, &ProjectOperation::SettingDialog::apply,
-                      [this, settingDialog, settings] {
-                        settingDialog->setSettings(settings);
-                      });
-              settingDialog->setModal(true);
-              int res = settingDialog->exec();
+              int res = QDialog::Accepted;
+              if (nullptr != settingDialog) {
+                  settingDialog->update(settings);
+                  connect(settingDialog, &ProjectOperation::SettingDialog::apply,
+                          [this, settingDialog, settings] {
+                            settingDialog->setSettings(settings);
+                          });
+                  settingDialog->setModal(true);
+                  res = settingDialog->exec();
+              }
               if (QDialog::Accepted == res) {
                 auto command = UndoCommandGetter::get(
                     oper, _project->get<SeismEvent>(uuid).get(),
