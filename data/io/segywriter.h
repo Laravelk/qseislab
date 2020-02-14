@@ -13,6 +13,9 @@ public:
     void save(const QFileInfo& , Data::SeismEvent * const ) noexcept(false);
 
 private:
+    void write_binheader(Data::SeismEvent const * const);
+    void write_textheader(Data::SeismEvent const * const);
+
     segy_file *_fp{nullptr};
 
     int _sam_num{0};

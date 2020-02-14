@@ -11,43 +11,26 @@ void SegyWriter::save(const QFileInfo& fileInfo, SeismEvent * const event) {
       throw std::runtime_error("segy_open()");
     }
 
-    auto* _component = event->getComponents().front();
-    auto* _trace = _component->getTraces().front();
+    write_binheader(event);
+
+    write_textheader(event);
+
 
     int err = SEGY_OK;
-    char binheader[SEGY_BINARY_HEADER_SIZE] = {0};
-
-    _sam_num = _trace->getBufferSize();
-    _sam_intr = _component->getInfo().getSampleInterval();
-    _format = _component->getInfo().getFormat();
-    _trace_bsize = segy_trace_bsize(_sam_num);
-
-    err = segy_set_bfield(binheader, SEGY_BIN_INTERVAL, static_cast<int32_t>(_sam_intr));
-    if(SEGY_OK != err) {
-        throw std::runtime_error("segy_set_bfield(SEGY_BIN_INTERVAL)");
-    }
-
-    err = segy_set_bfield(binheader, SEGY_BIN_SAMPLES, _sam_num);
-    if(SEGY_OK != err) {
-        throw std::runtime_error("segy_set_bfield(SEGY_BIN_SAMPLES)");
-    }
-
-    err = segy_set_bfield(binheader, SEGY_BIN_FORMAT, _format);
-    if(SEGY_OK != err) {
-        throw std::runtime_error("segy_set_bfield(SEGY_BIN_FORMAT)");
-    }
-
-    err = segy_write_binheader(_fp, binheader);
-    if(SEGY_OK != err) {
-        throw std::runtime_error("segy_write_binheader()");
-    }
-
-    _trace0 = segy_trace0(binheader);
-
-
     int traceno = 0;
     for (auto& component : event->getComponents()) {
         char trace_header[SEGY_TRACE_HEADER_SIZE] = {0};
+        err = segy_set_field(trace_header, SEGY_TR_TRACE_ID, 1);
+        if(SEGY_OK != err) {
+            throw std::runtime_error("segy_set_field(SEGY_TR_TRACE_ID)");
+        }
+
+
+        err = segy_set_field(trace_header, SEGY_TR_SEQ_LINE, traceno);
+        if(SEGY_OK != err) {
+            throw std::runtime_error("segy_set_field(SEGY_TR_SEQ_LINE)");
+        }
+
         err = segy_set_field(trace_header, SEGY_TR_SAMPLE_INTER, static_cast<int32_t>(_sam_intr));
         if(SEGY_OK != err) {
             throw std::runtime_error("segy_set_field(SEGY_TR_SAMPLE_INTER)");
@@ -72,7 +55,7 @@ void SegyWriter::save(const QFileInfo& fileInfo, SeismEvent * const event) {
         if (SEGY_OK != err) {
           throw std::runtime_error("segy_set_field(SEGY_TR_YEAR_DATA_REC)");
         }
-        err = segy_set_field(trace_header, SEGY_TR_DAY_OF_YEAR, date_time_stamp.date().day());
+        err = segy_set_field(trace_header, SEGY_TR_DAY_OF_YEAR, date_time_stamp.date().dayOfYear());
         if (SEGY_OK != err) {
           throw std::runtime_error("segy_set_field(SEGY_TR_DAY_OF_YEAR)");
         }
@@ -111,6 +94,61 @@ void SegyWriter::save(const QFileInfo& fileInfo, SeismEvent * const event) {
     }
 
     segy_close(_fp);
+}
+
+void SegyWriter::write_binheader(SeismEvent const * const event) {
+    auto* _component = event->getComponents().front();
+    auto* _trace = _component->getTraces().front();
+
+    int trace_amount = 0;
+    for(auto& component : event->getComponents()) {
+        trace_amount += component->getTracesAmount();
+    }
+
+    int err = SEGY_OK;
+    char binheader[SEGY_BINARY_HEADER_SIZE] = {0};
+
+    _sam_num = _trace->getBufferSize();
+    _sam_intr = _component->getInfo().getSampleInterval();
+    _format = _component->getInfo().getFormat();
+    _trace_bsize = segy_trace_bsize(_sam_num);
+
+    err = segy_set_bfield(binheader, SEGY_BIN_TRACES, trace_amount);
+    if(SEGY_OK != err) {
+        throw std::runtime_error("segy_set_bfield(SEGY_BIN_TRACES)");
+    }
+
+    err = segy_set_bfield(binheader, SEGY_BIN_INTERVAL, static_cast<int32_t>(_sam_intr));
+    if(SEGY_OK != err) {
+        throw std::runtime_error("segy_set_bfield(SEGY_BIN_INTERVAL)");
+    }
+
+    err = segy_set_bfield(binheader, SEGY_BIN_SAMPLES, _sam_num);
+    if(SEGY_OK != err) {
+        throw std::runtime_error("segy_set_bfield(SEGY_BIN_SAMPLES)");
+    }
+
+    err = segy_set_bfield(binheader, SEGY_BIN_FORMAT, _format);
+    if(SEGY_OK != err) {
+        throw std::runtime_error("segy_set_bfield(SEGY_BIN_FORMAT)");
+    }
+
+    err = segy_set_bfield(binheader, SEGY_BIN_TRACE_FLAG, 1);
+    if(SEGY_OK != err) {
+        throw std::runtime_error("segy_set_bfield(SEGY_BIN_TRACE_FLAG)");
+    }
+
+    err = segy_write_binheader(_fp, binheader);
+    if(SEGY_OK != err) {
+        throw std::runtime_error("segy_write_binheader()");
+    }
+
+    _trace0 = segy_trace0(binheader);
+}
+
+void SegyWriter::write_textheader(SeismEvent const * const event) {
+    // TODO: implement
+
 }
 
 }

@@ -40,7 +40,7 @@ void Controller::recvDirPath(const QString &dir) {
             setNotification("Ивент с именем : " + event->getName() + " не сохранен\n" + err.what());
             continue;
         }
-        setNotification("Ивент с именем : " + event->getName() + " сохранен");
+        setNotification("Ивент с именем : " + event->getName() + " сохранен", QMessageBox::Information);
     }
 
     finish();
