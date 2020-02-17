@@ -17,10 +17,10 @@ PolarGraph::PolarGraph(QPolarChart *chart, QWidget *)
 
   setFrameStyle(1);
   const qreal angularMin = 0;
-  const qreal angularMax = 3;
+  const qreal angularMax = 360;
 
   const qreal radialMin = 0;
-  const qreal radialMax = 360;
+  const qreal radialMax = 180;
 
   _angularAxis->setTickCount(9);
   _angularAxis->setLabelFormat("%.1f");
@@ -68,19 +68,17 @@ void PolarGraph::update(Data::SeismEvent const *const event) {
       if (pick.second.getPolarizationAnalysisData() != std::nullopt) {
         Data::SeismPolarizationAnalysisData data =
             pick.second.getPolarizationAnalysisData().value();
-        double polarAngle = std::fmod(data.getAzimutDegrees(), 360) > 0
-                                ? std::fmod(data.getAzimutDegrees(), 360)
-                                : 360 + std::fmod(data.getAzimutDegrees(), 360);
+        double polarAngle = 180 * sin(data.getIncidenceInRadian())/ (1 - cos(data.getIncidenceInRadian())) / M_PI;
         if (data.isValid()) {
           if (pick.first == Data::SeismWavePick::PWAVE) {
-            validPWaveSeries->append(data.getIncidenceInRadian(), polarAngle);
+            validPWaveSeries->append(data.getAzimutDegrees(), polarAngle);
             _infoAboutPoint.push_back(PointInfo(num, Data::SeismWavePick::PWAVE, polarAngle, data.getIncidenceInRadian()));
           } else {
             _infoAboutPoint.push_back(PointInfo(num, Data::SeismWavePick::SWAVE, polarAngle, data.getIncidenceInRadian()));
-            validSWaveSeries->append(data.getIncidenceInRadian(), polarAngle);
+            validSWaveSeries->append(data.getAzimutDegrees(), polarAngle);
           }
         } else {
-          unValidSeries->append(data.getIncidenceInRadian(), polarAngle);
+          unValidSeries->append(data.getAzimutDegrees(), polarAngle);
         }
         _dataList.append(pick.second.getPolarizationAnalysisData().value());
       }
@@ -194,10 +192,11 @@ void PolarGraph::handleClickedPoint(const QPointF &point) {
 void PolarGraph::findPolarizationAnalysisDataForClickedPoint(
     const QPointF &point) {
   for (auto &data : _dataList) {
-    qreal dataPolarAngle =
-        static_cast<qreal>(std::fmod(data.getAzimutDegrees(), 360) > 0
-                               ? std::fmod(data.getAzimutDegrees(), 360)
-                               : 360 + std::fmod(data.getAzimutDegrees(), 360));
+//    qreal dataPolarAngle =
+//        static_cast<qreal>(std::fmod(data.getAzimutDegrees(), 360) > 0
+//                               ? std::fmod(data.getAzimutDegrees(), 360)
+//                               : 360 + std::fmod(data.getAzimutDegrees(), 360));
+    qreal dataPolarAngle = 180 * sin(data.getIncidenceInRadian())/ (1 - cos(data.getIncidenceInRadian())) / M_PI;
     qreal dataIncidenceInRadian =
         static_cast<qreal>(data.getIncidenceInRadian());
     if (compareFloat(dataPolarAngle, point.y()) && compareFloat(dataIncidenceInRadian, point.x())) {

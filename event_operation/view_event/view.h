@@ -31,6 +31,7 @@ public:
 
   void updateInfoEvent(Data::SeismEvent const *const);
   void updateDataEvent(Data::SeismEvent const *const);
+  void updatePolarGraph(Data::SeismEvent const *const);
 
   void settingEventInfo(Data::SeismEvent *const) const;
   ChartGesture *getChartGesture();
@@ -49,6 +50,7 @@ signals:
   void createPolarizationAnalysisWindow();
 
   void finished() const;
+  void calculatePolarizationAnalysisData();
 
 private:
   void updateRepetition(const QString &);

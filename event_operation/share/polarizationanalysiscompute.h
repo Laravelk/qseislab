@@ -44,6 +44,9 @@ private:
   Data::SeismPolarizationAnalysisData
   calculatePolarizationData(const Eigen::MatrixXf &);
 
+  int test_data_for_print_num_of_comp = 0;
+  Data::SeismWavePick::Type test_data_for_print_type;
+
   template <typename T> int sgn(T val) { return (T(0) < val) - (val < T(0)); }
 };
 } // namespace EventOperation
