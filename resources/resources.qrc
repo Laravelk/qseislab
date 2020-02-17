@@ -1,0 +1,21 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+<qresource>
+  <file>sphereSmooth.obj</file>
+  <file>minimalSmooth.obj</file>
+  <file>cylinderFilledSmooth.obj</file>
+
+  <file>icons/remove.png</file>
+
+  <file>icons/settings.png</file>
+
+  <file>icons/test_mult.png</file>
+  <file>icons/rotate.png</file>
+  <file>icons/ffilter.png</file>
+  <file>icons/undo.png</file>
+  <file>icons/redo.png</file>
+  <file>icons/red_wave.png</file>
+  <file>icons/green_wave.png</file>
+  <file>icons/blue_wave.png</file>
+</qresource>
+</RCC>
