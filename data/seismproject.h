@@ -51,6 +51,8 @@ public:
   template <typename T>
   const std::map<QUuid, std::shared_ptr<T>> &getAllMap() const;
   template <typename T> void setAllMap(std::map<QUuid, std::shared_ptr<T>> &);
+  template <typename T>
+  void updateMap(std::map<QUuid, std::shared_ptr<T>> &); // NOTE: ok-?
 
   template <typename T> const std::list<std::shared_ptr<T>> &getAll() const;
   template <typename T> void setAll(const std::list<std::shared_ptr<T>> &);

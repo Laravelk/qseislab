@@ -51,9 +51,6 @@ set(SOURCES
         event_operation/modification/commands/removepick.cpp
         event_operation/modification/commands/addpick.cpp
         event_operation/modification/commands/ffilteringdatacommand.cpp
-        event_operation/modification/commands/newtestindividualcommand.cpp
-
-
 
         event_operation/one_event/controller.cpp
         event_operation/one_event/view/filemanager.cpp
@@ -88,6 +85,8 @@ set(SOURCES
         event_operation/share/view/tools_view/clippingwidget.cpp
         event_operation/share/view/tools_view/gainwidget.cpp
         event_operation/share/view/tools_view/hidewavepointswidget.cpp
+
+        event_operation/save_event/controller.cpp
 
 
         horizon_operation/controller.cpp
@@ -126,6 +125,7 @@ set(SOURCES
         data/seismchannelreceiver.cpp
         data/projectsettings.cpp
         data/io/segyreader.cpp
+        data/io/segywriter.cpp
         data/io/seismcomponentreader.cpp
         data/io/seismcomponentwriter.cpp
         data/io/pointreader.cpp
@@ -179,8 +179,6 @@ set(HEADERS
         event_operation/modification/commands/removepick.h
         event_operation/modification/commands/addpick.h
         event_operation/modification/commands/ffilteringdatacommand.h
-        event_operation/modification/commands/newtestindividualcommand.h
-
 
         event_operation/one_event/controller.h
         event_operation/one_event/view/filemanager.h
@@ -216,6 +214,7 @@ set(HEADERS
         event_operation/share/view/tools_view/gainwidget.h
         event_operation/share/view/tools_view/hidewavepointswidget.h
 
+        event_operation/save_event/controller.h
 
         horizon_operation/controller.h
         horizon_operation/model.h
@@ -255,6 +254,7 @@ set(HEADERS
         data/io/segy_files_params.h
         data/io/abstractsegyreader.h
         data/io/segyreader.h
+        data/io/segywriter.h
         data/io/seismcomponentreader.h
         data/io/seismcomponentwriter.h
         data/io/pointreader.h
@@ -263,7 +263,8 @@ set(HEADERS
 
         undo_stack_work/customundocommand.h
         undo_stack_work/eventoperationundocommand.h
-
+        undo_stack_work/commands/addobjectstoprojectcommand.h
+        undo_stack_work/commands/removeobjectfromprojectcommand.h
 
         main/controller.h
         main/view/view.h

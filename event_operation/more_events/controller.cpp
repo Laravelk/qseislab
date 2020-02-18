@@ -11,6 +11,7 @@
 #include "event_operation/share/view/polar_graph/polargraph.h"
 
 #include "event_operation/modification/undocommandgetter.h"
+#include "project_operation/project_settings/settingdialog.h"
 
 #include "data/io/segyreader.h"
 
@@ -112,7 +113,6 @@ Controller::Controller(
   });
 
   connect(_view.get(), &View::calculatePolarizationAnalysisData, [this]() {
-//      std::cerr << "IN MORE EVENT CONTROLLER" << std::endl;
     if (_calculatePolarization == nullptr) {
       _calculatePolarization = new PolarizationAnalysisCompute(
           _events_map.at(_currentEventUuid).get());
@@ -207,8 +207,28 @@ Controller::Controller(
       _view.get(), &View::eventTransformClicked, [this, settings](auto oper) {
         if (!_currentEventUuid.isNull()) {
           auto &event = _events_map[_currentEventUuid];
-          auto command = UndoCommandGetter::get(oper, event.get(), settings);
-          _undoStack->push(command);
+//          auto command = UndoCommandGetter::get(oper, event.get(), settings);
+//          _undoStack->push(command);
+          auto settingDialog = ProjectOperation::getSettingDialog(oper);
+          settingDialog->update(settings);
+          connect(settingDialog, &ProjectOperation::SettingDialog::apply,
+                  [this, settingDialog, settings] {
+                    settingDialog->setSettings(settings);
+                  });
+          settingDialog->setModal(true);
+          int res = settingDialog->exec();
+          if (QDialog::Accepted == res) {
+            auto command = UndoCommandGetter::get(oper, event.get(), settings);
+            // TODO: переделать!!
+            if (nullptr == command) {
+              QMessageBox *msg = new QMessageBox(
+                  QMessageBox::Critical, "Error",
+                  "Некорректные настройки для этой операции", QMessageBox::Ok);
+              msg->exec();
+            } else {
+              _undoStack->push(command);
+            }
+          }
         }
       });
 

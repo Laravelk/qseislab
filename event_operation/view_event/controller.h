@@ -31,6 +31,13 @@ public:
 
   QWidget *getView();
 
+  // TODO: re-see!
+  void f1();
+  void f2(Data::SeismEvent const *const);
+  void f3(Data::SeismEvent const *const);
+  virtual ~Controller();
+  // ...
+
 signals:
   void undoClicked(const QUuid &) const;
   void redoClicked(const QUuid &) const;
@@ -46,7 +53,6 @@ private:
 
   PolarizationAnalysisWindow *_polarizationWindow;
   PolarizationAnalysisCompute *_calculatePolarization = nullptr;
-
 
   std::shared_ptr<Data::SeismEvent> _event;
 };

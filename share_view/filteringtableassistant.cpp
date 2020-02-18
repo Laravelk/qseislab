@@ -159,16 +159,20 @@ void FilteringTableAssistant::clearObjectTable() {
 
 void FilteringTableAssistant::forEvents() {
   // Context-Menu Settings
+    _context->addAction("Save", [this]{
+       emit eventsSaveClicked(selectedUuids());
+    });
+
+    _context->addSeparator();
   _context->addAction(QIcon(":/icons/test_mult.png"), "Test Mult", [this] {
     emit eventsActionClicked(selectedUuids(),
                              SeismEvent::TransformOperation::TestMultiplier);
   });
 
-  //  _context->addAction(QIcon(":/icons/rotate.png"), "Rotate", [this] {
-  //    emit eventsActionClicked(selectedUuids(),
-  //                             SeismEvent::TransformOperation::RotateData);
-  //  });
-
+  _context->addAction(QIcon(":/icons/rotate.png"), "Rotate", [this] {
+    emit eventsActionClicked(selectedUuids(),
+                             SeismEvent::TransformOperation::RotateData);
+  });
   _context->addAction(QIcon(":/icons/ffilter.png"), "FFilter", [this] {
     emit eventsActionClicked(selectedUuids(),
                              SeismEvent::TransformOperation::FFilteringData);

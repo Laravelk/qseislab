@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QList>
 #include <QtCharts/QAreaSeries>
 #include <QtCharts/QChartView>
@@ -58,7 +57,6 @@ private:
     bool isShowing = false;
     AnalysisDataGraphicItem *windowWithInfo = nullptr;
   };
-
   QPolarChart *_polarChart;
   QGraphicsRectItem *_rect;
   QValueAxis *_angularAxis;
@@ -70,7 +68,6 @@ private:
   std::vector<PointInfo> _infoAboutPoint;
   QList<Data::SeismPolarizationAnalysisData> _dataList;
   AnalysisDataGraphicItem *_dataItem = nullptr;
-
   bool _hideSWave = false;
   bool _hidePWave = false;
   bool _altIsTouch = false;
@@ -83,6 +80,7 @@ private:
   void handleClickedPoint(const QPointF &);
   void findPolarizationAnalysisDataForClickedPoint(const QPointF &);
   bool compareFloat(float a, float b);
+
 };
 
 } // namespace EventOperation

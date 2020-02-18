@@ -40,6 +40,7 @@ signals:
   void eventsActionClicked(const std::set<QUuid> &,
                            Data::SeismEvent::TransformOperation);
 
+  void eventsSaveClicked(const std::set<QUuid>&);
   //  // TODO: remove:
   //  void captureFocus() const;
 

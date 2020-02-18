@@ -27,10 +27,20 @@ public:
     void setSampleInterval(float);
     float getSampleInterval() const;
 
+    void setFormat(int);
+    int getFormat() const;
+
+    void setTrace0(long);
+    int getTrace0() const;
+
+//    void setTraceBsize(int);
+//    int getTraceBsize() const;
   private:
     QDateTime stampDateTime;
     float sampleInterval{0.0};
-
+    int _format;
+    long _trace0;
+//    int _trace_bsize;
     friend class SeismComponent;
   };
   explicit SeismComponent(const QUuid &);

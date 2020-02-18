@@ -71,10 +71,9 @@ View::View(QUndoStack const *const undoStack, QWidget *parent)
             SeismEvent::TransformOperation::TestMultiplier);
       });
 
-  //  parametersMenu->addAction(QIcon(":/icons/rotate.png"), "Rotate", [this] {
-  //    emit
-  //    eventActionSettingsClicked(SeismEvent::TransformOperation::RotateData);
-  //  });
+  parametersMenu->addAction(QIcon(":/icons/rotate.png"), "Rotate", [this] {
+    emit eventActionSettingsClicked(SeismEvent::TransformOperation::RotateData);
+  });
 
   parametersMenu->addAction(QIcon(":/icons/ffilter.png"), "FFilter", [this] {
     emit eventActionSettingsClicked(
@@ -145,6 +144,10 @@ void View::addEventPage(QWidget *eventPage, SeismEvent const *const event) {
   _workPage->addEventPage(eventPage, event);
 }
 
+void View::closeEventPage(const QUuid &uuid) {
+  _workPage->closeEventPage(uuid);
+}
+
 void View::setFocusEventPage(QWidget *page) {
   _workPage->setFocusEventPage(page);
 }
@@ -169,6 +172,9 @@ void View::loadProject(Data::SeismProject const *const project) {
           [this](auto &uuids, auto oper) {
             emit eventsActionClicked(uuids, oper);
           });
+  connect(_workPage, &WorkPage::eventsSaveClicked, this, [this](auto& uuids) {
+      emit eventsSaveClicked(uuids);
+  });
   //  connect(
   //      _workPage, &WorkPage::eventActionClicked,
   //      [this](auto &uuid, auto oper) { emit eventActionClicked(uuid, oper);

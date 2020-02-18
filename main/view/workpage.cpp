@@ -71,6 +71,10 @@ WorkPage::WorkPage(QWidget *parent)
           [this](auto &selectedUuids, auto oper) {
             emit eventsActionClicked(selectedUuids, oper);
           });
+  connect(_eventsTable, &FilteringTableAssistant::eventsSaveClicked,
+          [this](auto &selectedUuids) {
+            emit eventsSaveClicked(selectedUuids);
+          });
 
   connect(_eventsTable, &FilteringTableAssistant::viewClicked,
           [this](auto &uuid) { emit viewEventClicked(uuid); });
@@ -159,6 +163,15 @@ void WorkPage::addEventPage(QWidget *page, SeismEvent const *const event) {
   //          [this, event] { emit eventPageChanged(event->getUuid()); });
 }
 
+void WorkPage::closeEventPage(const QUuid &uuid) {
+  // NOTE: неочень :(
+  for (auto &page_uuid : _pages_uuids_map) {
+    if (uuid == page_uuid.second) {
+      _workPages->removeTab(_workPages->indexOf(page_uuid.first));
+    }
+  }
+}
+
 void WorkPage::setFocusEventPage(QWidget *page) {
   _workPages->setCurrentWidget(page);
 }
@@ -205,6 +218,7 @@ void WorkPage::removeEvent(const QUuid &uuid) {
   //  _oilFieldScene->removeEvent(uuid);
   _oilFieldWidget->removeEvent(uuid);
   _eventsTable->remove(uuid);
+  this->closeEventPage(uuid);
 }
 
 void WorkPage::addHorizon(Data::SeismHorizon const *const horizon) {

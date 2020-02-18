@@ -8,6 +8,8 @@
 #include <assert.h>
 #include <memory>
 
+//#include <iostream> // TODO: remove
+
 namespace Data {
 namespace IO {
 void SegyReader::setFilePath(const char *path) {
@@ -18,6 +20,12 @@ void SegyReader::setFilePath(const char *path) {
 }
 
 void SegyReader::readBinHeader() {
+    _sam_num = 0;
+    _sam_intr = 0.0;
+    _format = 0;
+    _trace0 = 0;
+    _trace_num = 0;
+    _trace_bsize = 0;
   char binheader[SEGY_BINARY_HEADER_SIZE];
   int err = segy_binheader(_fp, binheader);
   if (SEGY_OK != err) {
@@ -30,9 +38,16 @@ void SegyReader::readBinHeader() {
     throw std::runtime_error("segy_sample_interval()");
   }
 
+  //  int64_t *test_ptr = reinterpret_cast<int64_t *>(binheader + 69);
+
+  //  std::cout << "301 byte == " << (int)*(binheader + 301) << std::endl;
+  //  std::cout << "302 byte == " << (int)*(binheader + 302) << std::endl;
+
   _sam_num = segy_samples(binheader);
-  if (0 >= _sam_num) {
+  if (0 > _sam_num) {
     throw std::runtime_error("segy_samples() -> negative");
+  } else if (0 == _sam_num) {
+    throw std::runtime_error("segy_samples() -> zero");
   }
 
   _format = segy_format(binheader);
@@ -64,6 +79,9 @@ SegyReader::nextComponent(const std::shared_ptr<SeismReceiver> &receiver) {
 
   std::shared_ptr<SeismComponent> component =
       std::make_shared<SeismComponent>(receiver->getUuid());
+  component->getInfo().setSampleInterval(_sam_intr);
+  component->getInfo().setFormat(_format);
+  component->getInfo().setTrace0(_trace0);
   int p_wave_arrival = 0;
   int s_wave_arrival = 0;
 

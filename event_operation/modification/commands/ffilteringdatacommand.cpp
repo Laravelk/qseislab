@@ -134,7 +134,6 @@ void FFilteringDataCommand::redoForOne(Data::SeismEvent *event) {
       traceNumber++;
     }
   }
-
   event->changeTrigger();
 }
 

@@ -408,6 +408,7 @@ void PolarizationAnalysisWindow::update() {
 void PolarizationAnalysisWindow::changeWaveBox() {
   QList<QString> waveTypeList;
   int itemCount = _waveTypeBox->count();
+  _waveTypeBox->setCurrentIndex(0);
   for (int i = 0; i < itemCount; i++) {
     _waveTypeBox->removeItem(1);
   }

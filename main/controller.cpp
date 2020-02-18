@@ -1,6 +1,8 @@
 #include "controller.h"
 
 #include "event_operation/modification/undocommandgetter.h"
+#include "undo_stack_work/commands/addobjectstoprojectcommand.h"
+#include "undo_stack_work/commands/removeobjectfromprojectcommand.h"
 
 #include <assert.h>
 
@@ -26,9 +28,7 @@ using namespace ProjectOperation;
 
 namespace Main {
 Controller::Controller(QObject *parent)
-    : QObject(parent),
-      //    _shareEventStack(std::make_unique<QUndoStack>()),
-      _undoStack(std::make_unique<QUndoStack>()),
+    : QObject(parent), _undoStack(std::make_unique<QUndoStack>()),
       _mainWindow(std::make_unique<View>(_undoStack.get())) {
 
   connect(_mainWindow.get(), &View::undoClicked, this,
@@ -40,6 +40,8 @@ Controller::Controller(QObject *parent)
   connect(_mainWindow.get(), &View::eventActionSettingsClicked, this,
           &Controller::handleEventTransformSettingsClicked);
 
+  connect(_mainWindow.get(), &View::eventsSaveClicked, this, &Controller::handleSaveEventsClicked);
+
   connect(_mainWindow.get(), &View::eventsActionClicked,
           [this](auto &uuids, auto oper) {
             if (!uuids.empty()) {
@@ -47,11 +49,31 @@ Controller::Controller(QObject *parent)
               for (auto &uuid : uuids) {
                 events.insert(_project->get<SeismEvent>(uuid).get());
               }
+              auto settings = _project->getSettings();
 
-              auto command =
-                  UndoCommandGetter::get(oper, events, _project->getSettings());
+              auto settingDialog = ProjectOperation::getSettingDialog(oper);
+              settingDialog->update(settings);
+              connect(settingDialog, &ProjectOperation::SettingDialog::apply,
+                      [this, settingDialog, settings] {
+                        settingDialog->setSettings(settings);
+                      });
+              settingDialog->setModal(true);
+              int res = settingDialog->exec();
+              if (QDialog::Accepted == res) {
+                auto command = UndoCommandGetter::get(oper, events,
+                                                      _project->getSettings());
 
-              _undoStack->push(command);
+                // TODO: переделать!!
+                if (nullptr == command) {
+                  QMessageBox *msg = new QMessageBox(
+                      QMessageBox::Critical, "Error",
+                      "Некорректные настройки для этой операции",
+                      QMessageBox::Ok);
+                  msg->exec();
+                } else {
+                  _undoStack->push(command);
+                }
+              }
             }
           });
 
@@ -70,6 +92,14 @@ Controller::Controller(QObject *parent)
           &Controller::handleViewEventClicked);
   connect(_mainWindow.get(), &View::removeEventClicked,
           [this](auto uuid) { _project->remove<SeismEvent>(uuid); });
+
+  // TODO: refactor to handleRemoveObject<SeismEvent>
+  // TODO: for every object type removing
+  connect(_mainWindow.get(), &View::removeEventClicked, [this](auto uuid) {
+    _oneViewEventControllers.erase(uuid);
+    _undoStack->push(
+        new RemoveObjectFromProjectCommand<SeismEvent>(_project, uuid));
+  });
   connect(_mainWindow.get(), &View::processEventsClicked,
           [this] { _project->processEvents(); });
 
@@ -102,15 +132,10 @@ void Controller::recvProject(const std::shared_ptr<SeismProject> &project) {
   _project = project;
 
   // Event`s connecting
-  connect(_project.get(), &SeismProject::addedEvent, [this](auto &event) {
-    //    _eventStacks[event->getUuid()] =
-    //    std::make_unique<CustomUndoStack>();
-    _mainWindow->addEvent(event.get());
-  });
-  connect(_project.get(), &SeismProject::removedEvent, [this](auto &uuid) {
-    //    _eventStacks.erase(uuid);
-    _mainWindow->removeEvent(uuid);
-  });
+  connect(_project.get(), &SeismProject::addedEvent,
+          [this](auto &event) { _mainWindow->addEvent(event.get()); });
+  connect(_project.get(), &SeismProject::removedEvent,
+          [this](auto &uuid) { _mainWindow->removeEvent(uuid); });
   connect(_project.get(), &SeismProject::processedEvents, [this] {
     // TODO:
     //  апдейтить каждый эвент, а не загружать каждый
@@ -166,28 +191,33 @@ void Controller::handleUndoClicked() {
   auto command =
       static_cast<const CustomUndoCommand *>(_undoStack->command(index));
 
+  QMessageBox *msg;
+  int res;
+
   switch (command->getType()) {
   case CustomUndoCommand::EventOperation:
-    auto eventOperationCommand =
-        static_cast<const EventOperationUndoCommand *>(command);
+    //    auto eventOperationCommand =
+    //        static_cast<const EventOperationUndoCommand *>(command);
 
-    if (eventOperationCommand->isCommon()) {
-      QMessageBox *msg = new QMessageBox(QMessageBox::Warning, "Warning",
-                                         "Вы пытаетесь отменить общую команду ",
-                                         QMessageBox::Ok | QMessageBox::Cancel);
-      auto res = msg->exec();
+    if (static_cast<const EventOperationUndoCommand *>(command)->isCommon()) {
+      msg = new QMessageBox(QMessageBox::Warning, "Warning",
+                            "Вы пытаетесь отменить общую команду ",
+                            QMessageBox::Ok | QMessageBox::Cancel);
+      res = msg->exec();
       if (QMessageBox::Ok == res) {
         _undoStack->undo();
       }
     } else {
-      auto appliedEventUuid = *eventOperationCommand->getEventUuids().begin();
+      auto appliedEventUuid =
+          *static_cast<const EventOperationUndoCommand *>(command)
+               ->getEventUuids()
+               .begin();
       if (_currentOneEventFocus != appliedEventUuid) {
-        QMessageBox *msg =
-            new QMessageBox(QMessageBox::Warning, "Warning",
-                            "Вы пытаетесь отменить команду другого "
-                            "ивента",
-                            QMessageBox::Ok | QMessageBox::Cancel);
-        auto res = msg->exec();
+        msg = new QMessageBox(QMessageBox::Warning, "Warning",
+                              "Вы пытаетесь отменить команду другого "
+                              "ивента",
+                              QMessageBox::Ok | QMessageBox::Cancel);
+        res = msg->exec();
         if (QMessageBox::Cancel == res) {
           break;
         }
@@ -197,9 +227,24 @@ void Controller::handleUndoClicked() {
     }
 
     break;
-    //  case CustomUndoCommand::RemoveSeismObject:
-    // TODO: implement!
-    //    break;
+  case CustomUndoCommand::AddSeismObject:
+    msg = new QMessageBox(QMessageBox::Warning, "Warning",
+                          "Вы пытаетесь отменить добавление объекта ",
+                          QMessageBox::Ok | QMessageBox::Cancel);
+    res = msg->exec();
+    if (QMessageBox::Ok == res) {
+      _undoStack->undo();
+    }
+    break;
+  case CustomUndoCommand::RemoveSeismObject:
+    msg = new QMessageBox(QMessageBox::Warning, "Warning",
+                          "Вы пытаетесь отменить удаление объекта ",
+                          QMessageBox::Ok | QMessageBox::Cancel);
+    res = msg->exec();
+    if (QMessageBox::Ok == res) {
+      _undoStack->undo();
+    }
+    break;
   }
 }
 
@@ -207,30 +252,33 @@ void Controller::handleRedoClicked() {
   auto index = _undoStack->index();
   auto command =
       static_cast<const CustomUndoCommand *>(_undoStack->command(index));
+  QMessageBox *msg;
+  int res;
 
   switch (command->getType()) {
   case CustomUndoCommand::EventOperation:
-    auto eventOperationCommand =
-        static_cast<const EventOperationUndoCommand *>(command);
+    //    auto eventOperationCommand =
+    //        static_cast<const EventOperationUndoCommand *>(command);
 
-    if (eventOperationCommand->isCommon()) {
-      QMessageBox *msg =
-          new QMessageBox(QMessageBox::Warning, "Warning",
-                          "Вы пытаетесь применить общую команду ",
-                          QMessageBox::Ok | QMessageBox::Cancel);
-      auto res = msg->exec();
+    if (static_cast<const EventOperationUndoCommand *>(command)->isCommon()) {
+      msg = new QMessageBox(QMessageBox::Warning, "Warning",
+                            "Вы пытаетесь применить общую команду ",
+                            QMessageBox::Ok | QMessageBox::Cancel);
+      res = msg->exec();
       if (QMessageBox::Ok == res) {
         _undoStack->redo();
       }
     } else {
-      auto appliedEventUuid = *eventOperationCommand->getEventUuids().begin();
+      auto appliedEventUuid =
+          *static_cast<const EventOperationUndoCommand *>(command)
+               ->getEventUuids()
+               .begin();
       if (_currentOneEventFocus != appliedEventUuid) {
-        QMessageBox *msg =
-            new QMessageBox(QMessageBox::Warning, "Warning",
-                            "Вы пытаетесь применить команду другого "
-                            "ивента",
-                            QMessageBox::Ok | QMessageBox::Cancel);
-        auto res = msg->exec();
+        msg = new QMessageBox(QMessageBox::Warning, "Warning",
+                              "Вы пытаетесь применить команду другого "
+                              "ивента",
+                              QMessageBox::Ok | QMessageBox::Cancel);
+        res = msg->exec();
         if (QMessageBox::Cancel == res) {
           break;
         }
@@ -240,9 +288,25 @@ void Controller::handleRedoClicked() {
     }
 
     break;
-    //  case CustomUndoCommand::RemoveSeismObject:
-    // TODO: implement!
-    //    break;
+  case CustomUndoCommand::AddSeismObject:
+    msg = new QMessageBox(QMessageBox::Warning, "Warning",
+                          "Вы пытаетесь применить добавление объекта",
+                          QMessageBox::Ok | QMessageBox::Cancel);
+    res = msg->exec();
+    if (QMessageBox::Ok == res) {
+      _undoStack->redo();
+    }
+    break;
+
+  case CustomUndoCommand::RemoveSeismObject:
+    msg = new QMessageBox(QMessageBox::Warning, "Warning",
+                          "Вы пытаетесь применить удаление объекта",
+                          QMessageBox::Ok | QMessageBox::Cancel);
+    res = msg->exec();
+    if (QMessageBox::Ok == res) {
+      _undoStack->redo();
+    }
+    break;
   }
 }
 
@@ -255,9 +319,12 @@ void Controller::handleAddEventsClicked() {
     connect(_moreEventsController.get(),
             &MoreEvents::Controller::sendEventsAndStack,
             [this](auto &events_map, auto &stack) {
-              for (auto &uuid_event : events_map) {
-                _project->add(uuid_event.second);
-              }
+              //              for (auto &uuid_event : events_map) {
+              //                _project->add(uuid_event.second);
+              //              }
+
+              _undoStack->push(new AddObjectsToProjectCommand<SeismEvent>(
+                  _project, events_map));
             });
 
     connect(_moreEventsController.get(), &MoreEvents::Controller::finished,
@@ -308,17 +375,76 @@ void Controller::handleViewEventClicked(const QUuid &uuid) {
     connect(_oneViewEventControllers[uuid].get(),
             &ViewEvent::Controller::eventActionClicked,
             [this](auto &uuid, auto oper) {
-              auto command = UndoCommandGetter::get(
-                  oper, _project->get<SeismEvent>(uuid).get(),
-                  _project->getSettings());
-              _undoStack->push(command);
+              auto settings = _project->getSettings();
+
+              auto settingDialog = ProjectOperation::getSettingDialog(oper);
+              int res = QDialog::Accepted;
+              if (nullptr != settingDialog) {
+                  settingDialog->update(settings);
+                  connect(settingDialog, &ProjectOperation::SettingDialog::apply,
+                          [this, settingDialog, settings] {
+                            settingDialog->setSettings(settings);
+                          });
+                  settingDialog->setModal(true);
+                  res = settingDialog->exec();
+              }
+              if (QDialog::Accepted == res) {
+                auto command = UndoCommandGetter::get(
+                    oper, _project->get<SeismEvent>(uuid).get(),
+                    _project->getSettings());
+                if (nullptr == command) {
+                  QMessageBox *msg = new QMessageBox(
+                      QMessageBox::Critical, "Error",
+                      "Некорректные настройки для этой операции",
+                      QMessageBox::Ok);
+                  msg->exec();
+                } else {
+
+                  _undoStack->push(command);
+                }
+              }
+
+              //          auto command = UndoCommandGetter::get(
+              //              oper, _project->get<SeismEvent>(uuid).get(),
+              //              _project->getSettings());
+              //          if (nullptr == command) {
+              //            QMessageBox *msg = new QMessageBox(
+              //                QMessageBox::Critical, "Error",
+              //                "Некорректные настройки для этой операции",
+              //                QMessageBox::Ok);
+              //            msg->exec();
+              //          } else {
+
+              //            _undoStack->push(command);
+              //          }
             });
 
     auto &viewEventController = _oneViewEventControllers[uuid];
     _mainWindow->addEventPage(viewEventController->getView(), event.get());
+    std::cout << "here" << std::endl;
   } else {
     _mainWindow->setFocusEventPage(_oneViewEventControllers[uuid]->getView());
+    std::cout << "2 here" << std::endl;
   }
+}
+
+void Controller::handleSaveEventsClicked(const std::set<QUuid> & uuids)
+{
+    if (!_saveEventController) {
+      _saveEventController = std::make_unique<SaveEvent::Controller>(this);
+
+      connect(_saveEventController.get(), &SaveEvent::Controller::finished,
+              [this]() {
+                _saveEventController.reset();
+              });
+
+      std::set<SeismEvent*> events;
+      for(auto& uuid : uuids) {
+          events.insert(_project->get<SeismEvent>(uuid).get());
+      }
+
+      _saveEventController->save(events);
+    }
 }
 
 void Controller::handleHorizonsClicked() {
@@ -486,20 +612,18 @@ void Controller::deleteCloseProjectController(bool closed) {
     _project.reset();
   }
 }
+// SettingDialog *
+// Controller::getSettingDialog(SeismEvent::TransformOperation oper) const {
+//  switch (oper) {
+//  case Data::SeismEvent::TransformOperation::TestMultiplier:
+//    return new ProjectOperation::TestMultiplierSettingDialog();
+//  case Data::SeismEvent::TransformOperation::RotateData:
+//    return new ProjectOperation::RotateDataSettingDialog();
+//  case Data::SeismEvent::TransformOperation::FFilteringData:
+//    return new ProjectOperation::FFilteringDataSettingDialog();
+//  }
 
-SettingDialog *
-Controller::getSettingDialog(SeismEvent::TransformOperation oper) const {
-  switch (oper) {
-  case Data::SeismEvent::TransformOperation::TestMultiplier:
-    return new ProjectOperation::TestMultiplierSettingDialog();
-  case Data::SeismEvent::TransformOperation::RotateData:
-    return new ProjectOperation::RotateDataSettingDialog();
-  case Data::SeismEvent::TransformOperation::FFilteringData:
-    return new ProjectOperation::FFilteringDataSettingDialog();
-  }
-
-  assert(false & "unsupported setting dialog");
-  return nullptr;
-}
-
+//  assert(false & "unsupported setting dialog");
+//  return nullptr;
+//}
 } // namespace Main

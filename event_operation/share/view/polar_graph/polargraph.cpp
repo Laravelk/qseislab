@@ -21,7 +21,6 @@ PolarGraph::PolarGraph(QPolarChart *chart, QWidget *)
 
   const qreal radialMin = 0;
   const qreal radialMax = 180;
-
   _angularAxis->setTickCount(9);
   _angularAxis->setLabelFormat("%.1f");
   _angularAxis->setShadesBrush(QBrush(QColor(249, 249, 250)));
@@ -36,7 +35,6 @@ PolarGraph::PolarGraph(QPolarChart *chart, QWidget *)
   _angularAxis->setRange(angularMin, angularMax);
 
   this->setRenderHint(QPainter::Antialiasing);
-
   _statusRect = new QGraphicsRectItem(WARNING_STATUS_RECT, _polarChart);
   _statusRect->setZValue(11);
   _statusRect->setBrush(Qt::yellow);

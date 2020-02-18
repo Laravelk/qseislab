@@ -99,7 +99,6 @@ void View::settingEventInfo(SeismEvent *const event) const {
 void View::updatePolarGraph(const Data::SeismEvent *const event) {
   _graphicEvent->updatePolarGraph(event);
 }
-
 ChartGesture *View::getChartGesture() { return _graphicEvent->getModel(); }
 
 void View::updateRepetition(const QString &name) {

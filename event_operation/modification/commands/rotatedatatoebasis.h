@@ -6,24 +6,38 @@
 
 #include <memory>
 
-// namespace EventOperation {
-// namespace Modefication {
+namespace Data {
+class SeismReceiver;
+}
+
 class RotateData : public EventOperationUndoCommand {
 public:
   class Parameters {
   public:
-    // TODO:
-    //  как реализовать, куда стоит настройка поварачивать? (enum....)
+    enum Mode { EBASIS, INDEFINITE, RECEIVERS };
+    /*
+     * дефолтное значение INDEFINITE-ориентации = EBASIS-ориентация
+     */
+
     explicit Parameters(); // NOTE: default: to e-basis
 
-    void setMatrixsBasisTo(const std::vector<Eigen::Matrix3f> &);
-    const std::vector<Eigen::Matrix3f> &MatrixsBasisTo() const;
+    void setMode(const Mode);
+    Mode getMode() const;
+
+    void setOrientation(const Eigen::Matrix3f &);
+    const Eigen::Matrix3f &getOrientation() const;
+
+    void setReceivers(const std::list<std::shared_ptr<Data::SeismReceiver>> &);
+    const std::list<std::shared_ptr<Data::SeismReceiver>> &getReceivers() const;
 
   private:
-    std::vector<Eigen::Matrix3f> _matrixsBasisTo;
+    Mode _mode;
+
+    Eigen::Matrix3f _orientation;
+
+    std::list<std::shared_ptr<Data::SeismReceiver>> _receivers;
   };
 
-  // TODO: implement!!
   explicit RotateData(const std::set<Data::SeismEvent *> &, const Parameters &);
 
 protected:
@@ -31,17 +45,12 @@ protected:
   void undoForOne(Data::SeismEvent *) override;
 
 private:
-  //  const std::shared_ptr<Data::SeismReceiver> &
-  //  findReceiver(const std::map<QUuid, std::shared_ptr<Data::SeismWell>> &,
-  //               const QUuid &);
 
-  //  const std::shared_ptr<Data::SeismReceiver> &
-  //  findReceiver(const std::list<std::shared_ptr<Data::SeismReceiver>> &,
-  //               const QUuid &);
+  const std::shared_ptr<Data::SeismReceiver> &
+  findReceiver(const std::list<std::shared_ptr<Data::SeismReceiver>> &,
+               const QUuid &);
 
-  Data::SeismEvent *_event;
+  std::map<QUuid, std::vector<Eigen::Matrix3f>> _rotateOrientationMatrixs;
 
-  std::vector<Eigen::Matrix3f> _originalTransitionMatrixs;
+  std::map<QUuid, std::vector<Eigen::Matrix3f>> _originalTransitionMatrixs;
 };
-//} // namespace Modefication
-//} // namespace EventOperation

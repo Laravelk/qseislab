@@ -251,7 +251,35 @@ void SeismComponent::Info::setStampDateTime(const QDateTime &dateTime) {
 }
 
 float SeismComponent::Info::getSampleInterval() const { return sampleInterval; }
+void SeismComponent::Info::setFormat(int format)
+{
+    _format = format;
+}
 
+int SeismComponent::Info::getFormat() const
+{
+    return _format;
+}
+
+void SeismComponent::Info::setTrace0(long trace0)
+{
+    _trace0 = trace0;
+}
+
+int SeismComponent::Info::getTrace0() const
+{
+    return _trace0;
+}
+
+//void SeismComponent::Info::setTraceBsize(int trace_bsize)
+//{
+//    _trace_bsize = trace_bsize;
+//}
+
+//int SeismComponent::Info::getTraceBsize() const
+//{
+//    return _trace_bsize;
+//}
 void SeismComponent::Info::setSampleInterval(float sampleInterval) {
   this->sampleInterval = sampleInterval;
 }

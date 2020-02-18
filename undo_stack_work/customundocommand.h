@@ -6,6 +6,7 @@ class CustomUndoCommand : public QUndoCommand {
 public:
   enum Type {
     EventOperation,
+    AddSeismObject,
     RemoveSeismObject
   }; // TODO: implement RemoveSeismObject-Type
 
