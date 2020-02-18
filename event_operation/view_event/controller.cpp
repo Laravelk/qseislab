@@ -3,7 +3,11 @@
 #include "data/projectsettings.h"
 #include "data/seismevent.h"
 #include "data/seismwell.h"
+
 #include "event_operation/share/view/3dscene/polarizationanalysiswindow.h"
+#include "event_operation/share/polarizationanalysiscompute.h"
+#include "event_operation/share/view/polar_graph/polargraph.h"
+
 #include "view.h"
 
 #include "event_operation/modification/undocommandgetter.h"
@@ -102,6 +106,16 @@ Controller::Controller(
               _polarizationWindow->setDefault();
             }
           });
+
+  connect(_view, &View::calculatePolarizationAnalysisData, [this]() {
+//      std::cerr << "IN MORE EVENT CONTROLLER" << std::endl;
+    if (_calculatePolarization == nullptr) {
+      _calculatePolarization = new PolarizationAnalysisCompute(
+          _event.get());
+    }
+    _calculatePolarization->calculate();
+    _view->updatePolarGraph(_event.get());
+  });
 }
 
 QWidget *Controller::getView() { return _view; }

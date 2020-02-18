@@ -44,9 +44,9 @@ protected:
 
 private:
   struct PointInfo {
-    PointInfo(int num, Data::SeismWavePick::Type pointType, double pointPolarAngle,
-                 double pointIncidence) : numberOfComponents(num), type(pointType), polarAngle(pointPolarAngle),
-                 incidence(pointIncidence) {}
+    PointInfo(int num, Data::SeismWavePick::Type pointType, double _azimutAngle,
+                 double _polarAngle) : numberOfComponents(num), type(pointType), polarAngle(_polarAngle),
+                 azimutAngle(_azimutAngle) {}
     ~PointInfo() { if (windowWithInfo != nullptr) {
                         delete windowWithInfo;
                         }
@@ -54,7 +54,7 @@ private:
     int numberOfComponents;
     Data::SeismWavePick::Type type;
     double polarAngle;
-    double incidence;
+    double azimutAngle;
     bool isShowing = false;
     AnalysisDataGraphicItem *windowWithInfo = nullptr;
   };

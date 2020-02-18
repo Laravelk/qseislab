@@ -2,6 +2,7 @@
 
 #include "event_operation/share/view/eventtoolswidget.h"
 #include "event_operation/share/view/graphiccontroller.h"
+#include "event_operation/share/view/polar_graph/polargraph.h"
 #include "event_operation/share/view/infoevent.h"
 
 #include <assert.h>
@@ -45,6 +46,10 @@ View::View(const std::set<QString> &eventNames, SeismEvent const *const event,
           [this](auto type, auto num, auto l_val, auto arrival, auto r_val) {
             emit addPick(type, num, l_val, arrival, r_val);
           });
+  connect(_graphicEvent,
+          &EventOperation::GraphicController::
+              calculatePolarizationAnalysisDataClicked,
+          [this]() { emit calculatePolarizationAnalysisData(); });
 
   connect(_graphicEvent,
           &EventOperation::GraphicController::
@@ -89,6 +94,10 @@ void View::updateDataEvent(Data::SeismEvent const *const event) {
 
 void View::settingEventInfo(SeismEvent *const event) const {
   _infoEvent->settingEventInfo(event);
+}
+
+void View::updatePolarGraph(const Data::SeismEvent *const event) {
+  _graphicEvent->updatePolarGraph(event);
 }
 
 ChartGesture *View::getChartGesture() { return _graphicEvent->getModel(); }

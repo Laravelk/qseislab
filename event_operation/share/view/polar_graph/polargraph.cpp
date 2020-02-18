@@ -20,7 +20,7 @@ PolarGraph::PolarGraph(QPolarChart *chart, QWidget *)
   const qreal angularMax = 360;
 
   const qreal radialMin = 0;
-  const qreal radialMax = 3;
+  const qreal radialMax = 180;
 
   _angularAxis->setTickCount(9);
   _angularAxis->setLabelFormat("%.1f");
@@ -68,19 +68,17 @@ void PolarGraph::update(Data::SeismEvent const *const event) {
       if (pick.second.getPolarizationAnalysisData() != std::nullopt) {
         Data::SeismPolarizationAnalysisData data =
             pick.second.getPolarizationAnalysisData().value();
-        double polarAngle = std::fmod(data.getAzimutDegrees(), 360) > 0
-                                ? std::fmod(data.getAzimutDegrees(), 360)
-                                : 360 + std::fmod(data.getAzimutDegrees(), 360);
+        double polarAngle = 180 * sin(data.getIncidenceInRadian())/ (1 - cos(data.getIncidenceInRadian())) / M_PI;
         if (data.isValid()) {
           if (pick.first == Data::SeismWavePick::PWAVE) {
-            validPWaveSeries->append(polarAngle, data.getIncidenceInRadian());
-            _infoAboutPoint.push_back(PointInfo(num, Data::SeismWavePick::PWAVE, polarAngle, data.getIncidenceInRadian()));
+            validPWaveSeries->append(data.getAzimutDegrees(), polarAngle);
+            _infoAboutPoint.push_back(PointInfo(num, Data::SeismWavePick::PWAVE, data.getAzimutDegrees(), polarAngle));
           } else {
-            _infoAboutPoint.push_back(PointInfo(num, Data::SeismWavePick::SWAVE, polarAngle, data.getIncidenceInRadian()));
-            validSWaveSeries->append(polarAngle, data.getIncidenceInRadian());
+            _infoAboutPoint.push_back(PointInfo(num, Data::SeismWavePick::SWAVE, data.getAzimutDegrees(), polarAngle));
+            validSWaveSeries->append(data.getAzimutDegrees(), polarAngle);
           }
         } else {
-          unValidSeries->append(polarAngle, data.getIncidenceInRadian());
+          unValidSeries->append(data.getAzimutDegrees(), polarAngle);
         }
         _dataList.append(pick.second.getPolarizationAnalysisData().value());
       }
@@ -194,24 +192,24 @@ void PolarGraph::handleClickedPoint(const QPointF &point) {
 void PolarGraph::findPolarizationAnalysisDataForClickedPoint(
     const QPointF &point) {
   for (auto &data : _dataList) {
-    qreal dataPolarAngle =
-        static_cast<qreal>(std::fmod(data.getAzimutDegrees(), 360) > 0
-                               ? std::fmod(data.getAzimutDegrees(), 360)
-                               : 360 + std::fmod(data.getAzimutDegrees(), 360));
-    qreal dataIncidenceInRadian =
-        static_cast<qreal>(data.getIncidenceInRadian());
-    if (compareFloat(dataPolarAngle, point.x()) && compareFloat(dataIncidenceInRadian, point.y())) {
+//    qreal dataPolarAngle =s
+//        static_cast<qreal>(std::fmod(data.getAzimutDegrees(), 360) > 0
+//                               ? std::fmod(data.getAzimutDegrees(), 360)
+//                               : 360 + std::fmod(data.getAzimutDegrees(), 360));
+    qreal dataPolarAngle = 180 * sin(data.getIncidenceInRadian())/ (1 - cos(data.getIncidenceInRadian())) / M_PI;
+    qreal dataAzimutAngle =
+        static_cast<qreal>(data.getAzimutDegrees());
+    if (compareFloat(dataPolarAngle, point.y()) && compareFloat(dataAzimutAngle, point.x())) {
       Data::SeismWavePick::Type ownerEventType = Data::SeismWavePick::SWAVE;
       int ownerNumber = 0;
       PointInfo *currentPoint;
       for (auto &pointData : _infoAboutPoint) {
-        if (compareFloat(dataPolarAngle, pointData.polarAngle) && compareFloat(dataIncidenceInRadian, pointData.incidence)) {
+        if (compareFloat(dataPolarAngle, pointData.polarAngle) && compareFloat(dataAzimutAngle, pointData.azimutAngle)) {
             ownerEventType = pointData.type;
             ownerNumber = pointData.numberOfComponents;
             pointData.isShowing = !pointData.isShowing;
             currentPoint = &pointData;
             if (false == pointData.isShowing) {
-                std::cerr << "HHHHH";
                 pointData.windowWithInfo->hide();
                 return;
             }
@@ -225,10 +223,10 @@ void PolarGraph::findPolarizationAnalysisDataForClickedPoint(
     currentPoint->windowWithInfo->setAnchor(point);
     if (ownerEventType == Data::SeismWavePick::PWAVE) {
         currentPoint->windowWithInfo->setText(
-            QString("Polar angle: %1 \nAzimut: %2 \nWaveType: PWAVE \nComponent number: %3").arg(dataPolarAngle).arg(dataIncidenceInRadian).arg(ownerNumber));
+            QString("Polar angle: %1 \nAzimut: %2 \nWaveType: PWAVE \nComponent number: %3").arg(dataPolarAngle).arg(dataAzimutAngle).arg(ownerNumber));
     } else {
         currentPoint->windowWithInfo->setText(
-            QString("Polar angle: %1 \nAzimut: %2 \nWaveType: SWAVE \nComponent number: %3").arg(dataPolarAngle).arg(dataIncidenceInRadian).arg(ownerNumber));
+            QString("Polar angle: %1 \nAzimut: %2 \nWaveType: SWAVE \nComponent number: %3").arg(dataPolarAngle).arg(dataAzimutAngle).arg(ownerNumber));
     }
 
     currentPoint->windowWithInfo->setZValue(11);

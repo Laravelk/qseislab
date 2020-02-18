@@ -6,7 +6,6 @@
 #include <iostream> // TODO: delete
 
 namespace EventOperation {
-
 PolarizationAnalysisCompute::PolarizationAnalysisCompute(Data::SeismEvent * const event)
     : _event(event) {}
 
@@ -16,6 +15,7 @@ void PolarizationAnalysisCompute::calculate() {
   for (auto &component : _event->getComponents()) {
     for (auto &mapsWithPickElement : component->getWavePicks()) {
       Data::SeismWavePick &pick = mapsWithPickElement.second;
+      test_data_for_print_type = pick.getType();
       _oldDataMap[std::make_pair(numberOfComponent, pick.getType())] =
           pick.getPolarizationAnalysisData();
       const int FIRST_NUMBER_OF_ELEMENT_IN_ARRAY = static_cast<const int>(
@@ -34,6 +34,7 @@ void PolarizationAnalysisCompute::calculate() {
               pick.getPolarizationAnalysisData();
     }
     ++numberOfComponent;
+    test_data_for_print_num_of_comp = numberOfComponent;
   }
 }
 
@@ -90,17 +91,24 @@ PolarizationAnalysisCompute::calculatePolarizationData(
 
   QVector3D eigenVector(vectorWithTheBiggestEigenValue[0], vectorWithTheBiggestEigenValue[1], vectorWithTheBiggestEigenValue[2]);
 
+  if (vectorWithTheBiggestEigenValue[2] < 0) {
+//      std::cerr << "EXIST IN POLAR COMPUTE " << std::endl;
+      eigenVector *= -1;
+  }
+
   const double maxSingularValue = static_cast<double>(svd->singularValues()[0]);
   const double pAzimutInRadian =
-      static_cast<double>(std::atan((vectorWithTheBiggestEigenValue[1] * sgn(vectorWithTheBiggestEigenValue[0]))) /
-                          (vectorWithTheBiggestEigenValue[2] * sgn(vectorWithTheBiggestEigenValue[0])));
+      static_cast<double>(std::atan(vectorWithTheBiggestEigenValue[1] * sgn(vectorWithTheBiggestEigenValue[2]) /
+                          (vectorWithTheBiggestEigenValue[0] * sgn(vectorWithTheBiggestEigenValue[2]))));
   const double pIncidenceInRadian =
-      static_cast<double>(std::acos(qAbs(vectorWithTheBiggestEigenValue[0])));
+      static_cast<double>(std::acos(qAbs(vectorWithTheBiggestEigenValue[2])));
 
   const double pAzimutDegrees = pAzimutInRadian * DEGREES_COEFFICIENT / M_PI;
   const double pIncidenceDegrees =
       pIncidenceInRadian * DEGREES_COEFFICIENT / M_PI;
 
+  std::cerr << "Polar: " << pAzimutDegrees << " number " << test_data_for_print_num_of_comp << " Type " << test_data_for_print_type << std::endl;
+  std::cerr << vectorWithTheBiggestEigenValue[0] << " " << vectorWithTheBiggestEigenValue[1] << " " << vectorWithTheBiggestEigenValue[2] <<std::endl << std::endl;
   return Data::SeismPolarizationAnalysisData(
       maxSingularValue, pAzimutInRadian, pIncidenceInRadian, pAzimutDegrees,
       pIncidenceDegrees, eigenVector);

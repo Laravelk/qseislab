@@ -72,6 +72,7 @@ void WavePick::setBorders(std::variant<WavePick *, qreal> left,
                           std::variant<WavePick *, qreal> right) {
   _leftBorder = left;
   _rightBorder = right;
+  updateBorders();
 }
 
 QSizeF WavePick::scallByAxis(QSizeF scaleS) {

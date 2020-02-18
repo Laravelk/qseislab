@@ -112,6 +112,7 @@ Controller::Controller(
   });
 
   connect(_view.get(), &View::calculatePolarizationAnalysisData, [this]() {
+//      std::cerr << "IN MORE EVENT CONTROLLER" << std::endl;
     if (_calculatePolarization == nullptr) {
       _calculatePolarization = new PolarizationAnalysisCompute(
           _events_map.at(_currentEventUuid).get());

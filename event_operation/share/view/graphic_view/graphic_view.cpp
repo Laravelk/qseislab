@@ -71,7 +71,6 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
           });
 
   connect(pick, &WavePick::needDelete, [this, pick, leftBorder, rightBorder]() {
-//      std::cerr << "del pick" << std::endl;
       emit removePick(pick->getType(), pick->getComponentAmount());
   });
   _wavePicks.push_back(leftBorder);

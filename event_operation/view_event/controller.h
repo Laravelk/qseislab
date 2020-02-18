@@ -16,6 +16,7 @@ class ProjectSettings;
 namespace EventOperation {
 class View;
 class PolarizationAnalysisWindow;
+class PolarizationAnalysisCompute;
 namespace ViewEvent {
 class View;
 class Controller : public QObject {
@@ -44,6 +45,8 @@ private:
   std::map<QUuid, QString> _eventNameContainer;
 
   PolarizationAnalysisWindow *_polarizationWindow;
+  PolarizationAnalysisCompute *_calculatePolarization = nullptr;
+
 
   std::shared_ptr<Data::SeismEvent> _event;
 };

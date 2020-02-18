@@ -4,6 +4,7 @@
 #include <Qt3DRender/qcamera.h>
 #include <Qt3DRender/qcameralens.h>
 #include <QtMath>
+#include <iostream>
 
 #include <QtGui/QScreen>
 #include <QtWidgets/QApplication>
@@ -273,8 +274,8 @@ void PolarizationAnalysisWindow::drawCurve(
   float *positions = reinterpret_cast<float *>(bufferBytes.data());
 
   auto bufferX = traceX->getBuffer();
-  auto bufferZ = traceY->getBuffer(); // NOTE: maybe replace back?
-  auto bufferY = traceZ->getBuffer();
+  auto bufferY = traceY->getBuffer();
+  auto bufferZ = traceZ->getBuffer();
 
   for (unsigned long long i = firstPointIndex; i < lastPointIndex; i++) {
     *positions++ = bufferX[i] / maxValue;
@@ -340,9 +341,9 @@ void PolarizationAnalysisWindow::drawTraces(
   Data::SeismWavePick::Type type;
   Data::SeismWavePick pick;
   if (_currentWaveTypeString == P_WAVE_STRING) {
-    type = Data::SeismWavePick::PWAVE;
+     type = Data::SeismWavePick::PWAVE;
   } else {
-    type = Data::SeismWavePick::SWAVE;
+     type = Data::SeismWavePick::SWAVE;
   }
   for (auto &type_pick : component->getWavePicks()) {
     if (type == type_pick.first) {
@@ -351,32 +352,31 @@ void PolarizationAnalysisWindow::drawTraces(
   }
 
   // compute eigen line by eigen vector
-  if (pick.getPolarizationAnalysisData() != std::nullopt) {
-    Data::SeismPolarizationAnalysisData data =
-        pick.getPolarizationAnalysisData().value();
-    QVector3D eigenVector = data.getEigenVector();
-    float cx1 = -2;
-    float cy1 = -2;
-    float cz1 = -2;
-    float cx2 = 2;
-    float cy2 = 2;
-    float cz2 = 2;
+   if (pick.getPolarizationAnalysisData() != std::nullopt) {
+     Data::SeismPolarizationAnalysisData data = pick.getPolarizationAnalysisData().value();
+     QVector3D eigenVector = data.getEigenVector();
+     float cx1 = -2;
+     float cy1 = -2;
+     float cz1 = -2;
+     float cx2 = 2;
+     float cy2 = 2;
+     float cz2 = 2;
 
-    QVector3D point1(eigenVector.x() * cx1, eigenVector.y() * cy1,
-                     eigenVector.z() * cz1);
-    QVector3D point2(eigenVector.x() * cx2, eigenVector.y() * cy2,
-                     eigenVector.z() * cz2);
+     QVector3D point1(eigenVector.x() * cx1, eigenVector.z() * cy1, eigenVector.y() * cz1);
+     QVector3D point2(eigenVector.x() * cx2, eigenVector.z() * cy2, eigenVector.y() * cz2);
 
-    _eigenVectorLine = drawLine(point1, point2, Qt::blue, _scene);
-  }
-  // end compute
+     std::cerr << "Eigen Vector: " << eigenVector.x() << " " << eigenVector.y() << " " << eigenVector.z() << std::endl;
+
+     _eigenVectorLine = drawLine(point1, point2, Qt::blue, _scene);
+   }
+ // end compute
   firstElement = static_cast<int>(pick.getPolarizationLeftBorder() /
                                   component->getInfo().getSampleInterval());
   lastElement = static_cast<int>(pick.getPolarizationRightBorder() /
                                  component->getInfo().getSampleInterval());
 
-  drawCurve(component->getTraces().at(0), component->getTraces().at(1),
-            component->getTraces().at(2), Qt::black, _scene, firstElement,
+  drawCurve(component->getTraces().at(0), component->getTraces().at(2),
+            component->getTraces().at(1), Qt::black, _scene, firstElement,
             lastElement, maxValue);
 }
 
@@ -408,26 +408,30 @@ void PolarizationAnalysisWindow::update() {
 void PolarizationAnalysisWindow::changeWaveBox() {
   QList<QString> waveTypeList;
   int itemCount = _waveTypeBox->count();
-  _waveTypeBox->setCurrentIndex(0);
   for (int i = 0; i < itemCount; i++) {
     _waveTypeBox->removeItem(1);
   }
   if (DEFAULT_RECEIVER_STRING != _currentReceiverNumberString) {
-    auto &component =
-        _event->getComponents()[_currentReceiverNumberString.toInt()];
-    for (auto &pick : component->getWavePicks()) {
-      if (Data::SeismWavePick::PWAVE == pick.first) {
-        waveTypeList.append(P_WAVE_STRING);
+    int index = 0;
+    for (auto &component : _event->getComponents()) {
+      if (index == _currentReceiverNumberString.toInt()) {
+        for (auto &pick : component->getWavePicks()) {
+          if (Data::SeismWavePick::PWAVE == pick.first) {
+            waveTypeList.append(P_WAVE_STRING);
+          }
+          if (Data::SeismWavePick::SWAVE == pick.first) {
+            waveTypeList.append(S_WAVE_STRING);
+          }
+        }
       }
-      if (Data::SeismWavePick::SWAVE == pick.first) {
-        waveTypeList.append(S_WAVE_STRING);
-      }
+      index++;
     }
   } else {
     waveTypeList.append(P_WAVE_STRING);
     waveTypeList.append(S_WAVE_STRING);
   }
   _waveTypeBox->addItems(waveTypeList);
+  _waveTypeBox->setCurrentIndex(0);
   _currentWaveTypeString = DEFAULT_WAVE_STRING;
 }
 
@@ -476,11 +480,11 @@ void PolarizationAnalysisWindow::clearScene() {
     curve = nullptr;
   }
   if (_eigenVectorLine != nullptr) {
-    for (auto &component : _eigenVectorLine->components()) {
-      _eigenVectorLine->removeComponent(component);
-    }
-    delete _eigenVectorLine;
-    _eigenVectorLine = nullptr;
+      for (auto &component : _eigenVectorLine->components()) {
+          _eigenVectorLine->removeComponent(component);
+      }
+      delete _eigenVectorLine;
+      _eigenVectorLine = nullptr;
   }
 };
 
