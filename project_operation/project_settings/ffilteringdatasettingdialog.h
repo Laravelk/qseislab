@@ -14,6 +14,9 @@ public:
 
   void setSettings(Data::ProjectSettings *const) override;
 
+private slots:
+  void inputChange();
+
 private:
   QLineEdit *_f1Edit;
   QLineEdit *_f2Edit;

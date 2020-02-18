@@ -3,8 +3,6 @@
 #include "seism_data_type.h"
 #include "seismcomponent.h"
 
-//#include "event_operation/modification/commands/rotatedatatoebasis.h"
-
 #include <QDateTime>
 #include <QDir>
 #include <QJsonObject>
@@ -46,7 +44,14 @@ public:
 
   static const QString _default_path;
 
-  enum TransformOperation { RotateData, TestMultiplier, MovePick, RemovePick, AddPick, FFilteringData };
+  enum TransformOperation {
+    RotateData,
+    TestMultiplier,
+    MovePick,
+    RemovePick,
+    AddPick,
+    FFilteringData
+  };
 
   explicit SeismEvent();
   explicit SeismEvent(
@@ -81,7 +86,7 @@ public:
   const std::vector<SeismComponent const *> getComponents() const;
   const std::vector<SeismComponent *> getComponents();
 
-  bool isTransformBy(TransformOperation) const;
+  //    bool isTransformBy(TransformOperation) const;
 
   void process();
   bool isProcessed() const;
@@ -104,10 +109,10 @@ private:
 
   std::vector<std::shared_ptr<SeismComponent>> _components;
 
-  std::set<TransformOperation>
-      _appliedOperations; // NOTE: уместно ли использовать set?
-  void addTransformOperation(TransformOperation);
-  void removeTransformOperation(TransformOperation);
+  //  std::set<TransformOperation>
+  //      _appliedOperations; // NOTE: уместно ли использовать set?
+  //  void addTransformOperation(TransformOperation);
+  //  void removeTransformOperation(TransformOperation);
 
   //  friend class EventOperation::Modefication::RotateDataToEBasis;
 };

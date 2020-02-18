@@ -16,20 +16,20 @@ ProjectSettings::getTestMultParameters() const {
   return _testMultParameters;
 }
 
-void ProjectSettings::setNewTestMultParameters(
-    const NewTestIndividualCommand::Parameters &newTestParameters) {
-  _newTestMultParameters = newTestParameters;
-}
+// void ProjectSettings::setNewTestMultParameters(
+//    const NewTestIndividualCommand::Parameters &newTestParameters) {
+//  _newTestMultParameters = newTestParameters;
+//}
 
-NewTestIndividualCommand::Parameters &
-ProjectSettings::getNewTestMultParameters() {
-  return _newTestMultParameters;
-}
+// NewTestIndividualCommand::Parameters &
+// ProjectSettings::getNewTestMultParameters() {
+//  return _newTestMultParameters;
+//}
 
-const NewTestIndividualCommand::Parameters &
-ProjectSettings::getNewTestMultParameters() const {
-  return _newTestMultParameters;
-}
+// const NewTestIndividualCommand::Parameters &
+// ProjectSettings::getNewTestMultParameters() const {
+//  return _newTestMultParameters;
+//}
 
 void ProjectSettings::setRotateDataParameters(
     const RotateData::Parameters &rotateDataParameters) {

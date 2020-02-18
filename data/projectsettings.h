@@ -7,8 +7,6 @@
 #include "event_operation/modification/commands/rotatedatatoebasis.h"
 #include "event_operation/modification/commands/testindividualcommand.h"
 
-#include "event_operation/modification/commands/newtestindividualcommand.h"
-
 namespace Data {
 class ProjectSettings {
 public:
@@ -18,9 +16,10 @@ public:
   TestIndividualCommand::Parameters &getTestMultParameters();
   const TestIndividualCommand::Parameters &getTestMultParameters() const;
 
-  void setNewTestMultParameters(const NewTestIndividualCommand::Parameters &);
-  NewTestIndividualCommand::Parameters &getNewTestMultParameters();
-  const NewTestIndividualCommand::Parameters &getNewTestMultParameters() const;
+  //  void setNewTestMultParameters(const NewTestIndividualCommand::Parameters
+  //  &); NewTestIndividualCommand::Parameters &getNewTestMultParameters();
+  //  const NewTestIndividualCommand::Parameters &getNewTestMultParameters()
+  //  const;
 
   void setRotateDataParameters(const RotateData::Parameters &);
   RotateData::Parameters &getRotateDataParameters();
@@ -46,7 +45,7 @@ public:
 private:
   TestIndividualCommand::Parameters _testMultParameters;
 
-  NewTestIndividualCommand::Parameters _newTestMultParameters;
+  //  NewTestIndividualCommand::Parameters _newTestMultParameters;
 
   RotateData::Parameters _rotateDataParameters;
 

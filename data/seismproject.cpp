@@ -10,23 +10,23 @@ namespace Data {
 SeismProject::SeismProject(QObject *parent)
     : QObject(parent), _settings(std::make_shared<ProjectSettings>()) {
   // NOTE: hard-code insert events
-  //  for (int i = 0; i < 4; ++i) {
-  //    std::unique_ptr<SeismEvent> event = std::make_unique<SeismEvent>();
+  //    for (int i = 0; i < 4; ++i) {
+  //      std::unique_ptr<SeismEvent> event = std::make_unique<SeismEvent>();
 
-  //    event->setDateTime(
-  //        QDateTime::currentDateTime().addDays(i).addSecs(120 * i));
-  //    event->setType(i);
+  //      event->setDateTime(
+  //          QDateTime::currentDateTime().addDays(i).addSecs(120 * i));
+  //      event->setType(i);
 
-  //    _events_map[event->getUuid()] = std::move(event);
-  //  }
-  //   end...
+  //      _events_map[event->getUuid()] = std::move(event);
+  //    }
+  //     end...
 
   //   NOTE: hard-code insert wells
   std::shared_ptr<SeismWell> well = std::make_shared<SeismWell>();
   well->setName("Mon_TOOLS_233");
   well->addPoint(Point(0, 0, 0));
   auto uuid = well->getUuid();
-  for (int j = 0; j < 8; ++j) {
+  for (int j = 0; j < 4; ++j) {
     auto receiver = std::make_shared<Data::SeismReceiver>(well.get());
     for (int i = 0; i < 3; ++i) {
       receiver->addChannel(std::make_shared<Data::SeismChannelReceiver>());
@@ -426,7 +426,125 @@ void SeismProject::setAllMap<SeismHorizon>(
     emit addedHorizon(uuid_horizon.second);
   }
 }
+
+template <>
+void SeismProject::updateMap<SeismHorizon>(
+    std::map<QUuid, std::shared_ptr<SeismHorizon>> &horizons_map) {
+
+  //    for(auto& uuid_horizon : _horizons_map) {
+  //        if(horizons_map.find)
+  //    }
+
+  //    for (auto &uuid_horizon : _horizons_map) {
+  //        emit removedHorizon(uuid_horizon.first);
+  //    }
+
+  //    _horizons_map = horizons_map;
+
+  //    for (auto &uuid_horizon : _horizons_map) {
+  //        emit addedHorizon(uuid_horizon.second);
+  //    }
+}
 // end of Horizon template`s
+
+// Receiver template`s
+template <>
+void SeismProject::add<SeismReceiver>(
+    const std::shared_ptr<SeismReceiver> &receiver) {
+  _isSaved = false;
+
+  //  auto &uuid = receiver->getUuid();
+  //  _receivers_map[uuid] = receiver;
+  _receivers.push_back(receiver);
+
+  _settings->getRotateDataParameters().setReceivers(_receivers);
+
+  emit addedReceiver(receiver);
+
+  //    connect(event.get(), &SeismEvent::infoChanged,
+  //            [this, &event] { emit updatedEvent(event); });
+  //    connect(event.get(), &SeismEvent::dataChanged,
+  //            [this, &event] { emit updatedEvent(event); });
+
+  //    auto &uuid = event->getUuid();
+  //    _events_map[uuid] = event;
+
+  //    // TODO: сделать коннект с ивентов, чтоюы при любом его апдейте мы знали
+  //    и
+  //    // говорили остальным
+
+  //    emit addedEvent(_events_map[uuid]);
+}
+
+template <> bool SeismProject::remove<SeismReceiver>(const QUuid &uuid) {
+  for (auto itr = _receivers.begin(); itr != _receivers.end(); ++itr) {
+    if (uuid == (*itr)->getUuid()) {
+      _receivers.erase(itr);
+      emit removedReceiver(uuid);
+      return true;
+    }
+  }
+
+  //  _settings->getRotateDataParameters().setReceivers(
+  //      _receivers); // TODO: переделать!!!
+
+  //  if (_receivers_map.erase(uuid)) {
+  //    _isSaved = false;
+  //    emit removedReceiver(uuid);
+  //    return true;
+  //  }
+  return false;
+}
+
+// template <>
+// void SeismProject::update<SeismEvent>(std::unique_ptr<SeismEvent> event) {
+//  _isSaved = false;
+//  auto uuid = event->getUuid();
+//  _events_map[uuid] = std::move(event);
+
+//  emit updatedEvent(_events_map[uuid]);
+//}
+
+template <> int SeismProject::getAmount<SeismReceiver>() const {
+  //  return static_cast<int>(_receivers_map.size());
+  return static_cast<int>(_receivers.size());
+}
+
+// template <>
+// const std::shared_ptr<SeismReceiver> &
+// SeismProject::get<SeismReceiver>(const QUuid &uuid) const {
+//  return _receivers_map.at(uuid);
+//}
+
+// template <>
+// const std::map<QUuid, std::shared_ptr<SeismReceiver>> &
+// SeismProject::getAllMap<SeismReceiver>() const {
+//  return _receivers_map;
+//}
+
+template <>
+const std::list<std::shared_ptr<SeismReceiver>> &
+SeismProject::getAll<SeismReceiver>() const {
+  return _receivers;
+}
+
+template <>
+void SeismProject::setAll<SeismReceiver>(
+    const std::list<std::shared_ptr<SeismReceiver>> &receivers) {
+  //  return _receivers;
+  for (auto &receiver : _receivers) {
+    emit removedReceiver(receiver->getUuid());
+  }
+  _receivers = receivers;
+
+  for (auto &receiver : _receivers) {
+    emit addedReceiver(receiver);
+  }
+
+  _settings->getRotateDataParameters().setReceivers(_receivers);
+}
+
+// end of Receiver template`s
 
 // Well template`s
 template <>
@@ -453,17 +571,21 @@ template <> bool SeismProject::remove<SeismWell>(const QUuid &uuid) {
     }
   }
 
-  // NOTE: bad way!
   for (auto &removing_uuid : uuids_receiver_removing) {
-    for (auto itr = _receivers.begin(); itr != _receivers.end(); ++itr) {
-      if ((*itr)->getUuid() == removing_uuid) {
-        _receivers.erase(itr);
-        break;
-      }
-    }
-    //    _receivers_map.erase(removing_uuid);
-    emit removedReceiver(removing_uuid);
+    remove<SeismReceiver>(removing_uuid);
   }
+
+  // NOTE: bad way!
+  //  for (auto &removing_uuid : uuids_receiver_removing) {
+  //    for (auto itr = _receivers.begin(); itr != _receivers.end(); ++itr) {
+  //      if ((*itr)->getUuid() == removing_uuid) {
+  //        _receivers.erase(itr);
+  //        break;
+  //      }
+  //    }
+  //    //    _receivers_map.erase(removing_uuid);
+  //    emit removedReceiver(removing_uuid);
+  //  }
 
   if (_wells_map.erase(uuid)) {
     _isSaved = false;
@@ -538,97 +660,5 @@ void SeismProject::setAllMap<SeismWell>(
   //  }
 }
 // end of Well template`s
-
-// Receiver template`s
-template <>
-void SeismProject::add<SeismReceiver>(
-    const std::shared_ptr<SeismReceiver> &receiver) {
-  _isSaved = false;
-
-  //  auto &uuid = receiver->getUuid();
-  //  _receivers_map[uuid] = receiver;
-  _receivers.push_back(receiver);
-
-  emit addedReceiver(receiver);
-
-  //    connect(event.get(), &SeismEvent::infoChanged,
-  //            [this, &event] { emit updatedEvent(event); });
-  //    connect(event.get(), &SeismEvent::dataChanged,
-  //            [this, &event] { emit updatedEvent(event); });
-
-  //    auto &uuid = event->getUuid();
-  //    _events_map[uuid] = event;
-
-  //    // TODO: сделать коннект с ивентов, чтоюы при любом его апдейте мы знали
-  //    и
-  //    // говорили остальным
-
-  //    emit addedEvent(_events_map[uuid]);
-}
-
-template <> bool SeismProject::remove<SeismReceiver>(const QUuid &uuid) {
-  for (auto itr = _receivers.begin(); itr != _receivers.end(); ++itr) {
-    if (uuid == (*itr)->getUuid()) {
-      _receivers.erase(itr);
-      emit removedReceiver(uuid);
-      return true;
-    }
-  }
-
-  //  if (_receivers_map.erase(uuid)) {
-  //    _isSaved = false;
-  //    emit removedReceiver(uuid);
-  //    return true;
-  //  }
-  return false;
-}
-
-// template <>
-// void SeismProject::update<SeismEvent>(std::unique_ptr<SeismEvent> event) {
-//  _isSaved = false;
-//  auto uuid = event->getUuid();
-//  _events_map[uuid] = std::move(event);
-
-//  emit updatedEvent(_events_map[uuid]);
-//}
-
-template <> int SeismProject::getAmount<SeismReceiver>() const {
-  //  return static_cast<int>(_receivers_map.size());
-  return static_cast<int>(_receivers.size());
-}
-
-// template <>
-// const std::shared_ptr<SeismReceiver> &
-// SeismProject::get<SeismReceiver>(const QUuid &uuid) const {
-//  return _receivers_map.at(uuid);
-//}
-
-// template <>
-// const std::map<QUuid, std::shared_ptr<SeismReceiver>> &
-// SeismProject::getAllMap<SeismReceiver>() const {
-//  return _receivers_map;
-//}
-
-template <>
-const std::list<std::shared_ptr<SeismReceiver>> &
-SeismProject::getAll<SeismReceiver>() const {
-  return _receivers;
-}
-
-template <>
-void SeismProject::setAll<SeismReceiver>(
-    const std::list<std::shared_ptr<SeismReceiver>> &receivers) {
-  //  return _receivers;
-  for (auto &receiver : _receivers) {
-    emit removedReceiver(receiver->getUuid());
-  }
-  _receivers = receivers;
-
-  for (auto &receiver : _receivers) {
-    emit addedReceiver(receiver);
-  }
-}
-
-// end of Receiver template`s
 
 } // namespace Data

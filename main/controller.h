@@ -7,6 +7,7 @@
 #include "event_operation/more_events/controller.h"
 #include "event_operation/one_event/controller.h"
 #include "event_operation/view_event/controller.h"
+#include "event_operation/save_event/controller.h"
 
 #include "horizon_operation/controller.h"
 
@@ -46,6 +47,7 @@ private slots:
   void handleAddEventsClicked();
   void handleAddEventClicked();
   void handleViewEventClicked(const QUuid &);
+  void handleSaveEventsClicked(const std::set<QUuid>&);
 
   void handleHorizonsClicked();
 
@@ -61,20 +63,17 @@ private slots:
   void deleteCloseProjectController(bool);
 
 private:
-  ProjectOperation::SettingDialog *
-      getSettingDialog(Data::SeismEvent::TransformOperation) const;
+  //  ProjectOperation::SettingDialog *
+  //      getSettingDialog(Data::SeismEvent::TransformOperation) const;
 
   std::shared_ptr<Data::SeismProject> _project;
+
+  QUuid _currentOneEventFocus;
+  std::shared_ptr<QUndoStack> _undoStack;
 
   std::map<Data::SeismEvent::TransformOperation,
            std::unique_ptr<ProjectOperation::SettingDialog>>
       _projectSettingViews;
-
-  QUuid _currentOneEventFocus;
-  //  std::map<QUuid, std::shared_ptr<CustomIndividualUndoStack>> _eventStacks;
-  //  std::shared_ptr<QUndoStack> _shareEventStack;
-
-  std::shared_ptr<QUndoStack> _undoStack;
 
   std::unique_ptr<View> _mainWindow;
 
@@ -84,6 +83,8 @@ private:
       _oneViewEventControllers;
 
   std::unique_ptr<EventOperation::MoreEvents::Controller> _moreEventsController;
+
+  std::unique_ptr<EventOperation::SaveEvent::Controller> _saveEventController;
 
   std::unique_ptr<HorizonOperation::Controller> _horizonController;
 

@@ -49,14 +49,20 @@ Controller::Controller(
     emit eventActionClicked(_event->getUuid(), oper);
   });
 
-  connect(_view, &View::infoChanged,
-          [this] { _view->settingEventInfo(_event.get()); });
+  //  connect(_view, &View::infoChanged,
+  //          [this] { _view->settingEventInfo(_event.get()); });
 
-  connect(_event.get(), &Data::SeismEvent::infoChanged,
-          [this](auto event) { _view->updateInfoEvent(event); });
+  //  connect(_event.get(), &Data::SeismEvent::infoChanged,
+  //          [this](auto event) { _view->updateInfoEvent(event); });
 
-  connect(_event.get(), &Data::SeismEvent::dataChanged,
-          [this](auto event) { _view->updateDataEvent(event); });
+  //  connect(_event.get(), &Data::SeismEvent::dataChanged,
+  //          [this](auto event) { _view->updateDataEvent(event); });
+
+  connect(_view, &View::infoChanged, this, &Controller::f1);
+
+  connect(_event.get(), &Data::SeismEvent::infoChanged, this, &Controller::f2);
+
+  connect(_event.get(), &Data::SeismEvent::dataChanged, this, &Controller::f3);
 
   connect(_view, &View::createPolarizationAnalysisWindow, [this]() {
     _polarizationWindow = new PolarizationAnalysisWindow(_event);
@@ -119,6 +125,24 @@ Controller::Controller(
 }
 
 QWidget *Controller::getView() { return _view; }
+
+void Controller::f1() { _view->settingEventInfo(_event.get()); }
+
+void Controller::f2(const Data::SeismEvent *const event) {
+  _view->updateInfoEvent(event);
+}
+
+void Controller::f3(const Data::SeismEvent *const event) {
+  _view->updateDataEvent(event);
+}
+
+Controller::~Controller() {
+  disconnect(_view, &View::infoChanged, this, &Controller::f1);
+  disconnect(_event.get(), &Data::SeismEvent::infoChanged, this,
+             &Controller::f2);
+  disconnect(_event.get(), &Data::SeismEvent::dataChanged, this,
+             &Controller::f3);
+}
 
 } // namespace ViewEvent
 } // namespace EventOperation

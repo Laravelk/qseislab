@@ -2,10 +2,8 @@
 
 #include "data/seismcomponent.h"
 
-// namespace EventOperation {
-// namespace Modefication {
 bool rotateDataWithTransitionMatrix(Data::SeismComponent *const component,
-                                    const Eigen::MatrixXf &transitionMatrix) {
+                                    const Eigen::Matrix3f &transitionMatrix) {
   const int size = component->getTracesAmount();
   if (size != transitionMatrix.cols() && size != transitionMatrix.rows()) {
     return false;
@@ -23,16 +21,18 @@ bool rotateDataWithTransitionMatrix(Data::SeismComponent *const component,
 
   auto e_data = transitionMatrix * b_data;
   row = 0;
+
   for (auto &trace : component->getTraces()) {
     float *buffer = trace->getBuffer();
     for (int col = 0; col < trace->getBufferSize(); ++col) {
       buffer[col] = e_data(row, col);
     }
+    Data::Point orientation(transitionMatrix(row, 0), transitionMatrix(row, 1),
+                            transitionMatrix(row, 2));
+    trace->setOrientation(orientation);
+
     ++row;
   }
 
   return true;
 }
-
-//} // namespace Modefication
-//} // namespace EventOperation

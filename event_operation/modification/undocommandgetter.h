@@ -5,6 +5,7 @@
 namespace Data {
 class ProjectSettings;
 }
+
 class EventOperationUndoCommand;
 
 namespace UndoCommandGetter {
@@ -15,5 +16,4 @@ EventOperationUndoCommand *get(Data::SeismEvent::TransformOperation oper,
 EventOperationUndoCommand *get(Data::SeismEvent::TransformOperation oper,
                                Data::SeismEvent *event,
                                Data::ProjectSettings const *const settings);
-
 } // namespace UndoCommandGetter
