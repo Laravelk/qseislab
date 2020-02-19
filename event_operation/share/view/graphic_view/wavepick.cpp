@@ -94,7 +94,7 @@ QRectF WavePick::boundingRect() const {
 }
 
 void WavePick::mousePressEvent(QGraphicsSceneMouseEvent *event) {
-  if (event->buttons() == Qt::RightButton && _isEditable) {
+  if (event->buttons() == Qt::RightButton && (Qt::AltModifier == QGuiApplication::keyboardModifiers())) {
     emit needDelete();
   }
   updateBorders();
@@ -102,7 +102,8 @@ void WavePick::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 }
 
 void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
-  if (event->buttons() && _isEditable & Qt::LeftButton) {
+  if (event->buttons() && (Qt::AltModifier == QGuiApplication::keyboardModifiers()) & Qt::LeftButton) {
+    _wasChanged = true;
     QPointF newPosition =
         QPointF(_chart
                     ->mapToValue(mapToParent(event->pos()) -
@@ -114,6 +115,7 @@ void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
       setPos(QPointF(
           mapToParent(event->pos() - event->buttonDownPos(Qt::LeftButton)).x(),
           pos().y()));
+      _anchor = QPointF(newPosition.x(), _anchor.y());
     }
     event->setAccepted(true);
   } else {
@@ -122,25 +124,15 @@ void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
 }
 
 void WavePick::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
-  if (_isEditable) {
-    qreal newX =
-        QPointF(_chart->mapToValue(mapToParent(event->pos()) -
-                                   event->buttonDownPos(Qt::LeftButton)))
-            .x();
-    _anchor = QPointF(newX, _anchor.y());
-    emit changed();
-  }
+    if (_wasChanged) {
+        _wasChanged = false;
+        emit changed();
+    }
 }
 
 void WavePick::mouseDoubleClickEvent(
     QGraphicsSceneMouseEvent *event) // second variant delete pick
 {
-//    std::cerr << _isEditable;
-
-//  if (_isEditable) {
-//    emit needDelete();
-//    return;
-//  }
   qreal newX = QPointF(_chart->mapToValue(mapToParent(event->pos()) -
                                           event->buttonDownPos(Qt::LeftButton)))
                    .x();

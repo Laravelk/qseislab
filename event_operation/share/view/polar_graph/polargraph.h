@@ -37,8 +37,10 @@ public:
   void hidePWavePoints(bool);
 
 protected:
-  void keyPressEvent(QKeyEvent *) override;
   void mousePressEvent(QMouseEvent *) override;
+  void mouseMoveEvent(QMouseEvent *) override;
+  void mouseReleaseEvent(QMouseEvent *) override;
+  void keyPressEvent(QKeyEvent *) override;
   void keyReleaseEvent(QKeyEvent *) override;
 
 private:
@@ -70,7 +72,7 @@ private:
   AnalysisDataGraphicItem *_dataItem = nullptr;
   bool _hideSWave = false;
   bool _hidePWave = false;
-  bool _altIsTouch = false;
+  bool _isZoomed = false;
 
   const QString WARNING_STATUS = "WARNING. DATA WAS CHANGE";
   const QString ALT_IS_TOUCHING_STATUS = "EDIT MODE";

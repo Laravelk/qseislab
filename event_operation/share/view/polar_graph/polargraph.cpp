@@ -21,15 +21,19 @@ PolarGraph::PolarGraph(QPolarChart *chart, QWidget *)
 
   const qreal radialMin = 0;
   const qreal radialMax = 180;
+
   _angularAxis->setTickCount(9);
   _angularAxis->setLabelFormat("%.1f");
   _angularAxis->setShadesBrush(QBrush(QColor(249, 249, 250)));
+//  _angularAxis->setReverse(true);
+//  _radialAxis->setReverse(true);
   _polarChart->addAxis(_angularAxis, QPolarChart::PolarOrientationAngular);
   _polarChart->legend()->hide();
 
   _radialAxis->setTickCount(9);
   _radialAxis->setLabelFormat("%.1f");
   _polarChart->addAxis(_radialAxis, QPolarChart::PolarOrientationRadial);
+  _polarChart->setTitle("FFFFF");
 
   _radialAxis->setRange(radialMin, radialMax);
   _angularAxis->setRange(angularMin, angularMax);
@@ -138,9 +142,16 @@ void PolarGraph::hidePWavePoints(bool hide) { _hidePWave = hide; }
 void PolarGraph::keyPressEvent(QKeyEvent *event) {
   switch (event->key()) {
   case Qt::Key_Alt: {
-    _altIsTouch = true;
-    //      _status->setPlainText(ALT_IS_TOUCHING_STATUS);
     break;
+  }
+  case Qt::Key_1: {
+       for (auto &info : _infoAboutPoint) {
+         info.isShowing = false;
+         if (info.windowWithInfo != nullptr) {
+            info.windowWithInfo->hide();
+         }
+       }
+       break;
   }
   default:
     QGraphicsView::keyPressEvent(event);
@@ -149,18 +160,29 @@ void PolarGraph::keyPressEvent(QKeyEvent *event) {
 }
 
 void PolarGraph::mousePressEvent(QMouseEvent *event) {
-  if (_dataItem != nullptr) {
-    _dataItem->hide();
-  }
   QChartView::mousePressEvent(event);
+}
+
+void PolarGraph::mouseMoveEvent(QMouseEvent *event)
+{
+ QChartView::mouseMoveEvent(event);
+}
+
+void PolarGraph::mouseReleaseEvent(QMouseEvent *event)
+{
+    QChartView::mouseReleaseEvent(event);
 }
 
 void PolarGraph::keyReleaseEvent(QKeyEvent *event) {
   switch (event->key()) {
   case Qt::Key_Alt:
-    _altIsTouch = false;
-    //      _status->setPlainText(NORMAL_STATUS);
     break;
+ case Qt::Key_Plus:
+      _polarChart->zoomIn();
+      break;
+ case Qt::Key_Minus:
+      _polarChart->zoomOut();
+      break;
   default:
     QChartView::keyReleaseEvent(event);
     break;
@@ -190,10 +212,6 @@ void PolarGraph::handleClickedPoint(const QPointF &point) {
 void PolarGraph::findPolarizationAnalysisDataForClickedPoint(
     const QPointF &point) {
   for (auto &data : _dataList) {
-//    qreal dataPolarAngle =s
-//        static_cast<qreal>(std::fmod(data.getAzimutDegrees(), 360) > 0
-//                               ? std::fmod(data.getAzimutDegrees(), 360)
-//                               : 360 + std::fmod(data.getAzimutDegrees(), 360));
     qreal dataPolarAngle = 180 * sin(data.getIncidenceInRadian())/ (1 - cos(data.getIncidenceInRadian())) / M_PI;
     qreal dataAzimutAngle =
         static_cast<qreal>(data.getAzimutDegrees());
@@ -221,10 +239,12 @@ void PolarGraph::findPolarizationAnalysisDataForClickedPoint(
     currentPoint->windowWithInfo->setAnchor(point);
     if (ownerEventType == Data::SeismWavePick::PWAVE) {
         currentPoint->windowWithInfo->setText(
-            QString("Polar angle: %1 \nAzimut: %2 \nWaveType: PWAVE \nComponent number: %3").arg(dataPolarAngle).arg(dataAzimutAngle).arg(ownerNumber));
+            QString("Polar angle: %1 \nAzimut: %2 \nWaveType: PWAVE \nReceiver number: %3").arg(dataPolarAngle).arg(dataAzimutAngle).
+                    arg(ownerNumber));
     } else {
         currentPoint->windowWithInfo->setText(
-            QString("Polar angle: %1 \nAzimut: %2 \nWaveType: SWAVE \nComponent number: %3").arg(dataPolarAngle).arg(dataAzimutAngle).arg(ownerNumber));
+            QString("Polar angle: %1 \nAzimut: %2 \nWaveType: SWAVE \nReceiver number: %3").arg(dataPolarAngle).arg(dataAzimutAngle).
+                    arg(ownerNumber));
     }
 
     currentPoint->windowWithInfo->setZValue(11);

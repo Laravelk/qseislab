@@ -123,7 +123,6 @@ Controller::Controller(
           });
 
   connect(_view, &View::calculatePolarizationAnalysisData, [this]() {
-//      std::cerr << "IN MORE EVENT CONTROLLER" << std::endl;
     if (_calculatePolarization == nullptr) {
       _calculatePolarization = new PolarizationAnalysisCompute(
           _event.get());
@@ -131,6 +130,26 @@ Controller::Controller(
     _calculatePolarization->calculate();
     _view->updatePolarGraph(_event.get());
   });
+
+  connect(_view, &View::clickOnPolarAnalysisInGraph, [this]() {
+    if (!checkPolarizationAnalysisDataValid() ||
+        _removePick) {
+      _view
+          ->showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
+    }
+  });
+}
+
+bool Controller::checkPolarizationAnalysisDataValid() {
+  for (auto &component :
+      _event.get()->getComponents()) {
+    for (auto &pick : component->getWavePicks()) {
+      if (!pick.second.getValidDataStatus()) {
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 QWidget *Controller::getView() { return _view; }

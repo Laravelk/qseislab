@@ -11,7 +11,7 @@ GraphicView::GraphicView(QChart *chart, QWidget *parent)
     : QChartView(chart, parent), _zoomIsTouching(false),
       _colorData(new ColorData) {
   setFrameStyle(1);
-  chart->setAnimationOptions(QChart::NoAnimation);
+  chart->setAnimationOptions(QChart::AllAnimations);
   chart->setMargins(QMargins(0, 0, 0, 0));
   setDragMode(QGraphicsView::NoDrag);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -22,7 +22,7 @@ GraphicView::GraphicView(QChart *chart, QWidget *parent)
   rect->setZValue(10);
 //  rect->hide();
   _status = new QGraphicsTextItem(OVERVIEW_MODE_STRING, this->chart());
-  _status->setPos(QPointF(20, 450));
+  _status->setPos(QPointF(25, 450));
   _status->show();
   this->chart()->zoomReset();
 }
@@ -280,10 +280,6 @@ void GraphicView::keyPressEvent(QKeyEvent *event) {
     scrollContentsBy(0, -10);
     break;
   case Qt::Key_Alt: {
-//      std::cerr << _wavePicks.size() << std::endl;
-      for (auto &pick : _wavePicks) {
-        pick->setEditable(true);
-      }
     _editMode = true;
     _status->setPlainText(EDIT_MODE_STRING);
     break;
@@ -299,9 +295,6 @@ void GraphicView::keyReleaseEvent(QKeyEvent *event) {
   case Qt::Key_Alt:
     _editMode = false;
     _status->setPlainText(OVERVIEW_MODE_STRING);
-    for (auto &pick : _wavePicks) {
-      pick->setEditable(false);
-    }
     break;
   default:
     QChartView::keyReleaseEvent(event);

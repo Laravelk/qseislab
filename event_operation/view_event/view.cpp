@@ -50,6 +50,9 @@ View::View(const std::set<QString> &eventNames, SeismEvent const *const event,
           &EventOperation::GraphicController::
               calculatePolarizationAnalysisDataClicked,
           [this]() { emit calculatePolarizationAnalysisData(); });
+  connect(_graphicEvent,
+          &EventOperation::GraphicController::clickOnPolarAnalysisInGraph,
+          [this]() { emit clickOnPolarAnalysisInGraph(); });
 
   connect(_graphicEvent,
           &EventOperation::GraphicController::
@@ -79,6 +82,20 @@ View::View(const std::set<QString> &eventNames, SeismEvent const *const event,
 }
 
 bool View::allValid() const { return _isValid; }
+
+void View::showWarningWindowAboutValidStatusOfPolarizationAnalysisData() {
+  QMessageBox::StandardButton reply;
+  reply = QMessageBox::question(
+      this, QString::fromUtf8("Предупреждение"),
+      QString::fromUtf8("Не актуальные данные поляризационного анализа. "
+                        "Пересчитать?"),
+      QMessageBox::Yes | QMessageBox::No);
+  if (reply == QMessageBox::Yes) {
+    emit calculatePolarizationAnalysisData();
+  } else {
+    emit updatePolarGraphSignal();
+  }
+}
 
 void View::updateInfoEvent(Data::SeismEvent const *const event) {
   auto &name = event->getName();

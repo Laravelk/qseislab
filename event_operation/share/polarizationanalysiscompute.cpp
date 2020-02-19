@@ -107,8 +107,8 @@ PolarizationAnalysisCompute::calculatePolarizationData(
   const double pIncidenceDegrees =
       pIncidenceInRadian * DEGREES_COEFFICIENT / M_PI;
 
-  std::cerr << "Polar: " << pAzimutDegrees << " number " << test_data_for_print_num_of_comp << " Type " << test_data_for_print_type << std::endl;
-  std::cerr << vectorWithTheBiggestEigenValue[0] << " " << vectorWithTheBiggestEigenValue[1] << " " << vectorWithTheBiggestEigenValue[2] <<std::endl << std::endl;
+//  std::cerr << "Polar: " << pAzimutDegrees << " number " << test_data_for_print_num_of_comp << " Type " << test_data_for_print_type << std::endl;
+//  std::cerr << vectorWithTheBiggestEigenValue[0] << " " << vectorWithTheBiggestEigenValue[1] << " " << vectorWithTheBiggestEigenValue[2] <<std::endl << std::endl;
   return Data::SeismPolarizationAnalysisData(
       maxSingularValue, pAzimutInRadian, pIncidenceInRadian, pAzimutDegrees,
       pIncidenceDegrees, eigenVector);

@@ -48,9 +48,11 @@ signals:
   void addPick(Data::SeismWavePick::Type, int, int, int, int);
 
   void createPolarizationAnalysisWindow();
-
+  void showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
+  void updatePolarGraphSignal();
   void finished() const;
   void calculatePolarizationAnalysisData();
+  void clickOnPolarAnalysisInGraph();
 
 private:
   void updateRepetition(const QString &);

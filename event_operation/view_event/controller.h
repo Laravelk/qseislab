@@ -51,10 +51,14 @@ private:
 
   std::map<QUuid, QString> _eventNameContainer;
 
+  bool _removePick = false;
+
   PolarizationAnalysisWindow *_polarizationWindow;
   PolarizationAnalysisCompute *_calculatePolarization = nullptr;
 
   std::shared_ptr<Data::SeismEvent> _event;
+
+  bool checkPolarizationAnalysisDataValid();
 };
 
 } // namespace ViewEvent

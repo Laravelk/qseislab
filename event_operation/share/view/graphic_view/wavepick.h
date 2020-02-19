@@ -3,12 +3,12 @@
 #include "data/seismwavepick.h"
 
 #include <QBrush>
+#include <QGuiApplication>
 #include <QtCharts/QChartGlobal>
 #include <QtWidgets/QGraphicsItem>
 
 #include <variant>
 #include <iostream>
-
 
 QT_BEGIN_NAMESPACE
 class QGraphicsSceneEvent;
@@ -51,8 +51,6 @@ public:
   void emitChanged() {
       emit changed();
   }
-  void setEditable(bool status) {
-      _isEditable = status; }
 
 signals:
   void changed();
@@ -68,7 +66,7 @@ private:
   const qreal DEFAULT_OFFSET_TO_BORDER = 10000;
   const qreal MAX_WIDTH;
   const QSizeF DEFAULT_SIZE;
-  bool _isEditable = false;
+  bool _wasChanged = false;
   Data::SeismWavePick::Type _type;
   QChart *_chart;
   QPointF _pos;
