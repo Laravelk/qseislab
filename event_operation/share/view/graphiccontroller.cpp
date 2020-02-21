@@ -233,6 +233,7 @@ void GraphicController::updatePolarGraph(const Data::SeismEvent *const event) {
 
 void GraphicController::updateEventName(const QString &name) {
   _view->chart()->setTitle(name);
+  _polarChart->setTitle(name);
 }
 
 void GraphicController::setGainCoefficient(const float gainCoefficient) {

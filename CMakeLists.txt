@@ -85,6 +85,7 @@ set(SOURCES
         event_operation/share/view/tools_view/clippingwidget.cpp
         event_operation/share/view/tools_view/gainwidget.cpp
         event_operation/share/view/tools_view/hidewavepointswidget.cpp
+        event_operation/share/view/tools_vies/changeborderonpolarwidget.cpp
 
         event_operation/save_event/controller.cpp
 
@@ -213,6 +214,7 @@ set(HEADERS
         event_operation/share/view/tools_view/clippingwidget.h
         event_operation/share/view/tools_view/gainwidget.h
         event_operation/share/view/tools_view/hidewavepointswidget.h
+        event_operation/share/view/tools_vies/changeborderonpolarwidget.h
 
         event_operation/save_event/controller.h
 

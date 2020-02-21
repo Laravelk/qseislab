@@ -25,6 +25,10 @@ public:
 
 protected:
 private:
+  const QString P_WAVE_STRING = "PWAVE";
+  const QString S_WAVE_STRING = "SWAVE";
+  const QString DEFAULT_WAVE_STRING = "Type Wave...";
+  const QString DEFAULT_RECEIVER_STRING = "Type Receiver...";
   QPushButton *_okButton;
   QPushButton *_cancelButton;
   QComboBox *_receiverBox;
@@ -54,9 +58,5 @@ private:
   QList<Qt3DCore::QEntity *> _curves;
   QList<Qt3DCore::QEntity *> _arrows;
   Qt3DCore::QEntity * _eigenVectorLine = nullptr;
-  const QString P_WAVE_STRING = "PWAVE";
-  const QString S_WAVE_STRING = "SWAVE";
-  const QString DEFAULT_WAVE_STRING = "Type Wave...";
-  const QString DEFAULT_RECEIVER_STRING = "Type Receiver...";
 };
 } // namespace EventOperation

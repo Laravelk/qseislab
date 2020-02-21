@@ -49,7 +49,7 @@ private:
   std::unique_ptr<View> _view;
 
   bool checkPolarizationAnalysisDataValid();
-  bool _removedPickAndNeedUpdatePolarGraph = false;
+  bool _isValidPolarGraph = true;
 
   std::map<QUuid, std::shared_ptr<Data::SeismEvent>> _events_map;
 

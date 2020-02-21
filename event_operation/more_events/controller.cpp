@@ -118,13 +118,13 @@ Controller::Controller(
           _events_map.at(_currentEventUuid).get());
     }
     _calculatePolarization->calculate();
-    _removedPickAndNeedUpdatePolarGraph = false;
+    _isValidPolarGraph = true;
     _view->updatePolarGraph(_events_map.at(_currentEventUuid).get());
   });
 
   connect(_view.get(), &View::clickOnPolarAnalysisInGraph, [this]() {
     if (!checkPolarizationAnalysisDataValid() ||
-        _removedPickAndNeedUpdatePolarGraph) {
+        !_isValidPolarGraph) {
       _view.get()
           ->showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
     }
@@ -185,8 +185,10 @@ Controller::Controller(
 
   connect(_view.get(), &View::removePick,
           [this, settings](const auto type, const auto num) {
+            if (_polarizationWindow != nullptr) {
+              _polarizationWindow->setDefault();
+            }
             auto &event = _events_map[_currentEventUuid];
-
             auto &removePickParameters = settings->getRemovePickParameters();
             removePickParameters.setNum(num);
             removePickParameters.setType(type);
@@ -196,19 +198,13 @@ Controller::Controller(
                 settings);
             _undoStack->push(command);
 
-            _removedPickAndNeedUpdatePolarGraph = true;
-
-            if (_polarizationWindow) {
-              _polarizationWindow->setDefault();
-            }
+            _isValidPolarGraph = false;
           });
 
   connect(
       _view.get(), &View::eventTransformClicked, [this, settings](auto oper) {
         if (!_currentEventUuid.isNull()) {
           auto &event = _events_map[_currentEventUuid];
-//          auto command = UndoCommandGetter::get(oper, event.get(), settings);
-//          _undoStack->push(command);
           auto settingDialog = ProjectOperation::getSettingDialog(oper);
           settingDialog->update(settings);
           connect(settingDialog, &ProjectOperation::SettingDialog::apply,

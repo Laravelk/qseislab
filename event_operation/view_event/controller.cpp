@@ -78,6 +78,11 @@ Controller::Controller(
     _polarizationWindow->show();
   });
 
+  connect(_view, &View::updatePolarGraphSignal, [this]() {
+    _view->updatePolarGraph(_event.get());
+  });
+
+
   connect(_view, &View::sendPicksInfo,
           [this, settings](const auto type, const auto num, const auto l_val,
                            const auto pick_val, const auto r_val) {
@@ -91,6 +96,7 @@ Controller::Controller(
             emit eventActionClicked(_event->getUuid(),
                                     SeismEvent::TransformOperation::MovePick);
           });
+
 
   connect(_view, &View::addPick,
           [this, settings](auto type, auto num, auto l_val, auto arrival,
@@ -108,18 +114,15 @@ Controller::Controller(
 
   connect(_view, &View::removePick,
           [this, settings](const auto type, const auto num) {
-            auto &removePickParameters = settings->getRemovePickParameters();
-            removePickParameters.setNum(num);
-            removePickParameters.setType(type);
-
-            emit eventActionClicked(_event->getUuid(),
-                                    SeismEvent::TransformOperation::RemovePick);
-
-            //            _removedPickAndNeedUpdatePolarGraph = true; // ????
-
-            if (_polarizationWindow) {
-              _polarizationWindow->setDefault();
-            }
+          if (_polarizationWindow != nullptr) {
+            _polarizationWindow->setDefault();
+          }
+          auto &removePickParameters = settings->getRemovePickParameters();
+          removePickParameters.setNum(num);
+          removePickParameters.setType(type);
+          emit eventActionClicked(_event->getUuid(),
+                                SeismEvent::TransformOperation::RemovePick);
+          _isValidPolarGraph = false;
           });
 
   connect(_view, &View::calculatePolarizationAnalysisData, [this]() {
@@ -133,7 +136,7 @@ Controller::Controller(
 
   connect(_view, &View::clickOnPolarAnalysisInGraph, [this]() {
     if (!checkPolarizationAnalysisDataValid() ||
-        _removePick) {
+        _removePick || !_isValidPolarGraph) {
       _view
           ->showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
     }

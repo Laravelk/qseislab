@@ -41,7 +41,8 @@ View::View(const std::set<QString> &eventNames, SeismEvent const *const event,
             emit sendPicksInfo(type, num, l_val, pick_val, r_val);
           });
   connect(_graphicEvent, &EventOperation::GraphicController::removePick,
-          [this](auto type, auto num) { emit removePick(type, num); });
+          [this](auto type, auto num) {
+      emit removePick(type, num); });
   connect(_graphicEvent, &EventOperation::GraphicController::addPick,
           [this](auto type, auto num, auto l_val, auto arrival, auto r_val) {
             emit addPick(type, num, l_val, arrival, r_val);
@@ -83,20 +84,6 @@ View::View(const std::set<QString> &eventNames, SeismEvent const *const event,
 
 bool View::allValid() const { return _isValid; }
 
-void View::showWarningWindowAboutValidStatusOfPolarizationAnalysisData() {
-  QMessageBox::StandardButton reply;
-  reply = QMessageBox::question(
-      this, QString::fromUtf8("Предупреждение"),
-      QString::fromUtf8("Не актуальные данные поляризационного анализа. "
-                        "Пересчитать?"),
-      QMessageBox::Yes | QMessageBox::No);
-  if (reply == QMessageBox::Yes) {
-    emit calculatePolarizationAnalysisData();
-  } else {
-    emit updatePolarGraphSignal();
-  }
-}
-
 void View::updateInfoEvent(Data::SeismEvent const *const event) {
   auto &name = event->getName();
   updateRepetition(name);
@@ -117,6 +104,20 @@ void View::updatePolarGraph(const Data::SeismEvent *const event) {
   _graphicEvent->updatePolarGraph(event);
 }
 ChartGesture *View::getChartGesture() { return _graphicEvent->getModel(); }
+
+void View::showWarningWindowAboutValidStatusOfPolarizationAnalysisData() {
+  QMessageBox::StandardButton reply;
+  reply = QMessageBox::question(
+      this, QString::fromUtf8("Предупреждение"),
+      QString::fromUtf8("Не актуальные данные поляризационного анализа. "
+                        "Пересчитать?"),
+      QMessageBox::Yes | QMessageBox::No);
+  if (reply == QMessageBox::Yes) {
+    emit calculatePolarizationAnalysisData();
+  } else {
+    emit updatePolarGraphSignal();
+  }
+}
 
 void View::updateRepetition(const QString &name) {
   for (auto &globalName : _eventNames) {

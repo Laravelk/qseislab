@@ -22,6 +22,8 @@ PolarGraph::PolarGraph(QPolarChart *chart, QWidget *)
   const qreal radialMin = 0;
   const qreal radialMax = 180;
 
+  scene()->addRect(_polarChart->plotArea());
+
   _angularAxis->setTickCount(9);
   _angularAxis->setLabelFormat("%.1f");
   _angularAxis->setShadesBrush(QBrush(QColor(249, 249, 250)));
@@ -33,7 +35,6 @@ PolarGraph::PolarGraph(QPolarChart *chart, QWidget *)
   _radialAxis->setTickCount(9);
   _radialAxis->setLabelFormat("%.1f");
   _polarChart->addAxis(_radialAxis, QPolarChart::PolarOrientationRadial);
-  _polarChart->setTitle("FFFFF");
 
   _radialAxis->setRange(radialMin, radialMax);
   _angularAxis->setRange(angularMin, angularMax);

@@ -32,6 +32,8 @@ public:
   void updateInfoEvent(Data::SeismEvent const *const);
   void updateDataEvent(Data::SeismEvent const *const);
   void updatePolarGraph(Data::SeismEvent const *const);
+  void showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
+
 
   void settingEventInfo(Data::SeismEvent *const) const;
   ChartGesture *getChartGesture();
@@ -48,7 +50,6 @@ signals:
   void addPick(Data::SeismWavePick::Type, int, int, int, int);
 
   void createPolarizationAnalysisWindow();
-  void showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
   void updatePolarGraphSignal();
   void finished() const;
   void calculatePolarizationAnalysisData();
