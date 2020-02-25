@@ -29,7 +29,8 @@ GraphicController::GraphicController(QWidget *parent)
       _polarizationEventButton(new QPushButton("Hodogram")),
       _tabWidget(new QTabWidget()),
       _calculatePolarizationAnalysisDataButton(new QPushButton("Compute")),
-      _polarChart(new QPolarChart()), _hideWavePointsWidget(new HideWavePointsWidget()), _changeBorderWidget(new ChangeBorderOnPolarWidget()) {
+      _polarChart(new QPolarChart()), _hideWavePointsWidget(new HideWavePointsWidget()),
+      _changeBorderWidget(new ChangeBorderOnPolarWidget()), _testButton(new QPushButton("Test")) {
 
   _view = new GraphicView(_chart);
   _polarGraph = new PolarGraph(_polarChart);
@@ -149,6 +150,10 @@ GraphicController::GraphicController(QWidget *parent)
     updateSeries();
   });
 
+  connect(_testButton, &QPushButton::clicked, [this](){
+        emit createAnalysisWindowTestClicked();
+  });
+
   connect(_changeBorderWidget, &ChangeBorderOnPolarWidget::valueChanged, [this]() {
       _polarGraph->setRadialMin(_changeBorderWidget->getRadialMin());
       _polarGraph->setRadialMax(_changeBorderWidget->getRadialMax());
@@ -165,6 +170,7 @@ GraphicController::GraphicController(QWidget *parent)
 
   editGraphicMenuLayout->addWidget(_gainWidget);
   editGraphicMenuLayout->addWidget(_addWaveButton);
+  editGraphicMenuLayout->addWidget(_testButton);
 //  editGraphicMenuLayout->addWidget(_polarizationEventButton);
 //  editGraphicMenuLayout->addWidget(_calculatePolarizationAnalysisDataButton);
   editGraphicMenuLayout->addStretch(1);

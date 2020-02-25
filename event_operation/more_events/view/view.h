@@ -71,6 +71,7 @@ signals:
 
   void createPolarizationAnalysisWindow();
   void calculatePolarizationAnalysisData();
+  void createAnalysisWindowTest();
   void updatePolarGraphSignal();
   void clickOnPolarAnalysisInGraph();
 

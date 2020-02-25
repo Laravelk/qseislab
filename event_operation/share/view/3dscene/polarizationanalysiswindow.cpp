@@ -46,7 +46,7 @@ typedef Data::SeismWavePick SeismWavePick;
 
 namespace EventOperation {
 
-PolarizationAnalysisWindow::PolarizationAnalysisWindow(
+PolarizationAnalysisWindow::PolarizationAnalysisWindow (
     const std::shared_ptr<Data::SeismEvent> &event, QDialog *parent)
     : QDialog(parent), _okButton(new QPushButton("Ok")),
       _cancelButton(new QPushButton("Cancel")), _receiverBox(new QComboBox),
@@ -54,7 +54,7 @@ PolarizationAnalysisWindow::PolarizationAnalysisWindow(
       _scene(new Qt3DCore::QEntity()), _event(event.get()) {
 
   _container = QWidget::createWindowContainer(_view);
-  setMinimumSize(900, 500);
+  setMinimumSize(400, 300);
 
   // camera
   Qt3DRender::QCamera *camera = _view->camera();

@@ -1,11 +1,24 @@
-#ifndef ANALYSISWINDOW_H
-#define ANALYSISWINDOW_H
+#pragma once
 
+#include <QFrame>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QPolarChart>
 
-class AnalysisWindow
+#include "../3dscene/polarizationanalysiswindow.h"
+#include "../polar_graph/polargraph.h"
+
+namespace EventOperation {
+class AnalysisWindow : public QFrame
 {
+    Q_OBJECT
 public:
-    AnalysisWindow();
-};
+    AnalysisWindow(std::shared_ptr<Data::SeismEvent> &event, QWidget *parent = nullptr);
 
-#endif // ANALYSISWINDOW_H
+private:
+    QHBoxLayout *mainLayout;
+    PolarizationAnalysisWindow *analysis = nullptr;
+    PolarGraph *graph = nullptr;
+};
+}
+

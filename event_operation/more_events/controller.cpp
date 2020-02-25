@@ -6,6 +6,7 @@
 #include "data/seismwell.h"
 #include "event_operation/share/model.h"
 #include "event_operation/share/view/3dscene/polarizationanalysiswindow.h"
+#include "event_operation/share/view/analysis_view/analysiswindow.h"
 
 #include "event_operation/share/polarizationanalysiscompute.h"
 #include "event_operation/share/view/polar_graph/polargraph.h"
@@ -164,6 +165,14 @@ Controller::Controller(
                 settings);
             _undoStack->push(command);
           });
+
+  connect(_view.get(), &View::createAnalysisWindowTest, [this](){
+    if (_analysisWindow == nullptr) {
+        _analysisWindow = new AnalysisWindow(_events_map.at(_currentEventUuid));
+    }
+    std::cerr << "shlow analysis";
+    _analysisWindow->show();
+  });
 
   connect(_view.get(), &View::addPick,
           [this, settings](auto type, auto num, auto l_val, auto arrival,

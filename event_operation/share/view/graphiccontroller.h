@@ -4,6 +4,7 @@
 #include "data/seismevent.h"
 #include "graphic_view/graphic_view.h"
 #include "polar_graph/polargraph.h"
+#include "analysis_view/analysiswindow.h"
 
 #include <QtCharts>
 
@@ -93,6 +94,7 @@ signals:
   void removePick(Data::SeismWavePick::Type, int);
   void addPick(Data::SeismWavePick::Type, int, int, int, int);
   void createPolarizationAnalysisWindowClicked();
+  void createAnalysisWindowTestClicked();
   void calculatePolarizationAnalysisDataClicked();
   void clickOnPolarAnalysisInGraph();
 
@@ -122,6 +124,7 @@ private:
 
   QPushButton *_polarizationEventButton;
   QPushButton *_calculatePolarizationAnalysisDataButton;
+  QPushButton *_testButton;
 
   const int GRAPH_INDEX_IN_TAB = 0;
   const int POLAR_ANALYSIS_INDEX_IN_TAB = 1;

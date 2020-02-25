@@ -140,6 +140,11 @@ View::View(const std::set<QString> &globalEventNames,
               createPolarizationAnalysisWindowClicked,
           [this]() { emit createPolarizationAnalysisWindow(); });
 
+  connect(_graphicEvent, &EventOperation::GraphicController::createAnalysisWindowTestClicked,
+          [this]() {
+            emit createAnalysisWindowTest();
+  });
+
   connect(_graphicEvent,
           &EventOperation::GraphicController::
               calculatePolarizationAnalysisDataClicked,

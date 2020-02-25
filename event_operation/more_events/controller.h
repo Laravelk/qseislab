@@ -19,6 +19,7 @@ namespace EventOperation {
 class Model;
 class PolarizationAnalysisWindow;
 class PolarizationAnalysisCompute;
+class AnalysisWindow;
 namespace MoreEvents {
 class Controller : public QObject {
   Q_OBJECT
@@ -59,6 +60,7 @@ private:
 
   PolarizationAnalysisWindow *_polarizationWindow = nullptr;
   PolarizationAnalysisCompute *_calculatePolarization = nullptr;
+  AnalysisWindow *_analysisWindow = nullptr;
 };
 
 } // namespace MoreEvents

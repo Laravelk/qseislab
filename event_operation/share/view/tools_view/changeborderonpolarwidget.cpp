@@ -5,7 +5,7 @@
 
 namespace EventOperation {
 
-ChangeBorderOnPolarWidget::ChangeBorderOnPolarWidget(QWidget *parent) :  _angularMin (new QLineEdit), _angularMax(new QLineEdit),
+ChangeBorderOnPolarWidget::ChangeBorderOnPolarWidget(QWidget *parent) : QFrame(parent) ,_angularMin (new QLineEdit), _angularMax(new QLineEdit),
     _radialMin(new QLineEdit), _radialMax(new QLineEdit), _angularLabel(new QLabel), _minAngularLabel(new QLabel),
     _maxAngularLabel(new QLabel), _radialLabel(new QLabel), _minRadialLabel(new QLabel), _maxRadialLabel(new QLabel),
     _applyButton(new QPushButton("Apply Change"))
