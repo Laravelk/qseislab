@@ -79,13 +79,14 @@ set(SOURCES
         event_operation/share/view/polar_graph/polargraph.cpp # test
         event_operation/share/view/polar_graph/analysisdatagraphicsitem.cpp
 
+        event_operation/share/view/analysis_view/analysiswindow.cpp
 
         event_operation/share/view/tools_view/wigglewidget.cpp
         event_operation/share/view/tools_view/hidecomponentwidget.cpp
         event_operation/share/view/tools_view/clippingwidget.cpp
         event_operation/share/view/tools_view/gainwidget.cpp
         event_operation/share/view/tools_view/hidewavepointswidget.cpp
-        event_operation/share/view/tools_vies/changeborderonpolarwidget.cpp
+        event_operation/share/view/tools_view/changeborderonpolarwidget.cpp
 
         event_operation/save_event/controller.cpp
 
@@ -208,13 +209,15 @@ set(HEADERS
         event_operation/share/view/polar_graph/polargraph.h # test
         event_operation/share/view/polar_graph/analysisdatagraphicsitem.h
 
+        event_operation/share/view/analysis_view/analysiswindow.h
+
 
         event_operation/share/view/tools_view/wigglewidget.h
         event_operation/share/view/tools_view/hidecomponentwidget.h
         event_operation/share/view/tools_view/clippingwidget.h
         event_operation/share/view/tools_view/gainwidget.h
         event_operation/share/view/tools_view/hidewavepointswidget.h
-        event_operation/share/view/tools_vies/changeborderonpolarwidget.h
+        event_operation/share/view/tools_view/changeborderonpolarwidget.h
 
         event_operation/save_event/controller.h
 

@@ -19,6 +19,7 @@ class HideComponentWidget;
 class ClippingWidget;
 class GainWidget;
 class HideWavePointsWidget;
+class ChangeBorderOnPolarWidget;
 class GraphicController : public QFrame {
   Q_OBJECT
 public:
@@ -113,6 +114,7 @@ private:
   HideWavePointsWidget *_hideWavePointsWidget;
   ClippingWidget *_clippingWidget;
   GainWidget *_gainWidget;
+  ChangeBorderOnPolarWidget *_changeBorderWidget;
 
   QPushButton *_addWaveButton;
   QAction *_addPWave;

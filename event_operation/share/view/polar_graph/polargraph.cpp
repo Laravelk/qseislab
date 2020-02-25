@@ -140,6 +140,26 @@ void PolarGraph::hideSWavePoints(bool hide) { _hideSWave = hide; }
 
 void PolarGraph::hidePWavePoints(bool hide) { _hidePWave = hide; }
 
+void PolarGraph::setAngularMin(int value)
+{
+    _angularAxis->setMin(value);
+}
+
+void PolarGraph::setAngularMax(int value)
+{
+    _angularAxis->setMax(value);
+}
+
+void PolarGraph::setRadialMin(int value)
+{
+    _radialAxis->setMin(value);
+}
+
+void PolarGraph::setRadialMax(int value)
+{
+    _radialAxis->setMax(value);
+}
+
 void PolarGraph::keyPressEvent(QKeyEvent *event) {
   switch (event->key()) {
   case Qt::Key_Alt: {
@@ -154,6 +174,14 @@ void PolarGraph::keyPressEvent(QKeyEvent *event) {
        }
        break;
   }
+  case Qt::Key_2: {
+        _angularAxis->setMin(0);
+        _angularAxis->setMax(1000);
+        _radialAxis->setMin(90);
+        _radialAxis->setMax(300);
+      break;
+  }
+
   default:
     QGraphicsView::keyPressEvent(event);
     break;

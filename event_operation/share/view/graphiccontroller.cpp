@@ -10,6 +10,7 @@
 #include "tools_view/hidecomponentwidget.h"
 #include "tools_view/wigglewidget.h"
 #include "tools_view/hidewavepointswidget.h"
+#include "tools_view/changeborderonpolarwidget.h"
 
 #include <iostream> // TODO: need to DELETE
 
@@ -28,7 +29,7 @@ GraphicController::GraphicController(QWidget *parent)
       _polarizationEventButton(new QPushButton("Hodogram")),
       _tabWidget(new QTabWidget()),
       _calculatePolarizationAnalysisDataButton(new QPushButton("Compute")),
-      _polarChart(new QPolarChart()), _hideWavePointsWidget(new HideWavePointsWidget()) {
+      _polarChart(new QPolarChart()), _hideWavePointsWidget(new HideWavePointsWidget()), _changeBorderWidget(new ChangeBorderOnPolarWidget()) {
 
   _view = new GraphicView(_chart);
   _polarGraph = new PolarGraph(_polarChart);
@@ -91,6 +92,7 @@ GraphicController::GraphicController(QWidget *parent)
     _view->setWaveAddTriggerFlag(Data::SeismWavePick::SWAVE);
   });
 
+
   connect(_wiggleWidget, &WiggleWidget::updateWiggleState,
           [this](WiggleWidget::WiggleState state) {
             deleteAllWiggle();
@@ -147,6 +149,13 @@ GraphicController::GraphicController(QWidget *parent)
     updateSeries();
   });
 
+  connect(_changeBorderWidget, &ChangeBorderOnPolarWidget::valueChanged, [this]() {
+      _polarGraph->setRadialMin(_changeBorderWidget->getRadialMin());
+      _polarGraph->setRadialMax(_changeBorderWidget->getRadialMax());
+      _polarGraph->setAngularMin(_changeBorderWidget->getAngularMin());
+      _polarGraph->setAngularMax(_changeBorderWidget->getAngularMax());
+  });
+
   // layout`s
   QVBoxLayout *editGraphicMenuLayout = new QVBoxLayout();
   QVBoxLayout *editPolarGraphicMenuLayout = new QVBoxLayout();
@@ -163,6 +172,7 @@ GraphicController::GraphicController(QWidget *parent)
   editPolarGraphicMenuLayout->addWidget(_polarizationEventButton);
   editPolarGraphicMenuLayout->addWidget(_calculatePolarizationAnalysisDataButton);
   editPolarGraphicMenuLayout->addWidget(_hideWavePointsWidget);
+  editPolarGraphicMenuLayout->addWidget(_changeBorderWidget);
   editPolarGraphicMenuLayout->addStretch(1);
 
   QHBoxLayout *graphLayout = new QHBoxLayout();

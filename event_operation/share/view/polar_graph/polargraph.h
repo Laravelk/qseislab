@@ -36,6 +36,11 @@ public:
   void hideSWavePoints(bool);
   void hidePWavePoints(bool);
 
+  void setAngularMin(int);
+  void setAngularMax(int);
+  void setRadialMin(int);
+  void setRadialMax(int);
+
 protected:
   void mousePressEvent(QMouseEvent *) override;
   void mouseMoveEvent(QMouseEvent *) override;
