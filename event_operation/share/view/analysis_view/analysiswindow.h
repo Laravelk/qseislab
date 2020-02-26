@@ -9,6 +9,7 @@
 #include "../polar_graph/polargraph.h"
 
 namespace EventOperation {
+class ChangeBorderOnPolarWidget;
 class AnalysisWindow : public QFrame
 {
     Q_OBJECT
@@ -19,6 +20,8 @@ private:
     QHBoxLayout *mainLayout;
     PolarizationAnalysisWindow *analysis = nullptr;
     PolarGraph *graph = nullptr;
+
+    ChangeBorderOnPolarWidget *changeBorderOnPolarWidget;
 };
 }
 
