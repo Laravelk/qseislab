@@ -8,7 +8,7 @@ public:
   explicit SeismPolarizationAnalysisData(double maxSingularValue, double pAzimutInRadian,
                                 double pIncidenceInRadian,
                                 double pAzimutDegrees,
-                                double pIncidenceDegrees, QVector3D eigenVector);
+                                double pIncidenceDegrees, float planarity, float rectilinearity, QVector3D eigenVector);
 
   void setValid(const bool validStatus);
   void setMaxSingularVale(const double value);
@@ -24,17 +24,24 @@ public:
 
   SeismPolarizationAnalysisData &operator=(SeismPolarizationAnalysisData const &pick);
 
-
   void print();
 
   QVector3D getEigenVector() const;
   void setEigenVector(const QVector3D &value);
+
+  float getRectilinearity() const;
+  void setRectilinearity(float rectilinearity);
+
+  float getPlanarity() const;
+  void setPlanarity(float planarity);
 
 private:
   bool _isValid;
   double _maxSingularValue;
   double _pAzimutInRadian;
   double _pIncidenceInRadian;
+  float _planarity;
+  float _rectilinearity;
   QVector3D _eigenVector;
 
   const double DEGREES_COEFFICIENT = 180;

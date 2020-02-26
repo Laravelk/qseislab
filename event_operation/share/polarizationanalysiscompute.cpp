@@ -89,6 +89,8 @@ PolarizationAnalysisCompute::calculatePolarizationData(
   Eigen::Vector3f vectorWithTheBiggestEigenValue, column2, column3;
   vectorWithTheBiggestEigenValue = svd->matrixU().col(0);
 
+  auto singularValues = svd->singularValues();
+
   QVector3D eigenVector(vectorWithTheBiggestEigenValue[0], vectorWithTheBiggestEigenValue[1], vectorWithTheBiggestEigenValue[2]);
 
   if (vectorWithTheBiggestEigenValue[2] < 0) {
@@ -107,11 +109,14 @@ PolarizationAnalysisCompute::calculatePolarizationData(
   const double pIncidenceDegrees =
       pIncidenceInRadian * DEGREES_COEFFICIENT / M_PI;
 
+  const float degree_of_rectilinearity = 1.0f - ((singularValues[0] + singularValues[2]) / (2 * singularValues[1]));
+  const float degree_of_planarity = 1.0f - ( 2 * singularValues[2] / (singularValues[0] + singularValues[1]));
+
 //  std::cerr << "Polar: " << pAzimutDegrees << " number " << test_data_for_print_num_of_comp << " Type " << test_data_for_print_type << std::endl;
 //  std::cerr << vectorWithTheBiggestEigenValue[0] << " " << vectorWithTheBiggestEigenValue[1] << " " << vectorWithTheBiggestEigenValue[2] <<std::endl << std::endl;
   return Data::SeismPolarizationAnalysisData(
       maxSingularValue, pAzimutInRadian, pIncidenceInRadian, pAzimutDegrees,
-      pIncidenceDegrees, eigenVector);
+      pIncidenceDegrees, degree_of_planarity, degree_of_rectilinearity ,eigenVector);
 }
 
 } // namespace EventOperation

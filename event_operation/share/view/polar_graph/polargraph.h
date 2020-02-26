@@ -51,8 +51,9 @@ protected:
 private:
   struct PointInfo {
     PointInfo(int num, Data::SeismWavePick::Type pointType, double _azimutAngle,
-                 double _polarAngle) : numberOfComponents(num), type(pointType), polarAngle(_polarAngle),
-                 azimutAngle(_azimutAngle) {}
+                 double _polarAngle, float _rectilinear, float _planarity) :
+        numberOfComponents(num), type(pointType), polarAngle(_polarAngle),
+                 azimutAngle(_azimutAngle), planarity(_planarity), rectilinear(_rectilinear) {}
     ~PointInfo() { if (windowWithInfo != nullptr) {
                         delete windowWithInfo;
                         }
@@ -61,6 +62,8 @@ private:
     Data::SeismWavePick::Type type;
     double polarAngle;
     double azimutAngle;
+    float planarity;
+    float rectilinear;
     bool isShowing = false;
     AnalysisDataGraphicItem *windowWithInfo = nullptr;
   };
@@ -78,6 +81,7 @@ private:
   bool _hideSWave = false;
   bool _hidePWave = false;
   bool _isZoomed = false;
+  bool _hideAllInfo = true;
 
   const QString WARNING_STATUS = "WARNING. DATA WAS CHANGE";
   const QString ALT_IS_TOUCHING_STATUS = "EDIT MODE";
@@ -87,6 +91,7 @@ private:
   void handleClickedPoint(const QPointF &);
   void findPolarizationAnalysisDataForClickedPoint(const QPointF &);
   bool compareFloat(float a, float b);
+  void hideAllInfo();
 
 };
 

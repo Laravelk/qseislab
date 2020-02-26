@@ -7,8 +7,10 @@ namespace Data {
 
 SeismPolarizationAnalysisData::SeismPolarizationAnalysisData(double maxSingularValue, double pAzimutInRadian,
                                                              double pIncidenceInRadian, double pAzimutDegrees,
-                                                             double pIncidenceDegrees, QVector3D eigenVector)
-    : _maxSingularValue(maxSingularValue), _pAzimutInRadian(pAzimutInRadian), _pIncidenceInRadian(pIncidenceInRadian), _eigenVector(eigenVector) {}
+                                                             double pIncidenceDegrees, float planarity,
+                                                             float recilinearity ,QVector3D eigenVector)
+    : _maxSingularValue(maxSingularValue), _pAzimutInRadian(pAzimutInRadian), _pIncidenceInRadian(pIncidenceInRadian),
+      _eigenVector(eigenVector), _planarity (planarity), _rectilinearity(recilinearity) {}
 
 void SeismPolarizationAnalysisData::setValid(const bool validStatus) {
   _isValid = validStatus;
@@ -34,6 +36,8 @@ SeismPolarizationAnalysisData &SeismPolarizationAnalysisData::operator=(const Se
         this->_isValid = pick._isValid;
         this->_maxSingularValue = pick._maxSingularValue;
         this->_eigenVector = pick._eigenVector;
+        this->_planarity = pick._planarity;
+        this->_rectilinearity = pick._rectilinearity;
     }
     return *this;
 }
@@ -76,6 +80,26 @@ QVector3D SeismPolarizationAnalysisData::getEigenVector() const
 void SeismPolarizationAnalysisData::setEigenVector(const QVector3D &value)
 {
     _eigenVector = value;
+}
+
+float SeismPolarizationAnalysisData::getRectilinearity() const
+{
+    return _rectilinearity;
+}
+
+void SeismPolarizationAnalysisData::setRectilinearity(float rectilinearity)
+{
+    _rectilinearity = rectilinearity;
+}
+
+float SeismPolarizationAnalysisData::getPlanarity() const
+{
+    return _planarity;
+}
+
+void SeismPolarizationAnalysisData::setPlanarity(float planarity)
+{
+    _planarity = planarity;
 }
 
 } // namespace Data

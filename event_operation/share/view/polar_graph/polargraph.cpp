@@ -75,9 +75,11 @@ void PolarGraph::update(Data::SeismEvent const *const event) {
         if (data.isValid()) {
           if (pick.first == Data::SeismWavePick::PWAVE) {
             validPWaveSeries->append(data.getAzimutDegrees(), polarAngle);
-            _infoAboutPoint.push_back(PointInfo(num, Data::SeismWavePick::PWAVE, data.getAzimutDegrees(), polarAngle));
+            _infoAboutPoint.push_back(PointInfo(num, Data::SeismWavePick::PWAVE, data.getAzimutDegrees(), polarAngle,
+                                                data.getRectilinearity(), data.getPlanarity()));
           } else {
-            _infoAboutPoint.push_back(PointInfo(num, Data::SeismWavePick::SWAVE, data.getAzimutDegrees(), polarAngle));
+            _infoAboutPoint.push_back(PointInfo(num, Data::SeismWavePick::SWAVE, data.getAzimutDegrees(), polarAngle,
+                                                data.getRectilinearity(), data.getPlanarity()));
             validSWaveSeries->append(data.getAzimutDegrees(), polarAngle);
           }
         } else {
@@ -143,21 +145,25 @@ void PolarGraph::hidePWavePoints(bool hide) { _hidePWave = hide; }
 void PolarGraph::setAngularMin(int value)
 {
     _angularAxis->setMin(value);
+    hideAllInfo();
 }
 
 void PolarGraph::setAngularMax(int value)
 {
     _angularAxis->setMax(value);
+    hideAllInfo();
 }
 
 void PolarGraph::setRadialMin(int value)
 {
     _radialAxis->setMin(value);
+    hideAllInfo();
 }
 
 void PolarGraph::setRadialMax(int value)
 {
     _radialAxis->setMax(value);
+    hideAllInfo();
 }
 
 void PolarGraph::keyPressEvent(QKeyEvent *event) {
@@ -166,12 +172,7 @@ void PolarGraph::keyPressEvent(QKeyEvent *event) {
     break;
   }
   case Qt::Key_1: {
-       for (auto &info : _infoAboutPoint) {
-         info.isShowing = false;
-         if (info.windowWithInfo != nullptr) {
-            info.windowWithInfo->hide();
-         }
-       }
+       hideAllInfo();
        break;
   }
   case Qt::Key_2: {
@@ -247,11 +248,15 @@ void PolarGraph::findPolarizationAnalysisDataForClickedPoint(
     if (compareFloat(dataPolarAngle, point.y()) && compareFloat(dataAzimutAngle, point.x())) {
       Data::SeismWavePick::Type ownerEventType = Data::SeismWavePick::SWAVE;
       int ownerNumber = 0;
+      float planarity = 0;
+      float rectilinear = 0;
       PointInfo *currentPoint;
       for (auto &pointData : _infoAboutPoint) {
         if (compareFloat(dataPolarAngle, pointData.polarAngle) && compareFloat(dataAzimutAngle, pointData.azimutAngle)) {
             ownerEventType = pointData.type;
             ownerNumber = pointData.numberOfComponents;
+            planarity = pointData.planarity;
+            rectilinear = pointData.rectilinear;
             pointData.isShowing = !pointData.isShowing;
             currentPoint = &pointData;
             if (false == pointData.isShowing) {
@@ -268,17 +273,20 @@ void PolarGraph::findPolarizationAnalysisDataForClickedPoint(
     currentPoint->windowWithInfo->setAnchor(point);
     if (ownerEventType == Data::SeismWavePick::PWAVE) {
         currentPoint->windowWithInfo->setText(
-            QString("Polar angle: %1 \nAzimut: %2 \nWaveType: PWAVE \nReceiver number: %3").arg(dataPolarAngle).arg(dataAzimutAngle).
-                    arg(ownerNumber));
+            QString("Polar angle: %1 \nAzimut: %2 \nWaveType: PWAVE \nReceiver number: %3 \nPlanarity: %4 \nRectilinearity %5")
+                    .arg(dataPolarAngle).arg(dataAzimutAngle).
+                    arg(ownerNumber).arg(planarity).arg(rectilinear));
     } else {
         currentPoint->windowWithInfo->setText(
-            QString("Polar angle: %1 \nAzimut: %2 \nWaveType: SWAVE \nReceiver number: %3").arg(dataPolarAngle).arg(dataAzimutAngle).
-                    arg(ownerNumber));
+            QString("Polar angle: %1 \nAzimut: %2 \nWaveType: SWAVE \nReceiver number: %3 \nPlanarity: %4 \nRectilinearity %5").
+                    arg(dataPolarAngle).arg(dataAzimutAngle).
+                    arg(ownerNumber).arg(planarity).arg(rectilinear));
     }
 
     currentPoint->windowWithInfo->setZValue(11);
     currentPoint->windowWithInfo->updateGeometry();
     currentPoint->windowWithInfo->show();
+    _hideAllInfo = false;
     break;
     }
   }
@@ -288,6 +296,22 @@ bool PolarGraph::compareFloat(float a, float b)
 {
     return (std::fabs(a - b) <
             std::numeric_limits<qreal>::epsilon());
+}
+
+void PolarGraph::hideAllInfo()
+{
+    if (_hideAllInfo) {
+        return;
+    }
+
+    for (auto &info : _infoAboutPoint) {
+      info.isShowing = false;
+      if (info.windowWithInfo != nullptr) {
+         info.windowWithInfo->hide();
+      }
+    }
+    _hideAllInfo = true;
+    return;
 }
 
 } // namespace EventOperation
