@@ -1,5 +1,8 @@
 #pragma once
 
+#include <QPainter>
+#include <QPixmap>
+
 #include "chartgesture.h"
 #include "data/seismevent.h"
 #include "graphic_view/graphic_view.h"
@@ -125,6 +128,7 @@ private:
   QPushButton *_polarizationEventButton;
   QPushButton *_calculatePolarizationAnalysisDataButton;
   QPushButton *_testButton;
+  QPushButton *_screenButton;
 
   const int GRAPH_INDEX_IN_TAB = 0;
   const int POLAR_ANALYSIS_INDEX_IN_TAB = 1;

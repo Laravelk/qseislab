@@ -30,7 +30,9 @@ GraphicController::GraphicController(QWidget *parent)
       _tabWidget(new QTabWidget()),
       _calculatePolarizationAnalysisDataButton(new QPushButton("Compute")),
       _polarChart(new QPolarChart()), _hideWavePointsWidget(new HideWavePointsWidget()),
-      _changeBorderWidget(new ChangeBorderOnPolarWidget()), _testButton(new QPushButton("Test")) {
+      _changeBorderWidget(new ChangeBorderOnPolarWidget()), _testButton(new QPushButton("Test")),
+        _screenButton(new QPushButton("Screen"))
+{
 
   _view = new GraphicView(_chart);
   _polarGraph = new PolarGraph(_polarChart);
@@ -154,6 +156,18 @@ GraphicController::GraphicController(QWidget *parent)
         emit createAnalysisWindowTestClicked();
   });
 
+  connect(_screenButton, &QPushButton::clicked, [this]() {
+      QString format = "png";
+      QString initialPath = QDir::currentPath() + tr("/untitled.") + format;
+      QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"),
+                                     initialPath,
+                                     tr("%1 Files (*.%2);;All Files (*)")
+                                     .arg(format.toUpper())
+                                     .arg(format));
+      QPixmap pixmap = QPixmap::grabWidget(_view);
+      pixmap.save(fileName, format.toUtf8());
+  });
+
   connect(_changeBorderWidget, &ChangeBorderOnPolarWidget::valueChanged, [this]() {
       _polarGraph->setRadialMin(_changeBorderWidget->getRadialMin());
       _polarGraph->setRadialMax(_changeBorderWidget->getRadialMax());
@@ -171,6 +185,7 @@ GraphicController::GraphicController(QWidget *parent)
   editGraphicMenuLayout->addWidget(_gainWidget);
   editGraphicMenuLayout->addWidget(_addWaveButton);
   editGraphicMenuLayout->addWidget(_testButton);
+  editGraphicMenuLayout->addWidget(_screenButton);
 //  editGraphicMenuLayout->addWidget(_polarizationEventButton);
 //  editGraphicMenuLayout->addWidget(_calculatePolarizationAnalysisDataButton);
   editGraphicMenuLayout->addStretch(1);
