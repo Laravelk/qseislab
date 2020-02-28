@@ -163,14 +163,21 @@ Controller::Controller(
             auto command = UndoCommandGetter::get(
                 Data::SeismEvent::TransformOperation::MovePick, event.get(),
                 settings);
+            if (_analysisWindow != nullptr) {
+            _analysisWindow->updatePolarGraph(_events_map[_currentEventUuid].get());
+            }
             _undoStack->push(command);
           });
 
-  connect(_view.get(), &View::createAnalysisWindowTest, [this](){
+  connect(_view.get(), &View::createAnalysisWindowTest, [this](){  
+      if (!checkPolarizationAnalysisDataValid() ||
+          !_isValidPolarGraph) {
+        _view.get()
+            ->showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
+      }
     if (_analysisWindow == nullptr) {
         _analysisWindow = new AnalysisWindow(_events_map.at(_currentEventUuid));
     }
-    std::cerr << "shlow analysis";
     _analysisWindow->show();
   });
 
@@ -190,12 +197,19 @@ Controller::Controller(
                 Data::SeismEvent::TransformOperation::AddPick, event.get(),
                 settings);
             _undoStack->push(command);
+            if (_analysisWindow != nullptr) {
+            _analysisWindow->updatePolarGraph(_events_map[_currentEventUuid].get());
+            }
           });
 
   connect(_view.get(), &View::removePick,
           [this, settings](const auto type, const auto num) {
+
             if (_polarizationWindow != nullptr) {
               _polarizationWindow->setDefault();
+            }
+            if (_analysisWindow != nullptr) {
+              _analysisWindow->setHodogramToDefault();
             }
             auto &event = _events_map[_currentEventUuid];
             auto &removePickParameters = settings->getRemovePickParameters();
@@ -206,8 +220,10 @@ Controller::Controller(
                 Data::SeismEvent::TransformOperation::RemovePick, event.get(),
                 settings);
             _undoStack->push(command);
-
             _isValidPolarGraph = false;
+            if (_analysisWindow != nullptr) {
+            _analysisWindow->updatePolarGraph(_events_map[_currentEventUuid].get());
+            }
           });
 
   connect(

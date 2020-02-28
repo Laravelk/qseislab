@@ -54,7 +54,7 @@ PolarizationAnalysisWindow::PolarizationAnalysisWindow (
       _scene(new Qt3DCore::QEntity()), _event(event.get()) {
 
   _container = QWidget::createWindowContainer(_view);
-  setMinimumSize(700, 700);
+  setMinimumSize(700, 400);
 
   // camera
   Qt3DRender::QCamera *camera = _view->camera();
@@ -130,6 +130,29 @@ void PolarizationAnalysisWindow::setDefault() {
   _waveTypeBox->setCurrentIndex(0);
   _receiverBox->setCurrentIndex(0);
   update();
+}
+
+void PolarizationAnalysisWindow::loadEvent(const std::shared_ptr<Data::SeismEvent> &)
+{
+    clearScene();
+}
+
+void PolarizationAnalysisWindow::removePick(int numOfReciever, SeismWavePick::Type type)
+{
+    QString typeInString;
+    if (Data::SeismWavePick::PWAVE == type) {
+        typeInString = "PWAVE";
+    } else {
+        typeInString = "SWAVE";
+    }
+
+    if (_currentReceiverNumberString.toInt() == numOfReciever && _currentWaveTypeString == typeInString) {
+        std::cerr << "set to default/n";
+        setDefault();
+    } else {
+        std::cerr << "update\n";
+        update();
+    }
 }
 
 void PolarizationAnalysisWindow::drawArrows() {
@@ -340,6 +363,7 @@ void PolarizationAnalysisWindow::drawTraces(
   float maxValue = component->getMaxValue();
   Data::SeismWavePick::Type type;
   Data::SeismWavePick pick;
+  std::cerr << "DRAW\n";
   if (_currentWaveTypeString == P_WAVE_STRING) {
      type = Data::SeismWavePick::PWAVE;
   } else {
@@ -365,7 +389,7 @@ void PolarizationAnalysisWindow::drawTraces(
      QVector3D point1(eigenVector.x() * cx1, eigenVector.z() * cy1, eigenVector.y() * cz1);
      QVector3D point2(eigenVector.x() * cx2, eigenVector.z() * cy2, eigenVector.y() * cz2);
 
-     std::cerr << "Eigen Vector: " << eigenVector.x() << " " << eigenVector.y() << " " << eigenVector.z() << std::endl;
+//     std::cerr << "Eigen Vector: " << eigenVector.x() << " " << eigenVector.y() << " " << eigenVector.z() << std::endl;
 
      _eigenVectorLine = drawLine(point1, point2, Qt::blue, _scene);
    }
@@ -393,15 +417,10 @@ int PolarizationAnalysisWindow::lastElementNumber(
 
 void PolarizationAnalysisWindow::update() {
   clearScene();
+  std::cerr << "update in update\n";
   if (DEFAULT_RECEIVER_STRING != _currentReceiverNumberString &&
       DEFAULT_WAVE_STRING != _currentWaveTypeString) {
-    int index = 0;
-    for (auto &component : _event->getComponents()) {
-      if (index == _currentReceiverNumberString.toInt()) {
-        drawTraces(component);
-      }
-      index++;
-    }
+        drawTraces(_event->getComponents()[_currentReceiverNumberString.toInt()]);
   }
 }
 

@@ -27,10 +27,13 @@ public:
              QWidget *widget);
 
 protected:
-  void mousePressEvent(QGraphicsSceneMouseEvent *event);
-  void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+  void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+  void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
+  void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
+  bool _isMoving;
+  QPointF _lastClickPosition;
   QString m_text;
   QRectF m_textRect;
   QRectF m_rect;

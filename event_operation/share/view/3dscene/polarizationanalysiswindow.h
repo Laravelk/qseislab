@@ -9,10 +9,13 @@
 #include <Qt3DCore/QEntity>
 #include <Qt3DExtras>
 
+#include "data/seismwavepick.h"
+
 namespace Data {
 class SeismEvent;
 class SeismComponent;
 class SeismTrace;
+class SeismWavePick;
 } // namespace Data
 
 namespace EventOperation {
@@ -22,6 +25,8 @@ public:
   PolarizationAnalysisWindow(const std::shared_ptr<Data::SeismEvent> &,
                              QDialog *parent = nullptr);
   void setDefault();
+  void loadEvent(const std::shared_ptr<Data::SeismEvent> &);
+  void removePick(int numOfReciever, Data::SeismWavePick::Type type);
 
 protected:
 private:

@@ -30,6 +30,7 @@ public:
   PolarGraph(QPolarChart *chart, QWidget *parent = nullptr);
   QWidget *getView() const;
   void update(const Data::SeismEvent *const);
+  void loadEvent(const Data::SeismEvent *const);
   void setGraphColor(const QBrush &);
   void setScatterColor(const QBrush &);
 

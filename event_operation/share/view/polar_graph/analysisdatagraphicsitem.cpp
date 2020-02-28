@@ -80,16 +80,26 @@ void AnalysisDataGraphicItem::paint(QPainter *painter,
 }
 
 void AnalysisDataGraphicItem::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+    _isMoving = false;
+   _lastClickPosition = event->pos();
   event->setAccepted(true);
 }
 
 void AnalysisDataGraphicItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
   if (event->buttons() & Qt::LeftButton) {
+      _isMoving = true;
     setPos(mapToParent(event->pos() - event->buttonDownPos(Qt::LeftButton)));
     event->setAccepted(true);
   } else {
     event->setAccepted(false);
   }
+}
+
+void AnalysisDataGraphicItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (_lastClickPosition == event->pos() && this->isVisible() && !_isMoving) {
+        this->hide();
+    }
 }
 
 void AnalysisDataGraphicItem::setText(const QString &text) {

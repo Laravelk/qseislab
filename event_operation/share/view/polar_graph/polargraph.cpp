@@ -22,6 +22,8 @@ PolarGraph::PolarGraph(QPolarChart *chart, QWidget *)
   const qreal radialMin = 0;
   const qreal radialMax = 180;
 
+  this->setMinimumSize(600,400);
+
   scene()->addRect(_polarChart->plotArea());
 
   _angularAxis->setTickCount(9);
@@ -127,6 +129,11 @@ void PolarGraph::update(Data::SeismEvent const *const event) {
     unValidSeries->attachAxis(_angularAxis);
     _seriesList.append(unValidSeries);
   }
+}
+
+void PolarGraph::loadEvent(const Data::SeismEvent * const event)
+{
+    update(event);
 }
 
 void PolarGraph::setGraphColor(const QBrush &) {

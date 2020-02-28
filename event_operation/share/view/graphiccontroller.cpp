@@ -158,7 +158,7 @@ GraphicController::GraphicController(QWidget *parent)
 
   connect(_screenButton, &QPushButton::clicked, [this]() {
       QString format = "png";
-      QString initialPath = QDir::currentPath() + tr("/untitled.") + format;
+      QString initialPath = QDir::currentPath() + _event->getName() + tr("_traces.") + format;
       QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"),
                                      initialPath,
                                      tr("%1 Files (*.%2);;All Files (*)")
