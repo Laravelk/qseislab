@@ -66,21 +66,21 @@ set(SOURCES
         event_operation/share/polarizationanalysiscompute.cpp # test
 
         event_operation/share/model.cpp
-        event_operation/share/view/graphic_view/graphic_view.cpp
-        event_operation/share/view/graphic_view/wavepick.cpp
+        event_operation/share/view/event_view/graphic_view.cpp
+        event_operation/share/view/event_view/wavepick.cpp
         event_operation/share/view/infoevent.cpp
         event_operation/share/view/graphiccontroller.cpp
         event_operation/share/view/chartgesture.cpp
         event_operation/share/view/eventtoolswidget.cpp
-        event_operation/share/view/3dscene/polarizationanalysiswindow.cpp
-        event_operation/share/view/3dscene/infowidget.cpp
-        event_operation/share/view/graphic_view/viewoperation.cpp
+        event_operation/share/view/event_view/hodogram/polarizationanalysiswindow.cpp
+        event_operation/share/view/event_view/hodogram/infowidget.cpp
+        event_operation/share/view/event_view/viewoperation.cpp
 
 
-        event_operation/share/view/polar_graph/polargraph.cpp # test
-        event_operation/share/view/polar_graph/analysisdatagraphicsitem.cpp
+        event_operation/share/view/event_view/polar_graph/polargraph.cpp # test
+        event_operation/share/view/event_view/polar_graph/analysisdatagraphicsitem.cpp
 
-        event_operation/share/view/analysis_view/analysiswindow.cpp
+        event_operation/share/view/event_view/analysis_view/analysiswindow.cpp
 
         event_operation/share/view/tools_view/wigglewidget.cpp
         event_operation/share/view/tools_view/hidecomponentwidget.cpp
@@ -198,20 +198,20 @@ set(HEADERS
         event_operation/share/polarizationanalysiscompute.h # test
 
         event_operation/share/model.h
-        event_operation/share/view/graphic_view/graphic_view.h
-        event_operation/share/view/graphic_view/wavepick.h
+        event_operation/share/view/event_view/graphic_view.h
+        event_operation/share/view/event_view/wavepick.h
         event_operation/share/view/infoevent.h
         event_operation/share/view/graphiccontroller.h
         event_operation/share/view/chartgesture.h
         event_operation/share/view/eventtoolswidget.h
-        event_operation/share/view/graphic_view/viewoperation.h
-        event_operation/share/view/3dscene/polarizationanalysiswindow.h
-        event_operation/share/view/3dscene/infowidget.h
+        event_operation/share/view/event_view/viewoperation.h
+        event_operation/share/view/event_view/hodogram/polarizationanalysiswindow.h
+        event_operation/share/view/event_view/hodogram/infowidget.h
 
-        event_operation/share/view/polar_graph/polargraph.h # test
-        event_operation/share/view/polar_graph/analysisdatagraphicsitem.h
+        event_operation/share/view/event_view/polar_graph/polargraph.h # test
+        event_operation/share/view/event_view/polar_graph/analysisdatagraphicsitem.h
 
-        event_operation/share/view/analysis_view/analysiswindow.h
+        event_operation/share/view/event_view/analysis_view/analysiswindow.h
 
 
         event_operation/share/view/tools_view/wigglewidget.h

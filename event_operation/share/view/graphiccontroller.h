@@ -5,9 +5,9 @@
 
 #include "chartgesture.h"
 #include "data/seismevent.h"
-#include "graphic_view/graphic_view.h"
-#include "polar_graph/polargraph.h"
-#include "analysis_view/analysiswindow.h"
+#include "event_view/graphic_view.h"
+#include "event_view/polar_graph/polargraph.h"
+#include "event_view/analysis_view/analysiswindow.h"
 
 #include <QtCharts>
 

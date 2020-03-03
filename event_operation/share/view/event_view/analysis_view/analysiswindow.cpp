@@ -1,7 +1,7 @@
 #include "analysiswindow.h"
 
-#include "../tools_view/changeborderonpolarwidget.h"
-#include "../tools_view/hidewavepointswidget.h"
+#include "../../tools_view/changeborderonpolarwidget.h"
+#include "../../tools_view/hidewavepointswidget.h"
 
 namespace EventOperation {
 

@@ -5,7 +5,7 @@
 #include <iostream> // TODO: delete
 #include <limits>
 
-#include "event_operation/share/view/graphic_view/graphic_view.h"
+#include "event_operation/share/view/event_view/graphic_view.h"
 
 // тип волны и номер компоненты
 // по второму нажатию удаляем

@@ -5,7 +5,7 @@
 #include <QHBoxLayout>
 #include <QPolarChart>
 
-#include "../3dscene/polarizationanalysiswindow.h"
+#include "../hodogram/polarizationanalysiswindow.h"
 #include "../polar_graph/polargraph.h"
 
 namespace Data {

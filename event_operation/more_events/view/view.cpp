@@ -4,7 +4,7 @@
 #include "event_operation/share/view/graphiccontroller.h"
 
 #include "event_operation/share/view/graphiccontroller.h"
-#include "event_operation/share/view/polar_graph/polargraph.h"
+#include "event_operation/share/view/event_view/polar_graph/polargraph.h"
 
 #include "event_operation/share/view/infoevent.h"
 

@@ -6,7 +6,7 @@
 
 #include <iostream> // TODO: delete
 
-#include "graphic_view/wavepick.h"
+#include "event_view/wavepick.h"
 
 namespace EventOperation {
 ChartGesture::ChartGesture(QGraphicsItem *parent, Qt::WindowFlags wFlags)

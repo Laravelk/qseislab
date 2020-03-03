@@ -3,10 +3,9 @@
 #include "data/seismevent.h"
 #include "data/seismwell.h"
 #include "event_operation/share/model.h"
-#include "event_operation/share/view/3dscene/polarizationanalysiswindow.h"
+#include "event_operation/share/view/event_view/hodogram/polarizationanalysiswindow.h"
 //#include "view/view.h"
 
-//#include "event_operation/modification/rotatedatatoebasis.h"
 #include "event_operation/modification/commands/testindividualcommand.h"
 #include "event_operation/modification/undocommandgetter.h"
 

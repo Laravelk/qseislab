@@ -3,7 +3,7 @@
 #include "data/seismcomponent.h"
 #include "data/seismevent.h"
 #include "data/seismtrace.h"
-#include "graphic_view/wavepick.h"
+#include "event_view/wavepick.h"
 
 #include "tools_view/clippingwidget.h"
 #include "tools_view/gainwidget.h"

@@ -5,11 +5,11 @@
 #include "data/seismevent.h"
 #include "data/seismwell.h"
 #include "event_operation/share/model.h"
-#include "event_operation/share/view/3dscene/polarizationanalysiswindow.h"
-#include "event_operation/share/view/analysis_view/analysiswindow.h"
+#include "event_operation/share/view/event_view/hodogram/polarizationanalysiswindow.h"
+#include "event_operation/share/view/event_view/analysis_view/analysiswindow.h"
 
 #include "event_operation/share/polarizationanalysiscompute.h"
-#include "event_operation/share/view/polar_graph/polargraph.h"
+#include "event_operation/share/view/event_view/polar_graph/polargraph.h"
 
 #include "event_operation/modification/undocommandgetter.h"
 #include "project_operation/project_settings/settingdialog.h"
