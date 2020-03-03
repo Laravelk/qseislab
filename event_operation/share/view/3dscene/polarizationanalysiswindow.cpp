@@ -34,7 +34,7 @@
 #include <Qt3DExtras/qfirstpersoncameracontroller.h>
 #include <Qt3DExtras/qt3dwindow.h>
 
-//#include <iostream> // TODO: delete
+#include "infowidget.h"
 
 #include "data/seismevent.h"
 #include "data/seismtrace.h"
@@ -51,7 +51,7 @@ PolarizationAnalysisWindow::PolarizationAnalysisWindow (
     : QDialog(parent), _okButton(new QPushButton("Ok")),
       _cancelButton(new QPushButton("Cancel")), _receiverBox(new QComboBox),
       _waveTypeBox(new QComboBox), _view(new Qt3DExtras::Qt3DWindow),
-      _scene(new Qt3DCore::QEntity()), _event(event.get()) {
+      _scene(new Qt3DCore::QEntity()), _event(event.get()), _infoWidget(new InfoWidget()) {
 
   _container = QWidget::createWindowContainer(_view);
   setMinimumSize(700, 400);
@@ -82,6 +82,7 @@ PolarizationAnalysisWindow::PolarizationAnalysisWindow (
   vLayout->addWidget(_okButton);
   vLayout->addWidget(_receiverBox);
   vLayout->addWidget(_waveTypeBox);
+  vLayout->addWidget(_infoWidget);
 
   QList<QString> waveTypeList;
   QList<QString> receiverList;
@@ -363,7 +364,6 @@ void PolarizationAnalysisWindow::drawTraces(
   float maxValue = component->getMaxValue();
   Data::SeismWavePick::Type type;
   Data::SeismWavePick pick;
-  std::cerr << "DRAW\n";
   if (_currentWaveTypeString == P_WAVE_STRING) {
      type = Data::SeismWavePick::PWAVE;
   } else {
@@ -372,6 +372,7 @@ void PolarizationAnalysisWindow::drawTraces(
   for (auto &type_pick : component->getWavePicks()) {
     if (type == type_pick.first) {
       pick = type_pick.second;
+      _infoWidget->update(pick.getPolarizationAnalysisData().value());
     }
   }
 
@@ -417,10 +418,10 @@ int PolarizationAnalysisWindow::lastElementNumber(
 
 void PolarizationAnalysisWindow::update() {
   clearScene();
-  std::cerr << "update in update\n";
+  _infoWidget->clear();
   if (DEFAULT_RECEIVER_STRING != _currentReceiverNumberString &&
       DEFAULT_WAVE_STRING != _currentWaveTypeString) {
-        drawTraces(_event->getComponents()[_currentReceiverNumberString.toInt()]);
+        drawTraces(_event->getComponents()[_currentReceiverNumberString.toInt()]);        
   }
 }
 

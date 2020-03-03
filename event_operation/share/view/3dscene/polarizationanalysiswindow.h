@@ -3,6 +3,7 @@
 #include <QBoxLayout>
 #include <QComboBox>
 #include <QDialog>
+#include <QLabel>
 #include <QPushButton>
 
 #include <Qt3DCore/QComponent>
@@ -19,6 +20,7 @@ class SeismWavePick;
 } // namespace Data
 
 namespace EventOperation {
+class InfoWidget;
 class PolarizationAnalysisWindow : public QDialog {
   Q_OBJECT
 public:
@@ -63,5 +65,8 @@ private:
   QList<Qt3DCore::QEntity *> _curves;
   QList<Qt3DCore::QEntity *> _arrows;
   Qt3DCore::QEntity * _eigenVectorLine = nullptr;
+  InfoWidget *_infoWidget = nullptr;
+
+
 };
 } // namespace EventOperation

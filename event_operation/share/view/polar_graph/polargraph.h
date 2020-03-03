@@ -88,6 +88,8 @@ private:
   const QString ALT_IS_TOUCHING_STATUS = "EDIT MODE";
   const QRectF WARNING_STATUS_RECT = QRectF(19, 413, 158, 20);
   const QString NORMAL_STATUS = "OK";
+  const double TWO_PI_IN_DEGREES = 360;
+  const double PI_IN_DEGREES = 180;
 
   void handleClickedPoint(const QPointF &);
   void findPolarizationAnalysisDataForClickedPoint(const QPointF &);

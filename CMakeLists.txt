@@ -73,6 +73,7 @@ set(SOURCES
         event_operation/share/view/chartgesture.cpp
         event_operation/share/view/eventtoolswidget.cpp
         event_operation/share/view/3dscene/polarizationanalysiswindow.cpp
+        event_operation/share/view/3dscene/infowidget.cpp
         event_operation/share/view/graphic_view/viewoperation.cpp
 
 
@@ -205,6 +206,7 @@ set(HEADERS
         event_operation/share/view/eventtoolswidget.h
         event_operation/share/view/graphic_view/viewoperation.h
         event_operation/share/view/3dscene/polarizationanalysiswindow.h
+        event_operation/share/view/3dscene/infowidget.h
 
         event_operation/share/view/polar_graph/polargraph.h # test
         event_operation/share/view/polar_graph/analysisdatagraphicsitem.h

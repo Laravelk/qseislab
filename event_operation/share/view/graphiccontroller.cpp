@@ -31,7 +31,7 @@ GraphicController::GraphicController(QWidget *parent)
       _calculatePolarizationAnalysisDataButton(new QPushButton("Compute")),
       _polarChart(new QPolarChart()), _hideWavePointsWidget(new HideWavePointsWidget()),
       _changeBorderWidget(new ChangeBorderOnPolarWidget()), _testButton(new QPushButton("Test")),
-        _screenButton(new QPushButton("Screen"))
+        _screenButton(new QPushButton())
 {
 
   _view = new GraphicView(_chart);
@@ -72,6 +72,10 @@ GraphicController::GraphicController(QWidget *parent)
   addWaveButtonMenu->addAction(_addPWave);
   addWaveButtonMenu->addAction(_addSWave);
   _addWaveButton->setMenu(addWaveButtonMenu);
+
+//  _screenButton->setIcon(QIcon(":/iconcs/screenshot.png"));
+//  _screenButton->setToolTip("Screenshot");
+    _screenButton->setText("Screenshot");
 
   // conect`s
   connect(_polarizationEventButton, &QPushButton::clicked,
@@ -158,7 +162,7 @@ GraphicController::GraphicController(QWidget *parent)
 
   connect(_screenButton, &QPushButton::clicked, [this]() {
       QString format = "png";
-      QString initialPath = QDir::currentPath() + _event->getName() + tr("_traces.") + format;
+      QString initialPath = _event->getName() + "_traces." + format;
       QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"),
                                      initialPath,
                                      tr("%1 Files (*.%2);;All Files (*)")
