@@ -73,15 +73,12 @@ private:
   QValueAxis *_angularAxis;
   QValueAxis *_radialAxis;
   QWidget *_allView;
-  QGraphicsTextItem *_status;
-  QGraphicsRectItem *_statusRect;
   QList<QScatterSeries *> _seriesList;
   std::vector<PointInfo> _infoAboutPoint;
   QList<Data::SeismPolarizationAnalysisData> _dataList;
   AnalysisDataGraphicItem *_dataItem = nullptr;
   bool _hideSWave = false;
   bool _hidePWave = false;
-  bool _isZoomed = false;
   bool _hideAllInfo = true;
 
   const QString WARNING_STATUS = "WARNING. DATA WAS CHANGE";

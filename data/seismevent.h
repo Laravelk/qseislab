@@ -49,7 +49,8 @@ public:
     MovePick,
     RemovePick,
     AddPick,
-    FFilteringData
+    FFilteringData,
+    ComputeAnalysis
   };
 
   explicit SeismEvent();

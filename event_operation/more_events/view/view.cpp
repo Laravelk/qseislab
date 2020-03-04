@@ -305,20 +305,6 @@ void View::setAddPolarizationWindowButtonEnable(bool enable) {
   _graphicEvent->setAddPolarizationWindowButtonEnable(enable);
 }
 
-void View::showWarningWindowAboutValidStatusOfPolarizationAnalysisData() {
-  QMessageBox::StandardButton reply;
-  reply = QMessageBox::question(
-      this, QString::fromUtf8("Предупреждение"),
-      QString::fromUtf8("Не актуальные данные поляризационного анализа. "
-                        "Пересчитать?"),
-      QMessageBox::Yes | QMessageBox::No);
-  if (reply == QMessageBox::Yes) {
-    emit calculatePolarizationAnalysisData();
-  } else {
-    emit updatePolarGraphSignal();
-  }
-}
-
 void View::recvFilesPath(const QStringList &paths) {
   emit sendWellUuidAndFilePaths(_wellUuid, paths);
 }

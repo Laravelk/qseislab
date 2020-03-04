@@ -2,6 +2,7 @@
 
 #include "data/seismpolarizationanalysisdata.h"
 #include "data/seismwavepick.h"
+#include "undo_stack_work/eventoperationundocommand.h"
 
 #include <Eigen/Eigenvalues>
 #include <Eigen/Jacobi>
@@ -17,16 +18,25 @@ class SeismTrace;
 class SeismWavePick;
 } // namespace Data
 
-namespace EventOperation {
-class PolarizationAnalysisCompute /*: public QUndoCommand*/ {
+class PolarizationAnalysisCompute : public EventOperationUndoCommand {
 public:
-  PolarizationAnalysisCompute(Data::SeismEvent * const);
-  void calculate();
 
-  //  void undo() override;
-  //  void redo() override;
+    class Parameters {
+    public:
+        explicit Parameters() {}
+    private:
+    };
+
+    explicit PolarizationAnalysisCompute(const std::set<Data::SeismEvent *> &, const Parameters &);
+
+protected:
+  void undoForOne(Data::SeismEvent *) override;
+  void redoForOne(Data::SeismEvent *) override;
 
 private:
+
+  void calculate();
+
   Data::SeismEvent *_event;
   const double DEGREES_COEFFICIENT = 180;
 
@@ -44,8 +54,5 @@ private:
   Data::SeismPolarizationAnalysisData
   calculatePolarizationData(const Eigen::MatrixXf &);
 
-  int test_data_for_print_num_of_comp = 0;
-  Data::SeismWavePick::Type test_data_for_print_type;
   template <typename T> int sgn(T val) { return (T(0) < val) - (val < T(0)); }
 };
-} // namespace EventOperation

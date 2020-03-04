@@ -57,49 +57,6 @@ Controller::Controller(
   connect(_model, &Model::notify,
           [this](auto &msg) { _view->setNotification(msg); });
 
-  //  connect(_view.get(), &View::removePick,
-  //          [this](const auto type, const auto num) {
-  //            auto &event = _event;
-  //            Data::ProjectSettings setting;
-  //            RemovePick::Parameters parameters;
-  //            parameters.setNum(num);
-  //            parameters.setType(type);
-  //            setting.setRemovePickParameters(parameters);
-  //            auto command = UndoCommandGetter::get(
-  //                Data::SeismEvent::TransformOperation::RemovePick, QUuid(),
-  //                event.get(), setting);
-  //            _undoStack->push(command);
-  //            _removedPickAndNeedUpdatePolarGraph = true;
-
-  //            if (_polarizationWindow) {
-  //              _polarizationWindow->setDefault();
-  //            }
-  //          });
-
-  //  connect(_view.get(), &View::addPick,
-  //          [this](auto type, auto num, auto l_val, auto arrival, auto r_val)
-  //          {
-  //            int idx = 0;
-  //            for (auto &component : _event->getComponents()) {
-  //              if (num == idx) {
-  //                Data::ProjectSettings setting;
-  //                AddPick::Parameters parameters;
-  //                parameters.setNumber(num);
-  //                parameters.setLeftValue(l_val);
-  //                parameters.setRightValue(r_val);
-  //                parameters.setPickArrivalValue(arrival);
-  //                parameters.setTypePick(type);
-  //                setting.setAddPickParameters(parameters);
-  //                auto command = UndoCommandGetter::get(
-  //                    Data::SeismEvent::TransformOperation::AddPick, QUuid(),
-  //                    _event.get(), setting);
-  //                _undoStack->push(command);
-  //                break;
-  //              }
-  //              idx++;
-  //            }
-  //          });
-
   connect(_view.get(), &View::sendWellUuidAndFilePath,
           [this, &wells_map, &receivers](auto &wellUuid, auto &filePath) {
             //            auto components =
@@ -137,10 +94,6 @@ Controller::Controller(
 
   connect(_view.get(), &View::sendWellUuidForRemove,
           [this, &wells_map, &receivers](auto &uuid) {
-            //            auto &well = wells_map.at(uuid);
-            //            for (auto &reciever : well->getReceivers()) {
-            //              _event->removeComponentByReceiverUuid(reciever->getUuid());
-            //            }
             for (auto &receiver : receivers) {
               if (uuid == receiver->getSourseWell()->getUuid()) {
                 _event->removeComponentByReceiverUuid(receiver->getUuid());
@@ -157,24 +110,24 @@ Controller::Controller(
           });
 
   connect(_view.get(), &View::calculatePolarizationAnalysisData, [this]() {
-    if (_calculatePolarization == nullptr) {
-      _calculatePolarization = new PolarizationAnalysisCompute(_event.get());
-    }
-    //      _calculatePolarization->calculate(_events_map.at(_currentEventUuid));
-    _calculatePolarization->calculate();
-    _removedPickAndNeedUpdatePolarGraph = false;
-    _view->updatePolarGraph(_event.get());
+//    if (_calculatePolarization == nullptr) {
+//      _calculatePolarization = new PolarizationAnalysisCompute(_event.get());
+//    }
+//    //      _calculatePolarization->calculate(_events_map.at(_currentEventUuid));
+//    _calculatePolarization->calculate();
+//    _removedPickAndNeedUpdatePolarGraph = false;
+//    _view->updatePolarGraph(_event.get());
   });
 
-  connect(_view.get(), &View::updatePolarGraphSignal,
-          [this]() { _view->updatePolarGraph(_event.get()); });
+//  connect(_view.get(), &View::updatePolarGraphSignal,
+//          [this]() { _view->updatePolarGraph(_event.get()); }); TODO: delete or update
 
   connect(_view.get(), &View::clickOnPolarAnalysisInGraph, [this]() {
-    if (!checkPolarizationAnalysisDataValid() ||
-        _removedPickAndNeedUpdatePolarGraph) {
-      _view.get()
-          ->showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
-    }
+//    if (!checkPolarizationAnalysisDataValid() ||
+//        _removedPickAndNeedUpdatePolarGraph) {
+//      _view.get()
+//          ->showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
+//    } TODO: update or delete
   });
 
   connect(_view.get(), &View::sendPicksInfo,
@@ -183,13 +136,6 @@ Controller::Controller(
             int idx = 0;
             for (auto &component : this->_event->getComponents()) {
               if (num == idx) {
-                //                    auto &pick =
-                //                    component->getWavePicks()[type];
-                //                    pick.setArrival(pick_val);
-                //                    pick.setPolarizationLeftBorder(l_val);
-                //                    pick.setPolarizationRightBorder(r_val);
-                //                    pick.setValidDataStatus(false);
-                //                    break;
                 auto &picks_map = component->getWavePicks();
                 auto itr_pic = picks_map.find(type);
                 if (itr_pic != picks_map.end()) {

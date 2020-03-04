@@ -42,15 +42,6 @@ PolarGraph::PolarGraph(QPolarChart *chart, QWidget *)
   _angularAxis->setRange(angularMin, angularMax);
 
   this->setRenderHint(QPainter::Antialiasing);
-  _statusRect = new QGraphicsRectItem(WARNING_STATUS_RECT, _polarChart);
-  _statusRect->setZValue(11);
-  _statusRect->setBrush(Qt::yellow);
-  _status = new QGraphicsTextItem(WARNING_STATUS, _polarChart);
-  _status->setPos(QPointF(20, 415));
-  _status->setZValue(12);
-
-  _status->hide();
-  _statusRect->hide();
 }
 
 QWidget *PolarGraph::getView() const { return _allView; }
@@ -64,11 +55,8 @@ void PolarGraph::update(Data::SeismEvent const *const event) {
   validPWaveSeries->setColor(Qt::darkRed);
   QScatterSeries *validSWaveSeries = new QScatterSeries();
   validSWaveSeries->setColor(Qt::darkBlue);
-  QScatterSeries *unValidSeries = new QScatterSeries();
-  unValidSeries->setColor(Qt::gray);
   int num = 0;
   for (auto &component : event->getComponents()) {
-    num++;
     for (auto &pick : component->getWavePicks()) {
       if (pick.second.getPolarizationAnalysisData() != std::nullopt) {
         Data::SeismPolarizationAnalysisData data =
@@ -82,9 +70,7 @@ void PolarGraph::update(Data::SeismEvent const *const event) {
 
         if (azimut < 0) {
             azimut += TWO_PI_IN_DEGREES;
-        }
-        if (data.isValid()) {
-          if (pick.first == Data::SeismWavePick::PWAVE) {
+        }          if (pick.first == Data::SeismWavePick::PWAVE) {
             validPWaveSeries->append(azimut, polarAngle);
             _infoAboutPoint.push_back(PointInfo(num, Data::SeismWavePick::PWAVE, azimut, polarAngle,
                                                 data.getRectilinearity(), data.getPlanarity()));
@@ -93,12 +79,11 @@ void PolarGraph::update(Data::SeismEvent const *const event) {
                                                 data.getRectilinearity(), data.getPlanarity()));
             validSWaveSeries->append(azimut, polarAngle);
           }
-        } else {
-          unValidSeries->append(azimut, polarAngle);
         }
         _dataList.append(pick.second.getPolarizationAnalysisData().value());
       }
-    }
+    num++;
+
   }
   if (!_hidePWave) {
     _seriesList.append(validPWaveSeries);
@@ -119,25 +104,7 @@ void PolarGraph::update(Data::SeismEvent const *const event) {
 
   connect(validSWaveSeries, &QScatterSeries::clicked,
           [this](const QPointF &point) { handleClickedPoint(point); });
-
-  connect(unValidSeries, &QScatterSeries::clicked,
-          [this](const QPointF &point) { handleClickedPoint(point); });
-
   // end connect zone
-
-  _statusRect->hide();
-  _statusRect->setBrush(Qt::white);
-
-  if (0 != unValidSeries->points().size()) {
-    _status->show();
-    _statusRect->setBrush(Qt::yellow);
-    _statusRect->show();
-    _status->setPlainText(WARNING_STATUS);
-    _polarChart->addSeries(unValidSeries);
-    unValidSeries->attachAxis(_radialAxis);
-    unValidSeries->attachAxis(_angularAxis);
-    _seriesList.append(unValidSeries);
-  }
 }
 
 void PolarGraph::loadEvent(const Data::SeismEvent * const event)

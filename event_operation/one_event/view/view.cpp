@@ -169,20 +169,6 @@ void View::updatePolarGraph(const Data::SeismEvent *const event) {
   _graphicEvent->updatePolarGraph(event);
 }
 
-void View::showWarningWindowAboutValidStatusOfPolarizationAnalysisData() {
-  QMessageBox::StandardButton reply;
-  reply = QMessageBox::question(
-      this, QString::fromUtf8("Предупреждение"),
-      QString::fromUtf8("Не актуальные данные поляризационного анализа. "
-                        "Пересчитать?"),
-      QMessageBox::Yes | QMessageBox::No);
-  if (reply == QMessageBox::Yes) {
-    emit calculatePolarizationAnalysisData();
-  } else {
-    emit updatePolarGraphSignal();
-  }
-}
-
 void View::updateDataEvent(Data::SeismEvent const *const event) {
   _toolsWidget->update(event);
   _infoEvent->update(event);

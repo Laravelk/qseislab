@@ -1,6 +1,6 @@
 #pragma once
 
-#include "event_operation/share/polarizationanalysiscompute.h"
+#include "event_operation/modification/commands/polarizationanalysiscompute.h"
 
 #include "view/view.h"
 

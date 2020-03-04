@@ -49,7 +49,6 @@ public:
   ChartGesture *getChartGesture();
 
   void setAddPolarizationWindowButtonEnable(bool enable);
-  void showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
 
 signals:
   void infoChanged() const;

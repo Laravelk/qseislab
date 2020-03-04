@@ -5,7 +5,7 @@
 #include "data/seismwell.h"
 
 #include "event_operation/share/view/event_view/hodogram/polarizationanalysiswindow.h"
-#include "event_operation/share/polarizationanalysiscompute.h"
+//#include "event_operation/share/polarizationanalysiscompute.h"
 #include "event_operation/share/view/event_view/polar_graph/polargraph.h"
 
 #include "event_operation/share/view/event_view/hodogram/polarizationanalysiswindow.h"
@@ -126,12 +126,12 @@ Controller::Controller(
           });
 
   connect(_view, &View::calculatePolarizationAnalysisData, [this]() {
-    if (_calculatePolarization == nullptr) {
-      _calculatePolarization = new PolarizationAnalysisCompute(
-          _event.get());
-    }
-    _calculatePolarization->calculate();
-    _view->updatePolarGraph(_event.get());
+//    if (_calculatePolarization == nullptr) {
+//      _calculatePolarization = new PolarizationAnalysisCompute(
+//          _event.get());
+//    }
+//    _calculatePolarization->calculate();
+//    _view->updatePolarGraph(_event.get());
   });
 
   connect(_view, &View::clickOnPolarAnalysisInGraph, [this]() {
@@ -144,14 +144,14 @@ Controller::Controller(
 }
 
 bool Controller::checkPolarizationAnalysisDataValid() {
-  for (auto &component :
-      _event.get()->getComponents()) {
-    for (auto &pick : component->getWavePicks()) {
-      if (!pick.second.getValidDataStatus()) {
-        return false;
-      }
-    }
-  }
+//  for (auto &component :
+//      _event.get()->getComponents()) {
+//    for (auto &pick : component->getWavePicks()) {
+//      if (!pick.second.getValidDataStatus()) {
+//        return false;
+//      }
+//    }
+//  }
   return true;
 }
 

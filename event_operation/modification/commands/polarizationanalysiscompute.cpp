@@ -5,17 +5,18 @@
 
 #include <iostream> // TODO: delete
 
-namespace EventOperation {
-PolarizationAnalysisCompute::PolarizationAnalysisCompute(Data::SeismEvent * const event)
-    : _event(event) {}
+PolarizationAnalysisCompute::PolarizationAnalysisCompute(const std::set<Data::SeismEvent *> &events, const Parameters &) :
+    EventOperationUndoCommand(events)
+{
+
+}
+
 
 void PolarizationAnalysisCompute::calculate() {
-//  _event = event.get();
   int numberOfComponent = 0;
   for (auto &component : _event->getComponents()) {
     for (auto &mapsWithPickElement : component->getWavePicks()) {
       Data::SeismWavePick &pick = mapsWithPickElement.second;
-      test_data_for_print_type = pick.getType();
       _oldDataMap[std::make_pair(numberOfComponent, pick.getType())] =
           pick.getPolarizationAnalysisData();
       const int FIRST_NUMBER_OF_ELEMENT_IN_ARRAY = static_cast<const int>(
@@ -34,29 +35,30 @@ void PolarizationAnalysisCompute::calculate() {
               pick.getPolarizationAnalysisData();
     }
     ++numberOfComponent;
-    test_data_for_print_num_of_comp = numberOfComponent;
   }
 }
 
-// void PolarizationAnalysisCompute::undo()
-//{
-//    int componentNumber = 0;
-//    for (auto &component : _event->getComponents()) {
-//        for (auto &mapsWithPickElement : component->getWavePicks()) {
-//            Data::SeismWavePick pick = mapsWithPickElement.second;
-//            std::optional<Data::SeismPolarizationAnalysisData*> optionalData =
-//                    _oldDataMap.at(std::make_pair(componentNumber,
-//                    pick.getType()));
-//            pick.setPolarizationAnalysisData(optionalData);
-//        }
-//        componentNumber++;
-//    }
-//}
+void PolarizationAnalysisCompute::undoForOne(Data::SeismEvent *event)
+{
+    int componentNumber = 0;
+    for (auto &component : event->getComponents()) {
+        for (auto &mapsWithPickElement : component->getWavePicks()) {
+            Data::SeismWavePick pick = mapsWithPickElement.second;
+            Data::SeismPolarizationAnalysisData optionalData =
+                    _oldDataMap.at(std::make_pair(componentNumber,
+                    pick.getType())).value();
+            pick.setPolarizationAnalysisData(optionalData);
+        }
+        componentNumber++;
+    }
+    event->changeTrigger();
+}
 
-// void PolarizationAnalysisCompute::redo()
-//{
-//    calculate();
-//}
+void PolarizationAnalysisCompute::redoForOne(Data::SeismEvent *event)
+{
+    _event = event;
+    calculate();
+}
 
 Eigen::MatrixXf PolarizationAnalysisCompute::getPointMatrix(
     Data::SeismComponent *const component, int firstIndex, int lastIndex) {
@@ -118,5 +120,3 @@ PolarizationAnalysisCompute::calculatePolarizationData(
       maxSingularValue, pAzimutInRadian, pIncidenceInRadian, pAzimutDegrees,
       pIncidenceDegrees, degree_of_planarity, degree_of_rectilinearity ,eigenVector);
 }
-
-} // namespace EventOperation

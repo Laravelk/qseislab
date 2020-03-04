@@ -94,6 +94,21 @@ FFilteringDataCommand::Parameters &ProjectSettings::getFFilteringParameters() {
 
 const FFilteringDataCommand::Parameters &
 ProjectSettings::getFFilteringParameters() const {
-  return _ffilteringParameters;
+    return _ffilteringParameters;
+}
+
+void ProjectSettings::setPolarizationAnalysisParameters(const PolarizationAnalysisCompute::Parameters &polarizationParameters)
+{
+    _polarizationParameters = polarizationParameters;
+}
+
+PolarizationAnalysisCompute::Parameters &ProjectSettings::getPolarizationParameters()
+{
+    return _polarizationParameters;
+}
+
+const PolarizationAnalysisCompute::Parameters &ProjectSettings::getPolarizationParameters() const
+{
+    return _polarizationParameters;
 }
 } // namespace Data

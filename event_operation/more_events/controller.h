@@ -59,7 +59,7 @@ private:
   QUuid _currentEventUuid;
 
   PolarizationAnalysisWindow *_polarizationWindow = nullptr;
-  PolarizationAnalysisCompute *_calculatePolarization = nullptr;
+//  PolarizationAnalysisCompute *_calculatePolarization = nullptr;
   AnalysisWindow *_analysisWindow = nullptr;
 };
 
