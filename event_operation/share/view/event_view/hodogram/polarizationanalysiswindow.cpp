@@ -133,9 +133,11 @@ void PolarizationAnalysisWindow::setDefault() {
   update();
 }
 
-void PolarizationAnalysisWindow::loadEvent(const std::shared_ptr<Data::SeismEvent> &)
+void PolarizationAnalysisWindow::loadEvent(const std::shared_ptr<Data::SeismEvent> &event)
 {
+    _event = event.get();
     clearScene();
+    update();
 }
 
 void PolarizationAnalysisWindow::removePick(int numOfReciever, SeismWavePick::Type type)

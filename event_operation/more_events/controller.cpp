@@ -81,6 +81,11 @@ Controller::Controller(
                         [this](auto event) {
                           if (event->getUuid() == _currentEventUuid) {
                             _view->updateDataEvent(event);
+                            std::cerr << "Data Changed ";
+                            if (_analysisWindow != nullptr) {
+                                std::cerr << "update polar in data changed\n";
+                                _analysisWindow->updatePolarGraph(event);
+                            }
                           }
                         });
 
@@ -178,12 +183,15 @@ Controller::Controller(
             }
           });
 
-  connect(_view.get(), &View::createAnalysisWindowTest, [this](){  
+  connect(_view.get(), &View::createAnalysisWindowTest, [this, settings](){
 //      if (!checkPolarizationAnalysisDataValid() ||
 //          !_isValidPolarGraph) {
 //        _view.get()
 //            ->showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
 //      } TODO: update or delete
+    auto command = UndoCommandGetter::get(Data::SeismEvent::TransformOperation::ComputeAnalysis,
+                                          _events_map.at(_currentEventUuid).get(), settings);
+    _undoStack->push(command);
     if (_analysisWindow == nullptr) {
         _analysisWindow = new AnalysisWindow(_events_map.at(_currentEventUuid));
     }

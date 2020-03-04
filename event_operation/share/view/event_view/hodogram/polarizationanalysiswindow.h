@@ -28,6 +28,7 @@ public:
                              QDialog *parent = nullptr);
   void setDefault();
   void loadEvent(const std::shared_ptr<Data::SeismEvent> &);
+  void update();
   void removePick(int numOfReciever, Data::SeismWavePick::Type type);
 
 protected:
@@ -57,7 +58,6 @@ private:
                  Qt3DCore::QEntity *, const int, const int, const float);
   void drawTraces(const Data::SeismComponent *const);
   int lastElementNumber(const Data::SeismComponent *const);
-  void update();
   void changeWaveBox();
   void changeReceiverNumberBox();
   Qt3DCore::QEntity *createTestScene();

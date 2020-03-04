@@ -23,6 +23,8 @@ class AnalysisWindow : public QFrame
 public:
     AnalysisWindow(std::shared_ptr<Data::SeismEvent> &event, QWidget *parent = nullptr);
     void updatePolarGraph(const Data::SeismEvent *const);
+    void updateHodogram(const Data::SeismEvent *const);
+    void updateAll(const Data::SeismEvent *const);
     void loadEvent(std::shared_ptr<Data::SeismEvent> &event);
     void setHodogramToDefault();
     void removePick(int numberOfReceiver, Data::SeismWavePick::Type type);

@@ -7,9 +7,7 @@
 
 PolarizationAnalysisCompute::PolarizationAnalysisCompute(const std::set<Data::SeismEvent *> &events, const Parameters &) :
     EventOperationUndoCommand(events)
-{
-
-}
+{}
 
 
 void PolarizationAnalysisCompute::calculate() {
@@ -31,8 +29,6 @@ void PolarizationAnalysisCompute::calculate() {
           calculatePolarizationData(matrix);
       data.setValid(true);
       pick.setPolarizationAnalysisData(data);
-      _currentlyMap[std::make_pair(numberOfComponent, pick.getType())] =
-              pick.getPolarizationAnalysisData();
     }
     ++numberOfComponent;
   }
@@ -43,11 +39,10 @@ void PolarizationAnalysisCompute::undoForOne(Data::SeismEvent *event)
     int componentNumber = 0;
     for (auto &component : event->getComponents()) {
         for (auto &mapsWithPickElement : component->getWavePicks()) {
-            Data::SeismWavePick pick = mapsWithPickElement.second;
             Data::SeismPolarizationAnalysisData optionalData =
                     _oldDataMap.at(std::make_pair(componentNumber,
-                    pick.getType())).value();
-            pick.setPolarizationAnalysisData(optionalData);
+                    mapsWithPickElement.second.getType())).value();
+            mapsWithPickElement.second.setPolarizationAnalysisData(optionalData);
         }
         componentNumber++;
     }
@@ -58,6 +53,7 @@ void PolarizationAnalysisCompute::redoForOne(Data::SeismEvent *event)
 {
     _event = event;
     calculate();
+    event->changeTrigger();
 }
 
 Eigen::MatrixXf PolarizationAnalysisCompute::getPointMatrix(
@@ -96,7 +92,6 @@ PolarizationAnalysisCompute::calculatePolarizationData(
   QVector3D eigenVector(vectorWithTheBiggestEigenValue[0], vectorWithTheBiggestEigenValue[1], vectorWithTheBiggestEigenValue[2]);
 
   if (vectorWithTheBiggestEigenValue[2] < 0) {
-//      std::cerr << "EXIST IN POLAR COMPUTE " << std::endl;
       eigenVector *= -1;
   }
 

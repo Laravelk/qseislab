@@ -3,11 +3,14 @@
 #include "data/seismcomponent.h"
 #include "data/seismevent.h"
 
+#include <iostream> // TODO: delete
+
 MovePick::MovePick(const std::set<Data::SeismEvent *> &events,
                    const Parameters &parameters)
     : EventOperationUndoCommand(events), _parameters(parameters) {}
 
 void MovePick::redoForOne(Data::SeismEvent *event) {
+    std::cerr << "redo move pick\n";
   auto &component = event->getComponents()[_parameters.getNumber()];
   for (auto &picksMapElement : component->getWavePicks()) {
     if (_parameters.getTypePick() == picksMapElement.first) {
@@ -25,7 +28,7 @@ void MovePick::redoForOne(Data::SeismEvent *event) {
 }
 
 void MovePick::undoForOne(Data::SeismEvent *event) {
-  int idx = 0;
+    std::cerr << "undo move pick\n";
   auto &component = event->getComponents()[_parameters.getNumber()];
   for (auto &picksMapElement : component->getWavePicks()) {
     if (_parameters.getTypePick() == picksMapElement.first) {

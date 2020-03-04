@@ -3,6 +3,8 @@
 #include "../../tools_view/changeborderonpolarwidget.h"
 #include "../../tools_view/hidewavepointswidget.h"
 
+#include <iostream> // TODO: delete
+
 namespace EventOperation {
 
 AnalysisWindow::AnalysisWindow(std::shared_ptr<Data::SeismEvent> &event, QWidget *parent) : QFrame(parent), _event(event.get()),
@@ -47,6 +49,18 @@ AnalysisWindow::AnalysisWindow(std::shared_ptr<Data::SeismEvent> &event, QWidget
 void AnalysisWindow::updatePolarGraph(const Data::SeismEvent * const event)
 {
     _graph->update(event);
+}
+
+void AnalysisWindow::updateHodogram(const Data::SeismEvent * const)
+{
+    _hodogram->update();
+}
+
+void AnalysisWindow::updateAll(const Data::SeismEvent * const event)
+{
+    _graph->update(event);
+    std::cerr << "update all in analysis windows";
+    _hodogram->update();
 }
 
 void AnalysisWindow::loadEvent(std::shared_ptr<Data::SeismEvent> &event)
