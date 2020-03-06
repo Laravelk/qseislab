@@ -28,7 +28,7 @@ public:
                              QDialog *parent = nullptr);
   void setDefault();
   void loadEvent(const std::shared_ptr<Data::SeismEvent> &);
-  void update();
+  void update(const Data::SeismEvent *const);
   void removePick(int numOfReciever, Data::SeismWavePick::Type type);
 
 protected:
@@ -60,13 +60,14 @@ private:
   int lastElementNumber(const Data::SeismComponent *const);
   void changeWaveBox();
   void changeReceiverNumberBox();
+  void scanInformation();
   Qt3DCore::QEntity *createTestScene();
   void clearScene();
   QList<Qt3DCore::QEntity *> _curves;
   QList<Qt3DCore::QEntity *> _arrows;
-  Qt3DCore::QEntity * _eigenVectorLine = nullptr;
+  Qt3DCore::QEntity *_eigenVectorLine = nullptr;
   InfoWidget *_infoWidget = nullptr;
 
-
+  int test = 0; // TODO: delete
 };
 } // namespace EventOperation

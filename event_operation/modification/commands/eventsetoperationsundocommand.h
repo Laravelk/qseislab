@@ -4,26 +4,35 @@
 
 #include "undo_stack_work/eventoperationundocommand.h"
 
+#include <iostream> // TODO: delete
+#include <initializer_list>
+
+namespace Data {
+class SeismEvent;
+}
+
 class EventSetOperationsUndoCommand : public EventOperationUndoCommand {
 public:
   class Parameters {
   public:
-    void addCommands(EventSetOperationsUndoCommand &commands) {
+    void addCommands(EventOperationUndoCommand &commands) {
       _commands.push_back(&commands);
     }
 
-    void setCommands(EventSetOperationsUndoCommand *...) {}
+    void setCommands(
+        std::initializer_list<EventOperationUndoCommand *> command_list) {
+      for (auto &command : command_list)
+        _commands.push_back(command);
+    }
 
-    const std::vector<EventSetOperationsUndoCommand *> getCommands() const {
+    const std::vector<EventOperationUndoCommand *> getCommands() const {
       return _commands;
     }
 
-    std::vector<EventSetOperationsUndoCommand *> getCommands() {
-      return _commands;
-    }
+    std::vector<EventOperationUndoCommand *> getCommands() { return _commands; }
 
   private:
-    std::vector<EventSetOperationsUndoCommand *> _commands;
+    std::vector<EventOperationUndoCommand *> _commands;
   };
 
   explicit EventSetOperationsUndoCommand(const std::set<Data::SeismEvent *> &,

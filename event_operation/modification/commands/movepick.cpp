@@ -10,7 +10,6 @@ MovePick::MovePick(const std::set<Data::SeismEvent *> &events,
     : EventOperationUndoCommand(events), _parameters(parameters) {}
 
 void MovePick::redoForOne(Data::SeismEvent *event) {
-    std::cerr << "redo move pick\n";
   auto &component = event->getComponents()[_parameters.getNumber()];
   for (auto &picksMapElement : component->getWavePicks()) {
     if (_parameters.getTypePick() == picksMapElement.first) {
@@ -28,7 +27,6 @@ void MovePick::redoForOne(Data::SeismEvent *event) {
 }
 
 void MovePick::undoForOne(Data::SeismEvent *event) {
-    std::cerr << "undo move pick\n";
   auto &component = event->getComponents()[_parameters.getNumber()];
   for (auto &picksMapElement : component->getWavePicks()) {
     if (_parameters.getTypePick() == picksMapElement.first) {

@@ -50,7 +50,6 @@ private:
   std::unique_ptr<View> _view;
 
   bool checkPolarizationAnalysisDataValid();
-  bool _isValidPolarGraph = true;
 
   std::map<QUuid, std::shared_ptr<Data::SeismEvent>> _events_map;
 
@@ -58,8 +57,7 @@ private:
 
   QUuid _currentEventUuid;
 
-  PolarizationAnalysisWindow *_polarizationWindow = nullptr;
-//  PolarizationAnalysisCompute *_calculatePolarization = nullptr;
+  //  PolarizationAnalysisWindow *_polarizationWindow = nullptr;
   AnalysisWindow *_analysisWindow = nullptr;
 };
 

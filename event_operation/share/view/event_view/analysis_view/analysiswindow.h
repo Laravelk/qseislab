@@ -17,27 +17,27 @@ class SeismTrace;
 namespace EventOperation {
 class ChangeBorderOnPolarWidget;
 class HideWavePointsWidget;
-class AnalysisWindow : public QFrame
-{
-    Q_OBJECT
+class AnalysisWindow : public QFrame {
+  Q_OBJECT
 public:
-    AnalysisWindow(std::shared_ptr<Data::SeismEvent> &event, QWidget *parent = nullptr);
-    void updatePolarGraph(const Data::SeismEvent *const);
-    void updateHodogram(const Data::SeismEvent *const);
-    void updateAll(const Data::SeismEvent *const);
-    void loadEvent(std::shared_ptr<Data::SeismEvent> &event);
-    void setHodogramToDefault();
-    void removePick(int numberOfReceiver, Data::SeismWavePick::Type type);
-private:
-    QHBoxLayout *_mainLayout;
-    QVBoxLayout *_polarGraphTools;
-    PolarizationAnalysisWindow *_hodogram = nullptr;
-    PolarGraph *_graph = nullptr;
-    ChangeBorderOnPolarWidget *_changeBorderOnPolarWidget;
-    HideWavePointsWidget *_hidePointsWidget;
-    Data::SeismEvent const *_event;
+  AnalysisWindow(std::shared_ptr<Data::SeismEvent> &event,
+                 QWidget *parent = nullptr);
+  void updatePolarGraph(const Data::SeismEvent *const);
+  void updateHodogram(const Data::SeismEvent *const event);
+  void updateAll(const Data::SeismEvent *const);
+  void loadEvent(std::shared_ptr<Data::SeismEvent> &event);
+  void setHodogramToDefault();
+  void removePick(int numberOfReceiver, Data::SeismWavePick::Type type);
 
-    void init(std::shared_ptr<Data::SeismEvent> &);
+private:
+  QHBoxLayout *_mainLayout;
+  QVBoxLayout *_polarGraphTools;
+  PolarizationAnalysisWindow *_hodogram = nullptr;
+  PolarGraph *_graph = nullptr;
+  ChangeBorderOnPolarWidget *_changeBorderOnPolarWidget;
+  HideWavePointsWidget *_hidePointsWidget;
+  Data::SeismEvent const *_event;
+
+  void init(std::shared_ptr<Data::SeismEvent> &);
 };
 }
-

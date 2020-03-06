@@ -25,7 +25,7 @@ public:
   void undo() override final;
   void redo() override final;
 
-protected:
+public:
   virtual void redoForOne(Data::SeismEvent *) = 0;
   virtual void undoForOne(Data::SeismEvent *) = 0;
 

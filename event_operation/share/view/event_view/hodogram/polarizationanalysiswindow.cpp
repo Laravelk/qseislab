@@ -46,12 +46,13 @@ typedef Data::SeismWavePick SeismWavePick;
 
 namespace EventOperation {
 
-PolarizationAnalysisWindow::PolarizationAnalysisWindow (
+PolarizationAnalysisWindow::PolarizationAnalysisWindow(
     const std::shared_ptr<Data::SeismEvent> &event, QDialog *parent)
     : QDialog(parent), _okButton(new QPushButton("Ok")),
       _cancelButton(new QPushButton("Cancel")), _receiverBox(new QComboBox),
       _waveTypeBox(new QComboBox), _view(new Qt3DExtras::Qt3DWindow),
-      _scene(new Qt3DCore::QEntity()), _event(event.get()), _infoWidget(new InfoWidget()) {
+      _scene(new Qt3DCore::QEntity()), _event(event.get()),
+      _infoWidget(new InfoWidget()) {
 
   _container = QWidget::createWindowContainer(_view);
   setMinimumSize(700, 400);
@@ -84,41 +85,29 @@ PolarizationAnalysisWindow::PolarizationAnalysisWindow (
   vLayout->addWidget(_waveTypeBox);
   vLayout->addWidget(_infoWidget);
 
-  QList<QString> waveTypeList;
-  QList<QString> receiverList;
-
   _currentReceiverNumberString = DEFAULT_RECEIVER_STRING;
   _currentWaveTypeString = DEFAULT_WAVE_STRING;
 
-  waveTypeList.append(DEFAULT_WAVE_STRING);
-  waveTypeList.append(P_WAVE_STRING);
-  waveTypeList.append(S_WAVE_STRING);
-  _waveTypeBox->addItems(waveTypeList);
-
-  receiverList.append(DEFAULT_RECEIVER_STRING);
-  for (int i = 0; i < event->getComponentAmount(); ++i) {
-    receiverList.append(QString::number(i));
-  }
-  _receiverBox->addItems(receiverList);
+  scanInformation();
 
   connect(_okButton, &QPushButton::clicked, this,
           &PolarizationAnalysisWindow::close);
   connect(_cancelButton, &QPushButton::clicked, this,
           &PolarizationAnalysisWindow::accept);
-  connect(event.get(), &Data::SeismEvent::dataChanged, [this]() { update(); });
+  //  connect(event.get(), &Data::SeismEvent::dataChanged, [this]() { update();
+  //  });
   connect(_receiverBox,
           QOverload<const QString &>::of(&QComboBox::currentIndexChanged),
           [=](const QString string) {
             _currentReceiverNumberString = string;
             changeWaveBox();
-            update();
+            update(_event);
           });
   connect(_waveTypeBox,
           QOverload<const QString &>::of(&QComboBox::currentIndexChanged),
           [=](const QString string) {
             _currentWaveTypeString = string;
-            // changeReceiverNumberBox();
-            update();
+            update(_event);
           });
 
   drawArrows();
@@ -130,32 +119,31 @@ void PolarizationAnalysisWindow::setDefault() {
   _currentReceiverNumberString = DEFAULT_RECEIVER_STRING;
   _waveTypeBox->setCurrentIndex(0);
   _receiverBox->setCurrentIndex(0);
-  update();
+  update(_event);
 }
 
-void PolarizationAnalysisWindow::loadEvent(const std::shared_ptr<Data::SeismEvent> &event)
-{
-    _event = event.get();
-    clearScene();
-    update();
+void PolarizationAnalysisWindow::loadEvent(
+    const std::shared_ptr<Data::SeismEvent> &event) {
+  _event = event.get();
+  clearScene();
+  update(_event);
 }
 
-void PolarizationAnalysisWindow::removePick(int numOfReciever, SeismWavePick::Type type)
-{
-    QString typeInString;
-    if (Data::SeismWavePick::PWAVE == type) {
-        typeInString = "PWAVE";
-    } else {
-        typeInString = "SWAVE";
-    }
+void PolarizationAnalysisWindow::removePick(int numOfReciever,
+                                            SeismWavePick::Type type) {
+  QString typeInString;
+  if (Data::SeismWavePick::PWAVE == type) {
+    typeInString = "PWAVE";
+  } else {
+    typeInString = "SWAVE";
+  }
 
-    if (_currentReceiverNumberString.toInt() == numOfReciever && _currentWaveTypeString == typeInString) {
-        std::cerr << "set to default/n";
-        setDefault();
-    } else {
-        std::cerr << "update\n";
-        update();
-    }
+  if (_currentReceiverNumberString.toInt() == numOfReciever &&
+      _currentWaveTypeString == typeInString) {
+    setDefault();
+  } else {
+    update(_event);
+  }
 }
 
 void PolarizationAnalysisWindow::drawArrows() {
@@ -362,14 +350,13 @@ void PolarizationAnalysisWindow::drawTraces(
     Data::SeismComponent const *const component) {
   int firstElement = 0;
   int lastElement = lastElementNumber(component);
-  int pickIndex = 0;
   float maxValue = component->getMaxValue();
   Data::SeismWavePick::Type type;
   Data::SeismWavePick pick;
   if (_currentWaveTypeString == P_WAVE_STRING) {
-     type = Data::SeismWavePick::PWAVE;
+    type = Data::SeismWavePick::PWAVE;
   } else {
-     type = Data::SeismWavePick::SWAVE;
+    type = Data::SeismWavePick::SWAVE;
   }
   for (auto &type_pick : component->getWavePicks()) {
     if (type == type_pick.first) {
@@ -379,24 +366,28 @@ void PolarizationAnalysisWindow::drawTraces(
   }
 
   // compute eigen line by eigen vector
-   if (pick.getPolarizationAnalysisData() != std::nullopt) {
-     Data::SeismPolarizationAnalysisData data = pick.getPolarizationAnalysisData().value();
-     QVector3D eigenVector = data.getEigenVector();
-     float cx1 = -2;
-     float cy1 = -2;
-     float cz1 = -2;
-     float cx2 = 2;
-     float cy2 = 2;
-     float cz2 = 2;
+  if (pick.getPolarizationAnalysisData() != std::nullopt) {
+    Data::SeismPolarizationAnalysisData data =
+        pick.getPolarizationAnalysisData().value();
+    QVector3D eigenVector = data.getEigenVector();
+    float cx1 = -2;
+    float cy1 = -2;
+    float cz1 = -2;
+    float cx2 = 2;
+    float cy2 = 2;
+    float cz2 = 2;
 
-     QVector3D point1(eigenVector.x() * cx1, eigenVector.z() * cy1, eigenVector.y() * cz1);
-     QVector3D point2(eigenVector.x() * cx2, eigenVector.z() * cy2, eigenVector.y() * cz2);
+    QVector3D point1(eigenVector.x() * cx1, eigenVector.z() * cy1,
+                     eigenVector.y() * cz1);
+    QVector3D point2(eigenVector.x() * cx2, eigenVector.z() * cy2,
+                     eigenVector.y() * cz2);
 
-//     std::cerr << "Eigen Vector: " << eigenVector.x() << " " << eigenVector.y() << " " << eigenVector.z() << std::endl;
+    //     std::cerr << "Eigen Vector: " << eigenVector.x() << " " <<
+    //     eigenVector.y() << " " << eigenVector.z() << std::endl;
 
-     _eigenVectorLine = drawLine(point1, point2, Qt::blue, _scene);
-   }
- // end compute
+    _eigenVectorLine = drawLine(point1, point2, Qt::blue, _scene);
+  }
+  // end compute
   firstElement = static_cast<int>(pick.getPolarizationLeftBorder() /
                                   component->getInfo().getSampleInterval());
   lastElement = static_cast<int>(pick.getPolarizationRightBorder() /
@@ -418,12 +409,13 @@ int PolarizationAnalysisWindow::lastElementNumber(
   return lastNumber;
 }
 
-void PolarizationAnalysisWindow::update() {
+void PolarizationAnalysisWindow::update(const Data::SeismEvent *const event) {
+  _event = event;
   clearScene();
   _infoWidget->clear();
   if (DEFAULT_RECEIVER_STRING != _currentReceiverNumberString &&
       DEFAULT_WAVE_STRING != _currentWaveTypeString) {
-        drawTraces(_event->getComponents()[_currentReceiverNumberString.toInt()]);        
+    drawTraces(_event->getComponents()[_currentReceiverNumberString.toInt()]);
   }
 }
 
@@ -491,6 +483,22 @@ void PolarizationAnalysisWindow::changeReceiverNumberBox() {
   _currentReceiverNumberString = DEFAULT_RECEIVER_STRING;
 }
 
+void PolarizationAnalysisWindow::scanInformation() {
+  QList<QString> waveTypeList;
+  QList<QString> receiverList;
+
+  waveTypeList.append(DEFAULT_WAVE_STRING);
+  waveTypeList.append(P_WAVE_STRING);
+  waveTypeList.append(S_WAVE_STRING);
+  _waveTypeBox->addItems(waveTypeList);
+
+  receiverList.append(DEFAULT_RECEIVER_STRING);
+  for (int i = 0; i < _event->getComponentAmount(); ++i) {
+    receiverList.append(QString::number(i));
+  }
+  _receiverBox->addItems(receiverList);
+}
+
 void PolarizationAnalysisWindow::clearScene() {
   for (auto &curve : _curves) {
     for (auto &component : curve->components()) {
@@ -503,11 +511,11 @@ void PolarizationAnalysisWindow::clearScene() {
     curve = nullptr;
   }
   if (_eigenVectorLine != nullptr) {
-      for (auto &component : _eigenVectorLine->components()) {
-          _eigenVectorLine->removeComponent(component);
-      }
-      delete _eigenVectorLine;
-      _eigenVectorLine = nullptr;
+    for (auto &component : _eigenVectorLine->components()) {
+      _eigenVectorLine->removeComponent(component);
+    }
+    delete _eigenVectorLine;
+    _eigenVectorLine = nullptr;
   }
 };
 
