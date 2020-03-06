@@ -5,8 +5,8 @@
 #include "data/seismevent.h"
 #include "data/seismwell.h"
 #include "event_operation/share/model.h"
-#include "event_operation/share/view/event_view/hodogram/polarizationanalysiswindow.h"
 #include "event_operation/share/view/event_view/analysis_view/analysiswindow.h"
+#include "event_operation/share/view/event_view/hodogram/polarizationanalysiswindow.h"
 
 #include "event_operation/modification/commands/polarizationanalysiscompute.h"
 #include "event_operation/share/view/event_view/polar_graph/polargraph.h"
@@ -83,8 +83,8 @@ Controller::Controller(
                             _view->updateDataEvent(event);
                             std::cerr << "Data Changed ";
                             if (_analysisWindow != nullptr) {
-                                std::cerr << "update polar in data changed\n";
-                                _analysisWindow->updatePolarGraph(event);
+                              std::cerr << "update polar in data changed\n";
+                              _analysisWindow->updatePolarGraph(event);
                             }
                           }
                         });
@@ -118,25 +118,18 @@ Controller::Controller(
     });
   });
 
-  connect(_view.get(), &View::calculatePolarizationAnalysisData, [this, settings]() {
+  connect(_view.get(), &View::calculatePolarizationAnalysisData,
+          [this, settings]() {
+            auto event = _events_map.at(_currentEventUuid).get();
+            auto command = UndoCommandGetter::get(
+                Data::SeismEvent::TransformOperation::ComputeAnalysis, event,
+                settings);
 
-      auto event = _events_map.at(_currentEventUuid).get();
-      auto command = UndoCommandGetter::get(Data::SeismEvent::TransformOperation::ComputeAnalysis, event, settings);
-
-      _undoStack->push(command);
-      if (_analysisWindow != nullptr) {
-          _analysisWindow->updatePolarGraph(event);
-      }
-
-
-//    if (_calculatePolarization == nullptr) {
-//      _calculatePolarization = new PolarizationAnalysisCompute(
-//          _events_map.at(_currentEventUuid).get());
-//    }
-//    _calculatePolarization->calculate();
-//    _isValidPolarGraph = true;
-//    _view->updatePolarGraph(_events_map.at(_currentEventUuid).get());
-  });
+            _undoStack->push(command);
+            if (_analysisWindow != nullptr) {
+              _analysisWindow->updatePolarGraph(event);
+            }
+          });
 
   connect(_view.get(), &View::clickOnPolarAnalysisInGraph, [this]() {
     // TODO: update
@@ -171,29 +164,33 @@ Controller::Controller(
             movePickParameters.setPickArrivalValue(pick_val);
             movePickParameters.setTypePick(type);
 
+            //            auto groupCommand = UndoCommandGetter::get
             auto command = UndoCommandGetter::get(
                 Data::SeismEvent::TransformOperation::MovePick, event.get(),
                 settings);
-            auto command_calculate = UndoCommandGetter::get(Data::SeismEvent::TransformOperation::ComputeAnalysis,
-                                                            event.get(), settings);
+            auto command_calculate = UndoCommandGetter::get(
+                Data::SeismEvent::TransformOperation::ComputeAnalysis,
+                event.get(), settings);
             _undoStack->push(command);
             _undoStack->push(command_calculate); // TODO: group command exec
             if (_analysisWindow != nullptr) {
-            _analysisWindow->updatePolarGraph(_events_map[_currentEventUuid].get());
+              _analysisWindow->updatePolarGraph(
+                  _events_map[_currentEventUuid].get());
             }
           });
 
-  connect(_view.get(), &View::createAnalysisWindowTest, [this, settings](){
-//      if (!checkPolarizationAnalysisDataValid() ||
-//          !_isValidPolarGraph) {
-//        _view.get()
-//            ->showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
-//      } TODO: update or delete
-    auto command = UndoCommandGetter::get(Data::SeismEvent::TransformOperation::ComputeAnalysis,
-                                          _events_map.at(_currentEventUuid).get(), settings);
+  connect(_view.get(), &View::createAnalysisWindowTest, [this, settings]() {
+    //      if (!checkPolarizationAnalysisDataValid() ||
+    //          !_isValidPolarGraph) {
+    //        _view.get()
+    //            ->showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
+    //      } TODO: update or delete
+    auto command = UndoCommandGetter::get(
+        Data::SeismEvent::TransformOperation::ComputeAnalysis,
+        _events_map.at(_currentEventUuid).get(), settings);
     _undoStack->push(command);
     if (_analysisWindow == nullptr) {
-        _analysisWindow = new AnalysisWindow(_events_map.at(_currentEventUuid));
+      _analysisWindow = new AnalysisWindow(_events_map.at(_currentEventUuid));
     }
     _analysisWindow->show();
   });
@@ -215,13 +212,13 @@ Controller::Controller(
                 settings);
             _undoStack->push(command);
             if (_analysisWindow != nullptr) {
-            _analysisWindow->updatePolarGraph(_events_map[_currentEventUuid].get());
+              _analysisWindow->updatePolarGraph(
+                  _events_map[_currentEventUuid].get());
             }
           });
 
   connect(_view.get(), &View::removePick,
           [this, settings](const auto type, const auto num) {
-
             if (_polarizationWindow != nullptr) {
               _polarizationWindow->setDefault();
             }
@@ -239,7 +236,8 @@ Controller::Controller(
             _undoStack->push(command);
             _isValidPolarGraph = false;
             if (_analysisWindow != nullptr) {
-            _analysisWindow->updatePolarGraph(_events_map[_currentEventUuid].get());
+              _analysisWindow->updatePolarGraph(
+                  _events_map[_currentEventUuid].get());
             }
           });
 

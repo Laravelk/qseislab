@@ -94,21 +94,36 @@ FFilteringDataCommand::Parameters &ProjectSettings::getFFilteringParameters() {
 
 const FFilteringDataCommand::Parameters &
 ProjectSettings::getFFilteringParameters() const {
-    return _ffilteringParameters;
+  return _ffilteringParameters;
 }
 
-void ProjectSettings::setPolarizationAnalysisParameters(const PolarizationAnalysisCompute::Parameters &polarizationParameters)
-{
-    _polarizationParameters = polarizationParameters;
+void ProjectSettings::setPolarizationAnalysisParameters(
+    const PolarizationAnalysisCompute::Parameters &polarizationParameters) {
+  _polarizationParameters = polarizationParameters;
 }
 
-PolarizationAnalysisCompute::Parameters &ProjectSettings::getPolarizationParameters()
-{
-    return _polarizationParameters;
+PolarizationAnalysisCompute::Parameters &
+ProjectSettings::getPolarizationParameters() {
+  return _polarizationParameters;
 }
 
-const PolarizationAnalysisCompute::Parameters &ProjectSettings::getPolarizationParameters() const
-{
-    return _polarizationParameters;
+const PolarizationAnalysisCompute::Parameters &
+ProjectSettings::getPolarizationParameters() const {
+  return _polarizationParameters;
+}
+
+void ProjectSettings::setMoreCommandsParameters(
+    const EventSetOperationsUndoCommand::Parameters &parameters) {
+  _setParameters = parameters;
+}
+
+EventSetOperationsUndoCommand::Parameters &
+ProjectSettings::getSetOperationsParameters() {
+  return _setParameters;
+}
+
+const EventSetOperationsUndoCommand::Parameters &
+ProjectSettings::getSetOperationsParameters() const {
+  return _setParameters;
 }
 } // namespace Data

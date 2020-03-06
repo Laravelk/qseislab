@@ -50,7 +50,8 @@ public:
     RemovePick,
     AddPick,
     FFilteringData,
-    ComputeAnalysis
+    ComputeAnalysis,
+    SetOperations
   };
 
   explicit SeismEvent();

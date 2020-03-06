@@ -1,12 +1,13 @@
 #pragma once
 
 #include "event_operation/modification/commands/addpick.h"
+#include "event_operation/modification/commands/eventsetoperationsundocommand.h"
 #include "event_operation/modification/commands/ffilteringdatacommand.h"
 #include "event_operation/modification/commands/movepick.h"
+#include "event_operation/modification/commands/polarizationanalysiscompute.h"
 #include "event_operation/modification/commands/removepick.h"
 #include "event_operation/modification/commands/rotatedatatoebasis.h"
 #include "event_operation/modification/commands/testindividualcommand.h"
-#include "event_operation/modification/commands/polarizationanalysiscompute.h"
 
 namespace Data {
 class ProjectSettings {
@@ -42,9 +43,17 @@ public:
   FFilteringDataCommand::Parameters &getFFilteringParameters();
   const FFilteringDataCommand::Parameters &getFFilteringParameters() const;
 
-  void setPolarizationAnalysisParameters(const PolarizationAnalysisCompute::Parameters &);
+  void setPolarizationAnalysisParameters(
+      const PolarizationAnalysisCompute::Parameters &);
   PolarizationAnalysisCompute::Parameters &getPolarizationParameters();
-  const PolarizationAnalysisCompute::Parameters &getPolarizationParameters() const;
+  const PolarizationAnalysisCompute::Parameters &
+  getPolarizationParameters() const;
+
+  void
+  setMoreCommandsParameters(const EventSetOperationsUndoCommand::Parameters &);
+  EventSetOperationsUndoCommand::Parameters &getSetOperationsParameters();
+  const EventSetOperationsUndoCommand::Parameters &
+  getSetOperationsParameters() const;
 
 private:
   TestIndividualCommand::Parameters _testMultParameters;
@@ -59,5 +68,6 @@ private:
 
   FFilteringDataCommand::Parameters _ffilteringParameters;
   PolarizationAnalysisCompute::Parameters _polarizationParameters;
+  EventSetOperationsUndoCommand::Parameters _setParameters;
 };
 } // namespace Data

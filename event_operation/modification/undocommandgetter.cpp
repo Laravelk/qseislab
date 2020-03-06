@@ -28,7 +28,11 @@ EventOperationUndoCommand *get(Data::SeismEvent::TransformOperation oper,
       return new FFilteringDataCommand(events,
                                        settings->getFFilteringParameters());
     case TransformOperation::ComputeAnalysis:
-        return new PolarizationAnalysisCompute(events, settings->getPolarizationParameters());
+      return new PolarizationAnalysisCompute(
+          events, settings->getPolarizationParameters());
+    case TransformOperation::SetOperations:
+      return new EventSetOperationsUndoCommand(
+          events, settings->getSetOperationsParameters());
     }
 
     std::cout << "not found operation" << std::endl;
