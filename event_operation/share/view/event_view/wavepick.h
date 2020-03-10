@@ -1,6 +1,7 @@
 #pragma once
 
 #include "data/seismwavepick.h"
+#include "wavezone.h"
 
 #include <QBrush>
 #include <QGuiApplication>
@@ -29,7 +30,7 @@ public:
            QSizeF, QBrush, std::variant<WavePick *, qreal>,
            std::variant<WavePick *, qreal>);
   WavePick(Data::SeismWavePick::Type, QGraphicsItem *, QChart *, qreal, qreal,
-           int, int, QBrush, WavePick * );
+           int, int, QBrush, WavePick *);
   void setAnchor(const QPointF);
 
   void updateGeometry();
@@ -48,9 +49,10 @@ public:
   QRectF boundingRect() const;
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
   void resize(QSizeF);
-  void emitChanged() {
-      emit changed();
-  }
+  void emitChanged() { emit changed(); }
+  void setLeftFillRect(WaveZone *);
+  void setRightFillRect(WaveZone *);
+  void setWaveRect(WaveZone *, WaveZone *);
 
 signals:
   void changed();
@@ -78,6 +80,9 @@ private:
   qreal _valueRightBorder;
   QRectF _rect;
   QBrush _brush;
+  WaveZone *_rightFillRect = nullptr;
+  WaveZone *_leftFillRect = nullptr;
+
 private:
   void updateBorders();
 };

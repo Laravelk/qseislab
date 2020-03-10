@@ -52,6 +52,15 @@ void WavePick::resize(QSizeF scaleC) {
   _rect.setSize(_size);
 }
 
+void WavePick::setLeftFillRect(WaveZone *zone) { _leftFillRect = zone; }
+
+void WavePick::setRightFillRect(WaveZone *zone) { _rightFillRect = zone; }
+
+void WavePick::setWaveRect(WaveZone *left, WaveZone *right) {
+  _leftFillRect = left;
+  _rightFillRect = right;
+}
+
 void WavePick::setAnchor(const QPointF point) { _anchor = point; }
 
 void WavePick::updateGeometry() {
@@ -94,7 +103,8 @@ QRectF WavePick::boundingRect() const {
 }
 
 void WavePick::mousePressEvent(QGraphicsSceneMouseEvent *event) {
-  if (event->buttons() == Qt::RightButton && (Qt::AltModifier == QGuiApplication::keyboardModifiers())) {
+  if (event->buttons() == Qt::RightButton &&
+      (Qt::AltModifier == QGuiApplication::keyboardModifiers())) {
     emit needDelete();
   }
   updateBorders();
@@ -102,12 +112,13 @@ void WavePick::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 }
 
 void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
-  if (event->buttons() && (Qt::AltModifier == QGuiApplication::keyboardModifiers()) & Qt::LeftButton) {
+  if (event->buttons() &&
+      (Qt::AltModifier == QGuiApplication::keyboardModifiers()) &
+          Qt::LeftButton) {
     _wasChanged = true;
     QPointF newPosition =
-        QPointF(_chart
-                    ->mapToValue(mapToParent(event->pos()) -
-                                 event->buttonDownPos(Qt::LeftButton))
+        QPointF(_chart->mapToValue(mapToParent(event->pos()) -
+                                   event->buttonDownPos(Qt::LeftButton))
                     .x(),
                 _anchor.y());
     if (newPosition.x() < _valueRightBorder &&
@@ -124,10 +135,10 @@ void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
 }
 
 void WavePick::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
-    if (_wasChanged) {
-        _wasChanged = false;
-        emit changed();
-    }
+  if (_wasChanged) {
+    _wasChanged = false;
+    emit changed();
+  }
 }
 
 void WavePick::mouseDoubleClickEvent(
@@ -142,11 +153,10 @@ void WavePick::mouseDoubleClickEvent(
 void WavePick::updateBorders() {
   auto border_visitor = [](auto &&arg) -> qreal {
     using T = std::decay_t<decltype(arg)>;
-    if constexpr (std::is_same_v<T, qreal>) {
-      return arg;
-    } else if constexpr (std::is_same_v<T, WavePick *>) {
-      return arg->getXPos();
-    }
+    if
+      constexpr(std::is_same_v<T, qreal>) { return arg; }
+    else if
+      constexpr(std::is_same_v<T, WavePick *>) { return arg->getXPos(); }
   };
   _valueLeftBorder = std::visit(border_visitor, _leftBorder);
   _valueRightBorder = std::visit(border_visitor, _rightBorder);

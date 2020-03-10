@@ -14,12 +14,16 @@ EventSetOperationsUndoCommand::EventSetOperationsUndoCommand(
 
 void EventSetOperationsUndoCommand::undoForOne(Data::SeismEvent *event) {
   for (auto &command : _parameters.getCommands()) {
+    command->disableEventTriggerSignal();
     command->undoForOne(event);
   }
+  event->changeTrigger();
 }
 
 void EventSetOperationsUndoCommand::redoForOne(Data::SeismEvent *event) {
   for (auto &command : _parameters.getCommands()) {
+    command->disableEventTriggerSignal();
     command->redoForOne(event);
   }
+  event->changeTrigger();
 }

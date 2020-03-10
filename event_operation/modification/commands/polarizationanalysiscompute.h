@@ -20,33 +20,32 @@ class SeismWavePick;
 
 class PolarizationAnalysisCompute : public EventOperationUndoCommand {
 public:
+  class Parameters {
+  public:
+    explicit Parameters() {}
 
-    class Parameters {
-    public:
-        explicit Parameters() {}
-    private:
-    };
+  private:
+  };
 
-    explicit PolarizationAnalysisCompute(const std::set<Data::SeismEvent *> &, const Parameters &);
+  explicit PolarizationAnalysisCompute(const std::set<Data::SeismEvent *> &,
+                                       const Parameters &);
 
 protected:
   void undoForOne(Data::SeismEvent *) override;
   void redoForOne(Data::SeismEvent *) override;
 
 private:
-
   void calculate();
 
   Data::SeismEvent *_event;
   const double DEGREES_COEFFICIENT = 180;
 
   std::map<std::pair<int, Data::SeismWavePick::Type>,
-           std::optional<Data::SeismPolarizationAnalysisData>>
-      _oldDataMap;
+           std::optional<Data::SeismPolarizationAnalysisData>> _oldDataMap;
 
 private:
   Eigen::MatrixXf getPointMatrix(Data::SeismComponent *const,
-                                  const int firstIndex, const int lastIndex);
+                                 const int firstIndex, const int lastIndex);
   Data::SeismPolarizationAnalysisData
   calculatePolarizationData(const Eigen::MatrixXf &);
 

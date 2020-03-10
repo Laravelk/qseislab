@@ -17,13 +17,13 @@ public:
   explicit EventOperationUndoCommand(const std::set<Data::SeismEvent *> &);
 
   bool isIndividual() const;
-
   bool isCommon() const;
 
   const std::set<QUuid> &getEventUuids() const;
 
   void undo() override final;
   void redo() override final;
+  void disableEventTriggerSignal() { _disableSignal = true; }
 
 public:
   virtual void redoForOne(Data::SeismEvent *) = 0;
@@ -31,6 +31,7 @@ public:
 
 protected:
   std::set<Data::SeismEvent *> _events;
+  bool _disableSignal = false;
 
 private:
   std::set<QUuid> _eventUuids;

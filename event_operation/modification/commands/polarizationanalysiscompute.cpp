@@ -5,10 +5,9 @@
 
 #include <iostream> // TODO: delete
 
-PolarizationAnalysisCompute::PolarizationAnalysisCompute(const std::set<Data::SeismEvent *> &events, const Parameters &) :
-    EventOperationUndoCommand(events)
-{}
-
+PolarizationAnalysisCompute::PolarizationAnalysisCompute(
+    const std::set<Data::SeismEvent *> &events, const Parameters &)
+    : EventOperationUndoCommand(events) {}
 
 void PolarizationAnalysisCompute::calculate() {
   int numberOfComponent = 0;
@@ -34,26 +33,29 @@ void PolarizationAnalysisCompute::calculate() {
   }
 }
 
-void PolarizationAnalysisCompute::undoForOne(Data::SeismEvent *event)
-{
-    int componentNumber = 0;
-    for (auto &component : event->getComponents()) {
-        for (auto &mapsWithPickElement : component->getWavePicks()) {
-            Data::SeismPolarizationAnalysisData optionalData =
-                    _oldDataMap.at(std::make_pair(componentNumber,
-                    mapsWithPickElement.second.getType())).value();
-            mapsWithPickElement.second.setPolarizationAnalysisData(optionalData);
-        }
-        componentNumber++;
+void PolarizationAnalysisCompute::undoForOne(Data::SeismEvent *event) {
+  int componentNumber = 0;
+  for (auto &component : event->getComponents()) {
+    for (auto &mapsWithPickElement : component->getWavePicks()) {
+      Data::SeismPolarizationAnalysisData optionalData =
+          _oldDataMap.at(std::make_pair(componentNumber,
+                                        mapsWithPickElement.second.getType()))
+              .value();
+      mapsWithPickElement.second.setPolarizationAnalysisData(optionalData);
     }
+    componentNumber++;
+  }
+  if (!_disableSignal) {
     event->changeTrigger();
+  }
 }
 
-void PolarizationAnalysisCompute::redoForOne(Data::SeismEvent *event)
-{
-    _event = event;
-    calculate();
+void PolarizationAnalysisCompute::redoForOne(Data::SeismEvent *event) {
+  _event = event;
+  calculate();
+  if (!_disableSignal) {
     event->changeTrigger();
+  }
 }
 
 Eigen::MatrixXf PolarizationAnalysisCompute::getPointMatrix(
@@ -68,11 +70,10 @@ Eigen::MatrixXf PolarizationAnalysisCompute::getPointMatrix(
   Eigen::RowVectorXf vectorY(lastIndex - firstIndex);
   Eigen::RowVectorXf vectorZ(lastIndex - firstIndex);
 
-  for (int i  = firstIndex;
-       i < lastIndex; i++) {
-      vectorX[i - firstIndex] = bufferX[i] / MAX_VALUE;
-      vectorY[i - firstIndex] = bufferY[i] / MAX_VALUE;
-      vectorZ[i - firstIndex] = bufferZ[i] / MAX_VALUE;
+  for (int i = firstIndex; i < lastIndex; i++) {
+    vectorX[i - firstIndex] = bufferX[i] / MAX_VALUE;
+    vectorY[i - firstIndex] = bufferY[i] / MAX_VALUE;
+    vectorZ[i - firstIndex] = bufferZ[i] / MAX_VALUE;
   }
 
   pointMatrix << vectorX, vectorY, vectorZ;
@@ -89,16 +90,20 @@ PolarizationAnalysisCompute::calculatePolarizationData(
 
   auto singularValues = svd->singularValues();
 
-  QVector3D eigenVector(vectorWithTheBiggestEigenValue[0], vectorWithTheBiggestEigenValue[1], vectorWithTheBiggestEigenValue[2]);
+  QVector3D eigenVector(vectorWithTheBiggestEigenValue[0],
+                        vectorWithTheBiggestEigenValue[1],
+                        vectorWithTheBiggestEigenValue[2]);
 
   if (vectorWithTheBiggestEigenValue[2] < 0) {
-      eigenVector *= -1;
+    eigenVector *= -1;
   }
 
   const double maxSingularValue = static_cast<double>(svd->singularValues()[0]);
   const double pAzimutInRadian =
-      static_cast<double>(std::atan(vectorWithTheBiggestEigenValue[1] * sgn(vectorWithTheBiggestEigenValue[2]) /
-                          (vectorWithTheBiggestEigenValue[0] * sgn(vectorWithTheBiggestEigenValue[2]))));
+      static_cast<double>(std::atan(vectorWithTheBiggestEigenValue[1] *
+                                    sgn(vectorWithTheBiggestEigenValue[2]) /
+                                    (vectorWithTheBiggestEigenValue[0] *
+                                     sgn(vectorWithTheBiggestEigenValue[2]))));
   const double pIncidenceInRadian =
       static_cast<double>(std::acos(qAbs(vectorWithTheBiggestEigenValue[2])));
 
@@ -106,12 +111,20 @@ PolarizationAnalysisCompute::calculatePolarizationData(
   const double pIncidenceDegrees =
       pIncidenceInRadian * DEGREES_COEFFICIENT / M_PI;
 
-  const float degree_of_rectilinearity = 1.0f - ((singularValues[0] + singularValues[2]) / (2 * singularValues[1]));
-  const float degree_of_planarity = 1.0f - ( 2 * singularValues[2] / (singularValues[0] + singularValues[1]));
+  const float degree_of_rectilinearity =
+      1.0f -
+      ((singularValues[0] + singularValues[2]) / (2 * singularValues[1]));
+  const float degree_of_planarity =
+      1.0f - (2 * singularValues[2] / (singularValues[0] + singularValues[1]));
 
-//  std::cerr << "Polar: " << pAzimutDegrees << " number " << test_data_for_print_num_of_comp << " Type " << test_data_for_print_type << std::endl;
-//  std::cerr << vectorWithTheBiggestEigenValue[0] << " " << vectorWithTheBiggestEigenValue[1] << " " << vectorWithTheBiggestEigenValue[2] <<std::endl << std::endl;
+  //  std::cerr << "Polar: " << pAzimutDegrees << " number " <<
+  //  test_data_for_print_num_of_comp << " Type " << test_data_for_print_type <<
+  //  std::endl;
+  //  std::cerr << vectorWithTheBiggestEigenValue[0] << " " <<
+  //  vectorWithTheBiggestEigenValue[1] << " " <<
+  //  vectorWithTheBiggestEigenValue[2] <<std::endl << std::endl;
   return Data::SeismPolarizationAnalysisData(
       maxSingularValue, pAzimutInRadian, pIncidenceInRadian, pAzimutDegrees,
-      pIncidenceDegrees, degree_of_planarity, degree_of_rectilinearity ,eigenVector);
+      pIncidenceDegrees, degree_of_planarity, degree_of_rectilinearity,
+      eigenVector);
 }

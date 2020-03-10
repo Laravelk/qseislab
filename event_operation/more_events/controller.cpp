@@ -82,7 +82,7 @@ Controller::Controller(
                           if (event->getUuid() == _currentEventUuid) {
                             _view->updateDataEvent(event);
                             if (_analysisWindow != nullptr) {
-                              //                              _analysisWindow->updateAll(event);
+                              _analysisWindow->updateAll(event);
                             }
                           }
                         });
@@ -104,17 +104,6 @@ Controller::Controller(
   connect(_view.get(), &View::updatePolarGraphSignal, [this]() {
     _view->updatePolarGraph(_events_map.at(_currentEventUuid).get());
   });
-
-  //  connect(_view.get(), &View::createPolarizationAnalysisWindow, [this]() {
-  //    _polarizationWindow =
-  //        new PolarizationAnalysisWindow(_events_map.at(_currentEventUuid));
-  //    _polarizationWindow->show();
-  //    _view->setAddPolarizationWindowButtonEnable(false);
-  //    connect(_polarizationWindow, &QDialog::finished, [this](int status) {
-  //      _polarizationWindow = nullptr;
-  //      _view->setAddPolarizationWindowButtonEnable(true);
-  //    });
-  //  });
 
   connect(_view.get(), &View::calculatePolarizationAnalysisData, [this,
                                                                   settings]() {
@@ -174,9 +163,10 @@ Controller::Controller(
                 event.get(), settings);
 
             _undoStack->push(groupCommand);
-            if (_analysisWindow != nullptr) {
-              _analysisWindow->updateAll(_events_map[_currentEventUuid].get());
-            }
+            //            if (_analysisWindow != nullptr) {
+            //              std::cerr << "update in sendpickinfo";
+            //              _analysisWindow->updateAll(_events_map[_currentEventUuid].get());
+            //            }
           });
 
   connect(_view.get(), &View::createAnalysisWindowTest, [this, settings]() {
@@ -220,9 +210,6 @@ Controller::Controller(
 
   connect(_view.get(), &View::removePick, [this, settings](const auto type,
                                                            const auto num) {
-    //            if (_polarizationWindow != nullptr) {
-    //              _polarizationWindow->setDefault();
-    //            }
     auto &event = _events_map[_currentEventUuid];
     auto &removePickParameters = settings->getRemovePickParameters();
     removePickParameters.setNum(num);

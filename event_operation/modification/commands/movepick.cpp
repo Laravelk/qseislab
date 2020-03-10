@@ -23,7 +23,9 @@ void MovePick::redoForOne(Data::SeismEvent *event) {
       pick.setValidDataStatus(false);
     }
   }
-  event->changeTrigger();
+  if (!_disableSignal) {
+    event->changeTrigger();
+  }
 }
 
 void MovePick::undoForOne(Data::SeismEvent *event) {
@@ -42,7 +44,9 @@ void MovePick::undoForOne(Data::SeismEvent *event) {
       pick.setValidDataStatus(beforeRedoPick.getValidDataStatus());
     }
   }
-  event->changeTrigger();
+  if (!_disableSignal) {
+    event->changeTrigger();
+  }
 }
 
 int MovePick::Parameters::getNumber() const { return num; }

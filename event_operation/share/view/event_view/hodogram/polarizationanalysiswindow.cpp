@@ -55,7 +55,7 @@ PolarizationAnalysisWindow::PolarizationAnalysisWindow(
       _infoWidget(new InfoWidget()) {
 
   _container = QWidget::createWindowContainer(_view);
-  setMinimumSize(700, 400);
+  setMinimumSize(800, 400);
 
   // camera
   Qt3DRender::QCamera *camera = _view->camera();
