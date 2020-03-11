@@ -52,13 +52,20 @@ void WavePick::resize(QSizeF scaleC) {
   _rect.setSize(_size);
 }
 
-void WavePick::setLeftFillRect(WaveZone *zone) { _leftFillRect = zone; }
+void WavePick::setLeftFillRect(WaveZone *zone) {
+  _leftFillRect = zone;
+  updateWaveZone();
+}
 
-void WavePick::setRightFillRect(WaveZone *zone) { _rightFillRect = zone; }
+void WavePick::setRightFillRect(WaveZone *zone) {
+  _rightFillRect = zone;
+  updateWaveZone();
+}
 
 void WavePick::setWaveRect(WaveZone *left, WaveZone *right) {
   _leftFillRect = left;
   _rightFillRect = right;
+  updateWaveZone();
 }
 
 void WavePick::setAnchor(const QPointF point) { _anchor = point; }
@@ -127,10 +134,45 @@ void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
           mapToParent(event->pos() - event->buttonDownPos(Qt::LeftButton)).x(),
           pos().y()));
       _anchor = QPointF(newPosition.x(), _anchor.y());
+
+      updateWaveZone();
     }
     event->setAccepted(true);
   } else {
     event->setAccepted(false);
+  }
+}
+
+void WavePick::updateWaveZone() {
+
+  // wave
+  if (_rightFillRect != nullptr && _leftFillRect != nullptr) {
+    _rightFillRect->setWidth(
+        _chart->mapToPosition(QPointF(_valueRightBorder, 0)).x() -
+        _chart->mapToPosition(_anchor).x());
+    _rightFillRect->setAnchor(_anchor);
+
+    _leftFillRect->setWidth(
+        _chart->mapToPosition(_anchor).x() -
+        _chart->mapToPosition(QPointF(_valueLeftBorder, 0)).x());
+    return;
+  }
+
+  // right board
+  if (_leftFillRect != nullptr) {
+    _leftFillRect->setWidth(
+        _chart->mapToPosition(_anchor).x() -
+        _chart->mapToPosition(QPointF(_valueLeftBorder, 0)).x());
+    return;
+  }
+
+  // left board
+  if (_rightFillRect != nullptr) {
+    _rightFillRect->setWidth(
+        _chart->mapToPosition(QPointF(_valueRightBorder, 0)).x() -
+        _chart->mapToPosition(_anchor).x());
+    _rightFillRect->setAnchor(_anchor);
+    return;
   }
 }
 
@@ -157,6 +199,7 @@ void WavePick::updateBorders() {
       constexpr(std::is_same_v<T, qreal>) { return arg; }
     else if
       constexpr(std::is_same_v<T, WavePick *>) { return arg->getXPos(); }
+
   };
   _valueLeftBorder = std::visit(border_visitor, _leftBorder);
   _valueRightBorder = std::visit(border_visitor, _rightBorder);

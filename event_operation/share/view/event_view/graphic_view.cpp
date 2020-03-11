@@ -35,6 +35,7 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, qreal ax, qreal ay,
 void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
                           qreal rangeX, qreal leftBorderPos,
                           qreal rightBorderPos) {
+  //  pos = QPointF(pos.x(), pos.y() - 1);
   WavePick *pick = new WavePick(type, rect, chart(), pos, _sizeWaveItem,
                                 _colorData->getPickColor(type), 2, 4);
   WavePick *leftBorder = new WavePick(
@@ -44,12 +45,17 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
       type, rect, chart(), QPointF(rightBorderPos, pos.y()), _sizeWaveItem,
       _colorData->getBorderPickColor(type), pick, rangeX);
   WaveZone *zoneLeft = new WaveZone(chart(), QPointF(leftBorderPos, pos.y()),
-                                    rect, _sizeWaveZoneItem);
-  WaveZone *zoneRight = new WaveZone(chart(), QPointF(leftBorderPos, pos.y()),
-                                     rect, _sizeWaveZoneItem);
+                                    rect, _sizeWaveZoneItem, Qt::blue, pos.y());
+  WaveZone *zoneRight = new WaveZone(chart(), QPointF(pos.x(), pos.y()), rect,
+                                     _sizeWaveZoneItem, Qt::red, pos.y());
 
   pick->setBorders(leftBorder, rightBorder);
   pick->setWaveRect(zoneLeft, zoneRight);
+  leftBorder->setRightFillRect(
+      zoneLeft); // так как от левой границы до пика находится левая зона
+  rightBorder->setLeftFillRect(zoneRight);
+  zoneLeft->setNum(pos.y());
+  zoneRight->setNum(pos.y());
   connect(pick, &WavePick::changed, [this, pick, leftBorder, rightBorder]() {
     leftBorder->setRightBorderValue(pick->getXPos());
     rightBorder->setLeftBorderValue(pick->getXPos());
@@ -80,6 +86,7 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
 
   connect(pick, &WavePick::needDelete, [this, pick, leftBorder, rightBorder]() {
     emit removePick(pick->getType(), pick->getComponentAmount());
+    // remove zone
   });
   _wavePicks.push_back(leftBorder);
   _wavePicks.push_back(rightBorder);

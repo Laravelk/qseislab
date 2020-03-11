@@ -50,6 +50,8 @@ public:
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
   void resize(QSizeF);
   void emitChanged() { emit changed(); }
+
+  /* Это стоит вызывать только у PWAVE && SWAVE. Не у границ */
   void setLeftFillRect(WaveZone *);
   void setRightFillRect(WaveZone *);
   void setWaveRect(WaveZone *, WaveZone *);
@@ -85,5 +87,6 @@ private:
 
 private:
   void updateBorders();
+  void updateWaveZone();
 };
 } // namespace EventOperation
