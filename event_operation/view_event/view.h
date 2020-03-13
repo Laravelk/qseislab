@@ -31,9 +31,7 @@ public:
 
   void updateInfoEvent(Data::SeismEvent const *const);
   void updateDataEvent(Data::SeismEvent const *const);
-  void updatePolarGraph(Data::SeismEvent const *const);
   void showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
-
 
   void settingEventInfo(Data::SeismEvent *const) const;
   ChartGesture *getChartGesture();

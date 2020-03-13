@@ -5,12 +5,12 @@
 #include "data/seismtrace.h"
 #include "event_view/wavepick.h"
 
+#include "tools_view/changeborderonpolarwidget.h"
 #include "tools_view/clippingwidget.h"
 #include "tools_view/gainwidget.h"
 #include "tools_view/hidecomponentwidget.h"
-#include "tools_view/wigglewidget.h"
 #include "tools_view/hidewavepointswidget.h"
-#include "tools_view/changeborderonpolarwidget.h"
+#include "tools_view/wigglewidget.h"
 
 #include <iostream> // TODO: need to DELETE
 
@@ -27,7 +27,6 @@ GraphicController::GraphicController(QWidget *parent)
       _clippingWidget(new ClippingWidget()), _gainWidget(new GainWidget()),
       _addWaveButton(new QPushButton("+")),
       _polarizationEventButton(new QPushButton("Hodogram")),
-      _tabWidget(new QTabWidget()),
       _calculatePolarizationAnalysisDataButton(new QPushButton("Compute")),
       _polarChart(new QPolarChart()),
       _hideWavePointsWidget(new HideWavePointsWidget()),
@@ -35,7 +34,6 @@ GraphicController::GraphicController(QWidget *parent)
       _testButton(new QPushButton("Test")), _screenButton(new QPushButton()) {
 
   _view = new GraphicView(_chart);
-  _polarGraph = new PolarGraph(_polarChart);
   _view->addModel(_chart);
   _chart->setAnimationOptions(QChart::NoAnimation);
   _chart->legend()->hide();
@@ -60,10 +58,6 @@ GraphicController::GraphicController(QWidget *parent)
             emit removePick(type, componentAmount);
           });
 
-  // _allView setting`s
-  //  _allView = new QWidget();
-  //  _allView->setMinimumWidth(900);
-
   _calculatePolarizationAnalysisDataButton->setMinimumSize(135, 20);
 
   QMenu *addWaveButtonMenu = new QMenu(_addWaveButton);
@@ -74,22 +68,9 @@ GraphicController::GraphicController(QWidget *parent)
   addWaveButtonMenu->addAction(_addSWave);
   _addWaveButton->setMenu(addWaveButtonMenu);
 
-  //  _screenButton->setIcon(QIcon(":/iconcs/screenshot.png"));
-  //  _screenButton->setToolTip("Screenshot");
   _screenButton->setText("Screenshot");
 
   // conect`s
-  connect(_polarizationEventButton, &QPushButton::clicked,
-          [this]() { emit createPolarizationAnalysisWindowClicked(); });
-
-  connect(_calculatePolarizationAnalysisDataButton, &QPushButton::clicked,
-          [this]() { emit calculatePolarizationAnalysisDataClicked(); });
-
-  connect(_tabWidget, &QTabWidget::tabBarClicked, [this](int index) {
-    if (POLAR_ANALYSIS_INDEX_IN_TAB == index) {
-      emit clickOnPolarAnalysisInGraph();
-    }
-  });
 
   connect(_addPWave, &QAction::triggered, [this]() {
     _view->setWaveAddTriggerFlag(Data::SeismWavePick::PWAVE);
@@ -131,22 +112,6 @@ GraphicController::GraphicController(QWidget *parent)
             }
           });
 
-  connect(_hideWavePointsWidget, &HideWavePointsWidget::updateWaveState,
-          [this](auto wave, auto state) {
-            switch (wave) {
-            case HideWavePointsWidget::Wave::PWAVE:
-              _polarGraph->hidePWavePoints(
-                  state == HideWavePointsWidget::State::Unchecked);
-              _polarGraph->update(_event);
-              break;
-            case HideWavePointsWidget::Wave::SWAVE:
-              _polarGraph->hideSWavePoints(
-                  state == HideWavePointsWidget::State::Unchecked);
-              _polarGraph->update(_event);
-              break;
-            }
-          });
-
   connect(_clippingWidget, &ClippingWidget::updateClipping,
           [this](float clipping) {
             _clipping = clipping;
@@ -171,35 +136,17 @@ GraphicController::GraphicController(QWidget *parent)
     pixmap.save(fileName, format.toUtf8());
   });
 
-  connect(_changeBorderWidget, &ChangeBorderOnPolarWidget::valueChanged,
-          [this]() {
-            _polarGraph->setRadialMin(_changeBorderWidget->getRadialMin());
-            _polarGraph->setRadialMax(_changeBorderWidget->getRadialMax());
-            _polarGraph->setAngularMin(_changeBorderWidget->getAngularMin());
-            _polarGraph->setAngularMax(_changeBorderWidget->getAngularMax());
-          });
-
   // layout`s
+
   QVBoxLayout *editGraphicMenuLayout = new QVBoxLayout();
-  QVBoxLayout *editPolarGraphicMenuLayout = new QVBoxLayout();
   editGraphicMenuLayout->addWidget(_wiggleWidget);
   editGraphicMenuLayout->addWidget(_hideComponentWidget);
   editGraphicMenuLayout->addWidget(_clippingWidget);
-
   editGraphicMenuLayout->addWidget(_gainWidget);
   editGraphicMenuLayout->addWidget(_addWaveButton);
   editGraphicMenuLayout->addWidget(_testButton);
   editGraphicMenuLayout->addWidget(_screenButton);
-  //  editGraphicMenuLayout->addWidget(_polarizationEventButton);
-  //  editGraphicMenuLayout->addWidget(_calculatePolarizationAnalysisDataButton);
   editGraphicMenuLayout->addStretch(1);
-
-  editPolarGraphicMenuLayout->addWidget(_polarizationEventButton);
-  editPolarGraphicMenuLayout->addWidget(
-      _calculatePolarizationAnalysisDataButton);
-  editPolarGraphicMenuLayout->addWidget(_hideWavePointsWidget);
-  editPolarGraphicMenuLayout->addWidget(_changeBorderWidget);
-  editPolarGraphicMenuLayout->addStretch(1);
 
   QHBoxLayout *graphLayout = new QHBoxLayout();
   graphLayout->addWidget(_view, 1);
@@ -208,19 +155,8 @@ GraphicController::GraphicController(QWidget *parent)
   QWidget *graphWidget = new QWidget();
   graphWidget->setLayout(graphLayout);
 
-  QHBoxLayout *polarGraphLayout = new QHBoxLayout();
-  polarGraphLayout->addWidget(_polarGraph, 1);
-  polarGraphLayout->addLayout(editPolarGraphicMenuLayout);
-
-  QWidget *polarGraphWidget = new QWidget();
-  polarGraphWidget->setLayout(polarGraphLayout);
-
-  _tabWidget->setStyleSheet("background-color: white");
-  _tabWidget->addTab(graphWidget, "Traces");
-  _tabWidget->addTab(polarGraphWidget, "Polarization Analysis Data");
-
   QHBoxLayout *mainLayout = new QHBoxLayout();
-  mainLayout->addWidget(_tabWidget, 1);
+  mainLayout->addWidget(graphWidget, 1);
   setLayout(mainLayout);
 }
 
@@ -254,10 +190,6 @@ void GraphicController::update(SeismEvent const *const event) {
     componentAmount++;
   }
   updateSeries();
-}
-
-void GraphicController::updatePolarGraph(const Data::SeismEvent *const event) {
-  _polarGraph->update(event);
 }
 
 void GraphicController::updateEventName(const QString &name) {
@@ -336,8 +268,9 @@ void GraphicController::addWaveArrival(Data::SeismWavePick pick, int index) {
       pick.getType(),
       QPointF(static_cast<double>(pick.getArrival()) / MICROSECONDS_IN_SECOND,
               index),
-      _rangeAxisX, static_cast<double>(pick.getPolarizationLeftBorder()) /
-                       MICROSECONDS_IN_SECOND,
+      _rangeAxisX,
+      static_cast<double>(pick.getPolarizationLeftBorder()) /
+          MICROSECONDS_IN_SECOND,
       static_cast<double>(pick.getPolarizationRightBorder()) /
           MICROSECONDS_IN_SECOND);
 }
@@ -444,7 +377,7 @@ void GraphicController::addWiggle(bool flag) {
     QColor upperAreaColor = series->color();
     upperAreaColor.setAlpha(100);
     upperArea->setPen(upperAreaColor);
-    upperArea->setBrush(QBrush(upperAreaColor)); // TODO: delete
+    upperArea->setBrush(QBrush(upperAreaColor));
     upperArea->setUpperSeries(newSeries);
     upperArea->setLowerSeries(medianSeries);
     upperArea->setUseOpenGL(true);
@@ -501,7 +434,7 @@ void GraphicController::updateSeries() {
   int componentNumber = 0;
   float currentGain = _gain;
   for (auto &component : _event->getComponents()) {
-    _norm = component->getMaxValue() /* currentGain NORMED*/;
+    _norm = component->getMaxValue();
     int index = -1;
     for (auto &trace : component->getTraces()) {
       QList<QPointF> points;

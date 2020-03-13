@@ -1,8 +1,8 @@
 #include "view.h"
 
+#include "event_operation/share/view/event_view/polar_graph/polargraph.h"
 #include "event_operation/share/view/eventtoolswidget.h"
 #include "event_operation/share/view/graphiccontroller.h"
-#include "event_operation/share/view/event_view/polar_graph/polargraph.h"
 #include "event_operation/share/view/infoevent.h"
 
 #include <assert.h>
@@ -41,24 +41,12 @@ View::View(const std::set<QString> &eventNames, SeismEvent const *const event,
             emit sendPicksInfo(type, num, l_val, pick_val, r_val);
           });
   connect(_graphicEvent, &EventOperation::GraphicController::removePick,
-          [this](auto type, auto num) {
-      emit removePick(type, num); });
+          [this](auto type, auto num) { emit removePick(type, num); });
   connect(_graphicEvent, &EventOperation::GraphicController::addPick,
           [this](auto type, auto num, auto l_val, auto arrival, auto r_val) {
             emit addPick(type, num, l_val, arrival, r_val);
           });
-  connect(_graphicEvent,
-          &EventOperation::GraphicController::
-              calculatePolarizationAnalysisDataClicked,
-          [this]() { emit calculatePolarizationAnalysisData(); });
-  connect(_graphicEvent,
-          &EventOperation::GraphicController::clickOnPolarAnalysisInGraph,
-          [this]() { emit clickOnPolarAnalysisInGraph(); });
 
-  connect(_graphicEvent,
-          &EventOperation::GraphicController::
-              createPolarizationAnalysisWindowClicked,
-          [this]() { emit createPolarizationAnalysisWindow(); });
   // Connecting end
 
   updateInfoEvent(event);
@@ -100,9 +88,6 @@ void View::settingEventInfo(SeismEvent *const event) const {
   _infoEvent->settingEventInfo(event);
 }
 
-void View::updatePolarGraph(const Data::SeismEvent *const event) {
-  _graphicEvent->updatePolarGraph(event);
-}
 ChartGesture *View::getChartGesture() { return _graphicEvent->getModel(); }
 
 void View::showWarningWindowAboutValidStatusOfPolarizationAnalysisData() {

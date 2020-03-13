@@ -97,23 +97,11 @@ View::View(const std::set<QString> &eventNames,
 
   connect(_infoEvent, &InfoEvent::changed, [this]() { emit infoChanged(); });
 
-  connect(_graphicEvent,
-          &EventOperation::GraphicController::
-              calculatePolarizationAnalysisDataClicked,
-          [this]() { emit calculatePolarizationAnalysisData(); });
-
-  connect(_graphicEvent,
-          &EventOperation::GraphicController::clickOnPolarAnalysisInGraph,
-          [this]() { emit clickOnPolarAnalysisInGraph(); });
-
   connect(_graphicEvent, &EventOperation::GraphicController::sendPicksInfo,
           [this](auto type, auto num, auto l_val, auto pick_val, auto r_val) {
             emit sendPicksInfo(type, num, l_val, pick_val, r_val);
           });
-  connect(_graphicEvent,
-          &EventOperation::GraphicController::
-              createPolarizationAnalysisWindowClicked,
-          [this]() { emit createPolarizationAnalysisWindow(); });
+
   connect(_okButton, &QPushButton::clicked, [this]() {
     if (_isValid) {
       accept();
@@ -163,10 +151,6 @@ void View::updateInfoEvent(Data::SeismEvent const *const event) {
   updateRepetition(name);
   _infoEvent->update(event);
   _graphicEvent->updateEventName(name);
-}
-
-void View::updatePolarGraph(const Data::SeismEvent *const event) {
-  _graphicEvent->updatePolarGraph(event);
 }
 
 void View::updateDataEvent(Data::SeismEvent const *const event) {

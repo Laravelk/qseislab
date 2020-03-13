@@ -3,8 +3,8 @@
 #include "event_operation/share/view/eventtoolswidget.h"
 #include "event_operation/share/view/graphiccontroller.h"
 
-#include "event_operation/share/view/graphiccontroller.h"
 #include "event_operation/share/view/event_view/polar_graph/polargraph.h"
+#include "event_operation/share/view/graphiccontroller.h"
 
 #include "event_operation/share/view/infoevent.h"
 
@@ -135,26 +135,10 @@ View::View(const std::set<QString> &globalEventNames,
           [this](auto type, auto num, auto l_val, auto pick_val, auto r_val) {
             emit sendPicksInfo(type, num, l_val, pick_val, r_val);
           });
-  connect(_graphicEvent,
-          &EventOperation::GraphicController::
-              createPolarizationAnalysisWindowClicked,
-          [this]() { emit createPolarizationAnalysisWindow(); });
-
-  connect(_graphicEvent, &EventOperation::GraphicController::createAnalysisWindowTestClicked,
-          [this]() {
-            emit createAnalysisWindowTest();
-  });
 
   connect(_graphicEvent,
-          &EventOperation::GraphicController::
-              calculatePolarizationAnalysisDataClicked,
-          [this]() { emit calculatePolarizationAnalysisData(); });
-  connect(_graphicEvent, &EventOperation::GraphicController::removePick,
-          [this](auto type, auto num) { emit removePick(type, num); });
-
-  connect(_graphicEvent,
-          &EventOperation::GraphicController::clickOnPolarAnalysisInGraph,
-          [this]() { emit clickOnPolarAnalysisInGraph(); });
+          &EventOperation::GraphicController::createAnalysisWindowTestClicked,
+          [this]() { emit createAnalysisWindowTest(); });
 
   connect(_graphicEvent, &EventOperation::GraphicController::addPick,
           [this](auto type, auto num, auto l_val, auto arrival, auto r_val) {
@@ -283,10 +267,6 @@ void View::update(
       updateRepetition(name);
     }
   }
-}
-
-void View::updatePolarGraph(const Data::SeismEvent *const event) {
-  _graphicEvent->updatePolarGraph(event);
 }
 
 void View::setNotification(const QString &text) {

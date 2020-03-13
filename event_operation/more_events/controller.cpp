@@ -101,21 +101,18 @@ Controller::Controller(
             _view->update(_events_map);
           });
 
-  connect(_view.get(), &View::updatePolarGraphSignal, [this]() {
-    _view->updatePolarGraph(_events_map.at(_currentEventUuid).get());
-  });
+  connect(_view.get(), &View::calculatePolarizationAnalysisData,
+          [this, settings]() {
+            auto event = _events_map.at(_currentEventUuid).get();
+            auto command = UndoCommandGetter::get(
+                Data::SeismEvent::TransformOperation::ComputeAnalysis, event,
+                settings);
 
-  connect(_view.get(), &View::calculatePolarizationAnalysisData, [this,
-                                                                  settings]() {
-    auto event = _events_map.at(_currentEventUuid).get();
-    auto command = UndoCommandGetter::get(
-        Data::SeismEvent::TransformOperation::ComputeAnalysis, event, settings);
-
-    _undoStack->push(command);
-    if (_analysisWindow != nullptr) {
-      _analysisWindow->updatePolarGraph(event);
-    }
-  });
+            _undoStack->push(command);
+            if (_analysisWindow != nullptr) {
+              _analysisWindow->updatePolarGraph(event);
+            }
+          });
 
   connect(_view.get(), &View::clickOnPolarAnalysisInGraph, [this]() {
     // TODO: update
@@ -180,57 +177,59 @@ Controller::Controller(
     _analysisWindow->show();
   });
 
-  connect(_view.get(), &View::addPick, [this, settings](
-                                           auto type, auto num, auto l_val,
-                                           auto arrival, auto r_val) {
-    auto &event = _events_map[_currentEventUuid];
+  connect(_view.get(), &View::addPick,
+          [this, settings](auto type, auto num, auto l_val, auto arrival,
+                           auto r_val) {
+            auto &event = _events_map[_currentEventUuid];
 
-    auto &addPickParameters = settings->getAddPickParameters();
-    addPickParameters.setNumber(num);
-    addPickParameters.setLeftValue(l_val);
-    addPickParameters.setRightValue(r_val);
-    addPickParameters.setPickArrivalValue(arrival);
-    addPickParameters.setTypePick(type);
+            auto &addPickParameters = settings->getAddPickParameters();
+            addPickParameters.setNumber(num);
+            addPickParameters.setLeftValue(l_val);
+            addPickParameters.setRightValue(r_val);
+            addPickParameters.setPickArrivalValue(arrival);
+            addPickParameters.setTypePick(type);
 
-    settings->getSetOperationsParameters().setCommands(
-        {UndoCommandGetter::get(Data::SeismEvent::TransformOperation::AddPick,
-                                event.get(), settings),
-         UndoCommandGetter::get(
-             Data::SeismEvent::TransformOperation::ComputeAnalysis, event.get(),
-             settings)});
+            settings->getSetOperationsParameters().setCommands(
+                {UndoCommandGetter::get(
+                     Data::SeismEvent::TransformOperation::AddPick, event.get(),
+                     settings),
+                 UndoCommandGetter::get(
+                     Data::SeismEvent::TransformOperation::ComputeAnalysis,
+                     event.get(), settings)});
 
-    auto groupCommand = UndoCommandGetter::get(
-        Data::SeismEvent::TransformOperation::SetOperations, event.get(),
-        settings);
-    _undoStack->push(groupCommand);
-    if (_analysisWindow != nullptr) {
-      _analysisWindow->updateAll(_events_map[_currentEventUuid].get());
-    }
-  });
+            auto groupCommand = UndoCommandGetter::get(
+                Data::SeismEvent::TransformOperation::SetOperations,
+                event.get(), settings);
+            _undoStack->push(groupCommand);
+            if (_analysisWindow != nullptr) {
+              _analysisWindow->updateAll(_events_map[_currentEventUuid].get());
+            }
+          });
 
-  connect(_view.get(), &View::removePick, [this, settings](const auto type,
-                                                           const auto num) {
-    auto &event = _events_map[_currentEventUuid];
-    auto &removePickParameters = settings->getRemovePickParameters();
-    removePickParameters.setNum(num);
-    removePickParameters.setType(type);
-    settings->getSetOperationsParameters().setCommands(
-        {UndoCommandGetter::get(
-             Data::SeismEvent::TransformOperation::RemovePick, event.get(),
-             settings),
-         UndoCommandGetter::get(
-             Data::SeismEvent::TransformOperation::ComputeAnalysis, event.get(),
-             settings)});
+  connect(_view.get(), &View::removePick,
+          [this, settings](const auto type, const auto num) {
+            auto &event = _events_map[_currentEventUuid];
+            auto &removePickParameters = settings->getRemovePickParameters();
+            removePickParameters.setNum(num);
+            removePickParameters.setType(type);
+            settings->getSetOperationsParameters().setCommands(
+                {UndoCommandGetter::get(
+                     Data::SeismEvent::TransformOperation::RemovePick,
+                     event.get(), settings),
+                 UndoCommandGetter::get(
+                     Data::SeismEvent::TransformOperation::ComputeAnalysis,
+                     event.get(), settings)});
 
-    auto groupOperation = UndoCommandGetter::get(
-        Data::SeismEvent::TransformOperation::SetOperations, event.get(),
-        settings);
-    _undoStack->push(groupOperation);
-    if (_analysisWindow != nullptr) {
-      _analysisWindow->updatePolarGraph(_events_map[_currentEventUuid].get());
-      _analysisWindow->setHodogramToDefault();
-    }
-  });
+            auto groupOperation = UndoCommandGetter::get(
+                Data::SeismEvent::TransformOperation::SetOperations,
+                event.get(), settings);
+            _undoStack->push(groupOperation);
+            if (_analysisWindow != nullptr) {
+              _analysisWindow->updatePolarGraph(
+                  _events_map[_currentEventUuid].get());
+              _analysisWindow->setHodogramToDefault();
+            }
+          });
 
   connect(
       _view.get(), &View::eventTransformClicked, [this, settings](auto oper) {

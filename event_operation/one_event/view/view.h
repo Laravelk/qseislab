@@ -34,7 +34,6 @@ public:
 
   void updateInfoEvent(Data::SeismEvent const *const);
   void updateDataEvent(Data::SeismEvent const *const);
-  void updatePolarGraph(Data::SeismEvent const *const);
 
   void update(Data::SeismEvent const *const, const QUuid &);
   void update(Data::SeismEvent const *const, const QUuid &, const QString &);
@@ -52,7 +51,6 @@ signals:
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
   void addPick(Data::SeismWavePick::Type, int, int, int, int);
   void removePick(Data::SeismWavePick::Type, int);
-
 
   void createPolarizationAnalysisWindow();
   void calculatePolarizationAnalysisData();

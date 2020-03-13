@@ -78,11 +78,6 @@ Controller::Controller(
     _polarizationWindow->show();
   });
 
-  connect(_view, &View::updatePolarGraphSignal, [this]() {
-    _view->updatePolarGraph(_event.get());
-  });
-
-
   connect(_view, &View::sendPicksInfo,
           [this, settings](const auto type, const auto num, const auto l_val,
                            const auto pick_val, const auto r_val) {
@@ -96,7 +91,6 @@ Controller::Controller(
             emit eventActionClicked(_event->getUuid(),
                                     SeismEvent::TransformOperation::MovePick);
           });
-
 
   connect(_view, &View::addPick,
           [this, settings](auto type, auto num, auto l_val, auto arrival,
@@ -114,44 +108,36 @@ Controller::Controller(
 
   connect(_view, &View::removePick,
           [this, settings](const auto type, const auto num) {
-          if (_polarizationWindow != nullptr) {
-            _polarizationWindow->setDefault();
-          }
-          auto &removePickParameters = settings->getRemovePickParameters();
-          removePickParameters.setNum(num);
-          removePickParameters.setType(type);
-          emit eventActionClicked(_event->getUuid(),
-                                SeismEvent::TransformOperation::RemovePick);
-          _isValidPolarGraph = false;
+            if (_polarizationWindow != nullptr) {
+              _polarizationWindow->setDefault();
+            }
+            auto &removePickParameters = settings->getRemovePickParameters();
+            removePickParameters.setNum(num);
+            removePickParameters.setType(type);
+            emit eventActionClicked(_event->getUuid(),
+                                    SeismEvent::TransformOperation::RemovePick);
+            _isValidPolarGraph = false;
           });
 
-  connect(_view, &View::calculatePolarizationAnalysisData, [this]() {
-//    if (_calculatePolarization == nullptr) {
-//      _calculatePolarization = new PolarizationAnalysisCompute(
-//          _event.get());
-//    }
-//    _calculatePolarization->calculate();
-//    _view->updatePolarGraph(_event.get());
-  });
+  connect(_view, &View::calculatePolarizationAnalysisData, [this]() {});
 
   connect(_view, &View::clickOnPolarAnalysisInGraph, [this]() {
-    if (!checkPolarizationAnalysisDataValid() ||
-        _removePick || !_isValidPolarGraph) {
-      _view
-          ->showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
+    if (!checkPolarizationAnalysisDataValid() || _removePick ||
+        !_isValidPolarGraph) {
+      _view->showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
     }
   });
 }
 
 bool Controller::checkPolarizationAnalysisDataValid() {
-//  for (auto &component :
-//      _event.get()->getComponents()) {
-//    for (auto &pick : component->getWavePicks()) {
-//      if (!pick.second.getValidDataStatus()) {
-//        return false;
-//      }
-//    }
-//  }
+  //  for (auto &component :
+  //      _event.get()->getComponents()) {
+  //    for (auto &pick : component->getWavePicks()) {
+  //      if (!pick.second.getValidDataStatus()) {
+  //        return false;
+  //      }
+  //    }
+  //  }
   return true;
 }
 

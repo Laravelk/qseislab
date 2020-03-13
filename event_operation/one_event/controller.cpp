@@ -109,27 +109,6 @@ Controller::Controller(
             _view->update(_event.get(), uuid, well->getName());
           });
 
-  connect(_view.get(), &View::calculatePolarizationAnalysisData, [this]() {
-//    if (_calculatePolarization == nullptr) {
-//      _calculatePolarization = new PolarizationAnalysisCompute(_event.get());
-//    }
-//    //      _calculatePolarization->calculate(_events_map.at(_currentEventUuid));
-//    _calculatePolarization->calculate();
-//    _removedPickAndNeedUpdatePolarGraph = false;
-//    _view->updatePolarGraph(_event.get());
-  });
-
-//  connect(_view.get(), &View::updatePolarGraphSignal,
-//          [this]() { _view->updatePolarGraph(_event.get()); }); TODO: delete or update
-
-  connect(_view.get(), &View::clickOnPolarAnalysisInGraph, [this]() {
-//    if (!checkPolarizationAnalysisDataValid() ||
-//        _removedPickAndNeedUpdatePolarGraph) {
-//      _view.get()
-//          ->showWarningWindowAboutValidStatusOfPolarizationAnalysisData();
-//    } TODO: update or delete
-  });
-
   connect(_view.get(), &View::sendPicksInfo,
           [this](const auto type, const auto num, const auto l_val,
                  const auto pick_val, const auto r_val) {

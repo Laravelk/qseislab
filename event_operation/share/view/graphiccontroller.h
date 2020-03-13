@@ -5,9 +5,8 @@
 
 #include "chartgesture.h"
 #include "data/seismevent.h"
-#include "event_view/graphic_view.h"
-#include "event_view/polar_graph/polargraph.h"
 #include "event_view/analysis_view/analysiswindow.h"
+#include "event_view/graphic_view.h"
 
 #include <QtCharts>
 
@@ -29,13 +28,11 @@ class GraphicController : public QFrame {
 public:
   explicit GraphicController(QWidget *parent = nullptr);
 
-  //  QWidget *getView() const { return _allView; }
   ChartGesture *getModel() const { return _chart; }
   void setChart(ChartGesture *chart) { _chart = chart; }
   void setView(GraphicView *view) { _view = view; }
 
   void update(Data::SeismEvent const *const);
-  void updatePolarGraph(Data::SeismEvent const *const);
 
   void updateEventName(const QString &);
   void setGainCoefficient(const float gainCoefficient);
@@ -54,8 +51,6 @@ public:
 private:
   //  QWidget *_allView;
   GraphicView *_view;
-  PolarGraph *_polarGraph;
-  QTabWidget *_tabWidget;
   Data::SeismEvent const *_event;
 
   float _norm;
@@ -96,10 +91,7 @@ signals:
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
   void removePick(Data::SeismWavePick::Type, int);
   void addPick(Data::SeismWavePick::Type, int, int, int, int);
-  void createPolarizationAnalysisWindowClicked();
   void createAnalysisWindowTestClicked();
-  void calculatePolarizationAnalysisDataClicked();
-  void clickOnPolarAnalysisInGraph();
 
 private:
   const qreal AMPLITUDE_SCALAR = 0.1;
