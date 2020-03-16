@@ -52,9 +52,8 @@ signals:
   void addPick(Data::SeismWavePick::Type, int, int, int, int);
   void removePick(Data::SeismWavePick::Type, int);
 
-  void createPolarizationAnalysisWindow();
   void calculatePolarizationAnalysisData();
-  void clickOnPolarAnalysisInGraph();
+  void createAnalysisWindow();
 
   void undoClicked() const;
   void redoClicked() const;

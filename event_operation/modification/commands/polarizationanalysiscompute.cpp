@@ -35,16 +35,17 @@ void PolarizationAnalysisCompute::calculate() {
 
 void PolarizationAnalysisCompute::undoForOne(Data::SeismEvent *event) {
   int componentNumber = 0;
+  std::cerr << "start undo" << std::endl;
   for (auto &component : event->getComponents()) {
     for (auto &mapsWithPickElement : component->getWavePicks()) {
-      Data::SeismPolarizationAnalysisData optionalData =
+      std::optional<Data::SeismPolarizationAnalysisData> optionalData =
           _oldDataMap.at(std::make_pair(componentNumber,
-                                        mapsWithPickElement.second.getType()))
-              .value();
+                                        mapsWithPickElement.second.getType()));
       mapsWithPickElement.second.setPolarizationAnalysisData(optionalData);
     }
     componentNumber++;
   }
+  std::cerr << "end undo" << std::endl;
   if (!_disableSignal) {
     event->changeTrigger();
   }

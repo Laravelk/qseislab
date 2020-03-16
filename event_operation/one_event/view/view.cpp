@@ -118,6 +118,10 @@ View::View(const std::set<QString> &eventNames,
   connect(_graphicEvent, &EventOperation::GraphicController::removePick,
           [this](auto type, auto num) { emit removePick(type, num); });
 
+  connect(_graphicEvent,
+          &EventOperation::GraphicController::createAnalysisWindowClicked,
+          [this]() { emit createAnalysisWindow(); });
+
   connect(_cancelButton, &QPushButton::clicked, this, &View::reject);
   // Connecting end
 

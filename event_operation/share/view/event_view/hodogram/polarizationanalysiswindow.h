@@ -57,17 +57,20 @@ private:
                  const Data::SeismTrace *const, const QColor &,
                  Qt3DCore::QEntity *, const int, const int, const float);
   void drawTraces(const Data::SeismComponent *const);
+
   int lastElementNumber(const Data::SeismComponent *const);
+
   void changeWaveBox();
   void changeReceiverNumberBox();
+
+  bool verifyTheValidity(const Data::SeismEvent *const);
+
   void scanInformation();
-  Qt3DCore::QEntity *createTestScene();
   void clearScene();
+
   QList<Qt3DCore::QEntity *> _curves;
   QList<Qt3DCore::QEntity *> _arrows;
   Qt3DCore::QEntity *_eigenVectorLine = nullptr;
   InfoWidget *_infoWidget = nullptr;
-
-  int test = 0; // TODO: delete
 };
 } // namespace EventOperation

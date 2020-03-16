@@ -3,7 +3,7 @@
 #include "data/seismevent.h"
 #include "data/seismwell.h"
 #include "event_operation/share/model.h"
-#include "event_operation/share/view/event_view/hodogram/polarizationanalysiswindow.h"
+#include "event_operation/share/view/event_view/analysis_view/analysiswindow.h"
 //#include "view/view.h"
 
 #include "event_operation/modification/commands/testindividualcommand.h"
@@ -59,10 +59,6 @@ Controller::Controller(
 
   connect(_view.get(), &View::sendWellUuidAndFilePath,
           [this, &wells_map, &receivers](auto &wellUuid, auto &filePath) {
-            //            auto components =
-            //                _model->getSeismComponents(wells_map.at(wellUuid),
-            //                filePath);
-
             std::list<std::shared_ptr<Data::SeismReceiver>> receiversByWell;
             for (auto &receiver : receivers) {
               if (wellUuid == receiver->getSourseWell()->getUuid()) {
@@ -86,10 +82,11 @@ Controller::Controller(
               _view->update(_event.get(), wellUuid);
             }
           });
-  connect(_view.get(), &View::createPolarizationAnalysisWindow, [this]() {
-    _polarizationWindow = new PolarizationAnalysisWindow(
+
+  connect(_view.get(), &View::createAnalysisWindow, [this]() {
+    _analysisWindow = new AnalysisWindow(
         _event); // TODO: может тоже отдавть (const * const) ?
-    _polarizationWindow->show();
+    _analysisWindow->show();
   });
 
   connect(_view.get(), &View::sendWellUuidForRemove,
@@ -135,10 +132,6 @@ Controller::Controller(
               ++idx;
             }
           });
-
-  //  connect(_view.get(), &View::undoClicked, [this]() { _undoStack->undo();
-  //  }); connect(_view.get(), &View::redoClicked, [this]() {
-  //  _undoStack->redo(); });
 
   connect(_view.get(), &View::eventTransformClicked,
           [this, &wells_map](auto oper) {

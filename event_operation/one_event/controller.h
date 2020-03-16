@@ -18,7 +18,7 @@ class SeismReceiver;
 
 namespace EventOperation {
 class Model;
-class PolarizationAnalysisWindow;
+class AnalysisWindow;
 namespace OneEvent {
 class View;
 class Controller : public QObject {
@@ -48,8 +48,7 @@ private:
 
   std::map<QUuid, QString> _eventNameContainer;
 
-  PolarizationAnalysisWindow *_polarizationWindow;
-  PolarizationAnalysisCompute *_calculatePolarization = nullptr;
+  AnalysisWindow *_analysisWindow = nullptr;
 
   bool checkPolarizationAnalysisDataValid();
   bool _removedPickAndNeedUpdatePolarGraph = false;

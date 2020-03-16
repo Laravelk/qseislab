@@ -61,7 +61,6 @@ void AnalysisWindow::updateHodogram(const Data::SeismEvent *const event) {
 }
 
 void AnalysisWindow::updateAll(const Data::SeismEvent *const event) {
-  std::cerr << "Update All";
   _graph->update(event);
   _hodogram->update(event);
 }

@@ -67,11 +67,9 @@ signals:
   void removePick(Data::SeismWavePick::Type, int);
   void addPick(Data::SeismWavePick::Type, int, int, int, int);
 
-  void createPolarizationAnalysisWindow();
   void calculatePolarizationAnalysisData();
-  void createAnalysisWindowTest();
+  void createAnalysisWindow();
   void updatePolarGraphSignal();
-  void clickOnPolarAnalysisInGraph();
 
 private slots:
   void recvFilesPath(const QStringList &);

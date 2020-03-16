@@ -11,14 +11,18 @@ void RemovePick::redoForOne(Data::SeismEvent *event) {
   auto &map = component->getWavePicks();
   _deletedPicks[event->getUuid()] = map[_parameters.getType()];
   component->removeWavePick(_parameters.getType());
-  event->changeTrigger();
+  if (!_disableSignal) {
+    event->changeTrigger();
+  }
 }
 
 void RemovePick::undoForOne(Data::SeismEvent *event) {
   auto &component = event->getComponents()[_parameters.getNum()];
   auto &pick = _deletedPicks[event->getUuid()];
   component->addWavePick(pick);
-  event->changeTrigger();
+  if (!_disableSignal) {
+    event->changeTrigger();
+  }
 }
 
 Data::SeismWavePick::Type RemovePick::Parameters::getType() const {

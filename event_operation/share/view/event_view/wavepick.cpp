@@ -119,9 +119,8 @@ void WavePick::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 }
 
 void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
-  if (event->buttons() &&
-      (Qt::AltModifier == QGuiApplication::keyboardModifiers()) &
-          Qt::LeftButton) {
+  if (event->buttons() == Qt::LeftButton &&
+      (Qt::AltModifier == QGuiApplication::keyboardModifiers())) {
     _wasChanged = true;
     QPointF newPosition =
         QPointF(_chart->mapToValue(mapToParent(event->pos()) -

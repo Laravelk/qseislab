@@ -10,8 +10,8 @@ namespace EventOperation {
 WaveZone::WaveZone(QChart *chart, QPointF anchor, QGraphicsItem *parent,
                    QSizeF size, QColor color, int n)
     : QGraphicsItem(parent), _chart(chart), _anchor(anchor), _size(size) {
-  std::cerr << n << " " << _anchor.x() << " " << _anchor.y() << " "
-            << _size.width() << " " << _size.height() << std::endl;
+  //  std::cerr << n << " " << _anchor.x() << " " << _anchor.y() << " "
+  //            << _size.width() << " " << _size.height() << std::endl;
 
   _rect = QRect(0, 0, _size.width(), _size.height());
   _brush = QBrush(QColor(color.red(), color.green(), color.blue(), 100));

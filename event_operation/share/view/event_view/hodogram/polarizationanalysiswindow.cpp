@@ -382,9 +382,6 @@ void PolarizationAnalysisWindow::drawTraces(
     QVector3D point2(eigenVector.x() * cx2, eigenVector.z() * cy2,
                      eigenVector.y() * cz2);
 
-    //     std::cerr << "Eigen Vector: " << eigenVector.x() << " " <<
-    //     eigenVector.y() << " " << eigenVector.z() << std::endl;
-
     _eigenVectorLine = drawLine(point1, point2, Qt::blue, _scene);
   }
   // end compute
@@ -413,6 +410,10 @@ void PolarizationAnalysisWindow::update(const Data::SeismEvent *const event) {
   _event = event;
   clearScene();
   _infoWidget->clear();
+  if (!verifyTheValidity(event)) {
+    std::cerr << verifyTheValidity(event);
+    setDefault();
+  }
   if (DEFAULT_RECEIVER_STRING != _currentReceiverNumberString &&
       DEFAULT_WAVE_STRING != _currentWaveTypeString) {
     drawTraces(_event->getComponents()[_currentReceiverNumberString.toInt()]);
@@ -462,12 +463,10 @@ void PolarizationAnalysisWindow::changeReceiverNumberBox() {
     int index = 0;
     for (auto &component : _event->getComponents()) {
       for (auto &pick : component->getWavePicks()) {
-        qDebug() << "pick iteration";
         if ((_currentWaveTypeString == P_WAVE_STRING &&
              Data::SeismWavePick::PWAVE == pick.first) ||
             (_currentWaveTypeString == S_WAVE_STRING &&
              Data::SeismWavePick::SWAVE == pick.first)) {
-          qDebug() << "find & added " << _currentWaveTypeString;
           receiverWithThisWaveList.append(QString::number(index));
         }
       }
@@ -481,6 +480,34 @@ void PolarizationAnalysisWindow::changeReceiverNumberBox() {
   _receiverBox->addItems(receiverWithThisWaveList);
   _receiverBox->setCurrentIndex(0);
   _currentReceiverNumberString = DEFAULT_RECEIVER_STRING;
+}
+
+// if non default value of _currentReceiverNumberString
+// check exist in event
+bool PolarizationAnalysisWindow::verifyTheValidity(
+    const Data::SeismEvent *const event) {
+
+  if (DEFAULT_WAVE_STRING == _currentWaveTypeString ||
+      DEFAULT_RECEIVER_STRING == _currentReceiverNumberString) {
+    return true;
+  }
+  int number = _currentReceiverNumberString.toInt();
+
+  if (nullptr != event->getComponents()[number]) {
+    for (auto &pick : event->getComponents()[number]->getWavePicks()) {
+      if ((P_WAVE_STRING == _currentWaveTypeString) &&
+          (Data::SeismWavePick::Type::PWAVE == pick.first)) {
+        return true;
+      }
+
+      if ((S_WAVE_STRING == _currentWaveTypeString) &&
+          (Data::SeismWavePick::Type::SWAVE == pick.first)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 void PolarizationAnalysisWindow::scanInformation() {

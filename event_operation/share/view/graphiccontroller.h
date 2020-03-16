@@ -91,7 +91,7 @@ signals:
   void sendPicksInfo(Data::SeismWavePick::Type, int, int, int, int);
   void removePick(Data::SeismWavePick::Type, int);
   void addPick(Data::SeismWavePick::Type, int, int, int, int);
-  void createAnalysisWindowTestClicked();
+  void createAnalysisWindowClicked();
 
 private:
   const qreal AMPLITUDE_SCALAR = 0.1;
@@ -119,7 +119,7 @@ private:
 
   QPushButton *_polarizationEventButton;
   QPushButton *_calculatePolarizationAnalysisDataButton;
-  QPushButton *_testButton;
+  QPushButton *_analysisButton;
   QPushButton *_screenButton;
 
   const int GRAPH_INDEX_IN_TAB = 0;

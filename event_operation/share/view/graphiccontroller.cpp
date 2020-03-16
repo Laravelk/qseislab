@@ -31,7 +31,8 @@ GraphicController::GraphicController(QWidget *parent)
       _polarChart(new QPolarChart()),
       _hideWavePointsWidget(new HideWavePointsWidget()),
       _changeBorderWidget(new ChangeBorderOnPolarWidget()),
-      _testButton(new QPushButton("Test")), _screenButton(new QPushButton()) {
+      _analysisButton(new QPushButton("Analysis Window")),
+      _screenButton(new QPushButton()) {
 
   _view = new GraphicView(_chart);
   _view->addModel(_chart);
@@ -123,8 +124,8 @@ GraphicController::GraphicController(QWidget *parent)
     updateSeries();
   });
 
-  connect(_testButton, &QPushButton::clicked,
-          [this]() { emit createAnalysisWindowTestClicked(); });
+  connect(_analysisButton, &QPushButton::clicked,
+          [this]() { emit createAnalysisWindowClicked(); });
 
   connect(_screenButton, &QPushButton::clicked, [this]() {
     QString format = "png";
@@ -144,7 +145,7 @@ GraphicController::GraphicController(QWidget *parent)
   editGraphicMenuLayout->addWidget(_clippingWidget);
   editGraphicMenuLayout->addWidget(_gainWidget);
   editGraphicMenuLayout->addWidget(_addWaveButton);
-  editGraphicMenuLayout->addWidget(_testButton);
+  editGraphicMenuLayout->addWidget(_analysisButton);
   editGraphicMenuLayout->addWidget(_screenButton);
   editGraphicMenuLayout->addStretch(1);
 
@@ -268,9 +269,8 @@ void GraphicController::addWaveArrival(Data::SeismWavePick pick, int index) {
       pick.getType(),
       QPointF(static_cast<double>(pick.getArrival()) / MICROSECONDS_IN_SECOND,
               index),
-      _rangeAxisX,
-      static_cast<double>(pick.getPolarizationLeftBorder()) /
-          MICROSECONDS_IN_SECOND,
+      _rangeAxisX, static_cast<double>(pick.getPolarizationLeftBorder()) /
+                       MICROSECONDS_IN_SECOND,
       static_cast<double>(pick.getPolarizationRightBorder()) /
           MICROSECONDS_IN_SECOND);
 }
