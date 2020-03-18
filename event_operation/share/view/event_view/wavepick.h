@@ -36,12 +36,6 @@ public:
   void updateGeometry();
 
   qreal getXPos() { return _anchor.x(); }
-  void setLeftBorder(std::variant<WavePick *, qreal>);
-  void setRightBorder(std::variant<WavePick *, qreal>);
-  void setBorders(std::variant<WavePick *, qreal>,
-                  std::variant<WavePick *, qreal>);
-  void setRightBorderValue(const qreal value) { _valueRightBorder = value; }
-  void setLeftBorderValue(const qreal value) { _valueLeftBorder = value; }
   QSizeF scallByAxis(QSizeF scaleS);
   Data::SeismWavePick::Type getType() { return _type; }
   int getComponentAmount() { return static_cast<int>(_anchor.y()); }
@@ -76,10 +70,8 @@ private:
   QPointF _pos;
   QSizeF _size;
   QPointF _anchor;
-  std::variant<WavePick *, qreal> _leftBorder;
-  std::variant<WavePick *, qreal> _rightBorder;
-  qreal _valueLeftBorder;
-  qreal _valueRightBorder;
+  QPointF _leftBorderAnchor;
+  QPointF _rightBorderAnchor;
   QRectF _rect;
   QBrush _brush;
   WaveZone *_rightFillRect = nullptr;

@@ -76,21 +76,6 @@ void WavePick::updateGeometry() {
   setPos(_chart->mapToPosition(_anchor));
 }
 
-void WavePick::setLeftBorder(std::variant<WavePick *, qreal> border) {
-  _leftBorder = border;
-}
-
-void WavePick::setRightBorder(std::variant<WavePick *, qreal> border) {
-  _rightBorder = border;
-}
-
-void WavePick::setBorders(std::variant<WavePick *, qreal> left,
-                          std::variant<WavePick *, qreal> right) {
-  _leftBorder = left;
-  _rightBorder = right;
-  updateBorders();
-}
-
 QSizeF WavePick::scallByAxis(QSizeF scaleS) {
   qreal scaleY = scaleS.height();
   _size.setWidth(3);
@@ -127,8 +112,8 @@ void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
                                    event->buttonDownPos(Qt::LeftButton))
                     .x(),
                 _anchor.y());
-    if (newPosition.x() < _valueRightBorder &&
-        newPosition.x() > _valueLeftBorder) {
+    if (newPosition.x() < _rightBorderAnchor.x() &&
+        newPosition.x() > _leftBorderAnchor.x()) {
       setPos(QPointF(
           mapToParent(event->pos() - event->buttonDownPos(Qt::LeftButton)).x(),
           pos().y()));
@@ -145,34 +130,34 @@ void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
 void WavePick::updateWaveZone() {
 
   // wave
-  if (_rightFillRect != nullptr && _leftFillRect != nullptr) {
-    _rightFillRect->setWidth(
-        _chart->mapToPosition(QPointF(_valueRightBorder, 0)).x() -
-        _chart->mapToPosition(_anchor).x());
-    _rightFillRect->setAnchor(_anchor);
+  //  if (_rightFillRect != nullptr && _leftFillRect != nullptr) {
+  //    _rightFillRect->setWidth(
+  //        _chart->mapToPosition(QPointF(_valueRightBorder, 0)).x() -
+  //        _chart->mapToPosition(_anchor).x());
+  //    _rightFillRect->setAnchor(_anchor);
 
-    _leftFillRect->setWidth(
-        _chart->mapToPosition(_anchor).x() -
-        _chart->mapToPosition(QPointF(_valueLeftBorder, 0)).x());
-    return;
-  }
+  //    _leftFillRect->setWidth(
+  //        _chart->mapToPosition(_anchor).x() -
+  //        _chart->mapToPosition(QPointF(_valueLeftBorder, 0)).x());
+  //    return;
+  //  }
 
-  // right board
-  if (_leftFillRect != nullptr) {
-    _leftFillRect->setWidth(
-        _chart->mapToPosition(_anchor).x() -
-        _chart->mapToPosition(QPointF(_valueLeftBorder, 0)).x());
-    return;
-  }
+  //  // right board
+  //  if (_leftFillRect != nullptr) {
+  //    _leftFillRect->setWidth(
+  //        _chart->mapToPosition(_anchor).x() -
+  //        _chart->mapToPosition(QPointF(_valueLeftBorder, 0)).x());
+  //    return;
+  //  }
 
-  // left board
-  if (_rightFillRect != nullptr) {
-    _rightFillRect->setWidth(
-        _chart->mapToPosition(QPointF(_valueRightBorder, 0)).x() -
-        _chart->mapToPosition(_anchor).x());
-    _rightFillRect->setAnchor(_anchor);
-    return;
-  }
+  //  // left board
+  //  if (_rightFillRect != nullptr) {
+  //    _rightFillRect->setWidth(
+  //        _chart->mapToPosition(QPointF(_valueRightBorder, 0)).x() -
+  //        _chart->mapToPosition(_anchor).x());
+  //    _rightFillRect->setAnchor(_anchor);
+  //    return;
+  //  }
 }
 
 void WavePick::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {

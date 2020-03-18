@@ -38,61 +38,72 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
   // test
   WavePick *pick = new WavePick(type, rect, chart(), pos, _sizeWaveItem,
                                 _colorData->getPickColor(type), 2, 4);
-  WavePick *leftBorder = new WavePick(
-      type, rect, chart(), QPointF(leftBorderPos, pos.y()), _sizeWaveItem,
-      _colorData->getBorderPickColor(type), 0, pick);
-  WavePick *rightBorder = new WavePick(
-      type, rect, chart(), QPointF(rightBorderPos, pos.y()), _sizeWaveItem,
-      _colorData->getBorderPickColor(type), pick, rangeX);
-  WaveZone *zoneLeft = new WaveZone(chart(), QPointF(leftBorderPos, pos.y()),
-                                    rect, _sizeWaveZoneItem, Qt::blue, pos.y());
-  WaveZone *zoneRight = new WaveZone(chart(), QPointF(pos.x(), pos.y()), rect,
-                                     _sizeWaveZoneItem, Qt::red, pos.y());
+  //  WavePick *leftBorder = new WavePick(
+  //      type, rect, chart(), QPointF(leftBorderPos, pos.y()), _sizeWaveItem,
+  //      _colorData->getBorderPickColor(type), 0, pick);
+  //  WavePick *rightBorder = new WavePick(
+  //      type, rect, chart(), QPointF(rightBorderPos, pos.y()), _sizeWaveItem,
+  //      _colorData->getBorderPickColor(type), pick, rangeX);
+  //  WaveZone *zoneLeft = new WaveZone(chart(), QPointF(leftBorderPos,
+  //  pos.y()),
+  //                                    rect, _sizeWaveZoneItem, Qt::blue,
+  //                                    pos.y());
+  //  WaveZone *zoneRight = new WaveZone(chart(), QPointF(pos.x(), pos.y()),
+  //  rect,
+  //                                     _sizeWaveZoneItem, Qt::red, pos.y());
 
-  pick->setBorders(leftBorder, rightBorder);
-  pick->setWaveRect(zoneLeft, zoneRight);
-  leftBorder->setRightFillRect(
-      zoneLeft); // так как от левой границы до пика находится левая зона
-  rightBorder->setLeftFillRect(zoneRight);
-  zoneLeft->setNum(pos.y());
-  zoneRight->setNum(pos.y());
-  connect(pick, &WavePick::changed, [this, pick, leftBorder, rightBorder]() {
-    leftBorder->setRightBorderValue(pick->getXPos());
-    rightBorder->setLeftBorderValue(pick->getXPos());
-    emit sendPicksInfo(
-        pick->getType(), pick->getComponentAmount(),
-        static_cast<int>(leftBorder->getXPos() * MICROSECONDS_IN_SECOND),
-        static_cast<int>(pick->getXPos() * MICROSECONDS_IN_SECOND),
-        static_cast<int>(rightBorder->getXPos() * MICROSECONDS_IN_SECOND));
-  });
-  connect(
-      leftBorder, &WavePick::changed, [this, pick, leftBorder, rightBorder]() {
-        pick->setLeftBorderValue(leftBorder->getXPos());
-        emit sendPicksInfo(
-            pick->getType(), pick->getComponentAmount(),
-            static_cast<int>(leftBorder->getXPos() * MICROSECONDS_IN_SECOND),
-            static_cast<int>(pick->getXPos() * MICROSECONDS_IN_SECOND),
-            static_cast<int>(rightBorder->getXPos() * MICROSECONDS_IN_SECOND));
-      });
-  connect(
-      rightBorder, &WavePick::changed, [this, pick, leftBorder, rightBorder]() {
-        pick->setRightBorderValue(rightBorder->getXPos());
-        emit sendPicksInfo(
-            pick->getType(), pick->getComponentAmount(),
-            static_cast<int>(leftBorder->getXPos() * MICROSECONDS_IN_SECOND),
-            static_cast<int>(pick->getXPos() * MICROSECONDS_IN_SECOND),
-            static_cast<int>(rightBorder->getXPos() * MICROSECONDS_IN_SECOND));
-      });
+  //  pick->setBorders(leftBorder, rightBorder);
+  //  pick->setWaveRect(zoneLeft, zoneRight);
+  //  leftBorder->setRightFillRect(
+  //      zoneLeft); // так как от левой границы до пика находится левая зона
+  //  rightBorder->setLeftFillRect(zoneRight);
+  //  zoneLeft->setNum(pos.y());
+  //  zoneRight->setNum(pos.y());
+  //  connect(pick, &WavePick::changed, [this, pick, leftBorder, rightBorder]()
+  //  {
+  //    leftBorder->setRightBorderValue(pick->getXPos());
+  //    rightBorder->setLeftBorderValue(pick->getXPos());
+  //    emit sendPicksInfo(
+  //        pick->getType(), pick->getComponentAmount(),
+  //        static_cast<int>(leftBorder->getXPos() * MICROSECONDS_IN_SECOND),
+  //        static_cast<int>(pick->getXPos() * MICROSECONDS_IN_SECOND),
+  //        static_cast<int>(rightBorder->getXPos() * MICROSECONDS_IN_SECOND));
+  //  });
+  //  connect(
+  //      leftBorder, &WavePick::changed, [this, pick, leftBorder,
+  //      rightBorder]() {
+  //        pick->setLeftBorderValue(leftBorder->getXPos());
+  //        emit sendPicksInfo(
+  //            pick->getType(), pick->getComponentAmount(),
+  //            static_cast<int>(leftBorder->getXPos() *
+  //            MICROSECONDS_IN_SECOND),
+  //            static_cast<int>(pick->getXPos() * MICROSECONDS_IN_SECOND),
+  //            static_cast<int>(rightBorder->getXPos() *
+  //            MICROSECONDS_IN_SECOND));
+  //      });
+  //  connect(
+  //      rightBorder, &WavePick::changed, [this, pick, leftBorder,
+  //      rightBorder]() {
+  //        pick->setRightBorderValue(rightBorder->getXPos());
+  //        emit sendPicksInfo(
+  //            pick->getType(), pick->getComponentAmount(),
+  //            static_cast<int>(leftBorder->getXPos() *
+  //            MICROSECONDS_IN_SECOND),
+  //            static_cast<int>(pick->getXPos() * MICROSECONDS_IN_SECOND),
+  //            static_cast<int>(rightBorder->getXPos() *
+  //            MICROSECONDS_IN_SECOND));
+  //      });
 
-  connect(pick, &WavePick::needDelete, [this, pick, leftBorder, rightBorder]() {
-    emit removePick(pick->getType(), pick->getComponentAmount());
-    // remove zone
-  });
-  _wavePicks.push_back(leftBorder);
-  _wavePicks.push_back(rightBorder);
+  //  connect(pick, &WavePick::needDelete, [this, pick, leftBorder,
+  //  rightBorder]() {
+  //    emit removePick(pick->getType(), pick->getComponentAmount());
+  //    // remove zone
+  //  });
+  //  _wavePicks.push_back(leftBorder);
+  //  _wavePicks.push_back(rightBorder);
   _wavePicks.push_back(pick);
-  _waveZones.push_back(zoneLeft);
-  _waveZones.push_back(zoneRight);
+  //  _waveZones.push_back(zoneLeft);
+  //  _waveZones.push_back(zoneRight);
   for (auto &pick : _wavePicks) {
     pick->updateGeometry();
   }
