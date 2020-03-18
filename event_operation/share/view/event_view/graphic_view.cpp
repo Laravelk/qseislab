@@ -35,7 +35,7 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, qreal ax, qreal ay,
 void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
                           qreal rangeX, qreal leftBorderPos,
                           qreal rightBorderPos) {
-  //  pos = QPointF(pos.x(), pos.y() - 1);
+  // test
   WavePick *pick = new WavePick(type, rect, chart(), pos, _sizeWaveItem,
                                 _colorData->getPickColor(type), 2, 4);
   WavePick *leftBorder = new WavePick(
