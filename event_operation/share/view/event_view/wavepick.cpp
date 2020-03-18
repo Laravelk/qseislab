@@ -10,46 +10,43 @@
 namespace EventOperation {
 WavePick::WavePick(Data::SeismWavePick::Type type, QGraphicsItem *parent,
                    QChart *chart, QPointF pos, QSizeF size, QBrush brush,
-                   std::variant<WavePick *, qreal> leftBorder,
-                   std::variant<WavePick *, qreal> rightBorder)
+                   QPointF leftBorder, QPointF rightBorder)
     : QGraphicsItem(parent), _chart(chart), _pos(pos), _size(size),
-      _leftBorder(leftBorder), _rightBorder(rightBorder), _brush(brush),
-      DEFAULT_SIZE(size), MAX_WIDTH(size.width()) {
+      _brush(brush), DEFAULT_SIZE(size), MAX_WIDTH(size.width()),
+      _leftBorderAnchor(leftBorder), _rightBorderAnchor(rightBorder) {
+  std::cerr << "CREATE: " << leftBorder.x() << " " << pos.x() << " "
+            << rightBorder.x() << std::endl;
   setFlag(QGraphicsItem::ItemIgnoresTransformations);
   _type = type;
   _anchor = pos;
   setPos(_anchor);
-  updateBorders();
   _rect = QRectF(0, 0, size.width(), size.height());
-  updateGeometry();
-}
-
-WavePick::WavePick(Data::SeismWavePick::Type type, QGraphicsItem *parent,
-                   QChart *chart, qreal ax, qreal ay, int width, int height,
-                   QBrush brush, WavePick *pick)
-    : QGraphicsItem(parent), _chart(chart), _pos(QPointF(ax, ay)),
-      _size(QSize(width, height)), _brush(brush),
-      DEFAULT_SIZE(QSizeF(width, height)), MAX_WIDTH(width) {
-  _type = type;
-  _anchor = QPointF(ax, ay);
-  setPos(_anchor);
-  _rect = QRectF(0, 0, width, height);
+  _rightBorderRect = QRectF(0, 0, size.width(), size.height());
+  _leftBorderRect = QRectF(0, 0, size.width(), size.height());
   updateGeometry();
 }
 
 void WavePick::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
                      QWidget *) {
   QPainterPath path;
+  QPainterPath borderPath;
   path.addRect(_rect);
+  borderPath.addRect(_rightBorderRect);
+  borderPath.addRect(_leftBorderRect);
+
   painter->setPen(Qt::NoPen);
   painter->setBrush(_brush);
   painter->drawPath(path);
+  painter->setBrush(QBrush(Qt::green));
+  painter->drawPath(borderPath);
 }
 
 void WavePick::resize(QSizeF scaleC) {
   _size =
       QSizeF(_size.width() * scaleC.width(), _size.height() * scaleC.height());
   _rect.setSize(_size);
+  _leftBorderRect.setSize(_size);
+  _rightBorderRect.setSize(_size);
 }
 
 void WavePick::setLeftFillRect(WaveZone *zone) {
@@ -73,33 +70,45 @@ void WavePick::setAnchor(const QPointF point) { _anchor = point; }
 void WavePick::updateGeometry() {
   prepareGeometryChange();
   _rect.moveCenter(QPointF(0, 0));
+  _leftBorderRect.moveCenter(QPointF(5, 0));
+  _rightBorderRect.moveCenter(QPointF(-20, 0));
   setPos(_chart->mapToPosition(_anchor));
 }
 
 QSizeF WavePick::scallByAxis(QSizeF scaleS) {
   qreal scaleY = scaleS.height();
-  _size.setWidth(3);
+  _size.setWidth(3); // some optimal const
   _size.setHeight(_size.height() * scaleY);
+
   _rect.setSize(_size);
+  _leftBorderRect.setSize(_size);
+  _rightBorderRect.setSize(_size);
   return _rect.size();
 }
 
+// rect from left border to right border.
 QRectF WavePick::boundingRect() const {
   QPointF anchor = mapFromParent(_chart->mapToPosition(_anchor));
+  QPointF leftBorderAnchor =
+      mapFromParent(_chart->mapToPosition(_leftBorderAnchor));
+  QPointF rightBorderAnchor =
+      mapFromParent(_chart->mapFromParent(_rightBorderAnchor));
   QRectF rect;
-  rect.setLeft(qMin(_rect.left(), _anchor.x()));
-  rect.setRight(qMax(_rect.right(), anchor.x()));
+  rect.setLeft(qMin(qMin(_rect.left(), anchor.x()),
+                    qMin(_rect.left(), leftBorderAnchor.x())));
+  rect.setRight(qMax(qMax(_rect.right(), anchor.x()),
+                     qMax(_rect.right(), rightBorderAnchor.x())));
   rect.setTop(qMin(_rect.top(), _anchor.y()));
   rect.setBottom(qMax(_rect.bottom(), _anchor.y()));
   return rect;
 }
 
 void WavePick::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+  std::cerr << "HHH ";
   if (event->buttons() == Qt::RightButton &&
       (Qt::AltModifier == QGuiApplication::keyboardModifiers())) {
     emit needDelete();
   }
-  updateBorders();
   event->setAccepted(true);
 }
 
@@ -174,19 +183,6 @@ void WavePick::mouseDoubleClickEvent(
                                           event->buttonDownPos(Qt::LeftButton)))
                    .x();
   _anchor = QPointF(newX, _anchor.y());
-}
-
-void WavePick::updateBorders() {
-  auto border_visitor = [](auto &&arg) -> qreal {
-    using T = std::decay_t<decltype(arg)>;
-    if
-      constexpr(std::is_same_v<T, qreal>) { return arg; }
-    else if
-      constexpr(std::is_same_v<T, WavePick *>) { return arg->getXPos(); }
-
-  };
-  _valueLeftBorder = std::visit(border_visitor, _leftBorder);
-  _valueRightBorder = std::visit(border_visitor, _rightBorder);
 }
 
 } // namespace EventOperation

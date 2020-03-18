@@ -27,10 +27,7 @@ class WavePick : public QObject, public QGraphicsItem {
   Q_INTERFACES(QGraphicsItem)
 public:
   WavePick(Data::SeismWavePick::Type, QGraphicsItem *, QChart *, QPointF,
-           QSizeF, QBrush, std::variant<WavePick *, qreal>,
-           std::variant<WavePick *, qreal>);
-  WavePick(Data::SeismWavePick::Type, QGraphicsItem *, QChart *, qreal, qreal,
-           int, int, QBrush, WavePick *);
+           QSizeF, QBrush, QPointF, QPointF);
   void setAnchor(const QPointF);
 
   void updateGeometry();
@@ -73,12 +70,13 @@ private:
   QPointF _leftBorderAnchor;
   QPointF _rightBorderAnchor;
   QRectF _rect;
+  QRectF _leftBorderRect;
+  QRectF _rightBorderRect;
   QBrush _brush;
   WaveZone *_rightFillRect = nullptr;
   WaveZone *_leftFillRect = nullptr;
 
 private:
-  void updateBorders();
   void updateWaveZone();
 };
 } // namespace EventOperation
