@@ -40,7 +40,6 @@ public:
   QRectF boundingRect() const;
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
   void resize(QSizeF);
-  void emitChanged() { emit changed(); }
 
   /* Это стоит вызывать только у PWAVE && SWAVE. Не у границ */
   void setLeftFillRect(WaveZone *);
@@ -48,7 +47,7 @@ public:
   void setWaveRect(WaveZone *, WaveZone *);
 
 signals:
-  void changed();
+  void changed(float left_board, float pick, float right_border);
   void needDelete();
 
 protected:
@@ -58,10 +57,11 @@ protected:
   void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *);
 
 private:
+  enum NOW_MOVE { NONE, WAVE, R_BORDER, L_BORDER };
   const qreal DEFAULT_OFFSET_TO_BORDER = 10000;
   const qreal MAX_WIDTH;
   const QSizeF DEFAULT_SIZE;
-  bool _wasChanged = false;
+  NOW_MOVE _move = NONE;
   Data::SeismWavePick::Type _type;
   QChart *_chart;
   QPointF _pos;

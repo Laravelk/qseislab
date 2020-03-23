@@ -21,8 +21,10 @@ public:
 
     void setCommands(
         std::initializer_list<EventOperationUndoCommand *> command_list) {
-      for (auto &command : command_list)
+      _commands.clear();
+      for (auto &command : command_list) {
         _commands.push_back(command);
+      }
     }
 
     const std::vector<EventOperationUndoCommand *> getCommands() const {

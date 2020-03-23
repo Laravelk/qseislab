@@ -411,7 +411,7 @@ void PolarizationAnalysisWindow::update(const Data::SeismEvent *const event) {
   clearScene();
   _infoWidget->clear();
   if (!verifyTheValidity(event)) {
-    std::cerr << verifyTheValidity(event);
+    //    std::cerr << verifyTheValidity(event);
     setDefault();
   }
   if (DEFAULT_RECEIVER_STRING != _currentReceiverNumberString &&

@@ -14,8 +14,6 @@ WavePick::WavePick(Data::SeismWavePick::Type type, QGraphicsItem *parent,
     : QGraphicsItem(parent), _chart(chart), _pos(pos), _size(size),
       _brush(brush), DEFAULT_SIZE(size), MAX_WIDTH(size.width()),
       _leftBorderAnchor(leftBorder), _rightBorderAnchor(rightBorder) {
-  std::cerr << "CREATE: " << leftBorder.x() << " " << pos.x() << " "
-            << rightBorder.x() << std::endl;
   setFlag(QGraphicsItem::ItemIgnoresTransformations);
   _type = type;
   _anchor = pos;
@@ -29,16 +27,19 @@ WavePick::WavePick(Data::SeismWavePick::Type type, QGraphicsItem *parent,
 void WavePick::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
                      QWidget *) {
   QPainterPath path;
-  QPainterPath borderPath;
+  QPainterPath rightBorderPath;
+  QPainterPath leftBorderPath;
   path.addRect(_rect);
-  borderPath.addRect(_rightBorderRect);
-  borderPath.addRect(_leftBorderRect);
+  rightBorderPath.addRect(_rightBorderRect);
+  leftBorderPath.addRect(_leftBorderRect);
 
   painter->setPen(Qt::NoPen);
   painter->setBrush(_brush);
   painter->drawPath(path);
   painter->setBrush(QBrush(Qt::green));
-  painter->drawPath(borderPath);
+  painter->drawPath(rightBorderPath);
+  painter->setBrush(QBrush(Qt::red));
+  painter->drawPath(leftBorderPath);
 }
 
 void WavePick::resize(QSizeF scaleC) {
@@ -70,8 +71,14 @@ void WavePick::setAnchor(const QPointF point) { _anchor = point; }
 void WavePick::updateGeometry() {
   prepareGeometryChange();
   _rect.moveCenter(QPointF(0, 0));
-  _leftBorderRect.moveCenter(QPointF(5, 0));
-  _rightBorderRect.moveCenter(QPointF(-20, 0));
+  _leftBorderRect.moveCenter(
+      QPointF((-1) * (_chart->mapToPosition(_anchor).x() -
+                      _chart->mapToPosition(_leftBorderAnchor).x()),
+              0));
+  _rightBorderRect.moveCenter(
+      QPointF((-1) * _chart->mapToPosition(_anchor).x() +
+                  _chart->mapToPosition(_rightBorderAnchor).x(),
+              0));
   setPos(_chart->mapToPosition(_anchor));
 }
 
@@ -92,7 +99,7 @@ QRectF WavePick::boundingRect() const {
   QPointF leftBorderAnchor =
       mapFromParent(_chart->mapToPosition(_leftBorderAnchor));
   QPointF rightBorderAnchor =
-      mapFromParent(_chart->mapFromParent(_rightBorderAnchor));
+      mapFromParent(_chart->mapToPosition(_rightBorderAnchor));
   QRectF rect;
   rect.setLeft(qMin(qMin(_rect.left(), anchor.x()),
                     qMin(_rect.left(), leftBorderAnchor.x())));
@@ -104,7 +111,20 @@ QRectF WavePick::boundingRect() const {
 }
 
 void WavePick::mousePressEvent(QGraphicsSceneMouseEvent *event) {
-  std::cerr << "HHH ";
+  //  std::cerr << _chart->mapToValue(mapToParent(event->pos()) -
+  //                                  event->buttonDownPos(Qt::LeftButton))
+  //                   .x()
+  //            << " "
+  //            << _chart->mapToValue(mapToParent(event->pos()) -
+  //                                  event->buttonDownPos(Qt::LeftButton))
+  //                   .y()
+  //            << std::endl;
+  //  std::cerr << "Pick " << _anchor.x() << " " << _anchor.y() << std::endl;
+  //  std::cerr << "LeftBorder" << _leftBorderAnchor.x() << " "
+  //            << _leftBorderAnchor.y() << std::endl;
+  //  std::cerr << "Right Border " << _rightBorderAnchor.x()
+  //            << _rightBorderAnchor.y() << std::endl
+  //            << std::endl;
   if (event->buttons() == Qt::RightButton &&
       (Qt::AltModifier == QGuiApplication::keyboardModifiers())) {
     emit needDelete();
@@ -115,24 +135,63 @@ void WavePick::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 void WavePick::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
   if (event->buttons() == Qt::LeftButton &&
       (Qt::AltModifier == QGuiApplication::keyboardModifiers())) {
-    _wasChanged = true;
-    QPointF newPosition =
-        QPointF(_chart->mapToValue(mapToParent(event->pos()) -
-                                   event->buttonDownPos(Qt::LeftButton))
-                    .x(),
-                _anchor.y());
-    if (newPosition.x() < _rightBorderAnchor.x() &&
-        newPosition.x() > _leftBorderAnchor.x()) {
-      setPos(QPointF(
-          mapToParent(event->pos() - event->buttonDownPos(Qt::LeftButton)).x(),
-          pos().y()));
-      _anchor = QPointF(newPosition.x(), _anchor.y());
+    QPointF newPosition = QPointF(_chart->mapToValue(
+        mapToParent(event->pos()) /*- event->buttonDownPos(Qt::LeftButton)*/));
 
-      updateWaveZone();
+    std::cerr << newPosition.x() << " " << _leftBorderAnchor.x() << " "
+              << _anchor.x() << " " << _rightBorderAnchor.x() << std::endl;
+    if (abs(_anchor.x() -
+            _chart->mapToValue(mapToParent(event->pos()) /*-
+                               event->buttonDownPos(Qt::LeftButton)*/).x()) <= 0.0005 ||
+        NOW_MOVE::WAVE == _move) {
+      _move = NOW_MOVE::WAVE;
+      if (newPosition.x() < _rightBorderAnchor.x() &&
+          newPosition.x() > _leftBorderAnchor.x()) {
+        setPos(QPointF(
+            mapToParent(event->pos() - event->buttonDownPos(Qt::LeftButton))
+                .x(),
+            pos().y()));
+        _anchor = QPointF(newPosition.x(), _anchor.y());
+        updateGeometry();
+      }
+      return;
     }
-    event->setAccepted(true);
-  } else {
-    event->setAccepted(false);
+
+    std::cerr << "after pick " << std::endl;
+
+    if (abs(_leftBorderAnchor.x() -
+            _chart->mapToValue(mapToParent(event->pos()) /*-
+                               event->buttonDownPos(Qt::LeftButton)*/).x()) <= 0.0005 ||
+        NOW_MOVE::L_BORDER == _move) {
+      _move = L_BORDER;
+      if (newPosition.x() < _anchor.x() && newPosition.x() > 0) {
+        setPos(QPointF(
+            mapToParent(event->pos() /*- event->buttonDownPos(Qt::LeftButton)*/)
+                .x(),
+            pos().y()));
+        _leftBorderAnchor = QPointF(newPosition.x(), _anchor.y());
+        updateGeometry();
+      }
+      return;
+    }
+
+    std::cerr << "after left " << std::endl;
+
+    if (abs(_rightBorderAnchor.x() -
+            _chart->mapToValue(mapToParent(event->pos()) /*-
+                               event->buttonDownPos(Qt::LeftButton)*/).x()) <= 0.0005 ||
+        NOW_MOVE::R_BORDER == _move) {
+      _move = R_BORDER;
+      if (newPosition.x() > _anchor.x()) {
+        setPos(QPointF(
+            mapToParent(event->pos() /*- event->buttonDownPos(Qt::LeftButton)*/)
+                .x(),
+            pos().y()));
+        _rightBorderAnchor = QPointF(newPosition.x(), _anchor.y());
+        updateGeometry();
+      }
+    }
+    return;
   }
 }
 
@@ -170,9 +229,9 @@ void WavePick::updateWaveZone() {
 }
 
 void WavePick::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
-  if (_wasChanged) {
-    _wasChanged = false;
-    emit changed();
+  if (NOW_MOVE::NONE != _move) {
+    _move = NOW_MOVE::NONE;
+    emit changed(_leftBorderAnchor.x(), _anchor.x(), _rightBorderAnchor.x());
   }
 }
 
