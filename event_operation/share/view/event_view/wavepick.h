@@ -1,7 +1,6 @@
 #pragma once
 
 #include "data/seismwavepick.h"
-#include "wavezone.h"
 
 #include <QBrush>
 #include <QGuiApplication>
@@ -28,7 +27,14 @@ class WavePick : public QObject, public QGraphicsItem {
 public:
   WavePick(Data::SeismWavePick::Type, QGraphicsItem *, QChart *, QPointF,
            QSizeF, QBrush, QPointF, QPointF);
+
+  /* Устанавливает якорь для основного pick*/
   void setAnchor(const QPointF);
+  void setLeftBorderAnchor(const QPointF);
+  void setRightBorderAnchor(const QPointF);
+
+  void setBordersColor(const QColor);
+  void setPickColor(const QColor);
 
   void updateGeometry();
 
@@ -41,14 +47,9 @@ public:
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
   void resize(QSizeF);
 
-  /* Это стоит вызывать только у PWAVE && SWAVE. Не у границ */
-  void setLeftFillRect(WaveZone *);
-  void setRightFillRect(WaveZone *);
-  void setWaveRect(WaveZone *, WaveZone *);
-
 signals:
   void changed(float left_board, float pick, float right_border);
-  void needDelete();
+  void deleted();
 
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *);
@@ -59,6 +60,7 @@ protected:
 private:
   enum NOW_MOVE { NONE, WAVE, R_BORDER, L_BORDER };
   const qreal DEFAULT_OFFSET_TO_BORDER = 10000;
+  const float DRAG_OFFSET = 0.0007;
   const qreal MAX_WIDTH;
   const QSizeF DEFAULT_SIZE;
   NOW_MOVE _move = NONE;
@@ -66,15 +68,20 @@ private:
   QChart *_chart;
   QPointF _pos;
   QSizeF _size;
+
   QPointF _anchor;
+  QRectF _rect;
+  QBrush _pickBrush;
+
   QPointF _leftBorderAnchor;
   QPointF _rightBorderAnchor;
-  QRectF _rect;
   QRectF _leftBorderRect;
   QRectF _rightBorderRect;
-  QBrush _brush;
-  WaveZone *_rightFillRect = nullptr;
-  WaveZone *_leftFillRect = nullptr;
+  QBrush _borderBrush = Qt::green;
+
+  QRectF _leftFillRect;
+  QRectF _rightFillRect;
+  QBrush _fillZoneBrush = QBrush(QColor(100, 100, 100, 100));
 
 private:
   void updateWaveZone();

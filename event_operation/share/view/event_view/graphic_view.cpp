@@ -40,18 +40,18 @@ void GraphicView::addPick(Data::SeismWavePick::Type type, QPointF pos,
       QPointF(leftBorderPos, pos.y()), QPointF(rightBorderPos, pos.y()));
   connect(pick, &WavePick::changed, [this, pick](auto left, auto v_pick,
                                                  auto right) {
-    std::cerr << "emit singnal " << pick->getComponentAmount() << std::endl;
     emit sendPicksInfo(pick->getType(), pick->getComponentAmount(),
                        static_cast<int>(left * MICROSECONDS_IN_SECOND),
                        static_cast<int>(v_pick * MICROSECONDS_IN_SECOND),
                        static_cast<int>(right * MICROSECONDS_IN_SECOND));
   });
+
+  connect(pick, &WavePick::deleted, [this, pick]() {
+    emit removePick(pick->getType(), pick->getComponentAmount());
+  });
   _wavePicks.push_back(pick);
   for (auto &pick : _wavePicks) {
     pick->updateGeometry();
-  }
-  for (auto &zone : _waveZones) {
-    zone->updateGeometry();
   }
 }
 
@@ -174,12 +174,6 @@ void GraphicView::mouseReleaseEvent(QMouseEvent *event) {
           QSizeF(chart()->plotArea().width() / size.width(),
                  chart()->plotArea().height() / size.height()));
       pick->updateGeometry();
-    }
-    for (auto &waveZone : _waveZones) {
-      _sizeWaveZoneItem = waveZone->scallByAxis(
-          QSizeF(chart()->plotArea().width() / size.width(),
-                 chart()->plotArea().height() / size.height()));
-      waveZone->updateGeometry();
     }
     _zoomIsTouching = false;
     return;
@@ -314,11 +308,6 @@ void GraphicView::scaleContentsBy(qreal factor) {
         _sizeWaveItem = wavePick->scallByAxis(QSizeF(factor, factor));
         wavePick->updateGeometry();
       }
-      //      for (auto &waveZone : _waveZones) {
-      //        _sizeWaveZoneItem = waveZone->scallByAxis(QSizeF(factor,
-      //        factor));
-      //        waveZone->updateGeometry();
-      //      }
     }
   }
 }

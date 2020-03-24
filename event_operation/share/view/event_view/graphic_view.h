@@ -2,7 +2,6 @@
 
 #include "../chartgesture.h"
 #include "wavepick.h"
-#include "wavezone.h"
 #include "viewoperation.h"
 #include <QtCharts/QChartView>
 #include <QtWidgets/QRubberBand>
@@ -39,10 +38,6 @@ public:
     for (auto &pick : _wavePicks) {
       scene()->removeItem(pick);
     }
-    for (auto &zone : _waveZones) {
-      scene()->removeItem(zone);
-    }
-    _waveZones.clear();
     _wavePicks.clear();
   }
 
@@ -80,7 +75,6 @@ private:
   bool _isAddSWaveTriggerPressed = false;
   ChartGesture *_chart;
   QList<WavePick *> _wavePicks;
-  QList<WaveZone *> _waveZones;
   QPointF calculatePickPosition(QPointF);
   bool checkAvailability(Data::SeismWavePick::Type, int);
   QGraphicsTextItem *_status;
