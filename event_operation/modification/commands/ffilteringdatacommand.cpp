@@ -52,9 +52,6 @@ void FFilteringDataCommand::redoForOne(Data::SeismEvent *event) {
           ceil((_parameters.getF4() * static_cast<float>(timevec.size()) *
                 sampleInterval) /
                static_cast<float>(MICROSECONDS_IN_SECONDS)));
-      std::cerr << "indexes: " << indexF1 << " " << indexF2 << " " << indexF3
-                << " " << indexF4 << std::endl
-                << std::endl;
 
       if (indexF1 < 0 || !(indexF1 < indexF2) || !(indexF2 < indexF3) ||
           !(indexF3 < indexF4) || indexF4 > timevec.size() / 2) {
