@@ -34,7 +34,7 @@
 #include <Qt3DExtras/qfirstpersoncameracontroller.h>
 #include <Qt3DExtras/qt3dwindow.h>
 
-#include "infowidget.h"
+#include "../../tools_view/analysistools.h"
 
 #include "data/seismevent.h"
 #include "data/seismtrace.h"
@@ -48,11 +48,9 @@ namespace EventOperation {
 
 PolarizationAnalysisWindow::PolarizationAnalysisWindow(
     const std::shared_ptr<Data::SeismEvent> &event, QDialog *parent)
-    : QDialog(parent), _okButton(new QPushButton("Ok")),
-      _cancelButton(new QPushButton("Cancel")), _receiverBox(new QComboBox),
-      _waveTypeBox(new QComboBox), _view(new Qt3DExtras::Qt3DWindow),
+    : QDialog(parent), _view(new Qt3DExtras::Qt3DWindow),
       _scene(new Qt3DCore::QEntity()), _event(event.get()),
-      _infoWidget(new InfoWidget()) {
+      _analysisTools(new AnalysisTools(event)) {
 
   _container = QWidget::createWindowContainer(_view);
   setMinimumSize(800, 400);
@@ -71,42 +69,29 @@ PolarizationAnalysisWindow::PolarizationAnalysisWindow(
   manipulator->setCamera(camera);
 
   _view->setRootEntity(_scene);
-  _receiverBox = new QComboBox();
 
   QHBoxLayout *hLayout = new QHBoxLayout(this);
   QVBoxLayout *vLayout = new QVBoxLayout();
   vLayout->setAlignment(Qt::AlignTop);
   hLayout->addWidget(_container, 1);
-  hLayout->addLayout(vLayout);
+  hLayout->addWidget(_analysisTools);
 
-  vLayout->addWidget(_cancelButton);
-  vLayout->addWidget(_okButton);
-  vLayout->addWidget(_receiverBox);
-  vLayout->addWidget(_waveTypeBox);
-  vLayout->addWidget(_infoWidget);
+  _analysisTools->setMaximumWidth(200);
 
   _currentReceiverNumberString = DEFAULT_RECEIVER_STRING;
   _currentWaveTypeString = DEFAULT_WAVE_STRING;
 
-  scanInformation();
-
-  connect(_okButton, &QPushButton::clicked, this,
+  connect(_analysisTools, &EventOperation::AnalysisTools::okClicked, this,
           &PolarizationAnalysisWindow::close);
-  connect(_cancelButton, &QPushButton::clicked, this,
+  connect(_analysisTools, &EventOperation::AnalysisTools::cancleClicked, this,
           &PolarizationAnalysisWindow::accept);
   //  connect(event.get(), &Data::SeismEvent::dataChanged, [this]() { update();
   //  });
-  connect(_receiverBox,
-          QOverload<const QString &>::of(&QComboBox::currentIndexChanged),
-          [=](const QString string) {
-            _currentReceiverNumberString = string;
-            changeWaveBox();
-            update(_event);
-          });
-  connect(_waveTypeBox,
-          QOverload<const QString &>::of(&QComboBox::currentIndexChanged),
-          [=](const QString string) {
-            _currentWaveTypeString = string;
+  connect(_analysisTools, &EventOperation::AnalysisTools::updatedBox,
+          [=](const QString currentReceiverNumber,
+              const QString currentWaveNumber) {
+            _currentReceiverNumberString = currentReceiverNumber;
+            _currentWaveTypeString = currentWaveNumber;
             update(_event);
           });
 
@@ -117,8 +102,8 @@ PolarizationAnalysisWindow::PolarizationAnalysisWindow(
 void PolarizationAnalysisWindow::setDefault() {
   _currentWaveTypeString = DEFAULT_WAVE_STRING;
   _currentReceiverNumberString = DEFAULT_RECEIVER_STRING;
-  _waveTypeBox->setCurrentIndex(0);
-  _receiverBox->setCurrentIndex(0);
+  _analysisTools->setReceiverBoxIndex(0);
+  _analysisTools->setWaveTypeBoxIndex(0);
   update(_event);
 }
 
@@ -141,6 +126,7 @@ void PolarizationAnalysisWindow::removePick(int numOfReciever,
   if (_currentReceiverNumberString.toInt() == numOfReciever &&
       _currentWaveTypeString == typeInString) {
     setDefault();
+    _analysisTools->updateBox();
   } else {
     update(_event);
   }
@@ -361,7 +347,7 @@ void PolarizationAnalysisWindow::drawTraces(
   for (auto &type_pick : component->getWavePicks()) {
     if (type == type_pick.first) {
       pick = type_pick.second;
-      _infoWidget->update(pick.getPolarizationAnalysisData().value());
+      _analysisTools->updateInfo(pick.getPolarizationAnalysisData().value());
     }
   }
 
@@ -409,77 +395,14 @@ int PolarizationAnalysisWindow::lastElementNumber(
 void PolarizationAnalysisWindow::update(const Data::SeismEvent *const event) {
   _event = event;
   clearScene();
-  _infoWidget->clear();
+  _analysisTools->clearInfo();
   if (!verifyTheValidity(event)) {
-    //    std::cerr << verifyTheValidity(event);
     setDefault();
   }
   if (DEFAULT_RECEIVER_STRING != _currentReceiverNumberString &&
       DEFAULT_WAVE_STRING != _currentWaveTypeString) {
     drawTraces(_event->getComponents()[_currentReceiverNumberString.toInt()]);
   }
-}
-
-void PolarizationAnalysisWindow::changeWaveBox() {
-  QList<QString> waveTypeList;
-  int itemCount = _waveTypeBox->count();
-  _waveTypeBox->setCurrentIndex(0);
-  for (int i = 0; i < itemCount; i++) {
-    _waveTypeBox->removeItem(1);
-  }
-  if (DEFAULT_RECEIVER_STRING != _currentReceiverNumberString) {
-    int index = 0;
-    for (auto &component : _event->getComponents()) {
-      if (index == _currentReceiverNumberString.toInt()) {
-        for (auto &pick : component->getWavePicks()) {
-          if (Data::SeismWavePick::PWAVE == pick.first) {
-            waveTypeList.append(P_WAVE_STRING);
-          }
-          if (Data::SeismWavePick::SWAVE == pick.first) {
-            waveTypeList.append(S_WAVE_STRING);
-          }
-        }
-      }
-      index++;
-    }
-  } else {
-    waveTypeList.append(P_WAVE_STRING);
-    waveTypeList.append(S_WAVE_STRING);
-  }
-  _waveTypeBox->addItems(waveTypeList);
-  _waveTypeBox->setCurrentIndex(0);
-  _currentWaveTypeString = DEFAULT_WAVE_STRING;
-}
-
-void PolarizationAnalysisWindow::changeReceiverNumberBox() {
-  QList<QString> receiverWithThisWaveList;
-  int itemCount = _receiverBox->count();
-  _receiverBox->setCurrentIndex(0);
-  for (int i = 0; i < itemCount; i++) {
-    _receiverBox->removeItem(1);
-  }
-
-  if (_currentWaveTypeString != DEFAULT_WAVE_STRING) {
-    int index = 0;
-    for (auto &component : _event->getComponents()) {
-      for (auto &pick : component->getWavePicks()) {
-        if ((_currentWaveTypeString == P_WAVE_STRING &&
-             Data::SeismWavePick::PWAVE == pick.first) ||
-            (_currentWaveTypeString == S_WAVE_STRING &&
-             Data::SeismWavePick::SWAVE == pick.first)) {
-          receiverWithThisWaveList.append(QString::number(index));
-        }
-      }
-      index++;
-    }
-  } else {
-    for (int i = 0; i < _event->getComponentAmount(); i++) {
-      receiverWithThisWaveList.append(QString::number(i));
-    }
-  }
-  _receiverBox->addItems(receiverWithThisWaveList);
-  _receiverBox->setCurrentIndex(0);
-  _currentReceiverNumberString = DEFAULT_RECEIVER_STRING;
 }
 
 // if non default value of _currentReceiverNumberString
@@ -491,6 +414,7 @@ bool PolarizationAnalysisWindow::verifyTheValidity(
       DEFAULT_RECEIVER_STRING == _currentReceiverNumberString) {
     return true;
   }
+
   int number = _currentReceiverNumberString.toInt();
 
   if (nullptr != event->getComponents()[number]) {
@@ -508,22 +432,6 @@ bool PolarizationAnalysisWindow::verifyTheValidity(
   }
 
   return false;
-}
-
-void PolarizationAnalysisWindow::scanInformation() {
-  QList<QString> waveTypeList;
-  QList<QString> receiverList;
-
-  waveTypeList.append(DEFAULT_WAVE_STRING);
-  waveTypeList.append(P_WAVE_STRING);
-  waveTypeList.append(S_WAVE_STRING);
-  _waveTypeBox->addItems(waveTypeList);
-
-  receiverList.append(DEFAULT_RECEIVER_STRING);
-  for (int i = 0; i < _event->getComponentAmount(); ++i) {
-    receiverList.append(QString::number(i));
-  }
-  _receiverBox->addItems(receiverList);
 }
 
 void PolarizationAnalysisWindow::clearScene() {

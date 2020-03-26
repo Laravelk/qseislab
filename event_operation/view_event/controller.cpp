@@ -108,9 +108,9 @@ Controller::Controller(
 
   connect(_view, &View::removePick,
           [this, settings](const auto type, const auto num) {
-            if (_polarizationWindow != nullptr) {
-              _polarizationWindow->setDefault();
-            }
+            //            if (_polarizationWindow != nullptr) {
+            //              _polarizationWindow->updateA();
+            //            }
             auto &removePickParameters = settings->getRemovePickParameters();
             removePickParameters.setNum(num);
             removePickParameters.setType(type);

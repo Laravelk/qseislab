@@ -20,7 +20,7 @@ class SeismWavePick;
 } // namespace Data
 
 namespace EventOperation {
-class InfoWidget;
+class AnalysisTools;
 class PolarizationAnalysisWindow : public QDialog {
   Q_OBJECT
 public:
@@ -37,10 +37,6 @@ private:
   const QString S_WAVE_STRING = "SWAVE";
   const QString DEFAULT_WAVE_STRING = "Type Wave...";
   const QString DEFAULT_RECEIVER_STRING = "Type Receiver...";
-  QPushButton *_okButton;
-  QPushButton *_cancelButton;
-  QComboBox *_receiverBox;
-  QComboBox *_waveTypeBox;
   Qt3DExtras::Qt3DWindow *_view;
   QWidget *_container;
   Qt3DCore::QEntity *_scene;
@@ -59,18 +55,13 @@ private:
   void drawTraces(const Data::SeismComponent *const);
 
   int lastElementNumber(const Data::SeismComponent *const);
-
-  void changeWaveBox();
-  void changeReceiverNumberBox();
-
   bool verifyTheValidity(const Data::SeismEvent *const);
 
-  void scanInformation();
   void clearScene();
 
   QList<Qt3DCore::QEntity *> _curves;
   QList<Qt3DCore::QEntity *> _arrows;
   Qt3DCore::QEntity *_eigenVectorLine = nullptr;
-  InfoWidget *_infoWidget = nullptr;
+  AnalysisTools *_analysisTools = nullptr;
 };
 } // namespace EventOperation

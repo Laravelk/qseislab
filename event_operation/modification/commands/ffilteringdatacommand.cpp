@@ -28,13 +28,8 @@ void FFilteringDataCommand::redoForOne(Data::SeismEvent *event) {
       if (0 == (timevec.size() % 2)) {
         timevec.push_back(0);
       }
-      auto nw = static_cast<unsigned int>(floor(timevec.size() / 2));
 
       fft.fwd(freqvec, timevec);
-
-      //            std::cerr << "F " << _parameters.getF1() << " " <<
-      //            _parameters.getF2() << " " << _parameters.getF3() << " " <<
-      //            _parameters.getF4() << std::endl << std::endl;
 
       uint indexF1 = static_cast<uint>(
           ceil((_parameters.getF1() * static_cast<float>(timevec.size()) *
@@ -62,15 +57,6 @@ void FFilteringDataCommand::redoForOne(Data::SeismEvent *event) {
       uint indexF6 = timevec.size() - indexF3;
       uint indexF7 = timevec.size() - indexF2;
       uint indexF8 = timevec.size() - indexF1;
-      // check
-
-      std::cerr << "indexes: " << indexF5 << " " << indexF6 << " " << indexF7
-                << " " << indexF8 << std::endl
-                << std::endl;
-
-      // end check zone
-
-      std::cerr << "scalling start" << std::endl;
 
       // scalar f1 - f4 zone
       for (uint i = 1; i <= indexF1; i++) {
@@ -108,8 +94,6 @@ void FFilteringDataCommand::redoForOne(Data::SeismEvent *event) {
       for (uint i = indexF8; i < timevec.size(); i++) {
         freqvec[i] = 0;
       }
-
-      std::cerr << "after scalling" << std::endl;
 
       fft.inv(timevec, freqvec);
 
