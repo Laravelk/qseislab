@@ -1,6 +1,7 @@
 #include "rotatedatatoebasis.h"
 
 #include "event_operation/modification/share_functions.h"
+#include "math/event_operation_math/rotatedatamath.h"
 
 #include "data/seismevent.h"
 #include "data/seismwell.h"
@@ -89,10 +90,15 @@ RotateData::RotateData(const std::set<Data::SeismEvent *> &events,
 void RotateData::redoForOne(Data::SeismEvent *event) {
   unsigned long i = 0;
   for (auto &component : event->getComponents()) {
-    rotateDataWithTransitionMatrix(
+    EventMath::RotateDataMath::rotateDataWithTransitionMatrix(
         component, _originalTransitionMatrixs[event->getUuid()][i].inverse());
-    rotateDataWithTransitionMatrix(
+    EventMath::RotateDataMath::rotateDataWithTransitionMatrix(
         component, _rotateOrientationMatrixs[event->getUuid()][i]);
+    //    rotateDataWithTransitionMatrix(
+    //        component,
+    //        _originalTransitionMatrixs[event->getUuid()][i].inverse());
+    //    rotateDataWithTransitionMatrix(
+    //        component, _rotateOrientationMatrixs[event->getUuid()][i]);
     ++i;
   }
 
@@ -102,10 +108,15 @@ void RotateData::redoForOne(Data::SeismEvent *event) {
 void RotateData::undoForOne(Data::SeismEvent *event) {
   unsigned long i = 0;
   for (auto &component : event->getComponents()) {
-      rotateDataWithTransitionMatrix(
-          component, _rotateOrientationMatrixs[event->getUuid()][i].inverse());
-      rotateDataWithTransitionMatrix(
-          component, _originalTransitionMatrixs[event->getUuid()][i]);
+    EventMath::RotateDataMath::rotateDataWithTransitionMatrix(
+        component, _originalTransitionMatrixs[event->getUuid()][i].inverse());
+    EventMath::RotateDataMath::rotateDataWithTransitionMatrix(
+        component, _rotateOrientationMatrixs[event->getUuid()][i]);
+    //    rotateDataWithTransitionMatrix(
+    //        component,
+    //        _rotateOrientationMatrixs[event->getUuid()][i].inverse());
+    //    rotateDataWithTransitionMatrix(
+    //        component, _originalTransitionMatrixs[event->getUuid()][i]);
     ++i;
   }
 
@@ -121,10 +132,10 @@ void RotateData::Parameters::setMode(RotateData::Parameters::Mode mode) {
 
   switch (_mode) {
   case EBASIS:
-      _orientation << 1, 0, 0, 0, 1, 0, 0, 0, 1;
-      break;
+    _orientation << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+    break;
   case INDEFINITE:
-      break;
+    break;
   case RECEIVERS:
     _orientation << 0, 0, 0, 0, 0, 0, 0, 0, 0;
     break;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "undo_stack_work/eventoperationundocommand.h"
+#include "math/event_operation_math/ffilteringmath.h"
 
 #include <QList>
 #include <vector>

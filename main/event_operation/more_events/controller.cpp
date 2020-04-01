@@ -155,6 +155,10 @@ Controller::Controller(
                 event.get(), settings);
 
             _undoStack->push(groupCommand);
+
+            if (nullptr != _analysisWindow) {
+              _analysisWindow->updateAll(event.get());
+            }
           });
 
   connect(_view.get(), &View::createAnalysisWindow, [this, settings]() {
