@@ -22,10 +22,28 @@ void FFilteringDataCommand::redoForOne(Data::SeismEvent *event) {
     float sampleInterval = component->getSampleInterval();
     for (auto &trace : component->getTraces()) {
       std::vector<float> timevec = oldTraces.at(traceNumberInVector);
+      //      std::cerr << "OLD DATA with size: " << timevec.size() <<
+      //      std::endl;
+      //      std::cerr << "Param: " << _parameters.getF1() << " "
+      //                << _parameters.getF2() << " " << _parameters.getF3() <<
+      //                " "
+      //                << _parameters.getF4() << std::endl;
+      //      for (uint i = 0; i < timevec.size(); i++) {
+      //        std::cerr << timevec[i] << ",";
+      //      }
+      //      std::cerr << sampleInterval;
+      //      std::cerr << std::endl << std::endl;
       traceNumberInVector++;
       EventMath::FFilteringMath::FFiltering(
           timevec, _parameters.getF1(), _parameters.getF2(),
           _parameters.getF3(), _parameters.getF4(), sampleInterval);
+      //      std::cerr << "NEW DATA with size: " << timevec.size() <<
+      //      std::endl;
+      //      for (uint i = 0; i < timevec.size(); i++) {
+      //        std::cerr << timevec[i] << ",";
+      //      }
+      //      std::cerr << std::endl << std::endl;
+
       newData.push_back(timevec);
     }
   }

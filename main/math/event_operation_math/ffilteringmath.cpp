@@ -12,7 +12,6 @@ void FFilteringMath::FFiltering(std::vector<float> &timevec, const int F1,
   Eigen::FFT<float> fft;
   std::vector<std::complex<float>> freqvec;
 
-  std::cerr << "H" << std::endl;
   if (0 == (timevec.size() % 2)) {
     timevec.push_back(0);
   }
